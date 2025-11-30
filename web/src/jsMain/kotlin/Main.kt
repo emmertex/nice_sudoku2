@@ -1273,20 +1273,33 @@ class SudokuApp {
             else -> ""
         }
         
-        // Hint highlighting - check if this cell is involved in the selected hint
-        val isHintHighlight = selectedHint != null && cellIndex in selectedHint.highlightCells
+        // Hint highlighting - new system
+        val isInCoverArea = selectedHint != null && cellIndex in selectedHint.highlightCells
         val isHintSolved = selectedHint?.solvedCells?.any { it.cell == cellIndex } == true
-        val hintClass = when {
-            isHintSolved -> " hint-solved-cell"
-            isHintHighlight -> " hint-highlight"
-            else -> ""
-        }
         
-        // Get elimination digits for this cell from the selected hint
-        val eliminationDigits = selectedHint?.eliminations
+        // Get all digits that are being eliminated (across all eliminations)
+        val allEliminationDigits = selectedHint?.eliminations?.map { it.digit }?.toSet() ?: emptySet()
+        
+        // Get elimination digits specifically for this cell
+        val eliminationDigitsForThisCell = selectedHint?.eliminations
             ?.filter { cellIndex in it.cells }
             ?.map { it.digit }
             ?.toSet() ?: emptySet()
+        
+        // Get digits that match elimination digits but are NOT being eliminated from this cell
+        // (i.e., in cover area, has the candidate, but not in elimination list for this cell)
+        val matchingButNotEliminatedDigits = if (isInCoverArea && selectedHint != null) {
+            allEliminationDigits.filter { digit ->
+                digit in cell.candidates && digit !in eliminationDigitsForThisCell
+            }.toSet()
+        } else emptySet()
+        
+        // Hint class for cell background (blue for cover area)
+        val hintClass = when {
+            isHintSolved -> " hint-solved-cell"
+            isInCoverArea -> " hint-cover-area"
+            else -> ""
+        }
         
         // Get solved digit for this cell from the hint
         val hintSolvedDigit = selectedHint?.solvedCells?.find { it.cell == cellIndex }?.digit
@@ -1302,7 +1315,8 @@ class SudokuApp {
                         val isPencilHighlight = (n == selectedNumber1 || n == selectedNumber2) && 
                                                 highlightMode == HighlightMode.PENCIL
                         // Hint-specific pencil mark highlighting
-                        val isElimination = n in eliminationDigits
+                        val isElimination = n in eliminationDigitsForThisCell
+                        val isMatchingButNotEliminated = n in matchingButNotEliminatedDigits
                         val isSolvedHint = n == hintSolvedDigit
                         
                         val candidateClasses = buildString {
@@ -1310,6 +1324,7 @@ class SudokuApp {
                             if (n !in cell.candidates) append(" hidden")
                             if (isPencilHighlight) append(" pencil-highlight")
                             if (isElimination) append(" hint-elimination")
+                            if (isMatchingButNotEliminated) append(" hint-matching-not-eliminated")
                             if (isSolvedHint) append(" hint-solved")
                         }
                         span(candidateClasses) {
@@ -2390,17 +2405,20 @@ private val CSS_STYLES = """
     .cell.highlight-secondary:hover { background: rgba(239, 154, 154, 0.5); }
     .cell.highlight-both:hover { background: rgba(206, 147, 216, 0.5); }
     
-    /* Hint cell highlighting */
-    .cell.hint-highlight { 
-        background: rgba(129, 199, 132, 0.35); /* Light green */
-        box-shadow: inset 0 0 0 2px rgba(76, 175, 80, 0.5);
+    /* Hint cell highlighting - new system */
+    .cell.hint-cover-area { 
+        background: rgba(100, 181, 246, 0.3); /* Light blue for cover area */
+    }
+    .cell.hint-cover-area:hover { 
+        background: rgba(100, 181, 246, 0.4); 
     }
     .cell.hint-solved-cell { 
         background: rgba(76, 175, 80, 0.45); /* Stronger green for solution cell */
         box-shadow: inset 0 0 0 2px rgba(76, 175, 80, 0.8);
     }
-    .cell.hint-highlight:hover { background: rgba(129, 199, 132, 0.45); }
-    .cell.hint-solved-cell:hover { background: rgba(76, 175, 80, 0.55); }
+    .cell.hint-solved-cell:hover { 
+        background: rgba(76, 175, 80, 0.55); 
+    }
     
     /* Number button selection states */
     .num-btn.primary { 
@@ -2426,10 +2444,17 @@ private val CSS_STYLES = """
     
     /* Hint candidate highlighting */
     .candidate.hint-elimination {
-        color: #ef5350;
+        color: #d32f2f; /* Red number */
         text-decoration: line-through;
         font-weight: bold;
-        background: rgba(244, 67, 54, 0.25);
+        background: rgba(158, 158, 158, 0.4); /* Grey background */
+        border-radius: 2px;
+    }
+    
+    .candidate.hint-matching-not-eliminated {
+        color: #2e7d32; /* Dark green number */
+        font-weight: bold;
+        background: rgba(129, 199, 132, 0.5); /* Light green background */
         border-radius: 2px;
     }
     
