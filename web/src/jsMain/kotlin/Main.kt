@@ -70,12 +70,21 @@ class SudokuApp {
         document.addEventListener("keydown", { event ->
             val keyEvent = event.asDynamic()
             val key = keyEvent.key as String
+            val ctrlKey = (keyEvent.ctrlKey as? Boolean) ?: false
+            val shiftKey = (keyEvent.shiftKey as? Boolean) ?: false
+            val altKey = (keyEvent.altKey as? Boolean) ?: false
+            val metaKey = (keyEvent.metaKey as? Boolean) ?: false
+            
             // Don't handle if focus is in an input/textarea
             val target = keyEvent.target
             val tagName = (target?.tagName as? String)?.lowercase() ?: ""
             if (tagName != "input" && tagName != "textarea") {
                 val grid = gameEngine.getCurrentGrid()
-                handleKeyPress(key, grid)
+                val handled = handleKeyPress(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
+                if (handled) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
             }
         })
         
@@ -416,12 +425,159 @@ class SudokuApp {
         render()
     }
     
-    private fun handleKeyPress(key: String, grid: SudokuGrid) {
+    private fun handleKeyPress(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
+        // Handle Escape - always works regardless of screen
+        if (key.lowercase() == "escape") {
+            if (showAboutModal) {
+                showAboutModal = false
+                render()
+                return true
+            }
+            if (showHints) {
+                showHints = false
+                render()
+                return true
+            }
+            if (currentScreen != AppScreen.GAME) {
+                currentScreen = AppScreen.GAME
+                render()
+                return true
+            }
+            // Clear selections in game screen
+            selectedNumber1 = null
+            selectedNumber2 = null
+            selectedCell = null
+            render()
+            return true
+        }
+        
+        // Handle screen-specific shortcuts
+        when (currentScreen) {
+            AppScreen.GAME -> {
+                return handleGameScreenKeys(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
+            }
+            AppScreen.PUZZLE_BROWSER -> {
+                return handlePuzzleBrowserKeys(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
+            }
+            AppScreen.IMPORT_EXPORT -> {
+                return handleImportExportKeys(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
+            }
+            AppScreen.SETTINGS -> {
+                return handleSettingsKeys(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
+            }
+        }
+        return false
+    }
+    
+    private fun handleGameScreenKeys(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
+        // Hint navigation takes priority when hints are shown
+        if (showHints && (key == "ArrowUp" || key == "ArrowDown" || key == "PageUp" || key == "PageDown")) {
+            when (key) {
+                "ArrowUp" -> {
+                    if (selectedHintIndex > 0) {
+                        selectedHintIndex--
+                        render()
+                        return true
+                    }
+                }
+                "ArrowDown" -> {
+                    val hints = gameEngine.getHints()
+                    if (selectedHintIndex < hints.size - 1) {
+                        selectedHintIndex++
+                        render()
+                        return true
+                    }
+                }
+                "PageUp" -> {
+                    selectedHintIndex = 0
+                    render()
+                    return true
+                }
+                "PageDown" -> {
+                    val hints = gameEngine.getHints()
+                    selectedHintIndex = hints.size - 1
+                    render()
+                    return true
+                }
+            }
+        }
+        
+        // Arrow key navigation for cells
+        when (key) {
+            "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight" -> {
+                return handleArrowNavigation(key, ctrlKey, shiftKey, grid)
+            }
+            "Home" -> {
+                selectedCell?.let { cellIndex ->
+                    val row = cellIndex / 9
+                    selectedCell = row * 9  // Move to first column of current row
+                    render()
+                    return true
+                }
+            }
+            "End" -> {
+                selectedCell?.let { cellIndex ->
+                    val row = cellIndex / 9
+                    selectedCell = row * 9 + 8  // Move to last column of current row
+                    render()
+                    return true
+                }
+            }
+        }
+        
+        // Ctrl+Home/End for row navigation
+        if (ctrlKey && (key == "Home" || key == "End")) {
+            if (key == "Home") {
+                selectedCell = 0  // Top-left
+                render()
+                return true
+            } else {
+                selectedCell = 80  // Bottom-right
+                render()
+                return true
+            }
+        }
+        
+        // Handle F1-F9 for filter digits (similar to HoDoKu)
+        if (key.startsWith("F") && key.length == 2) {
+            val fNum = key.substring(1).toIntOrNull()
+            if (fNum != null && fNum in 1..9) {
+                if (shiftKey) {
+                    // Shift+F1-F9: Set filter digit and toggle filter mode
+                    // For now, just set the number as selected (could add filter mode toggle later)
+                    selectedNumber1 = if (selectedNumber1 == fNum) null else fNum
+                    selectedNumber2 = null
+                    render()
+                    return true
+                } else {
+                    // F1-F9: Set/change the filtered digit
+                    selectedNumber1 = if (selectedNumber1 == fNum) null else fNum
+                    selectedNumber2 = null
+                    render()
+                    return true
+                }
+            }
+        }
+        
         // Handle number keys 1-9
         val num = key.toIntOrNull()
         if (num != null && num in 1..9) {
-            handleNumberClick(num, grid)
-            return
+            if (ctrlKey) {
+                // Ctrl+number: Toggle candidate (pencil mark)
+                selectedCell?.let { cellIndex ->
+                    val cell = grid.getCell(cellIndex)
+                    if (!cell.isGiven && !cell.isSolved) {
+                        gameEngine.toggleCandidate(cellIndex, num)
+                        saveCurrentState()
+                        render()
+                        return true
+                    }
+                }
+            } else {
+                // Regular number: Handle based on play mode
+                handleNumberClick(num, grid)
+                return true
+            }
         }
         
         // Handle other keys
@@ -433,20 +589,214 @@ class SudokuApp {
                         gameEngine.setCellValue(cellIndex, null)
                         saveCurrentState()
                         render()
+                        return true
                     }
                 }
             }
-            "escape" -> {
-                selectedNumber1 = null
-                selectedNumber2 = null
-                selectedCell = null
-                render()
-            }
             "n" -> {
-                isNotesMode = !isNotesMode
-                render()
+                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
+                    isNotesMode = !isNotesMode
+                    render()
+                    return true
+                }
+            }
+            "h" -> {
+                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
+                    // Toggle hints
+                    if (isBackendAvailable) {
+                        showHints = !showHints
+                        if (showHints) {
+                            selectedHintIndex = 0
+                            gameEngine.findAllTechniques()
+                        }
+                        render()
+                        return true
+                    }
+                }
+            }
+            " " -> {
+                // Space: If a filter (selected number) is set, toggle the candidate
+                selectedCell?.let { cellIndex ->
+                    selectedNumber1?.let { num ->
+                        val cell = grid.getCell(cellIndex)
+                        if (!cell.isGiven && !cell.isSolved) {
+                            gameEngine.toggleCandidate(cellIndex, num)
+                            saveCurrentState()
+                            render()
+                            return true
+                        }
+                    }
+                }
             }
         }
+        
+        // Advanced mode: Set primary or secondary number with keyboard
+        if (playMode == PlayMode.ADVANCED && selectedCell != null) {
+            val cell = grid.getCell(selectedCell!!)
+            if (!cell.isGiven && !cell.isSolved) {
+                when (key.lowercase()) {
+                    "enter", "return" -> {
+                        // Enter: Set primary number if selected
+                        selectedNumber1?.let { num ->
+                            gameEngine.setCellValue(selectedCell!!, num)
+                            saveCurrentState()
+                            render()
+                            return true
+                        }
+                    }
+                    "s" -> {
+                        if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
+                            // S: Set primary number
+                            selectedNumber1?.let { num ->
+                                gameEngine.setCellValue(selectedCell!!, num)
+                                saveCurrentState()
+                                render()
+                                return true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Screen navigation shortcuts
+        when (key.lowercase()) {
+            "m" -> {
+                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
+                    // M: Open menu/settings
+                    saveCurrentState()
+                    currentScreen = AppScreen.SETTINGS
+                    render()
+                    return true
+                }
+            }
+            "b" -> {
+                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
+                    // B: Open puzzle browser
+                    saveCurrentState()
+                    currentScreen = AppScreen.PUZZLE_BROWSER
+                    render()
+                    return true
+                }
+            }
+            "i" -> {
+                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
+                    // I: Open import/export
+                    saveCurrentState()
+                    currentScreen = AppScreen.IMPORT_EXPORT
+                    render()
+                    return true
+                }
+            }
+        }
+        
+        return false
+    }
+    
+    private fun handleArrowNavigation(key: String, ctrlKey: Boolean, shiftKey: Boolean, grid: SudokuGrid): Boolean {
+        val current = selectedCell ?: 0
+        var row = current / 9
+        var col = current % 9
+        
+        when (key) {
+            "ArrowUp" -> {
+                if (ctrlKey) {
+                    // Ctrl+Up: Jump to next unsolved cell above
+                    val result = findNextUnsolvedCell(row, col, -1, 0, grid)
+                    selectedCell = result
+                    render()
+                    return true
+                } else {
+                    row = (row - 1 + 9) % 9
+                }
+            }
+            "ArrowDown" -> {
+                if (ctrlKey) {
+                    // Ctrl+Down: Jump to next unsolved cell below
+                    val result = findNextUnsolvedCell(row, col, 1, 0, grid)
+                    selectedCell = result
+                    render()
+                    return true
+                } else {
+                    row = (row + 1) % 9
+                }
+            }
+            "ArrowLeft" -> {
+                if (ctrlKey) {
+                    // Ctrl+Left: Jump to next unsolved cell to the left
+                    val result = findNextUnsolvedCell(row, col, 0, -1, grid)
+                    selectedCell = result
+                    render()
+                    return true
+                } else {
+                    col = (col - 1 + 9) % 9
+                }
+            }
+            "ArrowRight" -> {
+                if (ctrlKey) {
+                    // Ctrl+Right: Jump to next unsolved cell to the right
+                    val result = findNextUnsolvedCell(row, col, 0, 1, grid)
+                    selectedCell = result
+                    render()
+                    return true
+                } else {
+                    col = (col + 1) % 9
+                }
+            }
+        }
+        
+        selectedCell = row * 9 + col
+        render()
+        return true
+    }
+    
+    private fun findNextUnsolvedCell(startRow: Int, startCol: Int, rowDelta: Int, colDelta: Int, grid: SudokuGrid): Int {
+        var row = startRow
+        var col = startCol
+        var attempts = 0
+        
+        while (attempts < 81) {
+            row = (row + rowDelta + 9) % 9
+            col = (col + colDelta + 9) % 9
+            val cellIndex = row * 9 + col
+            val cell = grid.getCell(cellIndex)
+            
+            if (!cell.isGiven && !cell.isSolved) {
+                return cellIndex
+            }
+            
+            attempts++
+            // If we've wrapped around to the starting position, stop
+            if (row == startRow && col == startCol) {
+                break
+            }
+        }
+        
+        // If no unsolved found, return current position
+        return startRow * 9 + startCol
+    }
+    
+    private fun handlePuzzleBrowserKeys(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
+        // Arrow keys for navigation in puzzle list
+        when (key) {
+            "ArrowUp", "ArrowDown" -> {
+                // Could be used for puzzle list navigation in future
+                return false
+            }
+        }
+        
+        // Escape already handled at top level
+        return false
+    }
+    
+    private fun handleImportExportKeys(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
+        // Escape already handled at top level
+        return false
+    }
+    
+    private fun handleSettingsKeys(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
+        // Escape already handled at top level
+        return false
     }
     
     private fun render() {
@@ -586,7 +936,7 @@ class SudokuApp {
                         }
                         div {
                             h1 { +"Nice Sudoku" }
-                            <div("powered-by")  { +"Powered by StormDoku" }
+                            div("powered-by") { +"Powered by StormDoku" }
                         }
                         // Show current mode indicators and selected numbers
                         div("mode-indicators") {
