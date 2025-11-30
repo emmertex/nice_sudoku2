@@ -37,7 +37,8 @@ enum class DifficultyCategory(val displayName: String) {
     EASY("Easy"),
     MEDIUM("Medium"),
     HARD("Hard"),
-    DIABOLICAL("Diabolical")
+    DIABOLICAL("Diabolical"),
+    CUSTOM("Custom")
 }
 
 /**

@@ -15,17 +15,28 @@ object PuzzleLibrary {
         )
     }
     
+    /**
+     * Get puzzles for a category, including dynamically loaded custom puzzles
+     */
+    fun getPuzzlesForCategory(category: DifficultyCategory): List<PuzzleDefinition> {
+        return if (category == DifficultyCategory.CUSTOM) {
+            GameStateManager.loadCustomPuzzles()
+        } else {
+            puzzles[category] ?: emptyList()
+        }
+    }
+    
     fun getPuzzle(category: DifficultyCategory, index: Int): PuzzleDefinition? {
-        return puzzles[category]?.getOrNull(index)
+        return getPuzzlesForCategory(category).getOrNull(index)
     }
     
     fun getRandomPuzzle(category: DifficultyCategory): PuzzleDefinition? {
-        val list = puzzles[category] ?: return null
+        val list = getPuzzlesForCategory(category)
         return list.randomOrNull()
     }
     
     fun getAllPuzzles(): List<PuzzleDefinition> {
-        return puzzles.values.flatten()
+        return puzzles.values.flatten() + GameStateManager.loadCustomPuzzles()
     }
     
     private val easyPuzzles = listOf(

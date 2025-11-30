@@ -16,6 +16,8 @@ object GameStateManager {
     private const val HIGHLIGHT_MODE_KEY = "nice_sudoku_highlight_mode"
     private const val PLAY_MODE_KEY = "nice_sudoku_play_mode"
     private const val GREETING_SHOWN_KEY = "nice_sudoku_greeting_shown"
+    private const val CUSTOM_PUZZLES_KEY = "nice_sudoku_custom_puzzles"
+    private const val HIDE_COMPLETED_KEY = "nice_sudoku_hide_completed"
     
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -137,9 +139,9 @@ object GameStateManager {
     fun getHighlightMode(): HighlightMode {
         return try {
             val name = localStorage[HIGHLIGHT_MODE_KEY]
-            if (name != null) HighlightMode.valueOf(name) else HighlightMode.RCB_ALL
+            if (name != null) HighlightMode.valueOf(name) else HighlightMode.PENCIL
         } catch (e: Exception) {
-            HighlightMode.RCB_ALL
+            HighlightMode.PENCIL
         }
     }
     
@@ -181,6 +183,74 @@ object GameStateManager {
             localStorage[GREETING_SHOWN_KEY] = "true"
         } catch (e: Exception) {
             console.log("Error marking greeting as shown: ${e.message}")
+        }
+    }
+    
+    /**
+     * Save hide completed preference
+     */
+    fun setHideCompleted(hide: Boolean) {
+        try {
+            localStorage[HIDE_COMPLETED_KEY] = hide.toString()
+        } catch (e: Exception) {
+            console.log("Error saving hide completed preference: ${e.message}")
+        }
+    }
+    
+    /**
+     * Get hide completed preference (default: true)
+     */
+    fun getHideCompleted(): Boolean {
+        return try {
+            localStorage[HIDE_COMPLETED_KEY]?.toBoolean() ?: true
+        } catch (e: Exception) {
+            true
+        }
+    }
+    
+    /**
+     * Save a custom puzzle to the library
+     */
+    fun saveCustomPuzzle(puzzle: PuzzleDefinition) {
+        val puzzles = loadCustomPuzzles().toMutableList()
+        // Avoid duplicates by puzzle string
+        if (puzzles.none { it.puzzleString == puzzle.puzzleString }) {
+            puzzles.add(0, puzzle) // Add to beginning (most recent first)
+        }
+        try {
+            localStorage[CUSTOM_PUZZLES_KEY] = json.encodeToString(puzzles)
+        } catch (e: Exception) {
+            console.log("Error saving custom puzzle: ${e.message}")
+        }
+    }
+    
+    /**
+     * Load all custom puzzles
+     */
+    fun loadCustomPuzzles(): List<PuzzleDefinition> {
+        return try {
+            val data = localStorage[CUSTOM_PUZZLES_KEY]
+            if (data != null) {
+                json.decodeFromString<List<PuzzleDefinition>>(data)
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            console.log("Error loading custom puzzles: ${e.message}")
+            emptyList()
+        }
+    }
+    
+    /**
+     * Delete a custom puzzle
+     */
+    fun deleteCustomPuzzle(puzzleId: String) {
+        val puzzles = loadCustomPuzzles().toMutableList()
+        puzzles.removeAll { it.id == puzzleId }
+        try {
+            localStorage[CUSTOM_PUZZLES_KEY] = json.encodeToString(puzzles)
+        } catch (e: Exception) {
+            console.log("Error deleting custom puzzle: ${e.message}")
         }
     }
     

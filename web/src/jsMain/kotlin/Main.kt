@@ -64,6 +64,10 @@ class SudokuApp {
     private var showAboutModal = false
     private var showHelpModal = false
     private var showGreetingModal = false
+    private var showCompletionModal = false
+    
+    // Puzzle browser state
+    private var hideCompletedPuzzles = GameStateManager.getHideCompleted()
     
     private val appRoot: Element get() = document.getElementById("app")!!
     
@@ -850,6 +854,11 @@ class SudokuApp {
         if (showGreetingModal) {
             renderGreetingModal()
         }
+        
+        // Completion modal (shown when puzzle is solved)
+        if (showCompletionModal) {
+            renderCompletionModal()
+        }
     }
     
     private fun renderAboutModal() {
@@ -1335,14 +1344,101 @@ class SudokuApp {
         }
     }
     
+    private fun renderCompletionModal() {
+        val game = currentGame ?: return
+        
+        appRoot.append {
+            div("modal-overlay") {
+                onClickFunction = { event ->
+                    // Close when clicking overlay (not the modal content)
+                    if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
+                        showCompletionModal = false
+                        render()
+                    }
+                }
+                div("modal-content completion-modal") {
+                    button(classes = "modal-close") {
+                        +"✕"
+                        onClickFunction = {
+                            showCompletionModal = false
+                            render()
+                        }
+                    }
+                    
+                    div("completion-icon") { +"🎉" }
+                    h1 { +"Congratulations!" }
+                    
+                    div("completion-content") {
+                        p { +"You've completed the puzzle!" }
+                        
+                        div("completion-stats") {
+                            div("stat") {
+                                span("stat-icon") { +"⏱️" }
+                                span("stat-label") { +"Time" }
+                                span("stat-value") { +formatTime(game.elapsedTimeMs) }
+                            }
+                            div("stat") {
+                                span("stat-icon") { +"❌" }
+                                span("stat-label") { +"Mistakes" }
+                                span("stat-value") { +"${game.mistakeCount}" }
+                            }
+                            div("stat") {
+                                span("stat-icon") { +"📊" }
+                                span("stat-label") { +"Difficulty" }
+                                span("stat-value") { +game.category.displayName }
+                            }
+                        }
+                    }
+                    
+                    div("completion-actions") {
+                        button(classes = "close-btn") {
+                            +"Close"
+                            onClickFunction = {
+                                showCompletionModal = false
+                                render()
+                            }
+                        }
+                        button(classes = "next-btn") {
+                            +"Next Game"
+                            onClickFunction = {
+                                showCompletionModal = false
+                                loadNextUncompletedGame(game.category)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun loadNextUncompletedGame(category: DifficultyCategory) {
+        val summaries = GameStateManager.getGameSummaries()
+        val puzzles = PuzzleLibrary.getPuzzlesForCategory(category)
+        
+        // Find the first uncompleted puzzle in this category
+        val nextPuzzle = puzzles.firstOrNull { puzzle ->
+            val existingGame = summaries.find { it.puzzleId == puzzle.id }
+            existingGame == null || !existingGame.isCompleted
+        }
+        
+        if (nextPuzzle != null) {
+            startNewGame(nextPuzzle)
+        } else {
+            // All puzzles in this category completed, try random from next difficulty
+            showToast("All ${category.displayName} puzzles completed! 🎉")
+            render()
+        }
+    }
+    
     private fun renderGameScreen() {
         val grid = gameEngine.getCurrentGrid()
         val game = currentGame
         val isSolved = grid.isComplete && grid.isValid
         
-        // Mark as completed if solved
+        // Mark as completed if solved and show completion modal
         if (isSolved && game != null && !game.isCompleted) {
             saveCurrentState()
+            showCompletionModal = true
         }
         
         val currentElapsed = pausedTime + (currentTimeMillis() - gameStartTime)
@@ -1547,20 +1643,37 @@ class SudokuApp {
                     }
                     
                     // Number pad with selection state
+                    // Count how many of each number are placed (solved cells)
+                    val numberCounts = IntArray(10) { 0 }
+                    for (cell in grid.cells) {
+                        if (cell.isSolved && cell.value != null) {
+                            numberCounts[cell.value!!]++
+                        }
+                    }
+                    
                     div("number-pad") {
                         for (num in 1..9) {
                             val isPrimaryNum = selectedNumber1 == num
                             val isSecondaryNum = selectedNumber2 == num
+                            val isCompleted = numberCounts[num] >= 9
                             val numClass = when {
+                                isCompleted -> "num-btn completed"
                                 isPrimaryNum && isSecondaryNum -> "num-btn both"
                                 isPrimaryNum -> "num-btn primary"
                                 isSecondaryNum -> "num-btn secondary"
                                 else -> "num-btn"
                             }
                             button(classes = numClass) {
-                                +"$num"
-                                onClickFunction = {
-                                    handleNumberClick(num, grid)
+                                if (!isCompleted) {
+                                    +"$num"
+                                }
+                                if (!isCompleted) {
+                                    onClickFunction = {
+                                        handleNumberClick(num, grid)
+                                    }
+                                }
+                                if (isCompleted) {
+                                    attributes["disabled"] = "true"
                                 }
                             }
                         }
@@ -1720,7 +1833,7 @@ class SudokuApp {
         
         // Get digits that match elimination digits but are NOT being eliminated from this cell
         // (i.e., in cover area, has the candidate, but not in elimination list for this cell)
-        val matchingButNotEliminatedDigits = if (isInCoverArea && selectedHint != null) {
+        val matchingButNotEliminatedDigits = if (isInCoverArea) {
             allEliminationDigits.filter { digit ->
                 digit in cell.candidates && digit !in eliminationDigitsForThisCell
             }.toSet()
@@ -1811,6 +1924,15 @@ class SudokuApp {
                                             }
                                         }
                                     }
+                                    button(classes = "delete-btn") {
+                                        +"🗑️"
+                                        attributes["title"] = "Delete saved game"
+                                        onClickFunction = {
+                                            GameStateManager.deleteGame(summary.puzzleId)
+                                            showToast("Game deleted")
+                                            render()
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1820,35 +1942,64 @@ class SudokuApp {
                 // Category selector
                 div("section") {
                     h2 { +"🎯 New Puzzle" }
-                    div("category-tabs") {
-                        for (cat in DifficultyCategory.entries) {
-                            button(classes = "tab-btn ${if (selectedCategory == cat) "active" else ""}") {
-                                +cat.displayName
-                                onClickFunction = {
-                                    selectedCategory = cat
+                    div("category-header") {
+                        div("category-tabs") {
+                            for (cat in DifficultyCategory.entries) {
+                                button(classes = "tab-btn ${if (selectedCategory == cat) "active" else ""}") {
+                                    +cat.displayName
+                                    onClickFunction = {
+                                        selectedCategory = cat
+                                        render()
+                                    }
+                                }
+                            }
+                        }
+                        // Hide completed toggle
+                        label(classes = "toggle-label") {
+                            input(InputType.checkBox, classes = "toggle-checkbox") {
+                                checked = hideCompletedPuzzles
+                                onInputFunction = {
+                                    hideCompletedPuzzles = !hideCompletedPuzzles
+                                    GameStateManager.setHideCompleted(hideCompletedPuzzles)
                                     render()
                                 }
                             }
+                            span { +"Hide Completed" }
                         }
                     }
                     
                     // Puzzle list
                     div("puzzle-list") {
-                        val puzzles = PuzzleLibrary.puzzles[selectedCategory] ?: emptyList()
+                        val puzzles = PuzzleLibrary.getPuzzlesForCategory(selectedCategory)
+                        if (puzzles.isEmpty() && selectedCategory == DifficultyCategory.CUSTOM) {
+                            div("empty-message") {
+                                +"No custom puzzles yet. Import a puzzle from the Import/Export page to add it here."
+                            }
+                        }
                         for ((index, puzzle) in puzzles.withIndex()) {
                             val existingGame = summaries.find { it.puzzleId == puzzle.id }
-                            div("puzzle-item ${if (existingGame?.isCompleted == true) "completed" else ""}") {
+                            val isCompleted = existingGame?.isCompleted == true
+                            
+                            // Skip completed puzzles if hide completed is enabled
+                            if (hideCompletedPuzzles && isCompleted) continue
+                            
+                            div("puzzle-item ${if (isCompleted) "completed" else ""}") {
                                 span("puzzle-num") { +"#${index + 1}" }
-                                span("difficulty") { +"★ ${puzzle.difficulty}" }
+                                if (puzzle.difficulty > 0) {
+                                    span("difficulty") { +"★ ${puzzle.difficulty}" }
+                                }
                                 if (existingGame != null) {
-                                    if (existingGame.isCompleted) {
+                                    if (isCompleted) {
                                         span("status completed") { +"✓ Completed" }
+                                        span("completion-stats") { 
+                                            +"${formatTime(existingGame.elapsedTimeMs)} · ❌${existingGame.mistakeCount}"
+                                        }
                                     } else {
                                         span("status progress") { +"${existingGame.progressPercent}%" }
                                     }
                                 }
                                 button(classes = "play-btn") {
-                                    +if (existingGame?.isCompleted == true) "Replay" else "Play"
+                                    +if (isCompleted) "Replay" else "Play"
                                     onClickFunction = {
                                         startNewGame(puzzle)
                                     }
@@ -1986,13 +2137,17 @@ class SudokuApp {
                                     }.joinToString("")
                                     
                                     val puzzle = PuzzleDefinition(
-                                        id = "imported_${currentTimeMillis()}",
+                                        id = "custom_${currentTimeMillis()}",
                                         puzzleString = puzzleStr,
                                         difficulty = 0f,
-                                        category = DifficultyCategory.MEDIUM
+                                        category = DifficultyCategory.CUSTOM
                                     )
+                                    
+                                    // Save to custom puzzles library
+                                    GameStateManager.saveCustomPuzzle(puzzle)
+                                    
                                     startNewGame(puzzle)
-                                    showToast("✓ Puzzle loaded!")
+                                    showToast("✓ Puzzle loaded and saved to Custom!")
                                 } else {
                                     showToast("Invalid puzzle string")
                                 }
@@ -3382,5 +3537,159 @@ private val CSS_STYLES = """
     
     .help-section .greeting-content {
         margin-top: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    /* Completion modal styles */
+    .completion-modal {
+        max-width: 400px;
+        text-align: center;
+    }
+    
+    .completion-icon {
+        font-size: clamp(3rem, calc(2.5rem + 3vmin), 5rem);
+        margin-bottom: clamp(8px, 2vmin, 16px);
+    }
+    
+    .completion-modal h1 {
+        color: #4caf50;
+        font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
+        margin-bottom: clamp(12px, 2vmin, 20px);
+    }
+    
+    .completion-content p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
+        margin-bottom: clamp(16px, 3vmin, 24px);
+    }
+    
+    .completion-stats {
+        display: flex;
+        justify-content: center;
+        gap: clamp(16px, 3vmin, 32px);
+        margin-bottom: clamp(20px, 4vmin, 32px);
+    }
+    
+    .completion-stats .stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .completion-stats .stat-icon {
+        font-size: clamp(1.5rem, calc(1.2rem + 1vmin), 2rem);
+    }
+    
+    .completion-stats .stat-label {
+        font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.8rem);
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+    }
+    
+    .completion-stats .stat-value {
+        font-size: clamp(1rem, calc(0.9rem + 0.5vmin), 1.3rem);
+        font-weight: 700;
+        color: #fff;
+    }
+    
+    .completion-actions {
+        display: flex;
+        justify-content: center;
+        gap: clamp(8px, 2vmin, 16px);
+    }
+    
+    .completion-actions button {
+        padding: clamp(10px, 2vmin, 14px) clamp(20px, 4vmin, 32px);
+        border: none;
+        border-radius: clamp(6px, 1.5vmin, 10px);
+        font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .completion-actions .close-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .completion-actions .close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .completion-actions .next-btn {
+        background: linear-gradient(135deg, #4caf50, #66bb6a);
+        color: #fff;
+    }
+    
+    .completion-actions .next-btn:hover {
+        background: linear-gradient(135deg, #66bb6a, #81c784);
+        transform: translateY(-2px);
+    }
+    
+    /* Number pad completed button style */
+    .num-btn.completed {
+        opacity: 0.3;
+        pointer-events: none;
+        visibility: hidden;
+    }
+    
+    /* Category header with toggle */
+    .category-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: clamp(8px, 2vmin, 16px);
+        margin-bottom: clamp(8px, 2vmin, 12px);
+    }
+    
+    /* Hide completed toggle */
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.85rem);
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    
+    .toggle-checkbox {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: #e94560;
+    }
+    
+    /* Completion stats in puzzle list */
+    .completion-stats {
+        font-size: clamp(0.65rem, calc(0.6rem + 0.25vmin), 0.75rem);
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Delete button for saved games */
+    .delete-btn {
+        padding: clamp(4px, 1vmin, 8px) clamp(8px, 2vmin, 12px);
+        border: none;
+        border-radius: clamp(4px, 1vmin, 6px);
+        font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.85rem);
+        cursor: pointer;
+        background: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+        transition: all 0.15s ease;
+    }
+    
+    .delete-btn:hover {
+        background: rgba(244, 67, 54, 0.4);
+    }
+    
+    /* Empty message for custom puzzles */
+    .empty-message {
+        padding: clamp(16px, 3vmin, 24px);
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: clamp(0.8rem, calc(0.75rem + 0.3vmin), 0.95rem);
+        line-height: 1.5;
     }
 """.trimIndent()
