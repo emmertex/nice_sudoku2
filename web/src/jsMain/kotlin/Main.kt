@@ -586,7 +586,7 @@ class SudokuApp {
                         }
                         div {
                             h1 { +"Nice Sudoku" }
-                            small { +"Powered by StormDoku" }
+                            <div("powered-by")  { +"Powered by StormDoku" }
                         }
                         // Show current mode indicators and selected numbers
                         div("mode-indicators") {
@@ -1466,8 +1466,9 @@ private val CSS_STYLES = """
         letter-spacing: -0.02em;
     }
 
-    .small {
-        color: rgb(250, 250, 250);
+    .powered-by {
+        color: white;
+        display: block;
     }
     
     .game-info {
