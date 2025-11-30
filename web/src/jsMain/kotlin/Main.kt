@@ -240,11 +240,17 @@ class SudokuApp {
         }
     }
     
+    /**
+     * Save the current game state to persistent storage.
+     * This includes all cell values AND all candidates/pencil marks.
+     * Must be called after any manual modification to candidates or cell values.
+     */
     private fun saveCurrentState() {
         val game = currentGame ?: return
         val grid = gameEngine.getCurrentGrid()
         val elapsedSinceStart = currentTimeMillis() - gameStartTime
         
+        // updateGameState uses createStateString which includes all candidates
         val updated = GameStateManager.updateGameState(
             currentGame = game,
             grid = grid,

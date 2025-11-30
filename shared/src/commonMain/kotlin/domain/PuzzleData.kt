@@ -92,20 +92,25 @@ data class SavedGameState(
         
         /**
          * Create a 810-char state string from grid
+         * Format: 81 chars for cell values + 729 chars for candidates (9 per cell)
+         * 
+         * IMPORTANT: This function includes all candidates/pencil marks in the saved state.
+         * Each cell has 9 characters representing candidates 1-9 (1 = present, 0 = absent).
          */
         fun createStateString(grid: SudokuGrid): String {
             val sb = StringBuilder(810)
             
-            // First 81 chars: values
+            // First 81 chars: values (1-9 for solved cells, 0 for empty)
             for (i in 0 until 81) {
                 val cell = grid.getCell(i)
                 sb.append(if (cell.isSolved) cell.value else 0)
             }
             
-            // Next 729 chars: notes (9 per cell)
+            // Next 729 chars: candidates/pencil marks (9 chars per cell, 1 if present, 0 if absent)
             for (i in 0 until 81) {
                 val cell = grid.getCell(i)
                 for (n in 1..9) {
+                    // Only save candidates for unsolved cells
                     sb.append(if (n in cell.candidates && !cell.isSolved) '1' else '0')
                 }
             }
