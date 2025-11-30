@@ -136,9 +136,9 @@ object GameStateManager {
     fun getHighlightMode(): HighlightMode {
         return try {
             val name = localStorage[HIGHLIGHT_MODE_KEY]
-            if (name != null) HighlightMode.valueOf(name) else HighlightMode.CELL
+            if (name != null) HighlightMode.valueOf(name) else HighlightMode.RCB_ALL
         } catch (e: Exception) {
-            HighlightMode.CELL
+            HighlightMode.RCB_ALL
         }
     }
     
