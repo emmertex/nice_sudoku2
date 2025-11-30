@@ -1127,9 +1127,18 @@ class SudokuApp {
                                     li {
                                         +"When hints are visible:"
                                         ul {
-                                            li { strong { +"Arrow Up/Down" } +": Navigate through available hints" }
-                                            li { strong { +"Page Up" } +": Jump to first hint" }
-                                            li { strong { +"Page Down" } +": Jump to last hint" }
+                                            li {
+                                                strong { +"Arrow Up/Down" }
+                                                +": Navigate through available hints"
+                                            }
+                                            li {
+                                                strong { +"Page Up" }
+                                                +": Jump to first hint"
+                                            }
+                                            li {
+                                                strong { +"Page Down" }
+                                                +": Jump to last hint"
+                                            }
                                         }
                                     }
                                 }
