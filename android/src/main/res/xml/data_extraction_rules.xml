@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- TODO: Use <include> for more granular control -->
+        <exclude domain="sharedpref" path="."/>
+    </cloud-backup>
+    <!-- Device transfers are opt-in -->
+    <device-transfer>
+        <exclude domain="sharedpref" path="."/>
+    </device-transfer>
+</data-extraction-rules>
