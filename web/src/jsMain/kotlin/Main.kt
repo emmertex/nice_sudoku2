@@ -521,6 +521,12 @@ class SudokuApp {
                                 +"r/sudoku wiki"
                             }
                         }
+                        p {
+                            +"See his GitHub: "
+                            a(href = "https://github.com/strmckr", target = "_blank") {
+                                +"github.com/strmckr"
+                            }
+                        }
                     }
                     
                     div("about-section") {
@@ -564,7 +570,8 @@ class SudokuApp {
         val secondaryCells = getSecondaryHighlightCells(grid)
         
         appRoot.append {
-            div("sudoku-container") {
+            val containerClass = if (showHints && isLandscape) "sudoku-container hints-expanded" else "sudoku-container"
+            div(containerClass) {
                 // Header with nav
                 div("header") {
                     div("nav-row") {
@@ -1415,6 +1422,12 @@ private val CSS_STYLES = """
         display: flex;
         flex-direction: column;
         overflow-y: auto;
+        transition: width 0.2s ease;
+    }
+    
+    /* Expand container when hints sidebar is shown in landscape */
+    .sudoku-container.hints-expanded {
+        width: min(100%, calc(var(--grid-size) + 380px));
     }
     
     .header {
@@ -1611,7 +1624,7 @@ private val CSS_STYLES = """
     
     .main-content.landscape-hints .game-area {
         flex: 0 0 auto;
-        max-width: 60%;
+        /* Don't shrink the game area - let the container expand instead */
     }
     
     /* Landscape Hint Sidebar */
