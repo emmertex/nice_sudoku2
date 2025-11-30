@@ -65,6 +65,7 @@ class SudokuApp {
     private var showHelpModal = false
     private var showGreetingModal = false
     private var showCompletionModal = false
+    private var completionShownForPuzzle: String? = null  // Track which puzzle we've shown completion for
     
     // Puzzle browser state
     private var hideCompletedPuzzles = GameStateManager.getHideCompleted()
@@ -170,6 +171,7 @@ class SudokuApp {
         gameStartTime = currentTimeMillis()
         pausedTime = 0L
         selectedCell = null
+        completionShownForPuzzle = null  // Reset completion modal tracking for new game
         currentScreen = AppScreen.GAME
         render()
         
@@ -223,6 +225,8 @@ class SudokuApp {
         gameStartTime = currentTimeMillis()
         pausedTime = saved.elapsedTimeMs
         selectedCell = null
+        // If already completed, mark as shown so we don't re-show modal when resuming
+        completionShownForPuzzle = if (saved.isCompleted) saved.puzzleId else null
         currentScreen = AppScreen.GAME
         render()
         
@@ -1023,10 +1027,6 @@ class SudokuApp {
                     
                     div("help-section") {
                         h2 { +"Keyboard Shortcuts" }
-                        
-                        p("help-intro") {
-                            +"This document describes all keyboard shortcuts available in Nice Sudoku. The shortcuts follow standard conventions similar to HoDoKu, making the game fully playable from the keyboard."
-                        }
                     }
                     
                     div("help-section") {
@@ -1435,9 +1435,13 @@ class SudokuApp {
         val game = currentGame
         val isSolved = grid.isComplete && grid.isValid
         
-        // Mark as completed if solved and show completion modal
-        if (isSolved && game != null && !game.isCompleted) {
-            saveCurrentState()
+        // Show completion modal when puzzle is solved and we haven't shown it for this puzzle yet
+        if (isSolved && game != null && completionShownForPuzzle != game.puzzleId) {
+            // Save the state if not already marked complete
+            if (!game.isCompleted) {
+                saveCurrentState()
+            }
+            completionShownForPuzzle = game.puzzleId
             showCompletionModal = true
         }
         
