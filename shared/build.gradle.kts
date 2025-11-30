@@ -14,6 +14,11 @@ kotlin {
         binaries.executable()
     }
 
+    // Suppress expect/actual beta warnings
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -30,7 +35,6 @@ kotlin {
         }
 
         val jvmMain by getting {
-            dependsOn(commonMain)
             dependencies {
                 // Include the Java JAR - only available on JVM
                 implementation(files("libs/StormDoku.jar"))
@@ -44,7 +48,6 @@ kotlin {
         }
 
         val jsMain by getting {
-            dependsOn(commonMain)
             dependencies {
                 implementation("org.jetbrains.compose.html:html-core:1.6.11")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.9.0")

@@ -511,7 +511,7 @@ actual class GameEngine actual constructor() {
             window.fetch(url, init.unsafeCast<RequestInit>())
                 .then { response: org.w3c.fetch.Response ->
                     response.text().then { text: String ->
-                        cont.resume(text) {}
+                        cont.resume(text)
                         Unit
                     }
                     Unit
@@ -545,7 +545,7 @@ actual class GameEngine actual constructor() {
             window.fetch(url, init.unsafeCast<RequestInit>())
                 .then { response: org.w3c.fetch.Response ->
                     response.text().then { text: String ->
-                        cont.resume(text) {}
+                        cont.resume(text)
                         Unit
                     }
                     Unit
