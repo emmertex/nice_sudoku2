@@ -62,6 +62,8 @@ class SudokuApp {
     
     // Modal state
     private var showAboutModal = false
+    private var showHelpModal = false
+    private var showGreetingModal = false
     
     private val appRoot: Element get() = document.getElementById("app")!!
     
@@ -122,12 +124,19 @@ class SudokuApp {
             render()  // Re-render to show hints
         }
         
+        // Check if greeting should be shown on first load
+        if (!GameStateManager.hasGreetingBeenShown()) {
+            showGreetingModal = true
+            GameStateManager.markGreetingAsShown()
+        }
+        
         // Try to resume last game
         val lastGameId = GameStateManager.getCurrentGameId()
         if (lastGameId != null) {
             val saved = GameStateManager.loadGame(lastGameId)
             if (saved != null && !saved.isCompleted) {
                 resumeGame(saved)
+                render()
                 return
             }
         }
@@ -136,6 +145,8 @@ class SudokuApp {
         val puzzle = PuzzleLibrary.getRandomPuzzle(DifficultyCategory.EASY)
         if (puzzle != null) {
             startNewGame(puzzle)
+        } else {
+            render()
         }
     }
     
@@ -430,6 +441,16 @@ class SudokuApp {
         if (key.lowercase() == "escape") {
             if (showAboutModal) {
                 showAboutModal = false
+                render()
+                return true
+            }
+            if (showHelpModal) {
+                showHelpModal = false
+                render()
+                return true
+            }
+            if (showGreetingModal) {
+                showGreetingModal = false
                 render()
                 return true
             }
@@ -813,6 +834,16 @@ class SudokuApp {
         if (showAboutModal) {
             renderAboutModal()
         }
+        
+        // Help modal (can appear over any screen)
+        if (showHelpModal) {
+            renderHelpModal()
+        }
+        
+        // Greeting modal (can appear over any screen, shown on first load)
+        if (showGreetingModal) {
+            renderGreetingModal()
+        }
     }
     
     private fun renderAboutModal() {
@@ -841,13 +872,13 @@ class SudokuApp {
                     }
                     
                     p("about-description") {
-                        +"Intended to be the easiest to pick up, and suitable for the most complex puzzles by the most advanced enthusiasts."
+                        +"Intended to be the easy to pick up, while also suitable for the most complex puzzles by enthusiasts."
                     }
                     
                     div("about-section") {
                         h3 { +"💬 Feedback" }
                         p {
-                            +"Please contact me with bugs, features and ideas on GitHub: "
+                            +"Please report bugs, features and ideas on GitHub: "
                             a(href = "https://github.com/emmertex/nice_sudoku2", target = "_blank") {
                                 +"github.com/emmertex/nice_sudoku2"
                             }
@@ -866,13 +897,13 @@ class SudokuApp {
                             }
                         }
                         p {
-                            +"See his resources: "
+                            +"Reddit Wiki: "
                             a(href = "https://www.reddit.com/r/sudoku/wiki/index/", target = "_blank") {
                                 +"r/sudoku wiki"
                             }
                         }
                         p {
-                            +"See his GitHub: "
+                            +"StrmCkr's GitHub: "
                             a(href = "https://github.com/strmckr", target = "_blank") {
                                 +"github.com/strmckr"
                             }
@@ -882,7 +913,7 @@ class SudokuApp {
                     div("about-section") {
                         h3 { +"🎨 UI/UX" }
                         p {
-                            +"Design by Andrew Frahn "
+                            +"Designed by Andrew Frahn: "
                             a(href = "https://github.com/emmertex", target = "_blank") {
                                 +"github.com/emmertex"
                             }
@@ -890,12 +921,398 @@ class SudokuApp {
                     }
                     
                     div("about-section") {
-                        h3 { +"📚 Puzzles" }
+                        h3 { +"Puzzles" }
                         p {
-                            +"Puzzles from "
+                            +"Puzzles sourced from: "
                             a(href = "https://github.com/grantm/sudoku-exchange-puzzle-bank", target = "_blank") {
                                 +"Sudoku Exchange Puzzle Bank"
                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun renderHelpModal() {
+        appRoot.append {
+            div("modal-overlay") {
+                onClickFunction = { event ->
+                    // Close when clicking overlay (not the modal content)
+                    if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
+                        showHelpModal = false
+                        render()
+                    }
+                }
+                div("modal-content help-modal") {
+                    button(classes = "modal-close") {
+                        +"✕"
+                        onClickFunction = {
+                            showHelpModal = false
+                            render()
+                        }
+                    }
+                    
+                    h1 { +"Help" }
+                    
+                    div("help-section") {
+                        h2 { +"Welcome" }
+                        div("greeting-content") {
+                            p {
+                                +"Thank you for testing Nice Sudoku."
+                            }
+                            
+                            p {
+                                +"In short, I, Andrew, wanted a good Android Sudoku app."
+                            }
+                            
+                            p {
+                                +"I am not even good at Sudoku, I crap out after X Wings. So I wanted a way to genuinely learn."
+                            }
+                            
+                            p {
+                                +"Well, I tried almost all the apps, and they were all crap, Ad ridden nonsense, or alike."
+                            }
+                            
+                            p {
+                                +"I also wanted to learn godot, so wrote a sudoku app. I got all basic solvers working, but then StrmCkr seen my work, and things got hard and complex. After getting a few intermediate solvers working nice, and a world of UI issues, I threw it all away."
+                            }
+                            
+                            p {
+                                +"This is the second version, written in Kotlin, with the intent to be native on all platforms. Using not just the knowledge of StrmCkr, but his years of knowledge making solvers as a backend, and a new frontend, hooking into it as an API."
+                            }
+                            
+                            p {
+                                +"Currently this means it must be online, but over time I intend to make it all offline."
+                            }
+                            
+                            p {
+                                +"I am asking nothing more than community support for me and StrmCkr, and I will endeavour to make this app something I want to use."
+                            }
+                            
+                            p {
+                                +"This isn't a first version, it is way too early for that, it is a feedback gathering exercise."
+                            }
+                            
+                            p {
+                                +"If you try it, please, offer feedback. The earlier in the development process I get feedback, the better the chance I can make it happen."
+                            }
+                            
+                            p("greeting-signature") {
+                                +"Thanks for testing,"
+                                br
+                                +"Andrew"
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Keyboard Shortcuts" }
+                        
+                        p("help-intro") {
+                            +"This document describes all keyboard shortcuts available in Nice Sudoku. The shortcuts follow standard conventions similar to HoDoKu, making the game fully playable from the keyboard."
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Navigation" }
+                        
+                        h3 { +"Cell Selection" }
+                        ul {
+                            li {
+                                strong { +"Arrow Keys (↑ ← ↓ →)" }
+                                +": Move the cursor between cells"
+                            }
+                            li {
+                                strong { +"Ctrl + Arrow Keys" }
+                                +": Jump to the next unsolved cell in that direction"
+                            }
+                            li {
+                                strong { +"Home" }
+                                +": Move to the first column of the current row"
+                            }
+                            li {
+                                strong { +"End" }
+                                +": Move to the last column of the current row"
+                            }
+                            li {
+                                strong { +"Ctrl + Home" }
+                                +": Move to the top-left cell (cell 0)"
+                            }
+                            li {
+                                strong { +"Ctrl + End" }
+                                +": Move to the bottom-right cell (cell 80)"
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Number Entry" }
+                        
+                        h3 { +"Basic Entry" }
+                        ul {
+                            li {
+                                strong { +"1-9" }
+                                +": Enter numbers based on play mode:"
+                                ul {
+                                    li {
+                                        strong { +"Fast Mode" }
+                                        +": Selects the number for highlighting. If a cell is selected, applies the number to that cell"
+                                    }
+                                    li {
+                                        strong { +"Advanced Mode" }
+                                        +": Sets number highlighting (primary/secondary). Pressing the same number again clears the selection"
+                                    }
+                                }
+                            }
+                        }
+                        
+                        h3 { +"Candidate Entry (Pencil Marks)" }
+                        ul {
+                            li {
+                                strong { +"Ctrl + 1-9" }
+                                +": Toggle pencil mark candidate in the selected cell"
+                            }
+                            li {
+                                strong { +"Space" }
+                                +": If a number is selected (filter), toggle its candidate in the selected cell"
+                            }
+                            li {
+                                strong { +"N" }
+                                +": Toggle notes/pencil mode on/off"
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Editing" }
+                        ul {
+                            li {
+                                strong { +"Delete" }
+                                +" or "
+                                strong { +"Backspace" }
+                                +": Clear the value in the selected cell (cannot clear given cells)"
+                            }
+                            li {
+                                strong { +"Escape" }
+                                +": Clear all selections (selected numbers and cell)"
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Filters and Highlighting" }
+                        ul {
+                            li {
+                                strong { +"F1-F9" }
+                                +": Set/change the filtered (selected) digit for highlighting"
+                            }
+                            li {
+                                strong { +"Shift + F1-F9" }
+                                +": Set/change the filtered digit (future: toggle filter mode)"
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Game Actions" }
+                        
+                        h3 { +"Hint System" }
+                        ul {
+                            li {
+                                strong { +"H" }
+                                +": Toggle hint panel (show/hide available solving techniques)"
+                                ul {
+                                    li { +"Requires backend connection to be available" }
+                                    li {
+                                        +"When hints are visible:"
+                                        ul {
+                                            li { strong { +"Arrow Up/Down" } +": Navigate through available hints" }
+                                            li { strong { +"Page Up" } +": Jump to first hint" }
+                                            li { strong { +"Page Down" } +": Jump to last hint" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        h3 { +"Advanced Mode Actions" }
+                        ul {
+                            li {
+                                strong { +"Enter" }
+                                +" or "
+                                strong { +"S" }
+                                +": Set the primary selected number in the selected cell (when in Advanced mode)"
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Screen Navigation" }
+                        ul {
+                            li {
+                                strong { +"M" }
+                                +": Open Menu/Settings screen"
+                            }
+                            li {
+                                strong { +"B" }
+                                +": Open Puzzle Browser screen"
+                            }
+                            li {
+                                strong { +"I" }
+                                +": Open Import/Export screen"
+                            }
+                            li {
+                                strong { +"Escape" }
+                                +":"
+                                ul {
+                                    li { +"Close modals (About, etc.)" }
+                                    li { +"Close hint panel" }
+                                    li { +"Return to Game screen from any other screen" }
+                                    li { +"Clear selections in Game screen" }
+                                }
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Mode Switching" }
+                        ul {
+                            li {
+                                strong { +"N" }
+                                +": Toggle Notes/Pencil mode"
+                                ul {
+                                    li { +"When enabled, number entry adds/removes pencil marks instead of values" }
+                                }
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Notes" }
+                        ol {
+                            li { +"All shortcuts are disabled when typing in input fields or text areas to prevent conflicts" }
+                            li { +"Keyboard shortcuts follow HoDoKu conventions for consistency with standard Sudoku software" }
+                            li { +"The game is fully playable using only keyboard input" }
+                            li { +"Some shortcuts may vary slightly in behavior between Fast and Advanced play modes" }
+                            li {
+                                +"F1-F9 keys: Some browsers use F-keys for developer tools (e.g., F12) or other functions. If a browser shortcut conflicts, you may need to disable the browser's shortcut or use number keys 1-9 instead for filtering"
+                            }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Play Mode Differences" }
+                        
+                        h3 { +"Fast Mode" }
+                        ul {
+                            li { +"Number keys immediately apply to selected cells when appropriate" }
+                            li { +"Quick, streamlined input for faster solving" }
+                        }
+                        
+                        h3 { +"Advanced Mode" }
+                        ul {
+                            li { +"Number keys primarily control highlighting" }
+                            li { +"Use action buttons or Enter/S to set values" }
+                            li { +"Supports two-number highlighting for complex solving techniques" }
+                        }
+                    }
+                    
+                    div("help-section") {
+                        h2 { +"Tips" }
+                        ul {
+                            li {
+                                +"Use "
+                                strong { +"Ctrl + Arrow Keys" }
+                                +" to quickly jump between unsolved cells"
+                            }
+                            li {
+                                +"Use "
+                                strong { +"F1-F9" }
+                                +" for quick number filtering and highlighting"
+                            }
+                            li {
+                                +"Use "
+                                strong { +"H" }
+                                +" to access hints and learn new solving techniques"
+                            }
+                            li {
+                                strong { +"Escape" }
+                                +" is your universal \"go back\" key - use it to return to the game from any screen or modal"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun renderGreetingModal() {
+        appRoot.append {
+            div("modal-overlay") {
+                onClickFunction = { event ->
+                    // Close when clicking overlay (not the modal content)
+                    if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
+                        showGreetingModal = false
+                        render()
+                    }
+                }
+                div("modal-content greeting-modal") {
+                    button(classes = "modal-close") {
+                        +"✕"
+                        onClickFunction = {
+                            showGreetingModal = false
+                            render()
+                        }
+                    }
+                    
+                    h1 { +"Welcome to Nice Sudoku" }
+                    
+                    div("greeting-content") {
+                        p {
+                            +"Thank you for testing Nice Sudoku."
+                        }
+                        
+                        p {
+                            +"In short, I, Andrew, wanted a good Android Sudoku app."
+                        }
+                        
+                        p {
+                            +"I am not even good at Sudoku, I crap out after X Wings. So I wanted a way to genuinely learn."
+                        }
+                        
+                        p {
+                            +"Well, I tried almost all the apps, and they were all crap, Ad ridden nonsense, or alike."
+                        }
+                        
+                        p {
+                            +"I also wanted to learn godot, so wrote a sudoku app. I got all basic solvers working, but then StrmCkr seen my work, and things got hard and complex. After getting a few intermediate solvers working nice, and a world of UI issues, I threw it all away."
+                        }
+                        
+                        p {
+                            +"This is the second version, written in Kotlin, with the intent to be native on all platforms. Using not just the knowledge of StrmCkr, but his years of knowledge making solvers as a backend, and a new frontend, hooking into it as an API."
+                        }
+                        
+                        p {
+                            +"Currently this means it must be online, but over time I intend to make it all offline."
+                        }
+                        
+                        p {
+                            +"I am asking nothing more than community support for me and StrmCkr, and I will endeavour to make this app something I want to use."
+                        }
+                        
+                        p {
+                            +"This isn't a first version, it is way too early for that, it is a feedback gathering exercise."
+                        }
+                        
+                        p {
+                            +"If you try it, please, offer feedback. The earlier in the development process I get feedback, the better the chance I can make it happen."
+                        }
+                        
+                        p("greeting-signature") {
+                            +"Thanks for testing,"
+                            br
+                            +"Andrew"
                         }
                     }
                 }
@@ -1613,6 +2030,13 @@ class SudokuApp {
                             +"ℹ️ About"
                             onClickFunction = {
                                 showAboutModal = true
+                                render()
+                            }
+                        }
+                        button(classes = "settings-nav-btn") {
+                            +"❓ Help"
+                            onClickFunction = {
+                                showHelpModal = true
                                 render()
                             }
                         }
@@ -2845,5 +3269,103 @@ private val CSS_STYLES = """
     
     .about-section strong {
         color: #4ecdc4;
+    }
+    
+    .help-modal h1 {
+        color: #e94560;
+        font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
+        margin-bottom: clamp(12px, 2vmin, 20px);
+        text-align: center;
+    }
+    
+    .help-intro {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
+        text-align: center;
+        line-height: 1.5;
+        margin-bottom: clamp(20px, 4vmin, 32px);
+        padding-bottom: clamp(16px, 3vmin, 24px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .help-section {
+        margin-bottom: clamp(20px, 4vmin, 32px);
+    }
+    
+    .help-section h2 {
+        color: #ffc107;
+        font-size: clamp(1.1rem, calc(1rem + 0.5vmin), 1.4rem);
+        margin-bottom: clamp(12px, 2vmin, 20px);
+        margin-top: clamp(16px, 3vmin, 24px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .help-section h2:first-of-type {
+        margin-top: 0;
+    }
+    
+    .help-section h3 {
+        color: #4ecdc4;
+        font-size: clamp(0.95rem, calc(0.85rem + 0.4vmin), 1.15rem);
+        margin-bottom: clamp(8px, 1.5vmin, 12px);
+        margin-top: clamp(12px, 2vmin, 16px);
+    }
+    
+    .help-section ul,
+    .help-section ol {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: clamp(0.8rem, calc(0.7rem + 0.35vmin), 0.95rem);
+        line-height: 1.6;
+        margin-bottom: clamp(12px, 2vmin, 16px);
+        padding-left: clamp(20px, 4vmin, 30px);
+    }
+    
+    .help-section li {
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .help-section ul ul,
+    .help-section ul ol,
+    .help-section ol ul,
+    .help-section ol ol {
+        margin-top: clamp(6px, 1vmin, 10px);
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .help-section strong {
+        color: #4ecdc4;
+        font-weight: 600;
+    }
+    
+    .greeting-modal {
+        max-width: 600px;
+    }
+    
+    .greeting-modal h1 {
+        color: #e94560;
+        font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
+        margin-bottom: clamp(12px, 2vmin, 20px);
+        text-align: center;
+    }
+    
+    .greeting-content {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
+        line-height: 1.6;
+    }
+    
+    .greeting-content p {
+        margin-bottom: clamp(12px, 2vmin, 16px);
+    }
+    
+    .greeting-signature {
+        margin-top: clamp(20px, 4vmin, 32px);
+        font-style: italic;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .help-section .greeting-content {
+        margin-top: clamp(8px, 1.5vmin, 12px);
     }
 """.trimIndent()

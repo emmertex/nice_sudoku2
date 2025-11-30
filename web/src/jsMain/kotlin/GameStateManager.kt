@@ -15,6 +15,7 @@ object GameStateManager {
     private const val CURRENT_GAME_KEY = "nice_sudoku_current_game"
     private const val HIGHLIGHT_MODE_KEY = "nice_sudoku_highlight_mode"
     private const val PLAY_MODE_KEY = "nice_sudoku_play_mode"
+    private const val GREETING_SHOWN_KEY = "nice_sudoku_greeting_shown"
     
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -158,6 +159,28 @@ object GameStateManager {
             if (name != null) PlayMode.valueOf(name) else PlayMode.FAST
         } catch (e: Exception) {
             PlayMode.FAST
+        }
+    }
+    
+    /**
+     * Check if greeting has been shown
+     */
+    fun hasGreetingBeenShown(): Boolean {
+        return try {
+            localStorage[GREETING_SHOWN_KEY] == "true"
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * Mark greeting as shown
+     */
+    fun markGreetingAsShown() {
+        try {
+            localStorage[GREETING_SHOWN_KEY] = "true"
+        } catch (e: Exception) {
+            console.log("Error marking greeting as shown: ${e.message}")
         }
     }
     

@@ -79,7 +79,7 @@ This document describes all keyboard shortcuts available in Nice Sudoku. The sho
 
 ### Advanced Mode
 - Number keys primarily control highlighting
-- Use action buttons or Enter/S to actually set values
+- Use action buttons or Enter/S to set values
 - Supports two-number highlighting for complex solving techniques
 
 ## Tips
