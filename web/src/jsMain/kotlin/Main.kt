@@ -60,6 +60,9 @@ class SudokuApp {
     private var isLandscape = false  // Responsive layout detection
     private var isBackendAvailable = false  // Whether hint system can be used
     
+    // Modal state
+    private var showAboutModal = false
+    
     private val appRoot: Element get() = document.getElementById("app")!!
     
     fun start() {
@@ -454,6 +457,93 @@ class SudokuApp {
             AppScreen.PUZZLE_BROWSER -> renderPuzzleBrowser()
             AppScreen.IMPORT_EXPORT -> renderImportExport()
             AppScreen.SETTINGS -> renderSettings()
+        }
+        
+        // About modal (can appear over any screen)
+        if (showAboutModal) {
+            renderAboutModal()
+        }
+    }
+    
+    private fun renderAboutModal() {
+        appRoot.append {
+            div("modal-overlay") {
+                onClickFunction = { event ->
+                    // Close when clicking overlay (not the modal content)
+                    if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
+                        showAboutModal = false
+                        render()
+                    }
+                }
+                div("modal-content about-modal") {
+                    button(classes = "modal-close") {
+                        +"✕"
+                        onClickFunction = {
+                            showAboutModal = false
+                            render()
+                        }
+                    }
+                    
+                    h1 { +"Nice Sudoku" }
+                    
+                    p("about-tagline") {
+                        +"A FOSS Sudoku game for all platforms by Andrew Frahn"
+                    }
+                    
+                    p("about-description") {
+                        +"Intended to be the easiest to pick up, and suitable for the most complex puzzles by the most advanced enthusiasts."
+                    }
+                    
+                    div("about-section") {
+                        h3 { +"💬 Feedback" }
+                        p {
+                            +"Please contact me with bugs, features and ideas on GitHub: "
+                            a(href = "https://github.com/emmertex/nice_sudoku2", target = "_blank") {
+                                +"github.com/emmertex/nice_sudoku2"
+                            }
+                        }
+                    }
+                    
+                    div("about-section") {
+                        h3 { +"🧠 Solvers" }
+                        p {
+                            +"All solvers by StrmCkr via "
+                            strong { +"StormDoku" }
+                        }
+                        p {
+                            a(href = "https://www.reddit.com/user/strmckr/", target = "_blank") {
+                                +"reddit.com/user/strmckr"
+                            }
+                        }
+                        p {
+                            +"See his resources: "
+                            a(href = "https://www.reddit.com/r/sudoku/wiki/index/", target = "_blank") {
+                                +"r/sudoku wiki"
+                            }
+                        }
+                    }
+                    
+                    div("about-section") {
+                        h3 { +"🎨 UI/UX" }
+                        p {
+                            +"Design by Andrew Frahn "
+                            a(href = "https://github.com/emmertex", target = "_blank") {
+                                +"github.com/emmertex"
+                            }
+                        }
+                    }
+                    
+                    div("about-section") {
+                        h3 { +"📚 Puzzles" }
+                        p {
+                            +"Puzzles from "
+                            a(href = "https://github.com/grantm/sudoku-exchange-puzzle-bank", target = "_blank") {
+                                +"Sudoku Exchange Puzzle Bank"
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -1147,6 +1237,13 @@ class SudokuApp {
                                 render()
                             }
                         }
+                        button(classes = "settings-nav-btn") {
+                            +"ℹ️ About"
+                            onClickFunction = {
+                                showAboutModal = true
+                                render()
+                            }
+                        }
                     }
                 }
                 
@@ -1354,6 +1451,10 @@ private val CSS_STYLES = """
         font-weight: 700;
         color:rgb(69, 170, 233);
         letter-spacing: -0.02em;
+    }
+
+    .small {
+        color: rgb(250, 250, 250);
     }
     
     .game-info {
@@ -2235,5 +2336,125 @@ private val CSS_STYLES = """
         :root {
             --grid-size: min(70vh, 700px);
         }
+    }
+    
+    /* Modal styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: clamp(16px, 4vmin, 32px);
+        animation: fadeInOverlay 0.2s ease;
+    }
+    
+    @keyframes fadeInOverlay {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .modal-content {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: clamp(12px, 3vmin, 24px);
+        padding: clamp(20px, 4vmin, 40px);
+        max-width: 500px;
+        width: 100%;
+        max-height: 85vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .modal-close {
+        position: absolute;
+        top: clamp(12px, 2vmin, 20px);
+        right: clamp(12px, 2vmin, 20px);
+        background: rgba(255, 82, 82, 0.2);
+        border: none;
+        color: #ff5252;
+        font-size: clamp(1rem, calc(0.9rem + 0.5vmin), 1.3rem);
+        width: clamp(32px, 6vmin, 40px);
+        height: clamp(32px, 6vmin, 40px);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-close:hover {
+        background: rgba(255, 82, 82, 0.4);
+        transform: scale(1.1);
+    }
+    
+    .about-modal h1 {
+        color: #e94560;
+        font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
+        margin-bottom: clamp(12px, 2vmin, 20px);
+        text-align: center;
+    }
+    
+    .about-tagline {
+        color: #4ecdc4;
+        font-size: clamp(0.95rem, calc(0.85rem + 0.5vmin), 1.15rem);
+        text-align: center;
+        margin-bottom: clamp(8px, 1.5vmin, 16px);
+        font-weight: 500;
+    }
+    
+    .about-description {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
+        text-align: center;
+        line-height: 1.5;
+        margin-bottom: clamp(20px, 4vmin, 32px);
+        padding-bottom: clamp(16px, 3vmin, 24px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .about-section {
+        margin-bottom: clamp(16px, 3vmin, 24px);
+    }
+    
+    .about-section h3 {
+        color: #ffc107;
+        font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .about-section p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: clamp(0.8rem, calc(0.7rem + 0.35vmin), 0.95rem);
+        line-height: 1.5;
+        margin-bottom: clamp(4px, 0.8vmin, 8px);
+    }
+    
+    .about-section a {
+        color: #64b5f6;
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+    
+    .about-section a:hover {
+        color: #90caf9;
+        text-decoration: underline;
+    }
+    
+    .about-section strong {
+        color: #4ecdc4;
     }
 """.trimIndent()
