@@ -61,8 +61,8 @@ class SudokuApp {
     private var highlightMode = GameStateManager.getHighlightMode()
     private var playMode = GameStateManager.getPlayMode()
     private var currentTheme = GameStateManager.getTheme()
-    private var selectedNumber1: Int? = null  // Primary selected number (light blue)
-    private var selectedNumber2: Int? = null  // Secondary selected number (light red)
+    private var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Primary selected numbers (light blue)
+    private var selectedNumbers2: MutableSet<Int> = mutableSetOf()  // Secondary selected numbers (light red)
     
     // Hint system state
     private var showHints = false  // Whether hint panel is visible
@@ -362,15 +362,21 @@ class SudokuApp {
     }
     
     // Compute which cells should have primary highlight (light blue)
+    // Uses AND logic - only cells containing ALL selected numbers are highlighted
     private fun getPrimaryHighlightCells(grid: SudokuGrid): Set<Int> {
-        val number = selectedNumber1 ?: return emptySet()
-        return getHighlightCellsForNumber(grid, number)
+        if (selectedNumbers1.isEmpty()) return emptySet()
+        // Get cells for each number, then intersect (AND logic)
+        return selectedNumbers1.map { getHighlightCellsForNumber(grid, it) }
+            .reduce { acc, set -> acc.intersect(set) }
     }
     
     // Compute which cells should have secondary highlight (light red)
+    // Uses AND logic - only cells containing ALL selected numbers are highlighted
     private fun getSecondaryHighlightCells(grid: SudokuGrid): Set<Int> {
-        val number = selectedNumber2 ?: return emptySet()
-        return getHighlightCellsForNumber(grid, number)
+        if (selectedNumbers2.isEmpty()) return emptySet()
+        // Get cells for each number, then intersect (AND logic)
+        return selectedNumbers2.map { getHighlightCellsForNumber(grid, it) }
+            .reduce { acc, set -> acc.intersect(set) }
     }
     
     private fun getHighlightCellsForNumber(grid: SudokuGrid, number: Int): Set<Int> {
@@ -425,12 +431,13 @@ class SudokuApp {
     private fun handleNumberClick(num: Int, grid: SudokuGrid) {
         when (playMode) {
             PlayMode.FAST -> {
-                // Select number for highlighting
-                if (selectedNumber1 == num) {
+                // Select number for highlighting (single selection)
+                if (num in selectedNumbers1) {
                     // Double click clears selection
-                    selectedNumber1 = null
+                    selectedNumbers1.clear()
                 } else {
-                    selectedNumber1 = num
+                    selectedNumbers1.clear()
+                    selectedNumbers1.add(num)
                 }
                 
                 // If cell is selected, apply the number
@@ -449,19 +456,35 @@ class SudokuApp {
                 }
             }
             PlayMode.ADVANCED -> {
-                // In advanced mode, clicking numbers only sets highlight
-                if (selectedNumber1 == num) {
-                    selectedNumber1 = null
-                } else if (selectedNumber1 != null && selectedNumber2 == null) {
-                    // Set secondary number
-                    selectedNumber2 = num
-                } else if (selectedNumber2 == num) {
-                    selectedNumber2 = null
+                // In advanced mode, this is only used for keyboard input
+                // The dual number pads handle clicking directly
+                // For keyboard: toggle in primary set
+                if (num in selectedNumbers1) {
+                    selectedNumbers1.remove(num)
                 } else {
-                    selectedNumber1 = num
-                    selectedNumber2 = null
+                    selectedNumbers1.add(num)
                 }
             }
+        }
+        render()
+    }
+    
+    // Toggle number in primary selection (for advanced mode primary number bar)
+    private fun togglePrimaryNumber(num: Int) {
+        if (num in selectedNumbers1) {
+            selectedNumbers1.remove(num)
+        } else {
+            selectedNumbers1.add(num)
+        }
+        render()
+    }
+    
+    // Toggle number in secondary selection (for advanced mode secondary number bar)
+    private fun toggleSecondaryNumber(num: Int) {
+        if (num in selectedNumbers2) {
+            selectedNumbers2.remove(num)
+        } else {
+            selectedNumbers2.add(num)
         }
         render()
     }
@@ -469,29 +492,21 @@ class SudokuApp {
     private fun handleCellClick(cellIndex: Int, grid: SudokuGrid) {
         val cell = grid.getCell(cellIndex)
         
-        // In advanced mode, clicking a solved cell with different number activates secondary highlight
-        if (playMode == PlayMode.ADVANCED && cell.isSolved && 
-            selectedNumber1 != null && cell.value != selectedNumber1) {
-            selectedNumber2 = cell.value
-            selectedCell = cellIndex
-            render()
-            return
-        }
-        
         // In FAST mode with a number selected, apply it to the cell
-        if (playMode == PlayMode.FAST && selectedNumber1 != null && !cell.isGiven) {
+        val selectedNum = selectedNumbers1.singleOrNull()
+        if (playMode == PlayMode.FAST && selectedNum != null && !cell.isGiven) {
             if (isNotesMode) {
                 // Toggle pencil mark
                 if (!cell.isSolved) {
-                    gameEngine.toggleCandidate(cellIndex, selectedNumber1!!)
+                    gameEngine.toggleCandidate(cellIndex, selectedNum)
                     saveCurrentState()
                     selectedCell = null
                 }
                 selectedCell = null
             } else if (!cell.isSolved) {
-                val wasMistake = checkMistake(cellIndex, selectedNumber1!!)
+                val wasMistake = checkMistake(cellIndex, selectedNum)
                 if (wasMistake) showToast("❌ Wrong number!")
-                gameEngine.setCellValue(cellIndex, selectedNumber1!!)
+                gameEngine.setCellValue(cellIndex, selectedNum)
                 saveCurrentState()
                 // Auto-deselect cell after setting value in FAST mode
                 selectedCell = null
@@ -540,8 +555,8 @@ class SudokuApp {
                 return true
             }
             // Clear selections in game screen
-            selectedNumber1 = null
-            selectedNumber2 = null
+            selectedNumbers1.clear()
+            selectedNumbers2.clear()
             selectedCell = null
             render()
             return true
@@ -641,14 +656,24 @@ class SudokuApp {
                 if (shiftKey) {
                     // Shift+F1-F9: Set filter digit and toggle filter mode
                     // For now, just set the number as selected (could add filter mode toggle later)
-                    selectedNumber1 = if (selectedNumber1 == fNum) null else fNum
-                    selectedNumber2 = null
+                    if (fNum in selectedNumbers1) {
+                        selectedNumbers1.remove(fNum)
+                    } else {
+                        selectedNumbers1.clear()
+                        selectedNumbers1.add(fNum)
+                    }
+                    selectedNumbers2.clear()
                     render()
                     return true
                 } else {
                     // F1-F9: Set/change the filtered digit
-                    selectedNumber1 = if (selectedNumber1 == fNum) null else fNum
-                    selectedNumber2 = null
+                    if (fNum in selectedNumbers1) {
+                        selectedNumbers1.remove(fNum)
+                    } else {
+                        selectedNumbers1.clear()
+                        selectedNumbers1.add(fNum)
+                    }
+                    selectedNumbers2.clear()
                     render()
                     return true
                 }
@@ -713,7 +738,8 @@ class SudokuApp {
             " " -> {
                 // Space: If a filter (selected number) is set, toggle the candidate
                 selectedCell?.let { cellIndex ->
-                    selectedNumber1?.let { num ->
+                    val num = selectedNumbers1.singleOrNull()
+                    if (num != null) {
                         val cell = grid.getCell(cellIndex)
                         if (!cell.isGiven && !cell.isSolved) {
                             gameEngine.toggleCandidate(cellIndex, num)
@@ -726,15 +752,16 @@ class SudokuApp {
             }
         }
         
-        // Advanced mode: Set primary or secondary number with keyboard
+        // Advanced mode: Set primary number with keyboard (only works if exactly one number selected)
         if (playMode == PlayMode.ADVANCED && selectedCell != null) {
             val cell = grid.getCell(selectedCell!!)
             if (!cell.isGiven && !cell.isSolved) {
+                val singleNum = selectedNumbers1.singleOrNull()
                 when (key.lowercase()) {
                     "enter", "return" -> {
-                        // Enter: Set primary number if selected
-                        selectedNumber1?.let { num ->
-                            gameEngine.setCellValue(selectedCell!!, num)
+                        // Enter: Set primary number if exactly one selected
+                        if (singleNum != null) {
+                            gameEngine.setCellValue(selectedCell!!, singleNum)
                             saveCurrentState()
                             render()
                             return true
@@ -742,9 +769,9 @@ class SudokuApp {
                     }
                     "s" -> {
                         if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                            // S: Set primary number
-                            selectedNumber1?.let { num ->
-                                gameEngine.setCellValue(selectedCell!!, num)
+                            // S: Set primary number if exactly one selected
+                            if (singleNum != null) {
+                                gameEngine.setCellValue(selectedCell!!, singleNum)
                                 saveCurrentState()
                                 render()
                                 return true
@@ -1147,7 +1174,7 @@ class SudokuApp {
                                     }
                                     li {
                                         strong { +"Advanced Mode" }
-                                        +": Sets number highlighting (primary/secondary). Pressing the same number again clears the selection"
+                                        +": Toggles the number in the primary selection. Use the two number bars for clicking (primary=blue, secondary=red)"
                                     }
                                 }
                             }
@@ -1237,7 +1264,11 @@ class SudokuApp {
                                 strong { +"Enter" }
                                 +" or "
                                 strong { +"S" }
-                                +": Set the primary selected number in the selected cell (when in Advanced mode)"
+                                +": Set the value in the selected cell (only works when exactly one number is selected in primary)"
+                            }
+                            li {
+                                strong { +"Deselect button" }
+                                +": Click to deselect the cell and show number bars again"
                             }
                         }
                     }
@@ -1303,12 +1334,17 @@ class SudokuApp {
                         ul {
                             li { +"Number keys immediately apply to selected cells when appropriate" }
                             li { +"Quick, streamlined input for faster solving" }
+                            li { +"Single number selection for highlighting" }
                         }
                         
                         h3 { +"Advanced Mode" }
                         ul {
-                            li { +"Number keys primarily control highlighting" }
-                            li { +"Use action buttons or Enter/S to set values" }
+                            li { +"Two number bars: primary (blue) and secondary (red)" }
+                            li { +"Toggle multiple numbers in each bar - cells must contain ALL selected numbers to highlight" }
+                            li { +"When a cell is selected, number bars hide and action buttons appear" }
+                            li { +"Use Deselect button to show number bars again" }
+                            li { +"Use Set/Clr buttons to modify cells, or Enter/S for single-number selections" }
+                            li { +"Click Fast/Adv badge in header to quickly toggle modes" }
                             li { +"Supports two-number highlighting for complex solving techniques" }
                         }
                     }
@@ -1644,15 +1680,29 @@ class SudokuApp {
                                     HighlightMode.PENCIL -> "✏️"
                                 }
                             }
-                            span("mode-badge play-mode ${if (playMode == PlayMode.FAST) "fast" else "advanced"}") {
+                            span("mode-badge play-mode clickable ${if (playMode == PlayMode.FAST) "fast" else "advanced"}") {
                                 +if (playMode == PlayMode.FAST) "Fast" else "Adv"
+                                onClickFunction = {
+                                    if (playMode == PlayMode.FAST) {
+                                        playMode = PlayMode.ADVANCED
+                                        GameStateManager.setPlayMode(PlayMode.ADVANCED)
+                                    } else {
+                                        playMode = PlayMode.FAST
+                                        GameStateManager.setPlayMode(PlayMode.FAST)
+                                        // Clear all state when switching to FAST
+                                        selectedNumbers1.clear()
+                                        selectedNumbers2.clear()
+                                        selectedCell = null
+                                    }
+                                    render()
+                                }
                             }
                             // Selection info inline with mode badges
-                            if (selectedNumber1 != null) {
-                                span("selected-num primary") { +"$selectedNumber1" }
+                            if (selectedNumbers1.isNotEmpty()) {
+                                span("selected-num primary") { +selectedNumbers1.sorted().joinToString(",") }
                             }
-                            if (selectedNumber2 != null) {
-                                span("selected-num secondary") { +"$selectedNumber2" }
+                            if (selectedNumbers2.isNotEmpty()) {
+                                span("selected-num secondary") { +selectedNumbers2.sorted().joinToString(",") }
                             }
                         }
                     }
@@ -1735,44 +1785,61 @@ class SudokuApp {
                         if (playMode == PlayMode.ADVANCED && selectedCell != null) {
                             val cell = grid.getCell(selectedCell!!)
                             
-                            // Set buttons for selected numbers
-                            if (selectedNumber1 != null && !cell.isGiven && !cell.isSolved) {
-                                button(classes = "action-btn set-btn primary") {
-                                    +"Set $selectedNumber1"
-                                    onClickFunction = {
-                                        gameEngine.setCellValue(selectedCell!!, selectedNumber1!!)
-                                        saveCurrentState()
-                                        render()
-                                    }
+                            // Deselect button (to hide action buttons and show number bars again)
+                            button(classes = "action-btn deselect-btn") {
+                                +"Deselect"
+                                onClickFunction = {
+                                    selectedCell = null
+                                    render()
                                 }
                             }
-                            if (selectedNumber2 != null && !cell.isGiven && !cell.isSolved) {
-                                button(classes = "action-btn set-btn secondary") {
-                                    +"Set $selectedNumber2"
-                                    onClickFunction = {
-                                        gameEngine.setCellValue(selectedCell!!, selectedNumber2!!)
-                                        saveCurrentState()
-                                        render()
+                            
+                            // Set buttons for candidates that match selected numbers
+                            // Show Set button for each candidate in the cell that is in either selection
+                            if (!cell.isGiven && !cell.isSolved) {
+                                val allSelected = selectedNumbers1 + selectedNumbers2
+                                val settableCandidates = cell.displayCandidates.filter { it in allSelected }.sorted()
+                                
+                                for (num in settableCandidates) {
+                                    val btnClass = when {
+                                        num in selectedNumbers1 && num in selectedNumbers2 -> "action-btn set-btn both"
+                                        num in selectedNumbers1 -> "action-btn set-btn primary"
+                                        else -> "action-btn set-btn secondary"
+                                    }
+                                    button(classes = btnClass) {
+                                        +"Set $num"
+                                        onClickFunction = {
+                                            gameEngine.setCellValue(selectedCell!!, num)
+                                            saveCurrentState()
+                                            render()
+                                        }
                                     }
                                 }
                             }
                             
-                            // Clear pencil mark buttons
-                            if (selectedNumber1 != null && !cell.isGiven && selectedNumber1 in cell.displayCandidates) {
+                            // Clear pencil mark buttons for all selected numbers
+                            val primaryInCandidates = selectedNumbers1.filter { it in cell.displayCandidates }
+                            val secondaryInCandidates = selectedNumbers2.filter { it in cell.displayCandidates }
+                            
+                            if (primaryInCandidates.isNotEmpty() && !cell.isGiven) {
                                 button(classes = "action-btn clr-btn primary") {
-                                    +"Clr $selectedNumber1"
+                                    +"Clr ${primaryInCandidates.sorted().joinToString(",")}"
                                     onClickFunction = {
-                                        gameEngine.toggleCandidate(selectedCell!!, selectedNumber1!!)
+                                        primaryInCandidates.forEach { num ->
+                                            gameEngine.toggleCandidate(selectedCell!!, num)
+                                        }
                                         saveCurrentState()
                                         render()
                                     }
                                 }
                             }
-                            if (selectedNumber2 != null && !cell.isGiven && selectedNumber2 in cell.displayCandidates) {
+                            if (secondaryInCandidates.isNotEmpty() && !cell.isGiven) {
                                 button(classes = "action-btn clr-btn secondary") {
-                                    +"Clr $selectedNumber2"
+                                    +"Clr ${secondaryInCandidates.sorted().joinToString(",")}"
                                     onClickFunction = {
-                                        gameEngine.toggleCandidate(selectedCell!!, selectedNumber2!!)
+                                        secondaryInCandidates.forEach { num ->
+                                            gameEngine.toggleCandidate(selectedCell!!, num)
+                                        }
                                         saveCurrentState()
                                         render()
                                     }
@@ -1780,12 +1847,12 @@ class SudokuApp {
                             }
                             
                             // Clear all OTHER pencil marks (keep only highlighted numbers)
-                            val keepNumbers = setOfNotNull(selectedNumber1, selectedNumber2)
+                            val keepNumbers = selectedNumbers1 + selectedNumbers2
                             val candidatesToRemove = cell.displayCandidates - keepNumbers
                             if (!cell.isGiven && !cell.isSolved && candidatesToRemove.isNotEmpty()) {
                                 button(classes = "action-btn clr-btn other") {
                                     +"Clr ✕"
-                                    attributes["title"] = "Clear all pencil marks except ${keepNumbers.joinToString(", ")}"
+                                    attributes["title"] = "Clear all pencil marks except ${keepNumbers.sorted().joinToString(", ")}"
                                     onClickFunction = {
                                         candidatesToRemove.forEach { candidate ->
                                             gameEngine.toggleCandidate(selectedCell!!, candidate)
@@ -1798,12 +1865,12 @@ class SudokuApp {
                         }
                         
                         // Clear selection button
-                        if (selectedNumber1 != null || selectedNumber2 != null) {
+                        if (selectedNumbers1.isNotEmpty() || selectedNumbers2.isNotEmpty()) {
                             button(classes = "action-btn clear-btn") {
                                 +"✕"
                                 onClickFunction = {
-                                    selectedNumber1 = null
-                                    selectedNumber2 = null
+                                    selectedNumbers1.clear()
+                                    selectedNumbers2.clear()
                                     render()
                                 }
                             }
@@ -1819,29 +1886,86 @@ class SudokuApp {
                         }
                     }
                     
-                    div("number-pad") {
-                        for (num in 1..9) {
-                            val isPrimaryNum = selectedNumber1 == num
-                            val isSecondaryNum = selectedNumber2 == num
-                            val isCompleted = numberCounts[num] >= 9
-                            val numClass = when {
-                                isCompleted -> "num-btn completed"
-                                isPrimaryNum && isSecondaryNum -> "num-btn both"
-                                isPrimaryNum -> "num-btn primary"
-                                isSecondaryNum -> "num-btn secondary"
-                                else -> "num-btn"
-                            }
-                            button(classes = numClass) {
-                                if (!isCompleted) {
-                                    +"$num"
-                                }
-                                if (!isCompleted) {
-                                    onClickFunction = {
-                                        handleNumberClick(num, grid)
+                    // In Advanced mode with cell selected, hide number pads (show action buttons instead)
+                    val hideNumberPads = playMode == PlayMode.ADVANCED && selectedCell != null
+                    
+                    if (!hideNumberPads) {
+                        if (playMode == PlayMode.FAST) {
+                            // FAST mode: single number pad
+                            div("number-pad") {
+                                for (num in 1..9) {
+                                    val isPrimaryNum = num in selectedNumbers1
+                                    val isCompleted = numberCounts[num] >= 9
+                                    val numClass = when {
+                                        isCompleted -> "num-btn completed"
+                                        isPrimaryNum -> "num-btn primary"
+                                        else -> "num-btn"
+                                    }
+                                    button(classes = numClass) {
+                                        if (!isCompleted) {
+                                            +"$num"
+                                        }
+                                        if (!isCompleted) {
+                                            onClickFunction = {
+                                                handleNumberClick(num, grid)
+                                            }
+                                        }
+                                        if (isCompleted) {
+                                            attributes["disabled"] = "true"
+                                        }
                                     }
                                 }
-                                if (isCompleted) {
-                                    attributes["disabled"] = "true"
+                            }
+                        } else {
+                            // ADVANCED mode: two number pads (primary and secondary)
+                            // Primary number pad (blue)
+                            div("number-pad primary") {
+                                for (num in 1..9) {
+                                    val isSelected = num in selectedNumbers1
+                                    val isCompleted = numberCounts[num] >= 9
+                                    val numClass = when {
+                                        isCompleted -> "num-btn completed"
+                                        isSelected -> "num-btn primary"
+                                        else -> "num-btn"
+                                    }
+                                    button(classes = numClass) {
+                                        if (!isCompleted) {
+                                            +"$num"
+                                        }
+                                        if (!isCompleted) {
+                                            onClickFunction = {
+                                                togglePrimaryNumber(num)
+                                            }
+                                        }
+                                        if (isCompleted) {
+                                            attributes["disabled"] = "true"
+                                        }
+                                    }
+                                }
+                            }
+                            // Secondary number pad (red)
+                            div("number-pad secondary") {
+                                for (num in 1..9) {
+                                    val isSelected = num in selectedNumbers2
+                                    val isCompleted = numberCounts[num] >= 9
+                                    val numClass = when {
+                                        isCompleted -> "num-btn completed"
+                                        isSelected -> "num-btn secondary"
+                                        else -> "num-btn"
+                                    }
+                                    button(classes = numClass) {
+                                        if (!isCompleted) {
+                                            +"$num"
+                                        }
+                                        if (!isCompleted) {
+                                            onClickFunction = {
+                                                toggleSecondaryNumber(num)
+                                            }
+                                        }
+                                        if (isCompleted) {
+                                            attributes["disabled"] = "true"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -2017,16 +2141,33 @@ class SudokuApp {
         // Get solved digit for this cell from the hint
         val hintSolvedDigit = selectedHint?.solvedCells?.find { it.cell == cellIndex }?.digit
         
+        // Check if ALL candidates in this cell are covered by selected numbers (from either color)
+        val allSelectedNumbers = selectedNumbers1 + selectedNumbers2
+        val allCandidatesCovered = !cell.isSolved && 
+            cell.displayCandidates.isNotEmpty() && 
+            allSelectedNumbers.isNotEmpty() &&
+            cell.displayCandidates.all { it in allSelectedNumbers }
+        val coveredClass = if (allCandidatesCovered) " all-candidates-covered" else ""
+        
         val solvedClass = if (cell.isSolved && !cell.isGiven) " solved" else ""
-        div("cell${if (isSelected) " selected" else ""}${if (cell.isGiven) " given" else ""}$solvedClass${if (hasMistake) " mistake" else ""}$highlightClass$hintClass$boxBorderClasses") {
+        div("cell${if (isSelected) " selected" else ""}${if (cell.isGiven) " given" else ""}$solvedClass${if (hasMistake) " mistake" else ""}$highlightClass$hintClass$coveredClass$boxBorderClasses") {
             if (cell.isSolved) {
                 span("cell-value") { +"${cell.value}" }
             } else if (cell.displayCandidates.isNotEmpty()) {
                 div("candidates") {
                     for (n in 1..9) {
-                        // Highlight pencil marks that match selected numbers
-                        val isPencilHighlight = (n == selectedNumber1 || n == selectedNumber2) && 
-                                                highlightMode == HighlightMode.PENCIL
+                        // Highlight pencil marks that match selected numbers (with color-coded classes)
+                        val inPrimary = n in selectedNumbers1
+                        val inSecondary = n in selectedNumbers2
+                        val pencilHighlightClass = if (highlightMode == HighlightMode.PENCIL) {
+                            when {
+                                inPrimary && inSecondary -> " pencil-highlight-both"
+                                inPrimary -> " pencil-highlight-primary"
+                                inSecondary -> " pencil-highlight-secondary"
+                                else -> ""
+                            }
+                        } else ""
+                        
                         // Hint-specific pencil mark highlighting
                         val isElimination = n in eliminationDigitsForThisCell
                         val isMatchingButNotEliminated = n in matchingButNotEliminatedDigits
@@ -2035,7 +2176,7 @@ class SudokuApp {
                         val candidateClasses = buildString {
                             append("candidate")
                             if (n !in cell.displayCandidates) append(" hidden")
-                            if (isPencilHighlight) append(" pencil-highlight")
+                            append(pencilHighlightClass)
                             if (isElimination) append(" hint-elimination")
                             if (isMatchingButNotEliminated) append(" hint-matching-not-eliminated")
                             if (isSolvedHint) append(" hint-solved")
@@ -2511,6 +2652,10 @@ class SudokuApp {
                             onClickFunction = {
                                 playMode = PlayMode.FAST
                                 GameStateManager.setPlayMode(PlayMode.FAST)
+                                // Clear all state when switching to FAST mode
+                                selectedNumbers1.clear()
+                                selectedNumbers2.clear()
+                                selectedCell = null
                                 render()
                             }
                         }
@@ -2519,7 +2664,6 @@ class SudokuApp {
                             onClickFunction = {
                                 playMode = PlayMode.ADVANCED
                                 GameStateManager.setPlayMode(PlayMode.ADVANCED)
-                                selectedNumber2 = null // Clear secondary when switching to fast
                                 render()
                             }
                         }
@@ -2528,30 +2672,30 @@ class SudokuApp {
                     div("mode-explanation") {
                         +when (playMode) {
                             PlayMode.FAST -> "Click number, then click cell to fill. Quick and simple."
-                            PlayMode.ADVANCED -> "Click numbers to highlight (2 colors). Click solved cells to activate secondary highlight. Use action buttons to fill."
+                            PlayMode.ADVANCED -> "Two number rows for highlighting. Select multiple numbers per color. Cells with ALL selected numbers highlight. Click cell for action buttons."
                         }
                     }
                 }
                 
                 // Two-number highlight info
                 div("section highlight-info") {
-                    h2 { +"🔵🔴 Two-Number Highlighting" }
+                    h2 { +"🔵🔴 Multi-Number Highlighting" }
                     div("color-legend") {
                         div("legend-item") {
                             span("color-box primary") {}
-                            span { +"Primary (1st number)" }
+                            span { +"Primary row (blue)" }
                         }
                         div("legend-item") {
                             span("color-box secondary") {}
-                            span { +"Secondary (2nd number)" }
+                            span { +"Secondary row (red)" }
                         }
                         div("legend-item") {
                             span("color-box both") {}
-                            span { +"Intersection (both)" }
+                            span { +"Intersection (both colors)" }
                         }
                     }
                     p("setting-desc") {
-                        +"In Advanced mode, select a 2nd number by clicking it, or click a solved cell with a different value."
+                        +"In Advanced mode, toggle numbers in each row. Only cells containing ALL selected numbers in a row will highlight in that color."
                     }
                 }
             }
@@ -2924,7 +3068,7 @@ private val CSS_STYLES = """
     }
 
     .cell:hover { background: rgba(var(--color-bg-tertiary), 0.3); }
-    .cell.selected { background: rgba(var(--color-accent-secondary), 0.3); box-shadow: inset 0 0 0 2px rgb(var(--color-accent-secondary)); }
+    .cell.selected { background: rgba(var(--color-text-primary), 0.1); box-shadow: inset 0 0 0 2px rgba(var(--color-text-primary), 0.7); }
     .cell.given { background: rgba(var(--color-bg-tertiary), 0.25); }
     .cell.solved { background: rgba(var(--color-bg-tertiary), 0.15); }
     .cell.mistake { background: rgba(var(--color-accent-error), 0.5); }
@@ -3433,6 +3577,36 @@ private val CSS_STYLES = """
     .cell.highlight-secondary:hover { background: rgba(var(--color-accent-secondary), 0.4); }
     .cell.highlight-both:hover { background: rgba(var(--color-accent-tertiary), 0.4); }
     
+    /* All candidates covered - striped/hashed pattern (easy to customize) */
+    .cell.all-candidates-covered {
+        --stripe-color: rgba(var(--color-accent-warning), 0.25);
+        --stripe-size: 6px;
+        --stripe-angle: 45deg;
+        background-image: repeating-linear-gradient(
+            var(--stripe-angle),
+            var(--stripe-color),
+            var(--stripe-color) 2px,
+            transparent 2px,
+            transparent var(--stripe-size)
+        );
+    }
+    /* Combine with existing highlight colors */
+    .cell.all-candidates-covered.highlight-primary {
+        background: 
+            repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
+            rgba(var(--color-accent-primary), 0.3);
+    }
+    .cell.all-candidates-covered.highlight-secondary {
+        background: 
+            repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
+            rgba(var(--color-accent-secondary), 0.3);
+    }
+    .cell.all-candidates-covered.highlight-both {
+        background: 
+            repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
+            rgba(var(--color-accent-tertiary), 0.3);
+    }
+    
     /* Hint cell highlighting - new system */
     .cell.hint-cover-area { 
         background: rgba(var(--color-accent-primary), 0.3); /* Light blue for cover area */
@@ -3471,11 +3645,23 @@ private val CSS_STYLES = """
         background: rgba(206, 147, 216, 0.6);
     }
     
-    /* Pencil mark highlighting */
-    .candidate.pencil-highlight {
+    /* Pencil mark highlighting - color coded */
+    .candidate.pencil-highlight-primary {
         color: rgb(var(--color-accent-primary));
         font-weight: bold;
         background: rgba(var(--color-accent-primary), 0.3);
+        border-radius: 2px;
+    }
+    .candidate.pencil-highlight-secondary {
+        color: rgb(var(--color-accent-secondary));
+        font-weight: bold;
+        background: rgba(var(--color-accent-secondary), 0.3);
+        border-radius: 2px;
+    }
+    .candidate.pencil-highlight-both {
+        color: rgb(var(--color-accent-warning));
+        font-weight: bold;
+        background: rgba(var(--color-accent-warning), 0.35);
         border-radius: 2px;
     }
     
@@ -3521,6 +3707,8 @@ private val CSS_STYLES = """
     .mode-badge.highlight-mode { background: rgba(var(--color-accent-primary), 0.3); color: rgb(var(--color-accent-primary)); }
     .mode-badge.play-mode.fast { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
     .mode-badge.play-mode.advanced { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
+    .mode-badge.clickable { cursor: pointer; transition: all 0.15s ease; }
+    .mode-badge.clickable:hover { transform: scale(1.05); filter: brightness(1.1); }
     
     /* Selected number badges - inline with mode indicators */
     .selected-num {
@@ -3569,6 +3757,14 @@ private val CSS_STYLES = """
         background: rgba(var(--color-accent-secondary), 0.5);
     }
 
+    .action-btn.set-btn.both {
+        background: rgba(var(--color-accent-warning), 0.3);
+        color: rgb(var(--color-accent-warning));
+    }
+    .action-btn.set-btn.both:hover {
+        background: rgba(var(--color-accent-warning), 0.5);
+    }
+
     /* Clear pencil mark buttons - primary (blue) and secondary (red) */
     .action-btn.clr-btn.primary {
         background: rgba(var(--color-accent-primary), var(--color-btn-opacity));
@@ -3604,6 +3800,23 @@ private val CSS_STYLES = """
     }
     .action-btn.clear-btn:hover {
         background: rgba(var(--color-bg-tertiary), 0.3);
+    }
+    
+    /* Deselect cell button */
+    .action-btn.deselect-btn {
+        background: rgba(var(--color-accent-tertiary), 0.2);
+        color: rgb(var(--color-accent-tertiary));
+    }
+    .action-btn.deselect-btn:hover {
+        background: rgba(var(--color-accent-tertiary), 0.35);
+    }
+    
+    /* Dual number pads in advanced mode */
+    .number-pad.primary {
+        margin-bottom: clamp(4px, 1vmin, 8px);
+    }
+    .number-pad.secondary {
+        margin-top: clamp(2px, 0.5vmin, 4px);
     }
     
     /* Settings screen styles */
