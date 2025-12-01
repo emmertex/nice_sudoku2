@@ -5,6 +5,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.w3c.dom.get
 import org.w3c.dom.set
+import Theme
 
 /**
  * Manages game state persistence in localStorage
@@ -19,6 +20,7 @@ object GameStateManager {
     private const val CUSTOM_PUZZLES_KEY = "nice_sudoku_custom_puzzles"
     private const val HIDE_COMPLETED_KEY = "nice_sudoku_hide_completed"
     private const val LAST_SEEN_VERSION_KEY = "nice_sudoku_last_seen_version"
+    private const val THEME_KEY = "nice_sudoku_theme"
     
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -228,6 +230,29 @@ object GameStateManager {
             localStorage[LAST_SEEN_VERSION_KEY] = version
         } catch (e: Exception) {
             console.log("Error saving last seen version: ${e.message}")
+        }
+    }
+
+    /**
+     * Get theme preference (default: BLUE)
+     */
+    fun getTheme(): Theme {
+        return try {
+            val name = localStorage[THEME_KEY]
+            if (name != null) Theme.valueOf(name) else Theme.BLUE
+        } catch (e: Exception) {
+            Theme.BLUE
+        }
+    }
+
+    /**
+     * Set theme preference
+     */
+    fun setTheme(theme: Theme) {
+        try {
+            localStorage[THEME_KEY] = theme.name
+        } catch (e: Exception) {
+            console.log("Error saving theme preference: ${e.message}")
         }
     }
     
