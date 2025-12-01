@@ -56,9 +56,21 @@ data class SudokuGrid(
     fun withCellCandidates(cellIndex: Int, candidates: Set<Int>): SudokuGrid {
         return updateCell(cellIndex) { it.withCandidates(candidates) }
     }
+    
+    fun withCellUserEliminations(cellIndex: Int, eliminations: Set<Int>): SudokuGrid {
+        return updateCell(cellIndex) { it.withUserEliminations(eliminations) }
+    }
 
     fun toggleCandidate(cellIndex: Int, candidate: Int): SudokuGrid {
         return updateCell(cellIndex) { it.toggleCandidate(candidate) }
+    }
+    
+    /**
+     * Toggle a user elimination for a specific cell.
+     * This is what should be called when user manually toggles a pencil mark.
+     */
+    fun toggleUserElimination(cellIndex: Int, candidate: Int): SudokuGrid {
+        return updateCell(cellIndex) { it.toggleUserElimination(candidate) }
     }
 
     fun highlightCells(cellIndices: Set<Int>, color: HighlightColor?): SudokuGrid {

@@ -196,7 +196,7 @@ fun main() {
                         val number = gameState.selectedNumber1 ?: return@GameScreen
                         val cell = gameState.grid.getCell(cellIndex)
                         
-                        if (number in cell.candidates) {
+                        if (number in cell.displayCandidates) {
                             val newGrid = gameState.grid.toggleCandidate(cellIndex, number)
                             gameState = applyHighlights(gameState.copy(grid = newGrid))
                         }

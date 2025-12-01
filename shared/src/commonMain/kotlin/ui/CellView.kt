@@ -73,9 +73,9 @@ fun CellView(
                 textAlign = TextAlign.Center
             )
         } else {
-            // Display candidates/pencilmarks
+            // Display candidates/pencilmarks (use displayCandidates = candidates - userEliminations)
             CandidatesGrid(
-                candidates = cell.candidates,
+                candidates = cell.displayCandidates,
                 highlightedCandidates = highlightedCandidates,
                 modifier = Modifier.fillMaxSize().padding(2.dp)
             )

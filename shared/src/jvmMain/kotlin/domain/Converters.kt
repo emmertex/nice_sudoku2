@@ -41,9 +41,10 @@ actual object Converters {
             if (cell.isSolved && cell.value != null) {
                 basicGrid.setSolved(cell.index, cell.value - 1, cell.isGiven)
             } else {
-                // Set candidates
+                // Set candidates from displayCandidates (auto-calculated minus user eliminations)
+                // This ensures the backend sees what the user sees
                 for (d in 0 until 9) {
-                    if ((d + 1) !in cell.candidates) {
+                    if ((d + 1) !in cell.displayCandidates) {
                         basicGrid.clearCandidate(cell.index, d)
                     }
                 }

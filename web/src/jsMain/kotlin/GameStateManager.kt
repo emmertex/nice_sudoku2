@@ -255,10 +255,15 @@ object GameStateManager {
     }
     
     /**
-     * Create a new saved game state from a puzzle
+     * Create a new saved game state from a puzzle.
+     * 
+     * The state format is: 81 values + 729 user eliminations
+     * Initial state has 729 zeros meaning NO user eliminations.
+     * All candidates can be shown (if auto-calculation allows).
      */
     fun createNewGame(puzzle: PuzzleDefinition, solution: String? = null): SavedGameState {
-        // Initialize state with puzzle string (81 chars) + all notes off (729 zeros)
+        // Initialize state with puzzle string (81 chars) + no user eliminations (729 zeros)
+        // 0 = not eliminated by user = can be shown if auto-calc allows
         val initialState = puzzle.puzzleString + "0".repeat(729)
         
         return SavedGameState(

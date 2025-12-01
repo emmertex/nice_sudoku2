@@ -178,7 +178,7 @@ class GameRepository {
         val number = state.selectedNumber1 ?: return
 
         val cell = state.grid.getCell(cellIndex)
-        if (number in cell.candidates) {
+        if (number in cell.displayCandidates) {
             toggleCandidateInCell(cellIndex, number)
         }
     }
