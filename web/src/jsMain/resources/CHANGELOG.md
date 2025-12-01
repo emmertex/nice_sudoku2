@@ -1,3 +1,27 @@
+# v0.1.0 - 2025-12-02
+
+### Features
+- Complete revamp on Advanced mode
+- - Select any number of candidates per colour
+- - Dedicated number bar per colour
+- - Clicking badge in top right will switch beteen Fast and Advanced mode
+- - All available (and only available) actions in a cell are available when selected.  This is based on the highlighting used.
+- More Highlighting Types
+- - If every candidate is satisfied, the cell will be hashed
+- - Candidated highlighted in the colour used to highlight it
+
+### Fixed Issues
+- Switching between Fast and Advanced mode no longer causes stuch highlights.
+
+### Known Issues
+- Hints are not really usable.
+- - Even if notes are eliminated, hints using them can be shown
+- - Highlighting does not show properly.
+- - Highlighting modes other than Pencil are erroneous.
+- - Returned hints are not logically chosen. 
+- UI occasionally exceeds viewport boundaries.
+- - This is getting worse, now that Advanced needs more vertical space.
+
 # v0.0.3 - 2025-12-01b
 
 ### Features
