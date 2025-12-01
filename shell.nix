@@ -13,3 +13,4 @@ pkgs.mkShell {
     export PATH="$JAVA_HOME/bin:$PATH"
   '';
 }
+

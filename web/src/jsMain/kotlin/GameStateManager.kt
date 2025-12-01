@@ -18,6 +18,7 @@ object GameStateManager {
     private const val GREETING_SHOWN_KEY = "nice_sudoku_greeting_shown"
     private const val CUSTOM_PUZZLES_KEY = "nice_sudoku_custom_puzzles"
     private const val HIDE_COMPLETED_KEY = "nice_sudoku_hide_completed"
+    private const val LAST_SEEN_VERSION_KEY = "nice_sudoku_last_seen_version"
     
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -205,6 +206,28 @@ object GameStateManager {
             localStorage[HIDE_COMPLETED_KEY]?.toBoolean() ?: true
         } catch (e: Exception) {
             true
+        }
+    }
+    
+    /**
+     * Get last seen version
+     */
+    fun getLastSeenVersion(): String? {
+        return try {
+            localStorage[LAST_SEEN_VERSION_KEY]
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    /**
+     * Set last seen version
+     */
+    fun setLastSeenVersion(version: String) {
+        try {
+            localStorage[LAST_SEEN_VERSION_KEY] = version
+        } catch (e: Exception) {
+            console.log("Error saving last seen version: ${e.message}")
         }
     }
     

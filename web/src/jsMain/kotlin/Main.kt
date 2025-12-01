@@ -8,6 +8,8 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.fetch.Response
+import kotlin.js.Promise
 import adapter.GameEngine
 import adapter.TechniqueMatchInfo
 import domain.*
@@ -66,6 +68,11 @@ class SudokuApp {
     private var showGreetingModal = false
     private var showCompletionModal = false
     private var completionShownForPuzzle: String? = null  // Track which puzzle we've shown completion for
+    private var showVersionModal = false
+    
+    // Version info (loaded from CHANGELOG.md)
+    private var currentVersion: String = ""
+    private var changelogContent: String = ""
     
     // Puzzle browser state
     private var hideCompletedPuzzles = GameStateManager.getHideCompleted()
@@ -135,6 +142,9 @@ class SudokuApp {
             GameStateManager.markGreetingAsShown()
         }
         
+        // Load changelog and check for new version
+        loadChangelog()
+        
         // Try to resume last game
         val lastGameId = GameStateManager.getCurrentGameId()
         if (lastGameId != null) {
@@ -152,6 +162,38 @@ class SudokuApp {
             startNewGame(puzzle)
         } else {
             render()
+        }
+    }
+    
+    private fun loadChangelog() {
+        val fetchPromise = window.asDynamic().fetch("CHANGELOG.md") as Promise<Response>
+        fetchPromise.then { response ->
+            if (response.ok) {
+                response.text().then { text ->
+                    changelogContent = text as String
+                    
+                    // Extract version from first line (format: "# v0.0.2 - 2025-12-01")
+                    val firstLine = changelogContent.lines().firstOrNull() ?: ""
+                    val versionMatch = Regex("""#\s*(v[\d.]+)""").find(firstLine)
+                    currentVersion = versionMatch?.groupValues?.getOrNull(1) ?: ""
+                    
+                    // Check if this is a new version
+                    val lastSeenVersion = GameStateManager.getLastSeenVersion()
+                    if (currentVersion.isNotEmpty() && currentVersion != lastSeenVersion) {
+                        // New version detected - show the changelog modal
+                        // But not if greeting modal is already showing (first launch)
+                        if (!showGreetingModal) {
+                            showVersionModal = true
+                        }
+                        // Always mark as seen so it doesn't show again
+                        GameStateManager.setLastSeenVersion(currentVersion)
+                        render()
+                    } else {
+                        // Just re-render to show the version number
+                        render()
+                    }
+                }
+            }
         }
     }
     
@@ -468,6 +510,11 @@ class SudokuApp {
             }
             if (showGreetingModal) {
                 showGreetingModal = false
+                render()
+                return true
+            }
+            if (showVersionModal) {
+                showVersionModal = false
                 render()
                 return true
             }
@@ -865,6 +912,16 @@ class SudokuApp {
         // Completion modal (shown when puzzle is solved)
         if (showCompletionModal) {
             renderCompletionModal()
+        }
+        
+        // Version modal (shown on new version)
+        if (showVersionModal) {
+            renderVersionModal()
+        }
+        
+        // Always show version number in bottom left corner (if loaded)
+        if (currentVersion.isNotEmpty()) {
+            renderVersionIndicator()
         }
     }
     
@@ -1414,21 +1471,114 @@ class SudokuApp {
         }
     }
     
+    private fun renderVersionIndicator() {
+        appRoot.append {
+            div("version-indicator") {
+                +currentVersion
+                onClickFunction = {
+                    showVersionModal = true
+                    render()
+                }
+            }
+        }
+    }
+    
+    private fun renderVersionModal() {
+        appRoot.append {
+            div("modal-overlay") {
+                onClickFunction = { event ->
+                    // Close when clicking overlay (not the modal content)
+                    if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
+                        showVersionModal = false
+                        render()
+                    }
+                }
+                div("modal-content version-modal") {
+                    button(classes = "modal-close") {
+                        +"✕"
+                        onClickFunction = {
+                            showVersionModal = false
+                            render()
+                        }
+                    }
+                    
+                    h1 { +"What's New" }
+                    
+                    // Render changelog content as formatted HTML
+                    div("changelog-content") {
+                        unsafe {
+                            +parseMarkdownToHtml(changelogContent)
+                        }
+                    }
+                    
+                    div("version-actions") {
+                        button(classes = "close-btn") {
+                            +"Got it!"
+                            onClickFunction = {
+                                showVersionModal = false
+                                render()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun parseMarkdownToHtml(markdown: String): String {
+        return markdown.lines().joinToString("\n") { line ->
+            when {
+                // H1 headers
+                line.startsWith("# ") -> "<h2 class='changelog-version'>${line.drop(2)}</h2>"
+                // H3 headers (### Features, ### Fixes, etc.)
+                line.startsWith("### ") -> "<h3 class='changelog-section'>${line.drop(4)}</h3>"
+                // List items with double dash (sub-items)
+                line.trimStart().startsWith("- - ") -> {
+                    val content = line.trimStart().drop(4)
+                    "<li class='changelog-subitem'>${formatInlineMarkdown(content)}</li>"
+                }
+                // Regular list items
+                line.trimStart().startsWith("- ") -> {
+                    val content = line.trimStart().drop(2)
+                    "<li>${formatInlineMarkdown(content)}</li>"
+                }
+                // Empty lines
+                line.isBlank() -> ""
+                // Regular text
+                else -> "<p>${formatInlineMarkdown(line)}</p>"
+            }
+        }.replace(Regex("<li>"), "<ul><li>")
+            .replace(Regex("</li>(?!\\s*<li)"), "</li></ul>")
+            .replace(Regex("</ul>\\s*<ul>"), "") // Clean up consecutive ul tags
+    }
+    
+    private fun formatInlineMarkdown(text: String): String {
+        return text
+            // Strikethrough ~~text~~
+            .replace(Regex("~~(.+?)~~"), "<del>$1</del>")
+            // Bold text **text**
+            .replace(Regex("\\*\\*(.+?)\\*\\*"), "<strong>$1</strong>")
+            // Italic text *text*
+            .replace(Regex("\\*(.+?)\\*"), "<em>$1</em>")
+            // Code `text`
+            .replace(Regex("`(.+?)`"), "<code>$1</code>")
+    }
+    
     private fun loadNextUncompletedGame(category: DifficultyCategory) {
         val summaries = GameStateManager.getGameSummaries()
         val puzzles = PuzzleLibrary.getPuzzlesForCategory(category)
         
-        // Find the first uncompleted puzzle in this category
+        // Find the first puzzle that has NOT been started (no saved game exists)
         val nextPuzzle = puzzles.firstOrNull { puzzle ->
             val existingGame = summaries.find { it.puzzleId == puzzle.id }
-            existingGame == null || !existingGame.isCompleted
+            existingGame == null
         }
         
         if (nextPuzzle != null) {
             startNewGame(nextPuzzle)
         } else {
-            // All puzzles in this category completed, try random from next difficulty
-            showToast("All ${category.displayName} puzzles completed! 🎉")
+            // All puzzles in this category have been started
+            showToast("All ${category.displayName} puzzles started! 🎉")
             render()
         }
     }
@@ -2450,6 +2600,15 @@ private val CSS_STYLES = """
         text-align: center;
         margin-bottom: clamp(8px, 2vmin, 20px);
         flex-shrink: 0;
+        position: relative;
+    }
+    
+    /* Position back button to the left */
+    .header .back-btn {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
     }
     
     .nav-row {
@@ -2947,6 +3106,22 @@ private val CSS_STYLES = """
     .status.completed { background: rgba(76, 175, 80, 0.3); color: #81c784; }
     .status.progress { background: rgba(255, 193, 7, 0.3); color: #ffd54f; }
     
+    /* Game item text elements */
+    .game-item .progress {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.8rem;
+    }
+    
+    .game-item .time {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.75rem;
+    }
+    
+    .game-item .mistakes {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.75rem;
+    }
+    
     .play-btn, .resume-btn {
         margin-left: auto;
         padding: 6px 12px;
@@ -3253,13 +3428,13 @@ private val CSS_STYLES = """
         font-size: clamp(0.75rem, calc(0.7rem + 0.5vmin), 1rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(233, 69, 96, 0.2);
-        color: #e94560;
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
         transition: all 0.15s ease;
     }
     
     .settings-nav-btn:hover {
-        background: rgba(233, 69, 96, 0.4);
+        background: rgba(255, 255, 255, 0.2);
         transform: translateY(-2px);
     }
     
@@ -3748,5 +3923,128 @@ private val CSS_STYLES = """
         color: rgba(255, 255, 255, 0.5);
         font-size: clamp(0.8rem, calc(0.75rem + 0.3vmin), 0.95rem);
         line-height: 1.5;
+    }
+    
+    /* Version indicator - fixed position bottom left */
+    .version-indicator {
+        position: fixed;
+        bottom: 12px;
+        left: 12px;
+        font-size: clamp(0.65rem, calc(0.6rem + 0.25vmin), 0.75rem);
+        color: rgba(255, 255, 255, 0.35);
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        z-index: 100;
+        user-select: none;
+    }
+    
+    .version-indicator:hover {
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Version modal styles */
+    .version-modal {
+        max-width: 600px;
+    }
+    
+    .version-modal h1 {
+        color: #e94560;
+        font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
+        margin-bottom: clamp(12px, 2vmin, 20px);
+        text-align: center;
+    }
+    
+    .changelog-content {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
+        line-height: 1.6;
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+    
+    .changelog-content h2.changelog-version {
+        color: #4ecdc4;
+        font-size: clamp(1.1rem, calc(1rem + 0.5vmin), 1.3rem);
+        margin-top: clamp(16px, 3vmin, 24px);
+        margin-bottom: clamp(8px, 1.5vmin, 12px);
+        padding-bottom: clamp(6px, 1vmin, 10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .changelog-content h2.changelog-version:first-child {
+        margin-top: 0;
+    }
+    
+    .changelog-content h3.changelog-section {
+        color: #ffc107;
+        font-size: clamp(0.95rem, calc(0.85rem + 0.4vmin), 1.1rem);
+        margin-top: clamp(12px, 2vmin, 16px);
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .changelog-content ul {
+        margin: 0 0 clamp(8px, 1.5vmin, 12px) 0;
+        padding-left: clamp(16px, 3vmin, 24px);
+    }
+    
+    .changelog-content li {
+        margin-bottom: clamp(4px, 0.8vmin, 8px);
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .changelog-content li.changelog-subitem {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.95em;
+        margin-left: 16px;
+    }
+    
+    .changelog-content strong {
+        color: #ff6b6b;
+    }
+    
+    .changelog-content del {
+        color: rgba(255, 255, 255, 0.4);
+        text-decoration: line-through;
+    }
+    
+    .changelog-content code {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Consolas', monospace;
+        font-size: 0.9em;
+    }
+    
+    .changelog-content p {
+        margin-bottom: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .version-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: clamp(16px, 3vmin, 24px);
+        padding-top: clamp(12px, 2vmin, 16px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .version-actions .close-btn {
+        padding: clamp(10px, 2vmin, 14px) clamp(24px, 5vmin, 40px);
+        border: none;
+        border-radius: clamp(6px, 1.5vmin, 10px);
+        font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.05rem);
+        font-weight: 600;
+        cursor: pointer;
+        background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        color: #fff;
+        transition: all 0.2s ease;
+    }
+    
+    .version-actions .close-btn:hover {
+        background: linear-gradient(135deg, #5fd4cb, #4eb19b);
+        transform: translateY(-2px);
     }
 """.trimIndent()
