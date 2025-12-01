@@ -115,20 +115,40 @@ actual class GameEngine actual constructor() {
         }
     }
     
+    /**
+     * Toggle a user elimination for a cell.
+     * This is what gets called when the user manually toggles a pencil mark.
+     * The user elimination is persisted and won't be lost when candidates are recalculated.
+     */
     fun toggleCandidate(cellIndex: Int, candidate: Int) {
         val cell = grid.getCell(cellIndex)
         if (!cell.isGiven && !cell.isSolved) {
-            grid = grid.toggleCandidate(cellIndex, candidate)
+            grid = grid.toggleUserElimination(cellIndex, candidate)
         }
     }
     
     /**
+     * Set user eliminations for a cell (overwrite existing eliminations).
+     * Used when restoring saved game state.
+     */
+    fun setUserEliminations(cellIndex: Int, eliminations: Set<Int>) {
+        val cell = grid.getCell(cellIndex)
+        if (!cell.isGiven && !cell.isSolved) {
+            grid = grid.withCellUserEliminations(cellIndex, eliminations)
+        }
+    }
+    
+    /**
+     * @deprecated Use setUserEliminations instead for setting eliminations.
      * Set candidates for a cell (overwrite existing candidates)
      */
     fun toggleCandidate(cellIndex: Int, candidates: Set<Int>) {
         val cell = grid.getCell(cellIndex)
         if (!cell.isGiven && !cell.isSolved) {
-            grid = grid.withCellCandidates(cellIndex, candidates)
+            // Convert old-style "set shown candidates" to user eliminations
+            // The eliminations are: all possible (1-9) minus what should be shown
+            val eliminations = (1..9).toSet() - candidates
+            grid = grid.withCellUserEliminations(cellIndex, eliminations)
         }
     }
     
@@ -322,11 +342,11 @@ actual class GameEngine actual constructor() {
     private fun findLocalBasicTechniques() {
         val matches = mutableMapOf<String, MutableList<TechniqueMatchInfo>>()
         
-        // Find naked singles locally
+        // Find naked singles locally using displayCandidates (what user sees)
         for (cellIndex in 0 until 81) {
             val cell = grid.getCell(cellIndex)
-            if (!cell.isSolved && cell.candidates.size == 1) {
-                val value = cell.candidates.first()
+            if (!cell.isSolved && cell.displayCandidates.size == 1) {
+                val value = cell.displayCandidates.first()
                 matches.getOrPut("NAKED_SINGLE") { mutableListOf() }.add(
                     TechniqueMatchInfo(
                         id = "local-ns-$cellIndex",
@@ -385,16 +405,18 @@ actual class GameEngine actual constructor() {
                 for (solved in match.solvedCells) {
                     grid = grid.withCellValue(solved.cell, solved.digit)
                 }
-                // Apply eliminations
+                // Apply eliminations as user eliminations
                 for (elim in match.eliminations) {
                     for (cell in elim.cells) {
                         val currentCell = grid.getCell(cell)
                         if (!currentCell.isSolved) {
-                            val newCandidates = currentCell.candidates - elim.digit
-                            grid = grid.withCellCandidates(cell, newCandidates)
+                            // Add to user eliminations instead of modifying auto-candidates
+                            val newEliminations = currentCell.userEliminations + elim.digit
+                            grid = grid.withCellUserEliminations(cell, newEliminations)
                         }
                     }
                 }
+                // Recalculate candidates after placing values (but keep user eliminations)
                 grid = calculateAllCandidates(grid)
                 currentMatches = emptyMap()
             }
@@ -565,6 +587,7 @@ actual class GameEngine actual constructor() {
             val cell = result.getCell(cellIndex)
             if (!cell.isSolved) {
                 val validCandidates = calculateCandidates(result, cellIndex)
+                // Update auto-calculated candidates while preserving user eliminations
                 result = result.withCellCandidates(cellIndex, validCandidates)
             }
         }
@@ -681,7 +704,9 @@ actual class GameEngine actual constructor() {
                 CellDto(
                     index = cell.index,
                     value = cell.value,
-                    candidates = cell.candidates,
+                    // Use displayCandidates (candidates - userEliminations) for API calls
+                    // This ensures the API sees what the user sees
+                    candidates = cell.displayCandidates,
                     isGiven = cell.isGiven
                 )
             },
@@ -692,6 +717,10 @@ actual class GameEngine actual constructor() {
     
     private fun gridDtoToSudokuGrid(dto: GridDto): SudokuGrid {
         val cells = dto.cells.map { cellDto ->
+            // Preserve user eliminations from current grid when updating from API
+            val existingCell = if (cellDto.index < grid.cells.size) grid.getCell(cellDto.index) else null
+            val userEliminations = existingCell?.userEliminations ?: emptySet()
+            
             if (cellDto.value != null) {
                 SudokuCell.solved(cellDto.index, cellDto.value, cellDto.isGiven)
             } else {
@@ -699,6 +728,7 @@ actual class GameEngine actual constructor() {
                     index = cellDto.index,
                     value = null,
                     candidates = cellDto.candidates,
+                    userEliminations = userEliminations,  // Preserve user eliminations
                     isGiven = false
                 )
             }

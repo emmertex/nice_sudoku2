@@ -199,22 +199,22 @@ class SudokuApp {
     }
     
     private fun resumeGame(saved: SavedGameState) {
-        // Parse the state
-        val (values, notes) = SavedGameState.parseStateString(saved.currentState)
+        // Parse the state - returns user eliminations (1 = eliminated by user)
+        val (values, userEliminations) = SavedGameState.parseStateString(saved.currentState)
         
-        // Load into engine
+        // Load into engine - this calculates auto-candidates
         gameEngine.loadPuzzle(saved.puzzleString)
         
-        // Apply saved values and notes
+        // Apply saved values and user eliminations
         for (i in 0 until 81) {
             val originalValue = saved.puzzleString[i].digitToIntOrNull() ?: 0
             if (values[i] != 0 && values[i] != originalValue) {
                 // User-entered value - use setCellValue to properly update engine
                 gameEngine.setCellValue(i, values[i])
             }
-            if (notes[i].isNotEmpty()) {
-                // For notes, we need to toggle each candidate
-                gameEngine.toggleCandidate(i, notes[i])
+            if (userEliminations[i].isNotEmpty()) {
+                // Set user eliminations for this cell
+                gameEngine.setUserEliminations(i, userEliminations[i])
             }
         }
         
@@ -250,15 +250,18 @@ class SudokuApp {
     
     /**
      * Save the current game state to persistent storage.
-     * This includes all cell values AND all candidates/pencil marks.
+     * This includes all cell values AND all user eliminations.
      * Must be called after any manual modification to candidates or cell values.
+     * 
+     * User eliminations are stored separately from auto-calculated candidates.
+     * This ensures user eliminations are never lost when candidates are recalculated.
      */
     private fun saveCurrentState() {
         val game = currentGame ?: return
         val grid = gameEngine.getCurrentGrid()
         val elapsedSinceStart = currentTimeMillis() - gameStartTime
         
-        // updateGameState uses createStateString which includes all candidates
+        // updateGameState uses createStateString which saves user eliminations
         val updated = GameStateManager.updateGameState(
             currentGame = game,
             grid = grid,
@@ -330,7 +333,7 @@ class SudokuApp {
                 val relatedCells = getRelatedCellIndices(selectedCellData.row, selectedCellData.col, selectedCellData.box)
                 relatedCells.filter { idx ->
                     val c = grid.getCell(idx)
-                    c.value == number || number in c.candidates
+                    c.value == number || number in c.displayCandidates
                 }.toSet()
             }
             HighlightMode.RCB_ALL -> {
@@ -344,7 +347,7 @@ class SudokuApp {
             }
             HighlightMode.PENCIL -> {
                 // Highlight cells with matching pencil marks
-                grid.cells.filter { number in it.candidates }.map { it.index }.toSet()
+                grid.cells.filter { number in it.displayCandidates }.map { it.index }.toSet()
             }
         }
     }
@@ -1594,7 +1597,7 @@ class SudokuApp {
                             }
                             
                             // Clear pencil mark buttons
-                            if (selectedNumber1 != null && !cell.isGiven && selectedNumber1 in cell.candidates) {
+                            if (selectedNumber1 != null && !cell.isGiven && selectedNumber1 in cell.displayCandidates) {
                                 button(classes = "action-btn clr-btn primary") {
                                     +"Clr $selectedNumber1"
                                     onClickFunction = {
@@ -1604,7 +1607,7 @@ class SudokuApp {
                                     }
                                 }
                             }
-                            if (selectedNumber2 != null && !cell.isGiven && selectedNumber2 in cell.candidates) {
+                            if (selectedNumber2 != null && !cell.isGiven && selectedNumber2 in cell.displayCandidates) {
                                 button(classes = "action-btn clr-btn secondary") {
                                     +"Clr $selectedNumber2"
                                     onClickFunction = {
@@ -1617,7 +1620,7 @@ class SudokuApp {
                             
                             // Clear all OTHER pencil marks (keep only highlighted numbers)
                             val keepNumbers = setOfNotNull(selectedNumber1, selectedNumber2)
-                            val candidatesToRemove = cell.candidates - keepNumbers
+                            val candidatesToRemove = cell.displayCandidates - keepNumbers
                             if (!cell.isGiven && !cell.isSolved && candidatesToRemove.isNotEmpty()) {
                                 button(classes = "action-btn clr-btn other") {
                                     +"Clr ✕"
@@ -1839,7 +1842,7 @@ class SudokuApp {
         // (i.e., in cover area, has the candidate, but not in elimination list for this cell)
         val matchingButNotEliminatedDigits = if (isInCoverArea) {
             allEliminationDigits.filter { digit ->
-                digit in cell.candidates && digit !in eliminationDigitsForThisCell
+                digit in cell.displayCandidates && digit !in eliminationDigitsForThisCell
             }.toSet()
         } else emptySet()
         
@@ -1857,7 +1860,7 @@ class SudokuApp {
         div("cell${if (isSelected) " selected" else ""}${if (cell.isGiven) " given" else ""}$solvedClass${if (hasMistake) " mistake" else ""}$highlightClass$hintClass$boxBorderClasses") {
             if (cell.isSolved) {
                 span("cell-value") { +"${cell.value}" }
-            } else if (cell.candidates.isNotEmpty()) {
+            } else if (cell.displayCandidates.isNotEmpty()) {
                 div("candidates") {
                     for (n in 1..9) {
                         // Highlight pencil marks that match selected numbers
@@ -1870,7 +1873,7 @@ class SudokuApp {
                         
                         val candidateClasses = buildString {
                             append("candidate")
-                            if (n !in cell.candidates) append(" hidden")
+                            if (n !in cell.displayCandidates) append(" hidden")
                             if (isPencilHighlight) append(" pencil-highlight")
                             if (isElimination) append(" hint-elimination")
                             if (isMatchingButNotEliminated) append(" hint-matching-not-eliminated")
@@ -2025,7 +2028,8 @@ class SudokuApp {
         val currentValues = grid.cells.joinToString("") { 
             (it.value ?: 0).toString() 
         }
-        val stateString = SavedGameState.createStateString(grid)
+        // Use export format (notes shown: 1 = visible) for sharing compatibility with other apps
+        val stateString = SavedGameState.createStateStringForExport(grid)
         
         appRoot.append {
             div("sudoku-container import-export") {
@@ -2150,8 +2154,57 @@ class SudokuApp {
                                     // Save to custom puzzles library
                                     GameStateManager.saveCustomPuzzle(puzzle)
                                     
-                                    startNewGame(puzzle)
-                                    showToast("✓ Puzzle loaded and saved to Custom!")
+                                    // Check if we have a full state string (810 chars) with notes
+                                    if (text.length >= 810) {
+                                        // Import includes notes - parse and convert to eliminations
+                                        // The import format uses notes (1 = shown), which we invert to eliminations
+                                        val (values, userEliminations) = SavedGameState.parseStateStringFromNotesFormat(text)
+                                        
+                                        // Start new game with puzzle
+                                        gameEngine.loadPuzzle(puzzleStr)
+                                        
+                                        // Apply values and eliminations
+                                        for (i in 0 until 81) {
+                                            val originalValue = puzzleStr[i].digitToIntOrNull() ?: 0
+                                            if (values[i] != 0 && values[i] != originalValue) {
+                                                gameEngine.setCellValue(i, values[i])
+                                            }
+                                            if (userEliminations[i].isNotEmpty()) {
+                                                gameEngine.setUserEliminations(i, userEliminations[i])
+                                            }
+                                        }
+                                        
+                                        // Create saved game with elimination format
+                                        val grid = gameEngine.getCurrentGrid()
+                                        val stateWithEliminations = SavedGameState.createStateString(grid)
+                                        currentGame = SavedGameState(
+                                            puzzleId = puzzle.id,
+                                            puzzleString = puzzleStr,
+                                            currentState = stateWithEliminations,
+                                            solution = null,
+                                            category = DifficultyCategory.CUSTOM,
+                                            difficulty = 0f,
+                                            elapsedTimeMs = 0L,
+                                            mistakeCount = 0,
+                                            isCompleted = false,
+                                            lastPlayedTimestamp = currentTimeMillis()
+                                        )
+                                        currentGame?.let { 
+                                            GameStateManager.saveGame(it)
+                                            GameStateManager.setCurrentGameId(it.puzzleId)
+                                        }
+                                        
+                                        gameStartTime = currentTimeMillis()
+                                        pausedTime = 0L
+                                        selectedCell = null
+                                        currentScreen = AppScreen.GAME
+                                        render()
+                                        showToast("✓ Full state imported with notes!")
+                                    } else {
+                                        // Just a puzzle string, start fresh
+                                        startNewGame(puzzle)
+                                        showToast("✓ Puzzle loaded and saved to Custom!")
+                                    }
                                 } else {
                                     showToast("Invalid puzzle string")
                                 }

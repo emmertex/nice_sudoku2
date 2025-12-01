@@ -66,7 +66,7 @@ fun GameScreen(
                         selectedNumber = gameState.selectedNumber1,
                         canSetNumber = gameState.selectedCell != null && !gameState.grid.getCell(gameState.selectedCell!!).isGiven,
                         canRemovePencil = gameState.selectedCell != null && 
-                            gameState.selectedNumber1 in gameState.grid.getCell(gameState.selectedCell!!).candidates,
+                            gameState.selectedNumber1 in gameState.grid.getCell(gameState.selectedCell!!).displayCandidates,
                         onSetNumber = onSetNumberInCell,
                         onRemovePencil = onRemovePencilMark
                     )

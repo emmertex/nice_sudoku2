@@ -99,14 +99,14 @@ object HighlightEngine {
         
         for (idx in relatedCells) {
             val relatedCell = grid.getCell(idx)
-            // Include if cell has the number as value or as candidate
-            if (relatedCell.value == number || number in relatedCell.candidates) {
+            // Include if cell has the number as value or as displayed candidate
+            if (relatedCell.value == number || number in relatedCell.displayCandidates) {
                 result.add(idx)
             }
         }
 
         // Also include the selected cell itself if it contains the number
-        if (cell.value == number || number in cell.candidates) {
+        if (cell.value == number || number in cell.displayCandidates) {
             result.add(selectedCell)
         }
 
@@ -132,11 +132,11 @@ object HighlightEngine {
     }
 
     /**
-     * PENCIL mode: Highlight cells with matching pencil marks (candidates).
+     * PENCIL mode: Highlight cells with matching pencil marks (displayed candidates).
      */
     private fun getPencilHighlights(grid: SudokuGrid, number: Int): Set<Int> {
         return grid.cells
-            .filter { number in it.candidates }
+            .filter { number in it.displayCandidates }
             .map { it.index }
             .toSet()
     }
