@@ -2991,7 +2991,7 @@ private val CSS_STYLES = """
         color: white;
     }
     
-    .num-btn:hover { background: rgba(233, 69, 96, 0.4); transform: scale(1.05); }
+    .num-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
     .num-btn:active { transform: scale(0.95); }
     
     .status {
@@ -3035,7 +3035,7 @@ private val CSS_STYLES = """
     }
     
     .section h2 {
-        color: #e94560;
+        color: white;
         font-size: clamp(0.85rem, calc(0.8rem + 0.5vmin), 1.1rem);
         margin-bottom: clamp(8px, 2vmin, 16px);
     }
@@ -3060,7 +3060,10 @@ private val CSS_STYLES = """
     }
     
     .tab-btn:hover { background: rgba(255, 255, 255, 0.2); }
-    .tab-btn.active { background: #e94560; color: white; }
+    .tab-btn.active {
+        background: rgba(100, 181, 246, 0.4);
+        color: #ffffff;
+    }
     
     .puzzle-list, .game-list {
         display: flex;
@@ -3130,13 +3133,13 @@ private val CSS_STYLES = """
         font-size: 0.75rem;
         font-weight: 600;
         cursor: pointer;
-        background: #e94560;
-        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);        color: white;
         transition: all 0.15s ease;
     }
     
-    .play-btn:hover, .resume-btn:hover {
-        background: #c73e54;
+    .play-btn:hover, .resume-btn:hover {        
+        background: rgba(255, 255, 255, 0.2);
         transform: translateY(-1px);
     }
     
@@ -3169,6 +3172,8 @@ private val CSS_STYLES = """
     }
     
     .copy-btn, .paste-btn, .load-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.8);
         padding: 8px 12px;
         border: none;
         border-radius: 6px;
@@ -3178,12 +3183,8 @@ private val CSS_STYLES = """
         transition: all 0.15s ease;
     }
     
-    .copy-btn {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.8);
-    }
-    
-    .copy-btn:hover { background: rgba(255, 255, 255, 0.2); }
+    .copy-btn:hover, .paste-btn:hover, .load-btn:hover 
+    { background: rgba(255, 255, 255, 0.2); }
     
     .hint {
         color: rgba(255, 255, 255, 0.5);
@@ -3210,17 +3211,6 @@ private val CSS_STYLES = """
         gap: 8px;
     }
     
-    .paste-btn {
-        background: rgba(255, 193, 7, 0.2);
-        color: #ffc107;
-    }
-    
-    .load-btn {
-        background: #e94560;
-        color: white;
-    }
-    
-    .load-btn:hover { background: #c73e54; }
     
     /* Highlight styles */
     .cell.highlight-primary { background: rgba(100, 181, 246, 0.4); } /* Light blue */
@@ -3251,13 +3241,22 @@ private val CSS_STYLES = """
         background: rgba(100, 181, 246, 0.5); 
         box-shadow: inset 0 0 0 2px #64b5f6;
     }
+    .num-btn.primary:hover { 
+        background: rgba(100, 181, 246, 0.6); 
+    }
     .num-btn.secondary { 
         background: rgba(239, 154, 154, 0.5); 
         box-shadow: inset 0 0 0 2px #ef9a9a;
     }
+    .num-btn.secondary:hover { 
+        background: rgba(239, 154, 154, 0.6); 
+    }
     .num-btn.both { 
         background: rgba(206, 147, 216, 0.5); 
         box-shadow: inset 0 0 0 2px #ce93d8;
+    }
+    .num-btn.both:hover { 
+        background: rgba(206, 147, 216, 0.6); 
     }
     
     /* Pencil mark highlighting */
@@ -3404,7 +3403,7 @@ private val CSS_STYLES = """
     }
     
     .settings .section h2 {
-        color: #e94560;
+        color: white;
         font-size: 1rem;
         margin-bottom: 8px;
     }
@@ -3463,19 +3462,19 @@ private val CSS_STYLES = """
     
     .mode-btn.active {
         background: rgba(100, 181, 246, 0.4);
-        color: #90caf9;
+        color: #ffffff;
         box-shadow: inset 0 0 0 2px #64b5f6;
     }
     
     .play-modes .mode-btn.fast.active {
         background: rgba(76, 175, 80, 0.4);
-        color: #81c784;
+        color: #ffffff;
         box-shadow: inset 0 0 0 2px #4caf50;
     }
     
     .play-modes .mode-btn.advanced.active {
         background: rgba(255, 152, 0, 0.4);
-        color: #ffb74d;
+        color:rgb(255, 255, 255);
         box-shadow: inset 0 0 0 2px #ff9800;
     }
     
@@ -3617,7 +3616,7 @@ private val CSS_STYLES = """
     }
     
     .about-modal h1 {
-        color: #e94560;
+        color:rgb(69, 170, 233);
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
@@ -3674,7 +3673,7 @@ private val CSS_STYLES = """
     }
     
     .help-modal h1 {
-        color: #e94560;
+        color:rgb(69, 170, 233);
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
@@ -3745,7 +3744,7 @@ private val CSS_STYLES = """
     }
     
     .greeting-modal h1 {
-        color: #e94560;
+        color:rgb(69, 170, 233);
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
@@ -3891,7 +3890,7 @@ private val CSS_STYLES = """
         width: 16px;
         height: 16px;
         cursor: pointer;
-        accent-color: #e94560;
+        accent-color: rgba(100, 181, 246, 0.4);
     }
     
     /* Completion stats in puzzle list */
@@ -3951,7 +3950,7 @@ private val CSS_STYLES = """
     }
     
     .version-modal h1 {
-        color: #e94560;
+        color: rgb(69, 170, 233);
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
