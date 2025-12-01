@@ -1,3 +1,25 @@
+# v0.0.3 - 2025-12-01b
+
+### Features
+- Themes
+- - Blue, similar to dark origional
+- - Dark
+- - Light, incomplete
+- - EPaper, for e-ink devices, work in progress
+
+### Fixed Issues
+
+### Known Issues
+- Hints are not really usable.
+- - Even if notes are eliminated, hints using them can be shown
+- - Highlighting does not show properly.
+- - Highlighting modes other than Pencil are erroneous.
+- - Returned hints are not logically chosen. 
+- UI occasionally exceeds viewport boundaries.
+- Leaving Advanced mode, if red is selected, it gets stuck on.
+- In Menu, Two-Number Highlighting should only display when Advanced is selected.
+
+
 # v0.0.2 - 2025-12-01
 
 ### Features  

@@ -33,6 +33,13 @@ enum class PlayMode {
     ADVANCED     // Click number to highlight, then choose action
 }
 
+enum class Theme {
+    DARK,        // Pure dark theme
+    BLUE,        // Current blue gradient theme
+    LIGHT,       // Light theme
+    EPAPER       // High contrast ePaper theme
+}
+
 class SudokuApp {
     private val gameEngine = GameEngine()
     private var selectedCell: Int? = null
@@ -53,6 +60,7 @@ class SudokuApp {
     // Highlight and Play mode state (loaded from preferences)
     private var highlightMode = GameStateManager.getHighlightMode()
     private var playMode = GameStateManager.getPlayMode()
+    private var currentTheme = GameStateManager.getTheme()
     private var selectedNumber1: Int? = null  // Primary selected number (light blue)
     private var selectedNumber2: Int? = null  // Secondary selected number (light red)
     
@@ -80,6 +88,9 @@ class SudokuApp {
     private val appRoot: Element get() = document.getElementById("app")!!
     
     fun start() {
+        // Apply the current theme
+        applyTheme(currentTheme)
+
         // Set up keyboard listener
         document.addEventListener("keydown", { event ->
             val keyEvent = event.asDynamic()
@@ -2454,6 +2465,41 @@ class SudokuApp {
                     }
                 }
                 
+                // Theme section
+                div("section") {
+                    h2 { +"🎨 Theme" }
+                    p("setting-desc") { +"Choose your visual theme" }
+
+                    div("mode-options theme-options") {
+                        for (theme in Theme.entries) {
+                            val isActive = currentTheme == theme
+                            button(classes = "mode-btn theme-btn ${theme.name.lowercase()} ${if (isActive) "active" else ""}") {
+                                +when (theme) {
+                                    Theme.DARK -> "🌙 Dark"
+                                    Theme.BLUE -> "🔵 Blue"
+                                    Theme.LIGHT -> "☀️ Light"
+                                    Theme.EPAPER -> "📖 ePaper"
+                                }
+                                onClickFunction = {
+                                    currentTheme = theme
+                                    GameStateManager.setTheme(theme)
+                                    applyTheme(theme)
+                                    render()
+                                }
+                            }
+                        }
+                    }
+
+                    div("mode-explanation") {
+                        +when (currentTheme) {
+                            Theme.DARK -> "Pure dark theme with high contrast"
+                            Theme.BLUE -> "Classic blue gradient theme"
+                            Theme.LIGHT -> "Clean light theme"
+                            Theme.EPAPER -> "High contrast for ePaper Devices"
+                        }
+                    }
+                }
+
                 // Play Mode section
                 div("section") {
                     h2 { +"🎮 Play Mode" }
@@ -2526,6 +2572,146 @@ fun main() {
     }
 }
 
+data class ThemeColors(
+    // Core backgrounds
+    val bgPrimary: Triple<Int, Int, Int>,      // Main background
+    val bgSecondary: Triple<Int, Int, Int>,    // Secondary background (cards, modals)
+    val bgTertiary: Triple<Int, Int, Int>,     // Tertiary background (buttons, highlights)
+    val desat: Triple<Int, Int, Int>,
+
+    // Core accents
+    val accentPrimary: Triple<Int, Int, Int>,  // Primary accent (blue)
+    val accentSecondary: Triple<Int, Int, Int>,// Secondary accent (red)
+    val accentTertiary: Triple<Int, Int, Int>, // Tertiary accent (yellow)
+
+    // Core text
+    val textPrimary: Triple<Int, Int, Int>,    // Primary text
+    val textSecondary: Triple<Int, Int, Int>,  // Secondary text (muted)
+    val textTertiary: Triple<Int, Int, Int>,   // Tertiary text (very muted)
+
+    // Grid status colors
+    val gridYes: Triple<Int, Int, Int>,        // Success/green for grid
+    val gridNeutral: Triple<Int, Int, Int>,    // Neutral/grey for grid
+    val gridNo: Triple<Int, Int, Int>,          // Error/red for grid
+    
+    val btnOpacity: Double,
+    val btnHoverOpacity: Double
+)
+
+private val THEME_COLORS = mapOf(
+    Theme.DARK to ThemeColors(
+        bgPrimary = Triple(0, 0, 0),
+        bgSecondary = Triple(26, 26, 26),
+        bgTertiary = Triple(100, 100, 100),
+        accentPrimary = Triple(100, 181, 246),
+        accentSecondary = Triple(255, 82, 82),
+        accentTertiary = Triple(255, 193, 7),
+        textPrimary = Triple(255, 255, 255),
+        textSecondary = Triple(204, 204, 204),
+        textTertiary = Triple(136, 136, 136),
+        gridYes = Triple(76, 175, 80),
+        gridNeutral = Triple(158, 158, 158),
+        gridNo = Triple(244, 67, 54),
+        desat = Triple(255, 255, 255),
+        btnOpacity = 0.05,
+        btnHoverOpacity = 0.1
+    ),
+    Theme.BLUE to ThemeColors(
+        bgPrimary = Triple(26, 26, 46),
+        bgSecondary = Triple(40, 50, 90),
+        bgTertiary = Triple(100, 100, 150),
+        accentPrimary = Triple(80, 190, 246),
+        accentSecondary = Triple(80, 240, 82),
+        accentTertiary = Triple(255, 255, 0),
+        textPrimary = Triple(255, 255, 255),
+        textSecondary = Triple(204, 204, 204),
+        textTertiary = Triple(136, 136, 136),
+        gridYes = Triple(100, 255, 100),
+        gridNeutral = Triple(158, 158, 158),
+        gridNo = Triple(255, 100, 100),
+        desat = Triple(255, 255, 255),
+        btnOpacity = 0.15,
+        btnHoverOpacity = 0.25
+    ),
+    Theme.LIGHT to ThemeColors(
+        bgPrimary = Triple(255, 255, 255),
+        bgSecondary = Triple(200, 200, 220),
+        bgTertiary = Triple(150, 150, 200),
+        accentPrimary = Triple(0, 123, 255),
+        accentSecondary = Triple(220, 53, 69),
+        accentTertiary = Triple(255, 193, 7),
+        textPrimary = Triple(10, 10, 10),
+        textSecondary = Triple(80, 80, 100),
+        textTertiary = Triple(120, 120, 140),
+        gridYes = Triple(40, 167, 69),
+        gridNeutral = Triple(158, 158, 158),
+        gridNo = Triple(220, 53, 69),
+        desat = Triple(0, 0, 0),
+        btnOpacity = 0.1,
+        btnHoverOpacity = 0.15
+    ),
+    Theme.EPAPER to ThemeColors(
+        bgPrimary = Triple(255, 255, 255),
+        bgSecondary = Triple(200, 200, 200),
+        bgTertiary = Triple(150, 150, 150),
+        accentPrimary = Triple(0, 102, 204),
+        accentSecondary = Triple(204, 0, 0),
+        accentTertiary = Triple(255, 153, 0),
+        textPrimary = Triple(0, 0, 0),
+        textSecondary = Triple(51, 51, 51),
+        textTertiary = Triple(102, 102, 102),
+        gridYes = Triple(0, 153, 0),
+        gridNeutral = Triple(128, 128, 128),
+        gridNo = Triple(204, 0, 0),
+        desat = Triple(0, 0, 0),
+        btnOpacity = 0.1,
+        btnHoverOpacity = 0.2
+    )
+)
+
+private fun rgbToString(rgb: Triple<Int, Int, Int>): String {
+    return "${rgb.first}, ${rgb.second}, ${rgb.third}"
+}
+
+private fun applyTheme(theme: Theme) {
+    val colors = THEME_COLORS[theme] ?: THEME_COLORS[Theme.BLUE]!!
+    val root = document.documentElement.asDynamic()
+    val style = root.style
+
+    // Core color variables
+    style.setProperty("--color-bg-primary", rgbToString(colors.bgPrimary))
+    style.setProperty("--color-bg-secondary", rgbToString(colors.bgSecondary))
+    style.setProperty("--color-bg-tertiary", rgbToString(colors.bgTertiary))
+
+    style.setProperty("--color-accent-primary", rgbToString(colors.accentPrimary))
+    style.setProperty("--color-accent-secondary", rgbToString(colors.accentSecondary))
+    style.setProperty("--color-accent-tertiary", rgbToString(colors.accentTertiary))
+    style.setProperty("--color-btn-opacity", colors.btnOpacity.toString())
+    style.setProperty("--color-btn-hover-opacity", colors.btnHoverOpacity.toString())
+
+    style.setProperty("--color-text-primary", rgbToString(colors.textPrimary))
+    style.setProperty("--color-text-secondary", rgbToString(colors.textSecondary))
+    style.setProperty("--color-text-tertiary", rgbToString(colors.textTertiary))
+
+    style.setProperty("--color-grid-yes", rgbToString(colors.gridYes))
+    style.setProperty("--color-grid-neutral", rgbToString(colors.gridNeutral))
+    style.setProperty("--color-grid-no", rgbToString(colors.gridNo))
+
+    // Derived color variables (for compatibility with existing CSS)
+    style.setProperty("--color-accent-success", rgbToString(colors.gridYes))
+    style.setProperty("--color-accent-info", rgbToString(colors.accentPrimary))
+    style.setProperty("--color-accent-warning", rgbToString(colors.accentTertiary))
+    style.setProperty("--color-accent-error", rgbToString(colors.gridNo))
+    style.setProperty("--color-accent-desat", rgbToString(colors.desat))
+
+    // Border and shadow (derived from backgrounds and black/white)
+    style.setProperty("--color-border", rgbToString(colors.bgSecondary))
+    style.setProperty("--color-shadow", "0, 0, 0")  // Black for shadows
+
+    // Gradient background - need to wrap RGB values in rgb() for valid CSS
+    style.setProperty("--gradient-bg", "linear-gradient(135deg, rgb(${rgbToString(colors.bgPrimary)}) 0%, rgb(${rgbToString(colors.bgSecondary)}) 100%")
+}
+
 private val CSS_STYLES = """
     * {
         box-sizing: border-box;
@@ -2551,6 +2737,29 @@ private val CSS_STYLES = """
         --grid-size: min(90vw, 90vh - 200px, 600px);
         --cell-size: calc(var(--grid-size) / 9.5);
         --font-scale: min(1, var(--grid-size) / 400);
+
+        /* Theme colors - these are set dynamically by JavaScript */
+        --color-bg-primary: 26, 26, 46;
+        --color-bg-secondary: 22, 33, 62;
+        --color-bg-tertiary: 15, 52, 96;
+        --color-accent-primary: 100, 181, 246;
+        --color-accent-secondary: 255, 82, 82;
+        --color-accent-tertiary: 255, 193, 7;
+        --color-text-primary: 255, 255, 255;
+        --color-text-secondary: 204, 204, 204;
+        --color-text-tertiary: 136, 136, 136;
+        --color-grid-yes: 76, 175, 80;
+        --color-grid-neutral: 158, 158, 158;
+        --color-grid-no: 244, 67, 54;
+        /* Derived colors */
+        --color-accent-success: 76, 175, 80;
+        --color-accent-info: 100, 181, 246;
+        --color-accent-warning: 255, 193, 7;
+        --color-accent-error: 244, 67, 54;
+        --color-border: 22, 33, 62;
+        --color-shadow: 0, 0, 0;
+        --color-accent-desat: 255, 255, 255;
+        --gradient-bg: linear-gradient(135deg, rgb(26,26,46) 0%, rgb(22,33,62) 50%, rgb(15,52,96) 100%);
     }
     
     html, body {
@@ -2560,7 +2769,7 @@ private val CSS_STYLES = """
     
     body {
         font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        background: var(--gradient-bg);
         min-height: 100vh;
         min-height: 100dvh; /* Dynamic viewport height for mobile */
         display: flex;
@@ -2578,11 +2787,11 @@ private val CSS_STYLES = """
     }
     
     .sudoku-container {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(var(--color-accent-desat), 0.05);
         backdrop-filter: blur(10px);
         border-radius: clamp(12px, 3vmin, 24px);
         padding: clamp(12px, 3vmin, 24px);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 25px 50px -12px rgba(var(--color-shadow), 0.5);
         width: min(100%, calc(var(--grid-size) + 48px));
         max-height: 100%;
         display: flex;
@@ -2625,24 +2834,24 @@ private val CSS_STYLES = """
         font-size: clamp(0.65rem, calc(0.6rem + 0.5vmin), 0.9rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
+        color: rgba(var(--color-text-primary), 0.8);
         transition: all 0.15s ease;
     }
-    
+
     .nav-btn:hover, .back-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
     }
     
     .header h1 {
         font-size: clamp(1.1rem, calc(1rem + 2vmin), 2rem);
         font-weight: 700;
-        color:rgb(69, 170, 233);
+        color: rgb(var(--color-accent-primary));
         letter-spacing: -0.02em;
     }
 
     .powered-by {
-        color: white;
+        color: rgb(var(--color-text-primary));
         display: block;
     }
     
@@ -2652,14 +2861,15 @@ private val CSS_STYLES = """
         gap: clamp(6px, 1.5vmin, 12px);
         flex-wrap: wrap;
         margin-top: clamp(4px, 1vmin, 8px);
+        margin-bottom: clamp(2px, 1vmin, 4px);
     }
     
     .game-info span {
         font-size: clamp(0.6rem, calc(0.55rem + 0.5vmin), 0.8rem);
-        padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 8px);
+        padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 4px);
         border-radius: 4px;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        color: rgba(var(--color-text-primary), 0.7);
     }
     
     .category {
@@ -2668,10 +2878,10 @@ private val CSS_STYLES = """
         letter-spacing: 0.05em;
     }
     
-    .category.easy { background: rgba(76, 175, 80, 0.3); color: #81c784; }
-    .category.medium { background: rgba(255, 193, 7, 0.3); color: #ffd54f; }
-    .category.hard { background: rgba(255, 152, 0, 0.3); color: #ffb74d; }
-    .category.diabolical { background: rgba(233, 69, 96, 0.3); color: #e94560; }
+    .category.easy { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
+    .category.medium { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
+    .category.hard { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
+    .category.diabolical { background: rgba(var(--color-accent-error), 0.3); color: rgb(var(--color-accent-error)); }
     
     .game-area {
         display: flex;
@@ -2682,7 +2892,7 @@ private val CSS_STYLES = """
     }
     
     .sudoku-grid {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(var(--color-bg-primary), 0.6);
         border-radius: clamp(6px, 1.5vmin, 12px);
         padding: clamp(3px, 0.75vmin, 6px);
         display: flex;
@@ -2703,7 +2913,7 @@ private val CSS_STYLES = """
     .cell {
         aspect-ratio: 1;
         flex: 1;
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(var(--color-bg-tertiary), 0.15);
         border-radius: clamp(2px, 0.5vmin, 4px);
         display: flex;
         justify-content: center;
@@ -2712,25 +2922,25 @@ private val CSS_STYLES = """
         transition: all 0.15s ease;
         position: relative;
     }
-    
-    .cell:hover { background: rgba(255, 255, 255, 0.15); }
-    .cell.selected { background: rgba(233, 69, 96, 0.3); box-shadow: inset 0 0 0 2px #e94560; }
-    .cell.given { background: rgba(255, 255, 255, 0.12); }
-    .cell.solved { background: rgba(255, 255, 255, 0.08); }
-    .cell.mistake { background: rgba(255, 82, 82, 0.3); }
+
+    .cell:hover { background: rgba(var(--color-bg-tertiary), 0.3); }
+    .cell.selected { background: rgba(var(--color-accent-secondary), 0.3); box-shadow: inset 0 0 0 2px rgb(var(--color-accent-secondary)); }
+    .cell.given { background: rgba(var(--color-bg-tertiary), 0.25); }
+    .cell.solved { background: rgba(var(--color-bg-tertiary), 0.15); }
+    .cell.mistake { background: rgba(var(--color-accent-error), 0.5); }
     .cell.box-left { margin-left: clamp(2px, 0.5vmin, 4px); }
     .cell.box-top { margin-top: clamp(2px, 0.5vmin, 4px); }
     
     .cell-value {
         font-size: clamp(0.9rem, calc(var(--grid-size) / 18), 2rem);
         font-weight: 600;
-        color: #fff;
+        color: rgb(var(--color-text-primary));
     }
-    
-    .cell.given .cell-value { color: rgba(255, 255, 255, 0.95); }
-    .cell.solved .cell-value { color: rgba(255, 255, 255, 0.85); }
-    .cell:not(.given):not(.solved) .cell-value { color: #e94560; }
-    .cell.mistake .cell-value { color: #ff5252; }
+
+    .cell.given .cell-value { color: rgba(var(--color-text-primary), 0.95); }
+    .cell.solved .cell-value { color: rgba(var(--color-text-primary), 0.8); }
+    .cell:not(.given):not(.solved) .cell-value { color: rgb(var(--color-accent-secondary)); }
+    .cell.mistake .cell-value { color: rgb(var(--color-accent-error)); }
     
     .candidates {
         display: grid;
@@ -2742,7 +2952,7 @@ private val CSS_STYLES = """
     
     .candidate {
         font-size: clamp(0.35rem, calc(var(--grid-size) / 60), 0.6rem);
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.85);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -2766,22 +2976,22 @@ private val CSS_STYLES = """
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(var(--color-accent-desat), 0.2);
+        color: rgba(var(--color-text-primary), 0.8);
     }
-    
+
     .toggle-btn:hover, .erase-btn:hover, .hint-btn:hover, .solve-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(var(--color-accent-desat), 0.3);
         transform: translateY(-1px);
     }
-    
-    .toggle-btn.active { background: #e94560; color: white; }
-    .erase-btn { background: rgba(255, 82, 82, 0.2); color: #ff5252; }
-    .hint-btn { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
-    .hint-btn.active { background: #ffc107; color: #1a1a2e; }
-    .hint-btn.disabled { 
-        opacity: 0.4; 
-        cursor: not-allowed; 
+
+    .toggle-btn.active { background: rgb(var(--color-accent-secondary)); color: rgb(var(--color-text-primary)); }
+    .erase-btn { background: rgba(var(--color-accent-error), 0.4); color: rgb(var(--color-accent-error)); }
+    .hint-btn { background: rgba(var(--color-accent-warning), 0.4); color: rgb(var(--color-accent-warning)); }
+    .hint-btn.active { background: rgb(var(--color-accent-warning)); color: rgb(var(--color-bg-primary)); }
+    .hint-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
         pointer-events: none;
     }
     
@@ -2808,7 +3018,7 @@ private val CSS_STYLES = """
         flex: 1;
         min-width: 200px;
         max-width: 320px;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(var(--color-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
         display: flex;
@@ -2827,11 +3037,11 @@ private val CSS_STYLES = """
     .hint-sidebar-header h3 {
         margin: 0;
         font-size: clamp(0.9rem, calc(0.8rem + 0.5vmin), 1.1rem);
-        color: #ffc107;
+        color: rgb(var(--color-accent-warning));
     }
     
     .hint-count {
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.9rem);
     }
     
@@ -2844,32 +3054,32 @@ private val CSS_STYLES = """
     }
     
     .hint-item {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(var(--color-bg-tertiary), 0.15);
         border-radius: clamp(6px, 1vmin, 10px);
         padding: clamp(8px, 1.5vmin, 14px);
         cursor: pointer;
         transition: all 0.15s ease;
         border: 2px solid transparent;
     }
-    
+
     .hint-item:hover {
-        background: rgba(255, 255, 255, 0.12);
+        background: rgba(var(--color-bg-tertiary), 0.25);
     }
-    
+
     .hint-item.selected {
-        background: rgba(255, 193, 7, 0.15);
-        border-color: #ffc107;
+        background: rgba(var(--color-accent-warning), 0.3);
+        border-color: rgb(var(--color-accent-warning));
     }
-    
+
     .hint-technique {
         font-weight: 600;
-        color: #4ecdc4;
+        color: rgb(var(--color-accent-info));
         font-size: clamp(0.75rem, calc(0.7rem + 0.4vmin), 0.95rem);
         margin-bottom: 4px;
     }
-    
+
     .hint-description {
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(var(--color-text-primary), 0.7);
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
         line-height: 1.3;
         word-break: break-word;
@@ -2877,31 +3087,31 @@ private val CSS_STYLES = """
     
     .hint-empty {
         text-align: center;
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
         padding: clamp(16px, 3vmin, 32px);
     }
-    
+
     .hint-close-btn {
         margin-top: clamp(8px, 1.5vmin, 16px);
         padding: clamp(8px, 1.5vmin, 14px);
         border: none;
         border-radius: clamp(6px, 1vmin, 10px);
-        background: rgba(255, 82, 82, 0.2);
-        color: #ff5252;
+        background: rgba(var(--color-accent-error), 0.3);
+        color: rgb(var(--color-accent-error));
         font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
         flex-shrink: 0;
     }
-    
+
     .hint-close-btn:hover {
-        background: rgba(255, 82, 82, 0.3);
+        background: rgba(var(--color-accent-error), 0.4);
     }
     
     /* Portrait Hint Card */
     .hint-card {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(var(--color-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
         margin-top: clamp(8px, 1.5vmin, 16px);
@@ -2919,8 +3129,8 @@ private val CSS_STYLES = """
         padding: clamp(6px, 1vmin, 10px) clamp(10px, 2vmin, 16px);
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
-        background: rgba(255, 193, 7, 0.2);
-        color: #ffc107;
+        background: rgba(var(--color-accent-warning), 0.2);
+        color: rgb(var(--color-accent-warning));
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
         font-weight: 600;
         cursor: pointer;
@@ -2928,7 +3138,7 @@ private val CSS_STYLES = """
     }
     
     .hint-nav-btn:hover:not(.disabled) {
-        background: rgba(255, 193, 7, 0.3);
+        background: rgba(var(--color-accent-warning), 0.3);
     }
     
     .hint-nav-btn.disabled {
@@ -2937,7 +3147,7 @@ private val CSS_STYLES = """
     }
     
     .hint-position {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(var(--color-text-primary), 0.6);
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.9rem);
     }
     
@@ -2945,8 +3155,8 @@ private val CSS_STYLES = """
         padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 14px);
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
-        background: rgba(255, 82, 82, 0.2);
-        color: #ff5252;
+        background: rgba(var(--color-accent-error), 0.2);
+        color: rgb(var(--color-accent-error));
         font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
         font-weight: bold;
         cursor: pointer;
@@ -2954,12 +3164,12 @@ private val CSS_STYLES = """
     }
     
     .hint-close-btn-small:hover {
-        background: rgba(255, 82, 82, 0.3);
+        background: rgba(var(--color-accent-error), 0.3);
     }
     
     .hint-content {
         padding: clamp(8px, 1.5vmin, 16px);
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(var(--color-bg-tertiary), 0.05);
         border-radius: clamp(6px, 1vmin, 10px);
     }
     
@@ -2969,7 +3179,7 @@ private val CSS_STYLES = """
     
     .hint-content.hint-empty {
         text-align: center;
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
     }
     
     .number-pad {
@@ -2987,17 +3197,17 @@ private val CSS_STYLES = """
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
+        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
+        color: rgb(var(--color-text-primary));
     }
     
-    .num-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+    .num-btn:hover { background: rgba(var(--color-accent-desat), 0.25); transform: scale(1.05); }
     .num-btn:active { transform: scale(0.95); }
     
     .status {
         text-align: center;
         padding: clamp(6px, 1.5vmin, 12px);
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(var(--color-text-primary), 0.6);
         font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
         flex-shrink: 0;
     }
@@ -3007,8 +3217,8 @@ private val CSS_STYLES = """
         bottom: clamp(60px, 15vh, 120px);
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
+        background: rgba(var(--color-bg-primary), 0.9);
+        color: rgb(var(--color-text-primary));
         padding: clamp(8px, 2vmin, 16px) clamp(16px, 4vmin, 32px);
         border-radius: clamp(4px, 1vmin, 8px);
         font-size: clamp(0.75rem, calc(0.7rem + 0.5vmin), 1rem);
@@ -3028,14 +3238,14 @@ private val CSS_STYLES = """
     }
     
     .browser .section, .import-export .section {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(var(--color-bg-tertiary), 0.1);
         border-radius: clamp(6px, 1.5vmin, 12px);
         padding: clamp(10px, 2.5vmin, 20px);
         margin-bottom: clamp(10px, 2.5vmin, 20px);
     }
     
     .section h2 {
-        color: white;
+        color: rgb(var(--color-text-primary));
         font-size: clamp(0.85rem, calc(0.8rem + 0.5vmin), 1.1rem);
         margin-bottom: clamp(8px, 2vmin, 16px);
     }
@@ -3054,15 +3264,15 @@ private val CSS_STYLES = """
         font-size: clamp(0.65rem, calc(0.6rem + 0.5vmin), 0.9rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        color: rgba(var(--color-text-primary), 0.7);
         transition: all 0.15s ease;
     }
-    
-    .tab-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .tab-btn:hover { background: rgba(var(--color-bg-tertiary), 0.4); }
     .tab-btn.active {
-        background: rgba(100, 181, 246, 0.4);
-        color: #ffffff;
+        background: rgba(var(--color-accent-primary), 0.4);
+        color: rgb(var(--color-text-primary));
     }
     
     .puzzle-list, .game-list {
@@ -3078,25 +3288,25 @@ private val CSS_STYLES = """
         align-items: center;
         gap: 12px;
         padding: 10px 12px;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(var(--color-bg-tertiary), 0.5);
         border-radius: 8px;
         transition: all 0.15s ease;
     }
-    
+
     .puzzle-item:hover, .game-item:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(var(--color-bg-tertiary), 0.2);
     }
     
     .puzzle-item.completed { opacity: 0.6; }
     
     .puzzle-num {
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
         font-size: 0.8rem;
         width: 30px;
     }
     
     .difficulty {
-        color: #ffc107;
+        color: rgb(var(--color-accent-warning));
         font-size: 0.8rem;
     }
     
@@ -3106,22 +3316,22 @@ private val CSS_STYLES = """
         border-radius: 4px;
     }
     
-    .status.completed { background: rgba(76, 175, 80, 0.3); color: #81c784; }
-    .status.progress { background: rgba(255, 193, 7, 0.3); color: #ffd54f; }
+    .status.completed { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
+    .status.progress { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
     
     /* Game item text elements */
     .game-item .progress {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(var(--color-text-primary), 0.8);
         font-size: 0.8rem;
     }
-    
+
     .game-item .time {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(var(--color-text-primary), 0.6);
         font-size: 0.75rem;
     }
-    
+
     .game-item .mistakes {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(var(--color-text-primary), 0.6);
         font-size: 0.75rem;
     }
     
@@ -3133,13 +3343,13 @@ private val CSS_STYLES = """
         font-size: 0.75rem;
         font-weight: 600;
         cursor: pointer;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.8);        color: white;
+        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
+        color: rgba(var(--color-text-primary), 0.8);
         transition: all 0.15s ease;
     }
-    
-    .play-btn:hover, .resume-btn:hover {        
-        background: rgba(255, 255, 255, 0.2);
+
+    .play-btn:hover, .resume-btn:hover {
+        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
         transform: translateY(-1px);
     }
     
@@ -3150,7 +3360,7 @@ private val CSS_STYLES = """
     
     .export-option label {
         display: block;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(var(--color-text-primary), 0.7);
         font-size: 0.8rem;
         margin-bottom: 4px;
     }
@@ -3163,17 +3373,17 @@ private val CSS_STYLES = """
     .export-field {
         flex: 1;
         padding: 8px 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(var(--color-border), 0.3);
         border-radius: 6px;
-        background: rgba(0, 0, 0, 0.3);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(var(--color-bg-primary), 0.4);
+        color: rgba(var(--color-text-primary), 0.8);
         font-family: monospace;
         font-size: 0.75rem;
     }
     
     .copy-btn, .paste-btn, .load-btn {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
+        color: rgba(var(--color-text-primary), 0.8);
         padding: 8px 12px;
         border: none;
         border-radius: 6px;
@@ -3182,12 +3392,14 @@ private val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
-    .copy-btn:hover, .paste-btn:hover, .load-btn:hover 
-    { background: rgba(255, 255, 255, 0.2); }
+
+    .copy-btn:hover, .paste-btn:hover, .load-btn:hover
+    {         
+        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
+    }
     
     .hint {
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
         font-size: 0.75rem;
         margin-bottom: 8px;
     }
@@ -3196,10 +3408,10 @@ private val CSS_STYLES = """
         width: 100%;
         height: 80px;
         padding: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(var(--color-border), 0.3);
         border-radius: 8px;
-        background: rgba(0, 0, 0, 0.3);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(var(--color-bg-primary), 0.4);
+        color: rgba(var(--color-text-primary), 0.8);
         font-family: monospace;
         font-size: 0.8rem;
         resize: none;
@@ -3213,82 +3425,82 @@ private val CSS_STYLES = """
     
     
     /* Highlight styles */
-    .cell.highlight-primary { background: rgba(100, 181, 246, 0.4); } /* Light blue */
-    .cell.highlight-secondary { background: rgba(239, 154, 154, 0.4); } /* Light red */
-    .cell.highlight-both { background: rgba(206, 147, 216, 0.4); } /* Light purple */
-    
-    .cell.highlight-primary:hover { background: rgba(100, 181, 246, 0.5); }
-    .cell.highlight-secondary:hover { background: rgba(239, 154, 154, 0.5); }
-    .cell.highlight-both:hover { background: rgba(206, 147, 216, 0.5); }
+    .cell.highlight-primary { background: rgba(var(--color-accent-primary), 0.3); } /* Light blue */
+    .cell.highlight-secondary { background: rgba(var(--color-accent-secondary), 0.3); } /* Light red */
+    .cell.highlight-both { background: rgba(var(--color-accent-tertiary), 0.3); } /* Light purple */
+
+    .cell.highlight-primary:hover { background: rgba(var(--color-accent-primary), 0.4); }
+    .cell.highlight-secondary:hover { background: rgba(var(--color-accent-secondary), 0.4); }
+    .cell.highlight-both:hover { background: rgba(var(--color-accent-tertiary), 0.4); }
     
     /* Hint cell highlighting - new system */
     .cell.hint-cover-area { 
-        background: rgba(100, 181, 246, 0.3); /* Light blue for cover area */
+        background: rgba(var(--color-accent-primary), 0.3); /* Light blue for cover area */
     }
     .cell.hint-cover-area:hover { 
-        background: rgba(100, 181, 246, 0.4); 
+        background: rgba(var(--color-accent-primary), 0.4); 
     }
     .cell.hint-solved-cell { 
-        background: rgba(76, 175, 80, 0.45); /* Stronger green for solution cell */
-        box-shadow: inset 0 0 0 2px rgba(76, 175, 80, 0.8);
+        background: rgba(var(--color-accent-success), 0.45); /* Stronger green for solution cell */
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-success), 0.8);
     }
     .cell.hint-solved-cell:hover { 
-        background: rgba(76, 175, 80, 0.55); 
+        background: rgba(var(--color-accent-success), 0.55); 
     }
     
     /* Number button selection states */
-    .num-btn.primary { 
-        background: rgba(100, 181, 246, 0.5); 
-        box-shadow: inset 0 0 0 2px #64b5f6;
+    .num-btn.primary {
+        background: rgba(var(--color-accent-primary), 0.5);
+        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-primary));
     }
-    .num-btn.primary:hover { 
-        background: rgba(100, 181, 246, 0.6); 
+    .num-btn.primary:hover {
+        background: rgba(var(--color-accent-primary), 0.6);
     }
-    .num-btn.secondary { 
-        background: rgba(239, 154, 154, 0.5); 
-        box-shadow: inset 0 0 0 2px #ef9a9a;
+    .num-btn.secondary {
+        background: rgba(var(--color-accent-secondary), 0.5);
+        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-secondary));
     }
-    .num-btn.secondary:hover { 
-        background: rgba(239, 154, 154, 0.6); 
+    .num-btn.secondary:hover {
+        background: rgba(var(--color-accent-secondary), 0.6);
     }
-    .num-btn.both { 
-        background: rgba(206, 147, 216, 0.5); 
-        box-shadow: inset 0 0 0 2px #ce93d8;
+    .num-btn.both {
+        background: rgba(206, 147, 216, 0.5);
+        box-shadow: inset 0 0 0 2px rgb(206, 147, 216);
     }
-    .num-btn.both:hover { 
-        background: rgba(206, 147, 216, 0.6); 
+    .num-btn.both:hover {
+        background: rgba(206, 147, 216, 0.6);
     }
     
     /* Pencil mark highlighting */
     .candidate.pencil-highlight {
-        color: #64b5f6;
+        color: rgb(var(--color-accent-primary));
         font-weight: bold;
-        background: rgba(100, 181, 246, 0.3);
+        background: rgba(var(--color-accent-primary), 0.3);
         border-radius: 2px;
     }
     
     /* Hint candidate highlighting */
     .candidate.hint-elimination {
-        color: #d32f2f; /* Red number */
+        color: rgb(var(--color-accent-error)); /* Red number */
         text-decoration: line-through;
         font-weight: bold;
-        background: rgba(158, 158, 158, 0.4); /* Grey background */
+        background: rgba(var(--color-grid-neutral), 0.4); /* Grey background */
         border-radius: 2px;
     }
-    
+
     .candidate.hint-matching-not-eliminated {
-        color: #2e7d32; /* Dark green number */
+        color: rgb(var(--color-accent-success)); /* Green number */
         font-weight: bold;
-        background: rgba(129, 199, 132, 0.5); /* Light green background */
+        background: rgba(var(--color-accent-success), 0.5); /* Light green background */
         border-radius: 2px;
     }
-    
+
     .candidate.hint-solved {
-        color: #66bb6a;
+        color: rgb(var(--color-accent-success));
         font-weight: bold;
-        background: rgba(76, 175, 80, 0.35);
+        background: rgba(var(--color-accent-success), 0.35);
         border-radius: 2px;
-        box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.5);
+        box-shadow: 0 0 0 1px rgba(var(--color-accent-success), 0.5);
     }
     
     /* Mode indicators in header */
@@ -3301,14 +3513,14 @@ private val CSS_STYLES = """
         font-size: clamp(0.55rem, calc(0.5rem + 0.4vmin), 0.7rem);
         padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 8px);
         border-radius: clamp(2px, 0.5vmin, 4px);
-        background: rgba(255, 255, 255, 0.15);
-        color: rgba(255, 255, 255, 0.7);
+        background: rgba(var(--color-bg-tertiary), 0.15);
+        color: rgba(var(--color-text-primary), 0.7);
         font-weight: 600;
     }
     
-    .mode-badge.highlight-mode { background: rgba(100, 181, 246, 0.3); color: #90caf9; }
-    .mode-badge.play-mode.fast { background: rgba(76, 175, 80, 0.3); color: #81c784; }
-    .mode-badge.play-mode.advanced { background: rgba(255, 152, 0, 0.3); color: #ffb74d; }
+    .mode-badge.highlight-mode { background: rgba(var(--color-accent-primary), 0.3); color: rgb(var(--color-accent-primary)); }
+    .mode-badge.play-mode.fast { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
+    .mode-badge.play-mode.advanced { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
     
     /* Selected number badges - inline with mode indicators */
     .selected-num {
@@ -3319,8 +3531,8 @@ private val CSS_STYLES = """
         line-height: 1.2;
     }
     
-    .selected-num.primary { background: rgba(100, 181, 246, 0.4); color: #64b5f6; }
-    .selected-num.secondary { background: rgba(239, 154, 154, 0.4); color: #ef9a9a; }
+    .selected-num.primary { background: rgba(var(--color-accent-primary), 0.4); color: rgb(var(--color-accent-primary)); }
+    .selected-num.secondary { background: rgba(var(--color-accent-secondary), 0.4); color: rgb(var(--color-accent-secondary)); }
     
     /* Advanced mode action buttons - compact */
     .advanced-actions {
@@ -3342,74 +3554,74 @@ private val CSS_STYLES = """
     
     /* Set buttons - primary (blue) and secondary (red) */
     .action-btn.set-btn.primary {
-        background: rgba(100, 181, 246, 0.3);
-        color: #64b5f6;
+        background: rgba(var(--color-accent-primary), 0.3);
+        color: rgb(var(--color-accent-primary));
     }
     .action-btn.set-btn.primary:hover {
-        background: rgba(100, 181, 246, 0.5);
+        background: rgba(var(--color-accent-primary), 0.5);
     }
-    
+
     .action-btn.set-btn.secondary {
-        background: rgba(239, 154, 154, 0.3);
-        color: #ef9a9a;
+        background: rgba(var(--color-accent-secondary), 0.3);
+        color: rgb(var(--color-accent-secondary));
     }
     .action-btn.set-btn.secondary:hover {
-        background: rgba(239, 154, 154, 0.5);
+        background: rgba(var(--color-accent-secondary), 0.5);
     }
-    
+
     /* Clear pencil mark buttons - primary (blue) and secondary (red) */
     .action-btn.clr-btn.primary {
-        background: rgba(100, 181, 246, 0.15);
-        color: #90caf9;
-        border: 1px solid rgba(100, 181, 246, 0.3);
+        background: rgba(var(--color-accent-primary), var(--color-btn-opacity));
+        color: rgb(var(--color-accent-primary));
+        border: 1px solid rgba(var(--color-accent-primary), 0.3);
     }
     .action-btn.clr-btn.primary:hover {
-        background: rgba(100, 181, 246, 0.3);
+        background: rgba(var(--color-accent-primary), 0.3);
     }
-    
+
     .action-btn.clr-btn.secondary {
-        background: rgba(239, 154, 154, 0.15);
-        color: #ef9a9a;
-        border: 1px solid rgba(239, 154, 154, 0.3);
+        background: rgba(var(--color-accent-secondary), 0.15);
+        color: rgb(var(--color-accent-secondary));
+        border: 1px solid rgba(var(--color-accent-secondary), 0.3);
     }
     .action-btn.clr-btn.secondary:hover {
-        background: rgba(239, 154, 154, 0.3);
+        background: rgba(var(--color-accent-secondary), 0.3);
     }
-    
+
     .action-btn.clr-btn.other {
-        background: rgba(255, 193, 7, 0.15);
-        color: #ffc107;
-        border: 1px solid rgba(255, 193, 7, 0.3);
+        background: rgba(var(--color-accent-warning), 0.15);
+        color: rgb(var(--color-accent-warning));
+        border: 1px solid rgba(var(--color-accent-warning), 0.3);
     }
     .action-btn.clr-btn.other:hover {
-        background: rgba(255, 193, 7, 0.3);
+        background: rgba(var(--color-accent-warning), 0.3);
     }
-    
+
     /* Clear selection button (X) */
     .action-btn.clear-btn {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        color: rgba(var(--color-text-primary), 0.7);
     }
     .action-btn.clear-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(var(--color-bg-tertiary), 0.3);
     }
     
     /* Settings screen styles */
     .settings .section {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(var(--color-bg-tertiary), 0.1);
         border-radius: 12px;
         padding: 16px;
         margin-bottom: 16px;
     }
-    
+
     .settings .section h2 {
-        color: white;
+        color: rgb(var(--color-text-primary));
         font-size: 1rem;
         margin-bottom: 8px;
     }
     
     .setting-desc {
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
         font-size: 0.75rem;
         margin-bottom: 12px;
     }
@@ -3427,13 +3639,13 @@ private val CSS_STYLES = """
         font-size: clamp(0.75rem, calc(0.7rem + 0.5vmin), 1rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
+        color: rgba(var(--color-text-primary), 0.8);
         transition: all 0.15s ease;
     }
-    
+
     .settings-nav-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
         transform: translateY(-2px);
     }
     
@@ -3451,39 +3663,71 @@ private val CSS_STYLES = """
         font-size: 0.8rem;
         font-weight: 600;
         cursor: pointer;
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
+        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
+        color: rgba(var(--color-text-primary), 0.7);
         transition: all 0.15s ease;
     }
-    
+
     .mode-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
     }
     
     .mode-btn.active {
-        background: rgba(100, 181, 246, 0.4);
-        color: #ffffff;
-        box-shadow: inset 0 0 0 2px #64b5f6;
+        background: rgba(var(--color-accent-primary), 0.4);
+        color: rgb(var(--color-text-primary));
+        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-primary));
     }
     
     .play-modes .mode-btn.fast.active {
-        background: rgba(76, 175, 80, 0.4);
-        color: #ffffff;
-        box-shadow: inset 0 0 0 2px #4caf50;
+        background: rgba(var(--color-accent-success), 0.4);
+        color: rgb(var(--color-text-primary));
+        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-success));
     }
     
     .play-modes .mode-btn.advanced.active {
-        background: rgba(255, 152, 0, 0.4);
-        color:rgb(255, 255, 255);
-        box-shadow: inset 0 0 0 2px #ff9800;
+        background: rgba(var(--color-accent-warning), 0.4);
+        color: rgb(var(--color-text-primary));
+        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-warning));
+    }
+
+    /* Theme options */
+    .theme-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(4px, 1vmin, 8px);
+        margin-bottom: clamp(8px, 2vmin, 16px);
+    }
+
+    .theme-btn.dark.active {
+        background: rgba(0, 0, 0, 0.4);
+        color: rgb(255, 255, 255);
+        box-shadow: inset 0 0 0 2px rgb(51, 51, 51);
+    }
+
+    .theme-btn.blue.active {
+        background: rgba(26, 26, 46, 0.4);
+        color: rgb(255, 255, 255);
+        box-shadow: inset 0 0 0 2px rgb(22, 33, 62);
+    }
+
+    .theme-btn.light.active {
+        background: rgba(248, 249, 250, 0.4);
+        color: rgb(33, 37, 41);
+        box-shadow: inset 0 0 0 2px rgb(222, 226, 230);
+    }
+
+    .theme-btn.epaper.active {
+        background: rgba(248, 248, 248, 0.4);
+        color: rgb(0, 0, 0);
+        box-shadow: inset 0 0 0 2px rgb(153, 153, 153);
     }
     
     .mode-explanation {
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(var(--color-bg-primary), 0.2);
         border-radius: 6px;
         padding: 10px 12px;
         font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(var(--color-text-primary), 0.6);
         line-height: 1.4;
     }
     
@@ -3499,7 +3743,7 @@ private val CSS_STYLES = """
         align-items: center;
         gap: 10px;
         font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(var(--color-text-primary), 0.7);
     }
     
     .color-box {
@@ -3508,8 +3752,8 @@ private val CSS_STYLES = """
         border-radius: 4px;
     }
     
-    .color-box.primary { background: rgba(100, 181, 246, 0.5); }
-    .color-box.secondary { background: rgba(239, 154, 154, 0.5); }
+    .color-box.primary { background: rgba(var(--color-accent-primary), 0.5); }
+    .color-box.secondary { background: rgba(var(--color-accent-secondary), 0.5); }
     .color-box.both { background: rgba(206, 147, 216, 0.5); }
     
     /* Responsive adjustments - with clamp() above, these are mostly for edge cases */
@@ -3559,7 +3803,7 @@ private val CSS_STYLES = """
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.85);
+        background: rgba(var(--color-shadow), 0.85);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -3574,7 +3818,7 @@ private val CSS_STYLES = """
     }
     
     .modal-content {
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        background: var(--gradient-bg);
         border-radius: clamp(12px, 3vmin, 24px);
         padding: clamp(20px, 4vmin, 40px);
         max-width: 500px;
@@ -3582,8 +3826,8 @@ private val CSS_STYLES = """
         max-height: 85vh;
         overflow-y: auto;
         position: relative;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 60px rgba(var(--color-shadow), 0.5);
+        border: 1px solid rgba(var(--color-border), 0.1);
         animation: slideUp 0.3s ease;
     }
     
@@ -3596,9 +3840,9 @@ private val CSS_STYLES = """
         position: absolute;
         top: clamp(12px, 2vmin, 20px);
         right: clamp(12px, 2vmin, 20px);
-        background: rgba(255, 82, 82, 0.2);
+        background: rgba(var(--color-accent-error), 0.2);
         border: none;
-        color: #ff5252;
+        color: rgb(var(--color-accent-error));
         font-size: clamp(1rem, calc(0.9rem + 0.5vmin), 1.3rem);
         width: clamp(32px, 6vmin, 40px);
         height: clamp(32px, 6vmin, 40px);
@@ -3609,35 +3853,35 @@ private val CSS_STYLES = """
         align-items: center;
         justify-content: center;
     }
-    
+
     .modal-close:hover {
-        background: rgba(255, 82, 82, 0.4);
+        background: rgba(var(--color-accent-error), 0.4);
         transform: scale(1.1);
     }
     
     .about-modal h1 {
-        color:rgb(69, 170, 233);
+        color: rgb(var(--color-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
-    
+
     .about-tagline {
-        color: #4ecdc4;
+        color: rgb(var(--color-accent-info));
         font-size: clamp(0.95rem, calc(0.85rem + 0.5vmin), 1.15rem);
         text-align: center;
         margin-bottom: clamp(8px, 1.5vmin, 16px);
         font-weight: 500;
     }
-    
+
     .about-description {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(var(--color-text-primary), 0.8);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
         text-align: center;
         line-height: 1.5;
         margin-bottom: clamp(20px, 4vmin, 32px);
         padding-bottom: clamp(16px, 3vmin, 24px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(var(--color-border), 0.2);
     }
     
     .about-section {
@@ -3645,48 +3889,48 @@ private val CSS_STYLES = """
     }
     
     .about-section h3 {
-        color: #ffc107;
+        color: rgb(var(--color-accent-warning));
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
     
     .about-section p {
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(var(--color-text-primary), 0.7);
         font-size: clamp(0.8rem, calc(0.7rem + 0.35vmin), 0.95rem);
         line-height: 1.5;
         margin-bottom: clamp(4px, 0.8vmin, 8px);
     }
     
     .about-section a {
-        color: #64b5f6;
+        color: rgb(var(--color-accent-primary));
         text-decoration: none;
         transition: color 0.15s ease;
     }
     
     .about-section a:hover {
-        color: #90caf9;
+        color: rgb(var(--color-accent-info));
         text-decoration: underline;
     }
     
     .about-section strong {
-        color: #4ecdc4;
+        color: rgb(var(--color-accent-info));
     }
     
     .help-modal h1 {
-        color:rgb(69, 170, 233);
+        color: rgb(var(--color-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
     
     .help-intro {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(var(--color-text-primary), 0.8);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
         text-align: center;
         line-height: 1.5;
         margin-bottom: clamp(20px, 4vmin, 32px);
         padding-bottom: clamp(16px, 3vmin, 24px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(var(--color-border), 0.2);
     }
     
     .help-section {
@@ -3694,11 +3938,11 @@ private val CSS_STYLES = """
     }
     
     .help-section h2 {
-        color: #ffc107;
+        color: rgb(var(--color-accent-warning));
         font-size: clamp(1.1rem, calc(1rem + 0.5vmin), 1.4rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         margin-top: clamp(16px, 3vmin, 24px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(var(--color-border), 0.2);
         padding-bottom: clamp(8px, 1.5vmin, 12px);
     }
     
@@ -3707,7 +3951,7 @@ private val CSS_STYLES = """
     }
     
     .help-section h3 {
-        color: #4ecdc4;
+        color: rgb(var(--color-accent-info));
         font-size: clamp(0.95rem, calc(0.85rem + 0.4vmin), 1.15rem);
         margin-bottom: clamp(8px, 1.5vmin, 12px);
         margin-top: clamp(12px, 2vmin, 16px);
@@ -3715,7 +3959,7 @@ private val CSS_STYLES = """
     
     .help-section ul,
     .help-section ol {
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(var(--color-text-primary), 0.7);
         font-size: clamp(0.8rem, calc(0.7rem + 0.35vmin), 0.95rem);
         line-height: 1.6;
         margin-bottom: clamp(12px, 2vmin, 16px);
@@ -3735,7 +3979,7 @@ private val CSS_STYLES = """
     }
     
     .help-section strong {
-        color: #4ecdc4;
+        color: rgb(var(--color-accent-info));
         font-weight: 600;
     }
     
@@ -3744,14 +3988,14 @@ private val CSS_STYLES = """
     }
     
     .greeting-modal h1 {
-        color:rgb(69, 170, 233);
+        color: rgb(var(--color-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
     
     .greeting-content {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(var(--color-text-primary), 0.8);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
         line-height: 1.6;
     }
@@ -3763,7 +4007,7 @@ private val CSS_STYLES = """
     .greeting-signature {
         margin-top: clamp(20px, 4vmin, 32px);
         font-style: italic;
-        color: rgba(255, 255, 255, 0.9);
+        color: rgba(var(--color-text-primary), 0.9);
     }
     
     .help-section .greeting-content {
@@ -3782,13 +4026,13 @@ private val CSS_STYLES = """
     }
     
     .completion-modal h1 {
-        color: #4caf50;
+        color: rgb(var(--color-accent-success));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
     }
     
     .completion-content p {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(var(--color-text-primary), 0.8);
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
         margin-bottom: clamp(16px, 3vmin, 24px);
     }
@@ -3813,14 +4057,14 @@ private val CSS_STYLES = """
     
     .completion-stats .stat-label {
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.8rem);
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
         text-transform: uppercase;
     }
-    
+
     .completion-stats .stat-value {
         font-size: clamp(1rem, calc(0.9rem + 0.5vmin), 1.3rem);
         font-weight: 700;
-        color: #fff;
+        color: rgb(var(--color-text-primary));
     }
     
     .completion-actions {
@@ -3840,21 +4084,21 @@ private val CSS_STYLES = """
     }
     
     .completion-actions .close-btn {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.8);
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        color: rgba(var(--color-text-primary), 0.8);
     }
-    
+
     .completion-actions .close-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(var(--color-bg-tertiary), 0.3);
     }
     
     .completion-actions .next-btn {
-        background: linear-gradient(135deg, #4caf50, #66bb6a);
-        color: #fff;
+        background: rgba(var(--color-accent-success), 0.8);
+        color: rgb(var(--color-text-primary));
     }
     
     .completion-actions .next-btn:hover {
-        background: linear-gradient(135deg, #66bb6a, #81c784);
+        background: rgb(var(--color-accent-success));
         transform: translateY(-2px);
     }
     
@@ -3881,7 +4125,7 @@ private val CSS_STYLES = """
         align-items: center;
         gap: 8px;
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.85rem);
-        color: rgba(255, 255, 255, 0.7);
+        color: rgba(var(--color-text-primary), 0.7);
         cursor: pointer;
         white-space: nowrap;
     }
@@ -3890,13 +4134,13 @@ private val CSS_STYLES = """
         width: 16px;
         height: 16px;
         cursor: pointer;
-        accent-color: rgba(100, 181, 246, 0.4);
+        accent-color: rgb(var(--color-accent-primary));
     }
     
     /* Completion stats in puzzle list */
     .completion-stats {
         font-size: clamp(0.65rem, calc(0.6rem + 0.25vmin), 0.75rem);
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
     }
     
     /* Delete button for saved games */
@@ -3906,20 +4150,20 @@ private val CSS_STYLES = """
         border-radius: clamp(4px, 1vmin, 6px);
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.85rem);
         cursor: pointer;
-        background: rgba(244, 67, 54, 0.2);
-        color: #f44336;
+        background: rgba(var(--color-accent-error), 0.2);
+        color: rgb(var(--color-accent-error));
         transition: all 0.15s ease;
     }
     
     .delete-btn:hover {
-        background: rgba(244, 67, 54, 0.4);
+        background: rgba(var(--color-accent-error), 0.4);
     }
     
     /* Empty message for custom puzzles */
     .empty-message {
         padding: clamp(16px, 3vmin, 24px);
         text-align: center;
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(var(--color-text-primary), 0.5);
         font-size: clamp(0.8rem, calc(0.75rem + 0.3vmin), 0.95rem);
         line-height: 1.5;
     }
@@ -3930,7 +4174,7 @@ private val CSS_STYLES = """
         bottom: 12px;
         left: 12px;
         font-size: clamp(0.65rem, calc(0.6rem + 0.25vmin), 0.75rem);
-        color: rgba(255, 255, 255, 0.35);
+        color: rgba(var(--color-text-primary), 0.35);
         cursor: pointer;
         padding: 4px 8px;
         border-radius: 4px;
@@ -3938,10 +4182,10 @@ private val CSS_STYLES = """
         z-index: 100;
         user-select: none;
     }
-    
+
     .version-indicator:hover {
-        color: rgba(255, 255, 255, 0.7);
-        background: rgba(255, 255, 255, 0.1);
+        color: rgba(var(--color-text-primary), 0.7);
+        background: rgba(var(--color-bg-tertiary), 0.2);
     }
     
     /* Version modal styles */
@@ -3950,14 +4194,14 @@ private val CSS_STYLES = """
     }
     
     .version-modal h1 {
-        color: rgb(69, 170, 233);
+        color: rgb(var(--color-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
     
     .changelog-content {
-        color: rgba(255, 255, 255, 0.85);
+        color: rgba(var(--color-text-primary), 0.85);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
         line-height: 1.6;
         max-height: 60vh;
@@ -3966,12 +4210,12 @@ private val CSS_STYLES = """
     }
     
     .changelog-content h2.changelog-version {
-        color: #4ecdc4;
+        color: rgb(var(--color-accent-info));
         font-size: clamp(1.1rem, calc(1rem + 0.5vmin), 1.3rem);
         margin-top: clamp(16px, 3vmin, 24px);
         margin-bottom: clamp(8px, 1.5vmin, 12px);
         padding-bottom: clamp(6px, 1vmin, 10px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid rgba(var(--color-border), 0.2);
     }
     
     .changelog-content h2.changelog-version:first-child {
@@ -3979,7 +4223,7 @@ private val CSS_STYLES = """
     }
     
     .changelog-content h3.changelog-section {
-        color: #ffc107;
+        color: rgb(var(--color-accent-warning));
         font-size: clamp(0.95rem, calc(0.85rem + 0.4vmin), 1.1rem);
         margin-top: clamp(12px, 2vmin, 16px);
         margin-bottom: clamp(6px, 1vmin, 10px);
@@ -3992,26 +4236,26 @@ private val CSS_STYLES = """
     
     .changelog-content li {
         margin-bottom: clamp(4px, 0.8vmin, 8px);
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(var(--color-text-primary), 0.8);
     }
     
     .changelog-content li.changelog-subitem {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(var(--color-text-primary), 0.6);
         font-size: 0.95em;
         margin-left: 16px;
     }
     
     .changelog-content strong {
-        color: #ff6b6b;
+        color: rgb(var(--color-accent-error));
     }
     
     .changelog-content del {
-        color: rgba(255, 255, 255, 0.4);
+        color: rgba(var(--color-text-primary), 0.4);
         text-decoration: line-through;
     }
     
     .changelog-content code {
-        background: rgba(0, 0, 0, 0.3);
+        background: rgba(var(--color-bg-primary), 0.5);
         padding: 2px 6px;
         border-radius: 4px;
         font-family: 'Monaco', 'Consolas', monospace;
@@ -4027,7 +4271,7 @@ private val CSS_STYLES = """
         justify-content: center;
         margin-top: clamp(16px, 3vmin, 24px);
         padding-top: clamp(12px, 2vmin, 16px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(var(--color-border), 0.2);
     }
     
     .version-actions .close-btn {
@@ -4037,13 +4281,13 @@ private val CSS_STYLES = """
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.05rem);
         font-weight: 600;
         cursor: pointer;
-        background: linear-gradient(135deg, #4ecdc4, #44a08d);
-        color: #fff;
+        background: rgba(var(--color-accent-info), 0.8);
+        color: rgb(var(--color-text-primary));
         transition: all 0.2s ease;
     }
     
     .version-actions .close-btn:hover {
-        background: linear-gradient(135deg, #5fd4cb, #4eb19b);
+        background: rgb(var(--color-accent-info));
         transform: translateY(-2px);
     }
 """.trimIndent()
