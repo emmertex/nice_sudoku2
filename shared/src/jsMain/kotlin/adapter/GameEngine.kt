@@ -277,6 +277,44 @@ actual class GameEngine actual constructor() {
     }
     
     /**
+     * Check if a hint is still valid given the current grid state.
+     * A hint is invalid if:
+     * - Any of its solvedCells are already solved in the grid
+     * - Any of its eliminations target candidates that are not present in displayCandidates
+     *   (i.e., candidates the user has already manually eliminated)
+     */
+    private fun isHintValid(hint: TechniqueMatchInfo, grid: SudokuGrid): Boolean {
+        // Check if any solved cells in the hint are already solved
+        for (solvedCell in hint.solvedCells) {
+            val cell = grid.getCell(solvedCell.cell)
+            if (cell.isSolved) {
+                return false // Cell is already solved
+            }
+        }
+        
+        // Check if any eliminations target candidates that are already eliminated
+        for (elimination in hint.eliminations) {
+            for (cellIndex in elimination.cells) {
+                val cell = grid.getCell(cellIndex)
+                if (!cell.isSolved && elimination.digit !in cell.displayCandidates) {
+                    return false // Candidate already eliminated by user
+                }
+            }
+        }
+        
+        return true
+    }
+    
+    /**
+     * Filter hints to remove those that are no longer valid given the current grid state.
+     */
+    private fun filterInvalidHints(matches: Map<String, List<TechniqueMatchInfo>>): Map<String, List<TechniqueMatchInfo>> {
+        return matches.mapValues { (_, hints) ->
+            hints.filter { hint -> isHintValid(hint, grid) }
+        }.filterValues { it.isNotEmpty() }
+    }
+    
+    /**
      * Fetch techniques from backend API
      */
     private suspend fun fetchTechniques(puzzleStr: String, basicOnly: Boolean): Map<String, List<TechniqueMatchInfo>> {
@@ -288,7 +326,7 @@ actual class GameEngine actual constructor() {
         val result = json.decodeFromString<FindTechniquesResponse>(response)
         
         return if (result.success) {
-            result.techniques.mapValues { (_, matches) ->
+            val allMatches = result.techniques.mapValues { (_, matches) ->
                 matches.map { dto ->
                     TechniqueMatchInfo(
                         id = dto.id,
@@ -300,6 +338,8 @@ actual class GameEngine actual constructor() {
                     )
                 }
             }
+            // Filter out hints that are no longer valid due to user eliminations or already-solved cells
+            filterInvalidHints(allMatches)
         } else {
             println("JS: Backend technique search failed: ${result.error}")
             emptyMap()

@@ -1,3 +1,15 @@
+# v0.1.2 - 2025-12-03c
+
+### Fixed Issues
+- Returned hints are now valid
+- - Taked into account the eliminated candidates
+
+### Known Issues
+- Hints are not really usable.
+- - Highlighting does not show properly.
+- - Highlighting modes other than Pencil are erroneous.
+- - Returned hints are not logically chosen. 
+
 # v0.1.1 - 2025-12-02b
 
 ### Fixed Issues
@@ -5,7 +17,6 @@
 
 ### Known Issues
 - Hints are not really usable.
-- - Even if notes are eliminated, hints using them can be shown
 - - Highlighting does not show properly.
 - - Highlighting modes other than Pencil are erroneous.
 - - Returned hints are not logically chosen. 
