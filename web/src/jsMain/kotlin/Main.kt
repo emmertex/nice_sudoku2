@@ -2273,6 +2273,18 @@ class SudokuApp {
     }
     
     /**
+     * Escape HTML special characters to prevent injection attacks
+     */
+    private fun htmlEscape(text: String): String {
+        return text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#x27;")
+    }
+
+    /**
      * Render interactive chain description with clickable/hoverable elements
      * Parses patterns like:
      * - (3)R5C6 - cell/candidate reference
@@ -2320,7 +2332,7 @@ class SudokuApp {
         matches.forEach { match ->
             // Add text before this match
             if (match.start > currentPos) {
-                result.append("""<span class="chain-text">${description.substring(currentPos, match.start)}</span>""")
+                result.append("""<span class="chain-text">${htmlEscape(description.substring(currentPos, match.start))}</span>""")
             }
             
             when (match.type) {
@@ -2346,7 +2358,7 @@ class SudokuApp {
         
         // Add remaining text
         if (currentPos < description.length) {
-            result.append("""<span class="chain-text">${description.substring(currentPos)}</span>""")
+            result.append("""<span class="chain-text">${htmlEscape(description.substring(currentPos))}</span>""")
         }
         
         // If no interactive elements found, just show plain text
