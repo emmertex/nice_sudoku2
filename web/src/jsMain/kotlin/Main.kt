@@ -136,6 +136,18 @@ class SudokuApp {
             if (showHints) render()  // Re-render if hints are showing
         })
         
+        // Set up window resize listener for container scaling
+        var resizeTimeout: Int? = null
+        window.addEventListener("resize", {
+            // Debounce resize events
+            resizeTimeout?.let { window.clearTimeout(it) }
+            resizeTimeout = window.setTimeout({
+                if (currentScreen == AppScreen.GAME) {
+                    applyContainerScaling()
+                }
+            }, 100)
+        })
+        
         // Check backend availability for hint system
         gameEngine.checkBackendAvailable { available ->
             isBackendAvailable = available
@@ -1652,8 +1664,9 @@ class SudokuApp {
         val secondaryCells = getSecondaryHighlightCells(grid)
         
         appRoot.append {
-            val containerClass = if (showHints && isLandscape) "sudoku-container hints-expanded" else "sudoku-container"
-            div(containerClass) {
+            div("sudoku-container-wrapper") {
+                val containerClass = if (showHints && isLandscape) "sudoku-container hints-expanded" else "sudoku-container"
+                div(containerClass) {
                 // Header with nav
                 div("header") {
                     div("nav-row") {
@@ -1987,8 +2000,75 @@ class SudokuApp {
                 if (toastMessage != null) {
                     div("toast") { +toastMessage!! }
                 }
-            }
+                } // Close sudoku-container
+            } // Close sudoku-container-wrapper
         }
+        
+        // Apply scaling after DOM is updated
+        window.setTimeout({
+            applyContainerScaling()
+        }, 0)
+    }
+    
+    /**
+     * Calculate and apply scale transform to fit container within viewport.
+     * This prevents scrolling by scaling down the game container if it exceeds viewport boundaries.
+     */
+    private fun applyContainerScaling() {
+        // Only scale on game screen
+        if (currentScreen != AppScreen.GAME) return
+        
+        val wrapper = document.querySelector(".sudoku-container-wrapper") as? HTMLElement
+        val container = document.querySelector(".sudoku-container") as? HTMLElement
+        
+        if (wrapper == null || container == null) return
+        
+        // Store original styles to restore later
+        val originalMaxHeight = container.style.maxHeight
+        val originalHeight = container.style.height
+        val originalTransform = container.style.transform
+        val originalWrapperHeight = wrapper.style.height
+        
+        // Temporarily remove height constraints to allow container to expand to natural size
+        // This is crucial for accurate measurement when content changes (e.g., second number pad appears)
+        container.style.maxHeight = "none"
+        container.style.height = "auto"
+        container.style.transform = "scale(1)"
+        wrapper.style.height = "auto"  // Allow wrapper to expand during measurement
+        
+        // Force a reflow to ensure accurate measurements
+        val _x = container.offsetHeight
+        
+        // Get the natural (unscaled) dimensions of the container
+        // Use scrollWidth/scrollHeight to get the full content size
+        val containerWidth = container.scrollWidth.toDouble()
+        val containerHeight = container.scrollHeight.toDouble()
+        
+        // Restore original height constraints
+        container.style.maxHeight = originalMaxHeight
+        container.style.height = originalHeight
+        wrapper.style.height = originalWrapperHeight
+        
+        // Get available viewport space
+        // Use wrapper's parent (app element) to get actual available space
+        val appElement = document.getElementById("app") as? HTMLElement
+        val availableWidth = (appElement?.clientWidth ?: window.innerWidth).toDouble()
+        val availableHeight = (appElement?.clientHeight ?: window.innerHeight).toDouble()
+        
+        // Calculate scale factors for both dimensions
+        val scaleX = availableWidth / containerWidth
+        val scaleY = availableHeight / containerHeight
+        
+        // Use the smaller scale to ensure it fits in both dimensions
+        // Also ensure we don't scale up (min scale is 1.0)
+        val scale = minOf(scaleX, scaleY, 1.0)
+        
+        // Apply the scale transform
+        container.style.transform = "scale($scale)"
+        
+        // Ensure wrapper is properly sized
+        wrapper.style.width = "100%"
+        wrapper.style.height = "100%"
     }
     
     private fun TagConsumer<HTMLElement>.renderLandscapeHintSidebar(
@@ -2930,6 +3010,15 @@ private val CSS_STYLES = """
         align-items: center;
     }
     
+    .sudoku-container-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    
     .sudoku-container {
         background: rgba(var(--color-accent-desat), 0.05);
         backdrop-filter: blur(10px);
@@ -2937,11 +3026,11 @@ private val CSS_STYLES = """
         padding: clamp(12px, 3vmin, 24px);
         box-shadow: 0 25px 50px -12px rgba(var(--color-shadow), 0.5);
         width: min(100%, calc(var(--grid-size) + 48px));
-        max-height: 100%;
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
-        transition: width 0.2s ease;
+        overflow: hidden;
+        transition: width 0.2s ease, transform 0.2s ease;
+        transform-origin: center center;
     }
     
     /* Expand container when hints sidebar is shown in landscape */

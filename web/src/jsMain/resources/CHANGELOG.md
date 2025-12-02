@@ -1,3 +1,15 @@
+# v0.1.1 - 2025-12-02b
+
+### Fixed Issues
+- UI No longer exceeds viewport boundaries.
+
+### Known Issues
+- Hints are not really usable.
+- - Even if notes are eliminated, hints using them can be shown
+- - Highlighting does not show properly.
+- - Highlighting modes other than Pencil are erroneous.
+- - Returned hints are not logically chosen. 
+
 # v0.1.0 - 2025-12-02
 
 ### Features
