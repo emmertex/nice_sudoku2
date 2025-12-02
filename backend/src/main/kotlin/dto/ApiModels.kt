@@ -72,6 +72,52 @@ data class SolvedCellDto(
     val digit: Int
 )
 
+/**
+ * Represents a candidate location (row, col, candidate digit)
+ */
+@Serializable
+data class CandidateLocationDto(
+    val row: Int,
+    val col: Int,
+    val candidate: Int  // 1-9
+)
+
+/**
+ * Represents a line connecting two candidates (for chain visualizations)
+ */
+@Serializable
+data class LineDto(
+    val from: CandidateLocationDto,
+    val to: CandidateLocationDto,
+    val curveX: Double? = null,  // Curve control point X offset
+    val curveY: Double? = null,  // Curve control point Y offset
+    val isStrongLink: Boolean = false  // Strong (=) vs weak (-) link
+)
+
+/**
+ * Represents a group of candidates to highlight together
+ */
+@Serializable
+data class GroupDto(
+    val candidates: List<CandidateLocationDto>,
+    val groupType: String? = null,  // "chain-on", "chain-off", "als", etc.
+    val colorIndex: Int = 0  // For distinguishing multiple groups
+)
+
+/**
+ * Represents a single step in a technique explanation
+ */
+@Serializable
+data class ExplanationStepDto(
+    val stepNumber: Int,
+    val title: String,
+    val description: String,
+    val highlightCells: List<Int> = emptyList(),
+    val highlightCandidates: List<CandidateLocationDto> = emptyList(),
+    val lines: List<LineDto> = emptyList(),
+    val groups: List<GroupDto> = emptyList()
+)
+
 @Serializable
 data class TechniqueMatchDto(
     val id: String,
@@ -79,7 +125,12 @@ data class TechniqueMatchDto(
     val description: String,
     val eliminations: List<EliminationDto> = emptyList(),
     val solvedCells: List<SolvedCellDto> = emptyList(),
-    val highlightCells: List<Int> = emptyList()
+    val highlightCells: List<Int> = emptyList(),
+    // New visual data fields
+    val lines: List<LineDto> = emptyList(),
+    val groups: List<GroupDto> = emptyList(),
+    val explanationSteps: List<ExplanationStepDto> = emptyList(),
+    val eurekaNotation: String? = null
 )
 
 @Serializable

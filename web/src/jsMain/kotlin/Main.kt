@@ -12,6 +12,10 @@ import org.w3c.fetch.Response
 import kotlin.js.Promise
 import adapter.GameEngine
 import adapter.TechniqueMatchInfo
+import adapter.LineDto
+import adapter.GroupDto
+import adapter.ExplanationStepDto
+import adapter.CandidateLocationDto
 import domain.*
 
 enum class AppScreen {
@@ -69,6 +73,10 @@ class SudokuApp {
     private var selectedHintIndex: Int = 0  // Currently selected hint in the list
     private var isLandscape = false  // Responsive layout detection
     private var isBackendAvailable = false  // Whether hint system can be used
+    
+    // Explanation overlay state
+    private var showExplanation = false  // Whether explanation overlay is visible
+    private var explanationStepIndex: Int = 0  // Current step in explanation
     
     // Modal state
     private var showAboutModal = false
@@ -143,7 +151,10 @@ class SudokuApp {
             resizeTimeout?.let { window.clearTimeout(it) }
             resizeTimeout = window.setTimeout({
                 if (currentScreen == AppScreen.GAME) {
-                    applyContainerScaling()
+                    matchHintSidebarHeight()
+                    if (isLandscape == false) {
+                        applyContainerScaling()
+                    }
                 }
             }, 100)
         })
@@ -536,6 +547,11 @@ class SudokuApp {
     private fun handleKeyPress(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
         // Handle Escape - always works regardless of screen
         if (key.lowercase() == "escape") {
+            if (showExplanation) {
+                showExplanation = false
+                render()
+                return true
+            }
             if (showAboutModal) {
                 showAboutModal = false
                 render()
@@ -969,6 +985,7 @@ class SudokuApp {
             renderVersionModal()
         }
         
+        // Explanation overlay (shown when user clicks Explain on a hint)
         // Always show version number in bottom left corner (if loaded)
         if (currentVersion.isNotEmpty()) {
             renderVersionIndicator()
@@ -1735,21 +1752,34 @@ class SudokuApp {
                 val hints = if (showHints) gameEngine.getHints() else emptyList()
                 val selectedHint = hints.getOrNull(selectedHintIndex)
                 
+                // Get current explanation step if showing explanation
+                val currentExplanationStep = if (showExplanation && selectedHint != null) {
+                    selectedHint.explanationSteps.getOrNull(explanationStepIndex)
+                } else null
+                
                 div("main-content ${if (showHints && isLandscape) "landscape-hints" else ""}") {
                 // Game area
                 div("game-area") {
-                    // Sudoku grid
-                    div("sudoku-grid") {
-                        for (row in 0..8) {
-                            div("sudoku-row") {
-                                for (col in 0..8) {
-                                    val cellIndex = row * 9 + col
-                                    val cell = grid.getCell(cellIndex)
-                                    val isPrimary = cellIndex in primaryCells
-                                    val isSecondary = cellIndex in secondaryCells
-                                    renderCell(cellIndex, cell, isPrimary, isSecondary, grid, selectedHint)
+                    // Sudoku grid container with SVG overlay
+                    div("sudoku-grid-container") {
+                        // Sudoku grid
+                        div("sudoku-grid") {
+                            for (row in 0..8) {
+                                div("sudoku-row") {
+                                    for (col in 0..8) {
+                                        val cellIndex = row * 9 + col
+                                        val cell = grid.getCell(cellIndex)
+                                        val isPrimary = cellIndex in primaryCells
+                                        val isSecondary = cellIndex in secondaryCells
+                                        renderCell(cellIndex, cell, isPrimary, isSecondary, grid, selectedHint, currentExplanationStep)
+                                    }
                                 }
                             }
+                        }
+                        
+                        // SVG overlay for chain lines (when hint with lines is selected)
+                        if (selectedHint != null && selectedHint.lines.isNotEmpty()) {
+                            renderChainLinesSvg(selectedHint, currentExplanationStep)
                         }
                     }
                     
@@ -2006,7 +2036,10 @@ class SudokuApp {
         
         // Apply scaling after DOM is updated
         window.setTimeout({
-            applyContainerScaling()
+            matchHintSidebarHeight()
+            if (isLandscape == false) {
+                applyContainerScaling()
+            }
         }, 0)
     }
     
@@ -2071,42 +2104,88 @@ class SudokuApp {
         wrapper.style.height = "100%"
     }
     
+    /**
+     * Match the hint sidebar height to the game area height in landscape mode.
+     * This prevents the sidebar from causing the parent container to expand vertically.
+     */
+    private fun matchHintSidebarHeight() {
+        // Only apply when hints are shown in landscape mode
+        val mainContent = document.querySelector(".main-content.landscape-hints") as? HTMLElement
+        if (mainContent == null) return
+        
+        val gameArea = document.querySelector(".main-content.landscape-hints .game-area") as? HTMLElement
+        val hintSidebar = document.querySelector(".hint-sidebar") as? HTMLElement
+        
+        if (gameArea == null || hintSidebar == null) return
+        
+        // Get the game area's height
+        val gameAreaHeight = gameArea.offsetHeight
+        
+        // Set the sidebar to match the game area height
+        hintSidebar.style.height = "${gameAreaHeight}px"
+    }
+    
     private fun TagConsumer<HTMLElement>.renderLandscapeHintSidebar(
         hints: List<TechniqueMatchInfo>,
         selectedHint: TechniqueMatchInfo?
     ) {
         div("hint-sidebar") {
-            div("hint-sidebar-header") {
-                h3 { +"Available Hints" }
-                span("hint-count") { +"(${hints.size})" }
-            }
-            
-            if (hints.isEmpty()) {
-                div("hint-empty") {
-                    p { +"Searching for hints..." }
-                }
+            // Show either the explanation view OR the list view (not both)
+            if (showExplanation && selectedHint != null) {
+                // Explanation view - replaces the entire list
+                renderExplanationView(selectedHint, hints.size)
             } else {
-                div("hint-list") {
-                    hints.forEachIndexed { index, hint ->
-                        val isSelected = index == selectedHintIndex
-                        div("hint-item ${if (isSelected) "selected" else ""}") {
-                            onClickFunction = {
-                                selectedHintIndex = index
-                                render()
+                // List view
+                div("hint-sidebar-header") {
+                    h3 { +"Available Hints" }
+                    span("hint-count") { +"(${hints.size})" }
+                }
+                
+                if (hints.isEmpty()) {
+                    div("hint-empty") {
+                        p { +"Searching for hints..." }
+                    }
+                } else {
+                    div("hint-list") {
+                        hints.forEachIndexed { index, hint ->
+                            val isSelected = index == selectedHintIndex
+                            div("hint-item ${if (isSelected) "selected" else ""}") {
+                                // Header row (always visible)
+                                div("hint-item-header") {
+                                    onClickFunction = { e ->
+                                        // Select this hint
+                                        selectedHintIndex = index
+                                        explanationStepIndex = 0
+                                        render()
+                                    }
+                                    div("hint-item-content") {
+                                        div("hint-technique") { +hint.techniqueName }
+                                        div("hint-description") { +hint.description }
+                                    }
+                                    if (isSelected) {
+                                        button(classes = "hint-explain-btn") {
+                                            +"📖 Explain"
+                                            onClickFunction = { e ->
+                                                e.stopPropagation()
+                                                showExplanation = true
+                                                explanationStepIndex = 0
+                                                render()
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            div("hint-technique") { +hint.techniqueName }
-                            div("hint-description") { +hint.description }
                         }
                     }
                 }
-            }
-            
-            // Close button
-            button(classes = "hint-close-btn") {
-                +"✕ Close"
-                onClickFunction = {
-                    showHints = false
-                    render()
+                
+                // Close button
+                button(classes = "hint-close-btn") {
+                    +"✕ Close"
+                    onClickFunction = {
+                        showHints = false
+                        render()
+                    }
                 }
             }
         }
@@ -2147,14 +2226,329 @@ class SudokuApp {
             }
             
             if (selectedHint != null) {
-                div("hint-content") {
-                    div("hint-technique") { +selectedHint.techniqueName }
-                    div("hint-description") { +selectedHint.description }
+                if (showExplanation) {
+                    // Show inline explanation
+                    renderInlineExplanation(selectedHint)
+                } else {
+                    // Show hint content with explain button
+                    div("hint-content") {
+                        div("hint-technique") { +selectedHint.techniqueName }
+                        div("hint-description") { +selectedHint.description }
+                        button(classes = "hint-explain-btn") {
+                            +"📖 Explain"
+                            onClickFunction = {
+                                showExplanation = true
+                                explanationStepIndex = 0
+                                render()
+                            }
+                        }
+                    }
                 }
             } else {
                 div("hint-content hint-empty") {
                     p { +"Searching for hints..." }
                 }
+            }
+        }
+    }
+    
+    /**
+     * Render full explanation view (replaces hint list in landscape sidebar)
+     */
+    private fun TagConsumer<HTMLElement>.renderExplanationView(hint: TechniqueMatchInfo, totalHints: Int) {
+        // Use backend steps if available, otherwise generate fallback
+        val steps = if (hint.explanationSteps.isNotEmpty()) {
+            hint.explanationSteps
+        } else {
+            generateFallbackExplanationSteps(hint)
+        }
+        val currentStep = steps.getOrNull(explanationStepIndex)
+        
+        div("explanation-view") {
+            // Header with back button
+            div("explanation-view-header") {
+                button(classes = "explanation-back-btn") {
+                    +"← Back to List"
+                    onClickFunction = {
+                        showExplanation = false
+                        render()
+                    }
+                }
+                span("hint-position-badge") { +"${selectedHintIndex + 1}/$totalHints" }
+            }
+            
+            // Technique info
+            div("explanation-technique-info") {
+                div("explanation-technique-name") { +hint.techniqueName }
+                div("explanation-technique-desc") { +hint.description }
+            }
+            
+            // Eureka notation if available (for chains)
+            val eureka = hint.eurekaNotation
+            if (eureka != null) {
+                div("explanation-eureka") {
+                    span("eureka-label") { +"Eureka: " }
+                    span("eureka-notation") { +eureka }
+                }
+            }
+            
+            // Step content
+            div("explanation-step-content") {
+                if (currentStep != null) {
+                    div("step-header") {
+                        span("step-number") { +"Step ${currentStep.stepNumber}" }
+                        span("step-title") { +currentStep.title }
+                    }
+                    div("step-description") {
+                        +currentStep.description
+                    }
+                } else {
+                    div("step-description") {
+                        +hint.description
+                    }
+                }
+            }
+            
+            // Navigation (only show if more than one step)
+            if (steps.size > 1) {
+                div("explanation-nav") {
+                    button(classes = "explanation-nav-btn ${if (explanationStepIndex <= 0) "disabled" else ""}") {
+                        +"◀ Prev"
+                        onClickFunction = {
+                            if (explanationStepIndex > 0) {
+                                explanationStepIndex--
+                                render()
+                            }
+                        }
+                    }
+                    span("step-indicator") { +"Step ${explanationStepIndex + 1} / ${steps.size}" }
+                    button(classes = "explanation-nav-btn ${if (explanationStepIndex >= steps.size - 1) "disabled" else ""}") {
+                        +"Next ▶"
+                        onClickFunction = {
+                            if (explanationStepIndex < steps.size - 1) {
+                                explanationStepIndex++
+                                render()
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Close button at bottom
+            button(classes = "hint-close-btn") {
+                +"✕ Close Hints"
+                onClickFunction = {
+                    showHints = false
+                    showExplanation = false
+                    render()
+                }
+            }
+        }
+    }
+    
+    /**
+     * Render inline explanation content (used in both landscape sidebar and portrait card)
+     */
+    private fun TagConsumer<HTMLElement>.renderInlineExplanation(hint: TechniqueMatchInfo) {
+        // Use backend steps if available, otherwise generate fallback
+        val steps = if (hint.explanationSteps.isNotEmpty()) {
+            hint.explanationSteps
+        } else {
+            generateFallbackExplanationSteps(hint)
+        }
+        val currentStep = steps.getOrNull(explanationStepIndex)
+        
+        div("inline-explanation") {
+            // Collapse button
+            div("explanation-collapse-row") {
+                button(classes = "explanation-collapse-btn") {
+                    +"▲ Collapse"
+                    onClickFunction = { e ->
+                        e.stopPropagation()
+                        showExplanation = false
+                        render()
+                    }
+                }
+            }
+            
+            // Eureka notation if available (for chains)
+            val eureka = hint.eurekaNotation
+            if (eureka != null) {
+                div("inline-eureka") {
+                    span("eureka-label") { +"Eureka: " }
+                    span("eureka-notation") { +eureka }
+                }
+            }
+            
+            // Step content
+            if (currentStep != null) {
+                div("inline-step") {
+                    div("step-header") {
+                        span("step-number") { +"Step ${currentStep.stepNumber}" }
+                        span("step-title") { +currentStep.title }
+                    }
+                    div("step-description") {
+                        +currentStep.description
+                    }
+                }
+            } else {
+                // Fallback if no steps at all
+                div("inline-step") {
+                    div("step-description") {
+                        +hint.description
+                    }
+                }
+            }
+            
+            // Navigation (only show if more than one step)
+            if (steps.size > 1) {
+                div("inline-nav") {
+                    button(classes = "inline-nav-btn ${if (explanationStepIndex <= 0) "disabled" else ""}") {
+                        +"◀ Prev"
+                        onClickFunction = { e ->
+                            e.stopPropagation()
+                            if (explanationStepIndex > 0) {
+                                explanationStepIndex--
+                                render()
+                            }
+                        }
+                    }
+                    span("step-indicator") { +"${explanationStepIndex + 1} / ${steps.size}" }
+                    button(classes = "inline-nav-btn ${if (explanationStepIndex >= steps.size - 1) "disabled" else ""}") {
+                        +"Next ▶"
+                        onClickFunction = { e ->
+                            e.stopPropagation()
+                            if (explanationStepIndex < steps.size - 1) {
+                                explanationStepIndex++
+                                render()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Generate fallback explanation steps if backend didn't provide any
+     */
+    private fun generateFallbackExplanationSteps(hint: TechniqueMatchInfo): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        
+        // Step 1: Overview
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = "Overview",
+            description = hint.description,
+            highlightCells = hint.highlightCells
+        ))
+        
+        // Step 2: Eliminations (if any)
+        if (hint.eliminations.isNotEmpty()) {
+            val elimDesc = hint.eliminations.joinToString("; ") { elim ->
+                val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }
+                "Remove ${elim.digit} from ${cells.joinToString(", ")}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = 2,
+                title = "Eliminations",
+                description = elimDesc,
+                highlightCells = hint.eliminations.flatMap { it.cells }
+            ))
+        }
+        
+        // Step 3: Solutions (if any)
+        if (hint.solvedCells.isNotEmpty()) {
+            val solvedDesc = hint.solvedCells.joinToString("; ") { solved ->
+                "R${solved.cell/9 + 1}C${solved.cell%9 + 1} = ${solved.digit}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = steps.size + 1,
+                title = "Solution",
+                description = solvedDesc,
+                highlightCells = hint.solvedCells.map { it.cell }
+            ))
+        }
+        
+        return steps
+    }
+    
+    
+    /**
+     * Render SVG overlay for chain lines on the main game board
+     */
+    private fun TagConsumer<HTMLElement>.renderChainLinesSvg(
+        hint: TechniqueMatchInfo,
+        currentStep: ExplanationStepDto? = null
+    ) {
+        // Use step-specific lines/groups if available, otherwise use hint's full data
+        val linesToDraw = currentStep?.lines?.takeIf { it.isNotEmpty() } ?: hint.lines
+        val groupsToDraw = currentStep?.groups?.takeIf { it.isNotEmpty() } ?: hint.groups
+        
+        // SVG viewBox is set to match a 9x9 grid where each cell is 100 units
+        // This allows us to position lines relative to cell/candidate positions
+        div("chain-lines-container") {
+            val svgContent = buildString {
+                append("""<svg class="chain-lines-overlay" viewBox="0 0 900 900" preserveAspectRatio="xMidYMid meet">""")
+                
+                // Draw group highlights first (behind lines)
+                groupsToDraw.forEach { group ->
+                    val colorClass = when (group.groupType) {
+                        "chain-on" -> "group-on"
+                        "chain-off" -> "group-off"
+                        "als" -> "group-als"
+                        else -> "group-default"
+                    }
+                    group.candidates.forEach { loc ->
+                        // Calculate position within the cell
+                        // Each cell is 100x100 units, candidates are in a 3x3 grid within
+                        val cellX = loc.col * 100
+                        val cellY = loc.row * 100
+                        // Candidate position within cell (1-9 maps to 3x3 grid)
+                        val candCol = (loc.candidate - 1) % 3
+                        val candRow = (loc.candidate - 1) / 3
+                        val cx = cellX + 20 + candCol * 30
+                        val cy = cellY + 20 + candRow * 30
+                        append("""<circle class="board-candidate-highlight $colorClass" cx="$cx" cy="$cy" r="12" />""")
+                    }
+                }
+                
+                // Draw lines
+                linesToDraw.forEach { line ->
+                    // Calculate positions
+                    val fromCellX = line.from.col * 100
+                    val fromCellY = line.from.row * 100
+                    val fromCandCol = (line.from.candidate - 1) % 3
+                    val fromCandRow = (line.from.candidate - 1) / 3
+                    val fromX = fromCellX + 20 + fromCandCol * 30
+                    val fromY = fromCellY + 20 + fromCandRow * 30
+                    
+                    val toCellX = line.to.col * 100
+                    val toCellY = line.to.row * 100
+                    val toCandCol = (line.to.candidate - 1) % 3
+                    val toCandRow = (line.to.candidate - 1) / 3
+                    val toX = toCellX + 20 + toCandCol * 30
+                    val toY = toCellY + 20 + toCandRow * 30
+                    
+                    val strokeClass = if (line.isStrongLink) "strong-link" else "weak-link"
+                    
+                    val curveXVal = line.curveX
+                    val curveYVal = line.curveY
+                    if (curveXVal != null && curveYVal != null) {
+                        // Curved line using quadratic bezier
+                        val midX = (fromX + toX) / 2 + (curveXVal * 100).toInt()
+                        val midY = (fromY + toY) / 2 + (curveYVal * 100).toInt()
+                        append("""<path class="board-chain-line $strokeClass" d="M$fromX,$fromY Q$midX,$midY $toX,$toY" />""")
+                    } else {
+                        // Straight line
+                        append("""<line class="board-chain-line $strokeClass" x1="$fromX" y1="$fromY" x2="$toX" y2="$toY" />""")
+                    }
+                }
+                
+                append("</svg>")
+            }
+            unsafe {
+                +svgContent
             }
         }
     }
@@ -2165,7 +2559,8 @@ class SudokuApp {
         isPrimaryHighlight: Boolean,
         isSecondaryHighlight: Boolean,
         grid: SudokuGrid,
-        selectedHint: TechniqueMatchInfo? = null
+        selectedHint: TechniqueMatchInfo? = null,
+        currentExplanationStep: ExplanationStepDto? = null
     ) {
         val row = cellIndex / 9
         val col = cellIndex % 9
@@ -2181,6 +2576,9 @@ class SudokuApp {
             val correctValue = solution!![cellIndex].digitToIntOrNull() ?: 0
             cell.value != correctValue
         } else false
+        
+        // Check if cell is highlighted by current explanation step
+        val isStepHighlighted = currentExplanationStep?.highlightCells?.contains(cellIndex) == true
         
         // Build highlight class
         val highlightClass = when {
@@ -2213,6 +2611,7 @@ class SudokuApp {
         
         // Hint class for cell background (blue for cover area)
         val hintClass = when {
+            isStepHighlighted -> " hint-step-highlight"  // Current explanation step highlight
             isHintSolved -> " hint-solved-cell"
             isInCoverArea -> " hint-cover-area"
             else -> ""
@@ -3124,6 +3523,74 @@ private val CSS_STYLES = """
         min-height: 0;
     }
     
+    /* Grid container for SVG overlay positioning */
+    .sudoku-grid-container {
+        position: relative;
+        width: var(--grid-size);
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    /* SVG overlay container for chain lines */
+    .chain-lines-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+    }
+    
+    /* SVG overlay for chain lines */
+    .chain-lines-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+    }
+    
+    .board-chain-line {
+        fill: none;
+        stroke-width: 3;
+        stroke-linecap: round;
+        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+    }
+    
+    .board-chain-line.strong-link {
+        stroke: rgb(var(--color-accent-success));
+        stroke-width: 4;
+    }
+    
+    .board-chain-line.weak-link {
+        stroke: rgb(var(--color-accent-warning));
+        stroke-dasharray: 8 4;
+    }
+    
+    .board-candidate-highlight {
+        opacity: 0.5;
+        filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+    }
+    
+    .board-candidate-highlight.group-on {
+        fill: rgba(193, 155, 249, 0.8);
+    }
+    
+    .board-candidate-highlight.group-off {
+        fill: rgba(123, 249, 155, 0.8);
+    }
+    
+    .board-candidate-highlight.group-als {
+        fill: rgba(249, 200, 123, 0.8);
+    }
+    
+    .board-candidate-highlight.group-default {
+        fill: rgba(var(--color-accent-info), 0.6);
+    }
+    
     .sudoku-grid {
         background: rgba(var(--color-bg-primary), 0.6);
         border-radius: clamp(6px, 1.5vmin, 12px);
@@ -3193,6 +3660,39 @@ private val CSS_STYLES = """
     
     .candidate.hidden { visibility: hidden; }
     
+    /* Hint highlighting for cells */
+    .cell.hint-cover-area {
+        background: rgba(var(--color-accent-info), 0.2);
+    }
+    
+    .cell.hint-solved-cell {
+        background: rgba(var(--color-accent-success), 0.3);
+    }
+    
+    .cell.hint-step-highlight {
+        background: rgba(var(--color-accent-warning), 0.3);
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-warning), 0.6);
+    }
+    
+    /* Hint highlighting for candidates */
+    .candidate.hint-elimination {
+        color: rgb(var(--color-accent-error));
+        font-weight: bold;
+        text-decoration: line-through;
+    }
+    
+    .candidate.hint-matching-not-eliminated {
+        color: rgb(var(--color-accent-info));
+        font-weight: bold;
+    }
+    
+    .candidate.hint-solved {
+        color: rgb(var(--color-accent-success));
+        font-weight: bold;
+        background: rgba(var(--color-accent-success), 0.3);
+        border-radius: 2px;
+    }
+    
     .controls {
         display: flex;
         gap: clamp(4px, 1vmin, 8px);
@@ -3239,6 +3739,9 @@ private val CSS_STYLES = """
     .main-content.landscape-hints {
         flex-direction: row;
         gap: clamp(10px, 2vmin, 20px);
+        align-items: flex-start;
+        min-height: 0;
+        overflow: hidden;
     }
     
     .main-content.landscape-hints .game-area {
@@ -3251,6 +3754,7 @@ private val CSS_STYLES = """
         flex: 1;
         min-width: 200px;
         max-width: 320px;
+        align-self: stretch;
         background: rgba(var(--color-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
@@ -3289,7 +3793,7 @@ private val CSS_STYLES = """
     .hint-item {
         background: rgba(var(--color-bg-tertiary), 0.15);
         border-radius: clamp(6px, 1vmin, 10px);
-        padding: clamp(8px, 1.5vmin, 14px);
+        padding: 0;
         cursor: pointer;
         transition: all 0.15s ease;
         border: 2px solid transparent;
@@ -3302,6 +3806,24 @@ private val CSS_STYLES = """
     .hint-item.selected {
         background: rgba(var(--color-accent-warning), 0.3);
         border-color: rgb(var(--color-accent-warning));
+        overflow: visible;
+    }
+    
+    .hint-item.expanded {
+        background: rgba(var(--color-accent-warning), 0.15);
+        border-color: rgb(var(--color-accent-warning));
+        overflow: visible;
+    }
+    
+    .hint-item-header {
+        padding: clamp(8px, 1.5vmin, 14px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(4px, 0.8vmin, 8px);
+    }
+    
+    .hint-item-content {
+        flex: 1;
     }
 
     .hint-technique {
@@ -3316,6 +3838,244 @@ private val CSS_STYLES = """
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
         line-height: 1.3;
         word-break: break-word;
+    }
+    
+    /* Inline Explanation Styles */
+    .inline-explanation {
+        padding: clamp(8px, 1.5vmin, 14px);
+        padding-top: 0;
+        border-top: 1px solid rgba(var(--color-text-primary), 0.1);
+        margin-top: clamp(4px, 0.8vmin, 8px);
+    }
+    
+    .explanation-collapse-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .explanation-collapse-btn {
+        padding: clamp(4px, 0.6vmin, 6px) clamp(8px, 1.2vmin, 12px);
+        border: none;
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        background: rgba(var(--color-accent-warning), 0.2);
+        color: rgb(var(--color-accent-warning));
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .explanation-collapse-btn:hover {
+        background: rgba(var(--color-accent-warning), 0.3);
+    }
+    
+    .inline-eureka {
+        background: rgba(var(--color-bg-tertiary), 0.3);
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        padding: clamp(6px, 1vmin, 10px);
+        margin-bottom: clamp(8px, 1.2vmin, 12px);
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+        overflow-x: auto;
+    }
+    
+    .eureka-label {
+        color: rgba(var(--color-text-primary), 0.6);
+    }
+    
+    .eureka-notation {
+        color: rgb(var(--color-accent-warning));
+    }
+    
+    .inline-step {
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        border-radius: clamp(6px, 1vmin, 10px);
+        padding: clamp(8px, 1.2vmin, 12px);
+        margin-bottom: clamp(8px, 1.2vmin, 12px);
+    }
+    
+    .step-header {
+        display: flex;
+        align-items: center;
+        gap: clamp(6px, 1vmin, 10px);
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .step-number {
+        background: rgba(var(--color-accent-info), 0.3);
+        color: rgb(var(--color-accent-info));
+        padding: clamp(2px, 0.4vmin, 4px) clamp(6px, 0.8vmin, 10px);
+        border-radius: clamp(3px, 0.5vmin, 5px);
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+        font-weight: 600;
+    }
+    
+    .step-title {
+        font-size: clamp(0.7rem, calc(0.65rem + 0.35vmin), 0.9rem);
+        font-weight: 600;
+        color: rgb(var(--color-text-primary));
+    }
+    
+    .step-description {
+        color: rgba(var(--color-text-primary), 0.8);
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.8rem);
+        line-height: 1.4;
+    }
+    
+    .inline-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: clamp(6px, 1vmin, 10px);
+    }
+    
+    .inline-nav-btn {
+        padding: clamp(4px, 0.8vmin, 8px) clamp(10px, 1.5vmin, 14px);
+        border: none;
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        background: rgba(var(--color-accent-info), 0.2);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.75rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .inline-nav-btn:hover:not(.disabled) {
+        background: rgba(var(--color-accent-info), 0.3);
+    }
+    
+    .inline-nav-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
+    .step-indicator {
+        color: rgba(var(--color-text-primary), 0.6);
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+    }
+    
+    /* Full Explanation View (replaces list in landscape sidebar) */
+    .explanation-view {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: clamp(8px, 1.5vmin, 14px);
+    }
+    
+    .explanation-view-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: clamp(8px, 1.2vmin, 12px);
+        flex-shrink: 0;
+    }
+    
+    .explanation-back-btn {
+        padding: clamp(6px, 1vmin, 10px) clamp(10px, 1.5vmin, 14px);
+        border: none;
+        border-radius: clamp(4px, 0.8vmin, 8px);
+        background: rgba(var(--color-text-primary), 0.1);
+        color: rgb(var(--color-text-primary));
+        font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .explanation-back-btn:hover {
+        background: rgba(var(--color-text-primary), 0.2);
+    }
+    
+    .hint-position-badge {
+        background: rgba(var(--color-accent-warning), 0.2);
+        color: rgb(var(--color-accent-warning));
+        padding: clamp(4px, 0.6vmin, 6px) clamp(8px, 1vmin, 12px);
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+        font-weight: 600;
+    }
+    
+    .explanation-technique-info {
+        background: rgba(var(--color-accent-warning), 0.15);
+        border-radius: clamp(6px, 1vmin, 10px);
+        padding: clamp(10px, 1.5vmin, 16px);
+        border-left: 3px solid rgb(var(--color-accent-warning));
+        flex-shrink: 0;
+    }
+    
+    .explanation-technique-name {
+        font-size: clamp(0.8rem, calc(0.75rem + 0.4vmin), 1rem);
+        font-weight: 700;
+        color: rgb(var(--color-accent-warning));
+        margin-bottom: clamp(4px, 0.6vmin, 8px);
+    }
+    
+    .explanation-technique-desc {
+        font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
+        color: rgba(var(--color-text-primary), 0.8);
+        line-height: 1.4;
+    }
+    
+    .explanation-eureka {
+        background: rgba(var(--color-bg-tertiary), 0.3);
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        padding: clamp(8px, 1.2vmin, 12px);
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+        overflow-x: auto;
+        flex-shrink: 0;
+    }
+    
+    .explanation-step-content {
+        flex: 1;
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        border-radius: clamp(6px, 1vmin, 10px);
+        padding: clamp(10px, 1.5vmin, 16px);
+        overflow-y: auto;
+    }
+    
+    .explanation-step-content .step-header {
+        display: flex;
+        align-items: center;
+        gap: clamp(8px, 1.2vmin, 12px);
+        margin-bottom: clamp(8px, 1.2vmin, 12px);
+    }
+    
+    .explanation-step-content .step-description {
+        color: rgba(var(--color-text-primary), 0.85);
+        font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
+        line-height: 1.5;
+    }
+    
+    .explanation-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: clamp(8px, 1.2vmin, 12px);
+        flex-shrink: 0;
+    }
+    
+    .explanation-nav-btn {
+        padding: clamp(6px, 1vmin, 10px) clamp(12px, 1.8vmin, 18px);
+        border: none;
+        border-radius: clamp(4px, 0.8vmin, 8px);
+        background: rgba(var(--color-accent-info), 0.2);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.8rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .explanation-nav-btn:hover:not(.disabled) {
+        background: rgba(var(--color-accent-info), 0.3);
+    }
+    
+    .explanation-nav-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
     
     .hint-empty {
@@ -3413,6 +4173,31 @@ private val CSS_STYLES = """
     .hint-content.hint-empty {
         text-align: center;
         color: rgba(var(--color-text-primary), 0.5);
+    }
+    
+    /* Hint item with explain button */
+    .hint-item-content {
+        flex: 1;
+    }
+    
+    .hint-explain-btn {
+        margin-top: clamp(6px, 1vmin, 10px);
+        padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 14px);
+        border: none;
+        border-radius: clamp(4px, 0.8vmin, 8px);
+        background: rgba(var(--color-accent-info), 0.3);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.8rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: block;
+        width: 100%;
+    }
+    
+    .hint-explain-btn:hover {
+        background: rgba(var(--color-accent-info), 0.4);
+        transform: translateY(-1px);
     }
     
     .number-pad {

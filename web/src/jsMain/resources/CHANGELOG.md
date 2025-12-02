@@ -1,8 +1,27 @@
+# v0.2.0 - 2025-12-04
+
+### Features
+- Hint system is now under development
+- - UI now handles hint space requried properly
+- - - Landscape hint sidebar (right of game area)
+- - - Portrait hint sidebar (bottom of game area)
+- - Hints are validated before being shown
+- - Highlighting of key cells and candidates started
+- - Hints have "Explain button"
+- - - Hints can have multiple steps
+
+### Known Issues
+- Hints are not really usable.
+- - Highlighting does not show properly.
+- - Highlighting modes other than Pencil are erroneous.
+- - Returned hints are not logically chosen. 
+
+
 # v0.1.2 - 2025-12-03c
 
 ### Fixed Issues
 - Returned hints are now valid
-- - Taked into account the eliminated candidates
+- - Takes into account the eliminated candidates
 
 ### Known Issues
 - Hints are not really usable.
@@ -31,7 +50,7 @@
 - - All available (and only available) actions in a cell are available when selected.  This is based on the highlighting used.
 - More Highlighting Types
 - - If every candidate is satisfied, the cell will be hashed
-- - Candidated highlighted in the colour used to highlight it
+- - Candidates highlighted in the colour used to highlight it
 
 ### Fixed Issues
 - Switching between Fast and Advanced mode no longer causes stuch highlights.

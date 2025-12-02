@@ -9,6 +9,7 @@ import sudoku.Solvingtech.FindAll
 import sudoku.Solvingtech.BruteForceSolver
 import sudoku.HelpingTools.cardinals
 import sudoku.match.TechniqueMatch
+import sudoku.match.AICMatch
 import sudoku.solvingtechClassifier.Technique
 import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
@@ -340,14 +341,399 @@ class SudokuService {
         eliminations.forEach { highlightCells.addAll(it.cells) }
         solvedCells.forEach { highlightCells.add(it.cell) }
         
+        // Extract visual data based on match type
+        val (lines, groups, eurekaNotation) = extractVisualData(match)
+        
+        // Generate explanation steps
+        val explanationSteps = generateExplanationSteps(technique, match, eliminations, solvedCells)
+        
         return TechniqueMatchDto(
             id = id,
             techniqueName = technique.getName(),
             description = match.toString(),
             eliminations = eliminations,
             solvedCells = solvedCells,
-            highlightCells = highlightCells.toList()
+            highlightCells = highlightCells.toList(),
+            lines = lines,
+            groups = groups,
+            explanationSteps = explanationSteps,
+            eurekaNotation = eurekaNotation
         )
+    }
+    
+    /**
+     * Extract visual data (lines, groups, eureka notation) from a TechniqueMatch
+     */
+    private fun extractVisualData(match: TechniqueMatch): Triple<List<LineDto>, List<GroupDto>, String?> {
+        return when (match) {
+            is AICMatch -> extractAICVisualData(match)
+            else -> Triple(emptyList(), emptyList(), null)
+        }
+    }
+    
+    /**
+     * Extract lines and groups from AIC (Alternating Inference Chain) matches
+     */
+    private fun extractAICVisualData(match: AICMatch): Triple<List<LineDto>, List<GroupDto>, String?> {
+        val chain = match.chain
+        val nodes = chain.nodes
+        val lines = mutableListOf<LineDto>()
+        val groups = mutableListOf<GroupDto>()
+        
+        // Extract Eureka notation
+        val eurekaBuilder = StringBuilder()
+        chain.toEurekaString(eurekaBuilder)
+        val eurekaNotation = eurekaBuilder.toString()
+        
+        // Extract groups for multi-cell nodes
+        nodes.forEachIndexed { index, node ->
+            val groupType = if (index % 2 == 0) "chain-off" else "chain-on"
+            
+            // Create group for the node's cells
+            val candidates = mutableListOf<CandidateLocationDto>()
+            var cell = node.cells().nextSetBit(0)
+            while (cell >= 0) {
+                val row = cell / 9
+                val col = cell % 9
+                candidates.add(CandidateLocationDto(row, col, node.digit() + 1))
+                cell = node.cells().nextSetBit(cell + 1)
+            }
+            
+            if (candidates.isNotEmpty()) {
+                groups.add(GroupDto(
+                    candidates = candidates,
+                    groupType = groupType,
+                    colorIndex = index % 2
+                ))
+            }
+            
+            // Handle ALS cells if present
+            if (node.alsCells() != null) {
+                val alsCandidates = mutableListOf<CandidateLocationDto>()
+                var alsCell = node.alsCells().nextSetBit(0)
+                while (alsCell >= 0) {
+                    val row = alsCell / 9
+                    val col = alsCell % 9
+                    // For ALS, we add all digits in the ALS
+                    if (node.alsDigits() != null) {
+                        var digit = node.alsDigits().nextSetBit(0)
+                        while (digit >= 0) {
+                            alsCandidates.add(CandidateLocationDto(row, col, digit + 1))
+                            digit = node.alsDigits().nextSetBit(digit + 1)
+                        }
+                    }
+                    alsCell = node.alsCells().nextSetBit(alsCell + 1)
+                }
+                if (alsCandidates.isNotEmpty()) {
+                    groups.add(GroupDto(
+                        candidates = alsCandidates,
+                        groupType = "als",
+                        colorIndex = groups.size
+                    ))
+                }
+            }
+        }
+        
+        // Extract lines between consecutive nodes
+        for (i in 1 until nodes.size) {
+            val prevNode = nodes[i - 1]
+            val currNode = nodes[i]
+            
+            // Find the closest pair of cells between nodes
+            var minDist = Double.MAX_VALUE
+            var fromCell = -1
+            var toCell = -1
+            
+            var cellA = prevNode.cells().nextSetBit(0)
+            while (cellA >= 0) {
+                var cellB = currNode.cells().nextSetBit(0)
+                while (cellB >= 0) {
+                    val rowA = cellA / 9
+                    val colA = cellA % 9
+                    val rowB = cellB / 9
+                    val colB = cellB % 9
+                    val dist = Math.sqrt(((rowA - rowB) * (rowA - rowB) + (colA - colB) * (colA - colB)).toDouble())
+                    if (dist < minDist) {
+                        minDist = dist
+                        fromCell = cellA
+                        toCell = cellB
+                    }
+                    cellB = currNode.cells().nextSetBit(cellB + 1)
+                }
+                cellA = prevNode.cells().nextSetBit(cellA + 1)
+            }
+            
+            if (fromCell >= 0 && toCell >= 0) {
+                val isStrongLink = chain.isFirstLinkStrong xor (i % 2 == 0)
+                val curveOffset = if (i % 2 == 0) 0.1 else -0.1
+                
+                lines.add(LineDto(
+                    from = CandidateLocationDto(fromCell / 9, fromCell % 9, prevNode.digit() + 1),
+                    to = CandidateLocationDto(toCell / 9, toCell % 9, currNode.digit() + 1),
+                    curveX = curveOffset,
+                    curveY = 0.5,
+                    isStrongLink = isStrongLink
+                ))
+            }
+        }
+        
+        return Triple(lines, groups, eurekaNotation)
+    }
+    
+    /**
+     * Generate step-by-step explanation for a technique
+     */
+    private fun generateExplanationSteps(
+        technique: Technique,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>,
+        solvedCells: List<SolvedCellDto>
+    ): List<ExplanationStepDto> {
+        val techniqueName = technique.getName()
+        val steps = mutableListOf<ExplanationStepDto>()
+        
+        when {
+            techniqueName.contains("Single", ignoreCase = true) -> {
+                steps.addAll(generateSingleSteps(techniqueName, match, eliminations, solvedCells))
+            }
+            techniqueName.contains("Pair", ignoreCase = true) || 
+            techniqueName.contains("Triple", ignoreCase = true) ||
+            techniqueName.contains("Quadruple", ignoreCase = true) -> {
+                steps.addAll(generateSubsetSteps(techniqueName, match, eliminations))
+            }
+            techniqueName.contains("Pointing", ignoreCase = true) ||
+            techniqueName.contains("Claiming", ignoreCase = true) ||
+            techniqueName.contains("Box/Line", ignoreCase = true) -> {
+                steps.addAll(generateIntersectionSteps(techniqueName, match, eliminations))
+            }
+            match is AICMatch -> {
+                steps.addAll(generateChainSteps(techniqueName, match, eliminations))
+            }
+            else -> {
+                // Generic explanation for other techniques
+                steps.addAll(generateGenericSteps(techniqueName, match, eliminations, solvedCells))
+            }
+        }
+        
+        return steps
+    }
+    
+    private fun generateSingleSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>,
+        solvedCells: List<SolvedCellDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        
+        if (solvedCells.isNotEmpty()) {
+            val solved = solvedCells.first()
+            val row = solved.cell / 9 + 1
+            val col = solved.cell % 9 + 1
+            
+            if (techniqueName.contains("Naked", ignoreCase = true)) {
+                steps.add(ExplanationStepDto(
+                    stepNumber = 1,
+                    title = "Find the Naked Single",
+                    description = "Cell R${row}C${col} has only one possible candidate: ${solved.digit}",
+                    highlightCells = listOf(solved.cell),
+                    highlightCandidates = listOf(CandidateLocationDto(row - 1, col - 1, solved.digit))
+                ))
+                steps.add(ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Place the Value",
+                    description = "Since ${solved.digit} is the only candidate, it must be the solution for R${row}C${col}",
+                    highlightCells = listOf(solved.cell)
+                ))
+            } else {
+                // Hidden Single
+                steps.add(ExplanationStepDto(
+                    stepNumber = 1,
+                    title = "Find the Hidden Single",
+                    description = "In this house, ${solved.digit} can only go in cell R${row}C${col}",
+                    highlightCells = listOf(solved.cell),
+                    highlightCandidates = listOf(CandidateLocationDto(row - 1, col - 1, solved.digit))
+                ))
+                steps.add(ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Place the Value",
+                    description = "Since R${row}C${col} is the only place for ${solved.digit} in this house, place it there",
+                    highlightCells = listOf(solved.cell)
+                ))
+            }
+        }
+        
+        return steps
+    }
+    
+    private fun generateSubsetSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        
+        val isNaked = techniqueName.contains("Naked", ignoreCase = true)
+        val subsetType = when {
+            techniqueName.contains("Pair", ignoreCase = true) -> "pair"
+            techniqueName.contains("Triple", ignoreCase = true) -> "triple"
+            else -> "quadruple"
+        }
+        
+        // Get all elimination cells to identify the subset cells
+        val eliminationCells = eliminations.flatMap { it.cells }.toSet()
+        val digits = eliminations.map { it.digit }.toSet()
+        
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = "Identify the ${if (isNaked) "Naked" else "Hidden"} ${subsetType.replaceFirstChar { it.uppercase() }}",
+            description = "Found ${digits.size} cells that ${if (isNaked) "only contain" else "are the only places for"} the digits ${digits.sorted().joinToString(", ")}",
+            highlightCells = eliminationCells.toList()
+        ))
+        
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = eliminations.joinToString("; ") { elim ->
+                val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }
+                "${elim.digit} from ${cells.joinToString(", ")}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = 2,
+                title = "Eliminate Candidates",
+                description = "Remove: $eliminationDesc",
+                highlightCells = eliminationCells.toList()
+            ))
+        }
+        
+        return steps
+    }
+    
+    private fun generateIntersectionSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        
+        val eliminationCells = eliminations.flatMap { it.cells }.toSet()
+        val digits = eliminations.map { it.digit }.toSet()
+        
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = "Find the Intersection",
+            description = "The digit(s) ${digits.sorted().joinToString(", ")} are restricted to a line within a box (or vice versa)",
+            highlightCells = eliminationCells.toList()
+        ))
+        
+        if (eliminations.isNotEmpty()) {
+            steps.add(ExplanationStepDto(
+                stepNumber = 2,
+                title = "Eliminate Outside the Intersection",
+                description = "Remove ${digits.sorted().joinToString(", ")} from cells outside the intersection but in the same house",
+                highlightCells = eliminationCells.toList()
+            ))
+        }
+        
+        return steps
+    }
+    
+    private fun generateChainSteps(
+        techniqueName: String,
+        match: AICMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val chain = match.chain
+        val nodes = chain.nodes
+        
+        // Step 1: Introduction
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = "Chain Overview",
+            description = "This is a ${nodes.size}-node chain. Follow the alternating strong (=) and weak (-) links.",
+            highlightCells = emptyList()
+        ))
+        
+        // Step 2: Walk through the chain
+        val chainDescription = StringBuilder()
+        nodes.forEachIndexed { index, node ->
+            if (index > 0) {
+                val linkType = if (chain.isFirstLinkStrong xor (index % 2 == 0)) "strong" else "weak"
+                chainDescription.append(" --[$linkType]--> ")
+            }
+            val cells = mutableListOf<String>()
+            var cell = node.cells().nextSetBit(0)
+            while (cell >= 0) {
+                cells.add("R${cell/9 + 1}C${cell%9 + 1}")
+                cell = node.cells().nextSetBit(cell + 1)
+            }
+            chainDescription.append("(${node.digit() + 1})${cells.joinToString(",")}")
+        }
+        
+        steps.add(ExplanationStepDto(
+            stepNumber = 2,
+            title = "Follow the Chain",
+            description = chainDescription.toString(),
+            highlightCells = emptyList()
+        ))
+        
+        // Step 3: Conclusion
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = eliminations.joinToString("; ") { elim ->
+                val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }
+                "${elim.digit} from ${cells.joinToString(", ")}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = 3,
+                title = "Apply Eliminations",
+                description = "The chain proves we can eliminate: $eliminationDesc",
+                highlightCells = eliminations.flatMap { it.cells }
+            ))
+        }
+        
+        return steps
+    }
+    
+    private fun generateGenericSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>,
+        solvedCells: List<SolvedCellDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = techniqueName,
+            description = match.toString(),
+            highlightCells = eliminations.flatMap { it.cells } + solvedCells.map { it.cell }
+        ))
+        
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = eliminations.joinToString("; ") { elim ->
+                val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }
+                "${elim.digit} from ${cells.joinToString(", ")}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = 2,
+                title = "Eliminations",
+                description = eliminationDesc,
+                highlightCells = eliminations.flatMap { it.cells }
+            ))
+        }
+        
+        if (solvedCells.isNotEmpty()) {
+            val solvedDesc = solvedCells.joinToString("; ") { solved ->
+                "R${solved.cell/9 + 1}C${solved.cell%9 + 1} = ${solved.digit}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = steps.size + 1,
+                title = "Solutions",
+                description = solvedDesc,
+                highlightCells = solvedCells.map { it.cell }
+            ))
+        }
+        
+        return steps
     }
 }
 
