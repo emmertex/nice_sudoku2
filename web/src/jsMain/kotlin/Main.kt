@@ -561,6 +561,7 @@ class SudokuApp {
         if (key.lowercase() == "escape") {
             if (showExplanation) {
                 showExplanation = false
+                explanationStepIndex = 0
                 render()
                 return true
             }
@@ -627,6 +628,7 @@ class SudokuApp {
                 "ArrowUp" -> {
                     if (selectedHintIndex > 0) {
                         selectedHintIndex--
+                        explanationStepIndex = 0
                         render()
                         return true
                     }
@@ -635,18 +637,21 @@ class SudokuApp {
                     val hints = gameEngine.getHints()
                     if (selectedHintIndex < hints.size - 1) {
                         selectedHintIndex++
+                        explanationStepIndex = 0
                         render()
                         return true
                     }
                 }
                 "PageUp" -> {
                     selectedHintIndex = 0
+                    explanationStepIndex = 0
                     render()
                     return true
                 }
                 "PageDown" -> {
                     val hints = gameEngine.getHints()
                     selectedHintIndex = hints.size - 1
+                    explanationStepIndex = 0
                     render()
                     return true
                 }
@@ -2215,6 +2220,7 @@ class SudokuApp {
                     onClickFunction = {
                         if (selectedHintIndex > 0) {
                             selectedHintIndex--
+                            explanationStepIndex = 0
                             render()
                         }
                     }
@@ -2225,6 +2231,7 @@ class SudokuApp {
                     onClickFunction = {
                         if (selectedHintIndex < hints.size - 1) {
                             selectedHintIndex++
+                            explanationStepIndex = 0
                             render()
                         }
                     }
@@ -2583,6 +2590,7 @@ class SudokuApp {
                     +"← Back to List"
                     onClickFunction = {
                         showExplanation = false
+                        explanationStepIndex = 0
                         render()
                     }
                 }
@@ -2652,6 +2660,7 @@ class SudokuApp {
                 onClickFunction = {
                     showHints = false
                     showExplanation = false
+                    explanationStepIndex = 0
                     render()
                 }
             }
@@ -2678,6 +2687,7 @@ class SudokuApp {
                     onClickFunction = { e ->
                         e.stopPropagation()
                         showExplanation = false
+                        explanationStepIndex = 0
                         render()
                     }
                 }
@@ -2700,14 +2710,14 @@ class SudokuApp {
                         span("step-title") { +currentStep.title }
                     }
                     div("step-description") {
-                        +currentStep.description
+                        renderInteractiveDescription(currentStep.description, hint)
                     }
                 }
             } else {
                 // Fallback if no steps at all
                 div("inline-step") {
                     div("step-description") {
-                        +hint.description
+                        renderInteractiveDescription(hint.description, hint)
                     }
                 }
             }
