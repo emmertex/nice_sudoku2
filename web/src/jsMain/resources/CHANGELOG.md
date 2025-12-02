@@ -1,4 +1,4 @@
-# v0.2.0 - 2025-12-04
+# v0.2.0 - 2025-12-03
 
 ### Features
 - Hint system is now under development
@@ -9,15 +9,14 @@
 - - Highlighting of key cells and candidates started
 - - Hints have "Explain button"
 - - - Hints can have multiple steps
+- - SVG Lines for ALS
 
 ### Known Issues
-- Hints are not really usable.
-- - Highlighting does not show properly.
-- - Highlighting modes other than Pencil are erroneous.
-- - Returned hints are not logically chosen. 
+- Highlighting modes other than Pencil are erroneous.
+- Returned hints are not logically chosen. 
 
 
-# v0.1.2 - 2025-12-03c
+# v0.1.2 - 2025-12-02c
 
 ### Fixed Issues
 - Returned hints are now valid
