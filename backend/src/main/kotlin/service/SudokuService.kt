@@ -10,6 +10,7 @@ import sudoku.Solvingtech.BruteForceSolver
 import sudoku.HelpingTools.cardinals
 import sudoku.match.TechniqueMatch
 import sudoku.match.AICMatch
+import sudoku.match.ALSMatch
 import sudoku.solvingtechClassifier.Technique
 import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
@@ -162,8 +163,15 @@ class SudokuService {
             val techniquesDto = mutableMapOf<String, List<TechniqueMatchDto>>()
             var totalMatches = 0
             
+            // Limit matches per technique to prevent massive responses
+            val maxMatchesPerTechnique = 5
+            val maxTotalMatches = 50
+            
             for ((technique, techniqueMatches) in matches) {
-                val matchDtos = techniqueMatches.map { match ->
+                if (totalMatches >= maxTotalMatches) break
+                
+                val limitedMatches = techniqueMatches.take(maxMatchesPerTechnique)
+                val matchDtos = limitedMatches.map { match ->
                     val matchId = UUID.randomUUID().toString()
                     matchCache[matchId] = CachedMatch(match, technique)
                     techniqueMatchToDto(matchId, technique, match)
@@ -206,8 +214,15 @@ class SudokuService {
             val techniquesDto = mutableMapOf<String, List<TechniqueMatchDto>>()
             var totalMatches = 0
             
+            // Limit matches per technique to prevent massive responses
+            val maxMatchesPerTechnique = 5
+            val maxTotalMatches = 50
+            
             for ((technique, techniqueMatches) in matches) {
-                val matchDtos = techniqueMatches.map { match ->
+                if (totalMatches >= maxTotalMatches) break
+                
+                val limitedMatches = techniqueMatches.take(maxMatchesPerTechnique)
+                val matchDtos = limitedMatches.map { match ->
                     val matchId = UUID.randomUUID().toString()
                     // Cache the match for later application
                     matchCache[matchId] = CachedMatch(match, technique)
@@ -367,6 +382,7 @@ class SudokuService {
     private fun extractVisualData(match: TechniqueMatch): Triple<List<LineDto>, List<GroupDto>, String?> {
         return when (match) {
             is AICMatch -> extractAICVisualData(match)
+            is ALSMatch -> extractALSVisualData(match)
             else -> Triple(emptyList(), emptyList(), null)
         }
     }
@@ -481,6 +497,103 @@ class SudokuService {
     }
     
     /**
+     * Extract lines and groups from ALS (Almost Locked Set) matches
+     */
+    private fun extractALSVisualData(match: ALSMatch): Triple<List<LineDto>, List<GroupDto>, String?> {
+        val chain = match.getChain()
+        val nodes = chain.getNodes()
+        val lines = mutableListOf<LineDto>()
+        val groups = mutableListOf<GroupDto>()
+        
+        // Extract Eureka notation
+        val eurekaBuilder = StringBuilder()
+        chain.toEurekaALSString(eurekaBuilder)
+        val eurekaNotation = eurekaBuilder.toString()
+        
+        // Process each collective (node) in the ALS chain
+        var colorIndex = 0
+        for (collective in nodes) {
+            // Add ALS groups
+            val alsList = collective.alsList()
+            for (als in alsList) {
+                val candidates = mutableListOf<CandidateLocationDto>()
+                var cell = als.alsAllCells.nextSetBit(0)
+                while (cell >= 0) {
+                    val row = cell / 9
+                    val col = cell % 9
+                    // Add each digit in the ALS
+                    var digit = als.alsDigits.nextSetBit(0)
+                    while (digit >= 0) {
+                        candidates.add(CandidateLocationDto(row, col, digit + 1))
+                        digit = als.alsDigits.nextSetBit(digit + 1)
+                    }
+                    cell = als.alsAllCells.nextSetBit(cell + 1)
+                }
+                if (candidates.isNotEmpty()) {
+                    groups.add(GroupDto(
+                        candidates = candidates,
+                        groupType = "als",
+                        colorIndex = colorIndex
+                    ))
+                    colorIndex++
+                }
+            }
+            
+            // Add RCC (Restricted Common Candidate) links
+            val startRCCs = collective.StartRCCnode()
+            val linkRCCs = collective.LinkRCCnodes()
+            
+            // Process start RCCs
+            for (rcc in startRCCs) {
+                val rccCandidates = mutableListOf<CandidateLocationDto>()
+                var cell = rcc.rccCells.nextSetBit(0)
+                while (cell >= 0) {
+                    val row = cell / 9
+                    val col = cell % 9
+                    rccCandidates.add(CandidateLocationDto(row, col, rcc.rccDigit + 1))
+                    cell = rcc.rccCells.nextSetBit(cell + 1)
+                }
+                if (rccCandidates.size >= 2) {
+                    // Draw lines between RCC cells
+                    for (i in 0 until rccCandidates.size - 1) {
+                        lines.add(LineDto(
+                            from = rccCandidates[i],
+                            to = rccCandidates[i + 1],
+                            isStrongLink = true,
+                            lineType = "rcc"
+                        ))
+                    }
+                }
+            }
+            
+            // Process link RCCs
+            for (rcc in linkRCCs) {
+                val rccCandidates = mutableListOf<CandidateLocationDto>()
+                var cell = rcc.rccCells.nextSetBit(0)
+                while (cell >= 0) {
+                    val row = cell / 9
+                    val col = cell % 9
+                    rccCandidates.add(CandidateLocationDto(row, col, rcc.rccDigit + 1))
+                    cell = rcc.rccCells.nextSetBit(cell + 1)
+                }
+                if (rccCandidates.size >= 2) {
+                    // Draw lines between RCC cells
+                    for (i in 0 until rccCandidates.size - 1) {
+                        lines.add(LineDto(
+                            from = rccCandidates[i],
+                            to = rccCandidates[i + 1],
+                            isStrongLink = false,
+                            lineType = "rcc-link"
+                        ))
+                    }
+                }
+            }
+        }
+        
+        return Triple(lines, groups, eurekaNotation)
+    }
+    
+    /**
      * Generate step-by-step explanation for a technique
      */
     private fun generateExplanationSteps(
@@ -508,6 +621,9 @@ class SudokuService {
             }
             match is AICMatch -> {
                 steps.addAll(generateChainSteps(techniqueName, match, eliminations))
+            }
+            match is ALSMatch -> {
+                steps.addAll(generateALSSteps(techniqueName, match, eliminations))
             }
             else -> {
                 // Generic explanation for other techniques
@@ -686,6 +802,120 @@ class SudokuService {
                 stepNumber = 3,
                 title = "Apply Eliminations",
                 description = "The chain proves we can eliminate: $eliminationDesc",
+                highlightCells = eliminations.flatMap { it.cells }
+            ))
+        }
+        
+        return steps
+    }
+    
+    private fun generateALSSteps(
+        techniqueName: String,
+        match: ALSMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val chain = match.getChain()
+        val nodes = chain.getNodes()
+        
+        // Step 1: Introduction to ALS
+        val numALS = chain.getNumALS()
+        val alsType = when {
+            techniqueName.contains("XY", ignoreCase = true) -> "ALS-XY"
+            techniqueName.contains("XZ", ignoreCase = true) -> "ALS-XZ"
+            techniqueName.contains("Wing", ignoreCase = true) -> "ALS-Wing"
+            else -> "ALS Chain"
+        }
+        
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = "What is an ALS?",
+            description = "An Almost Locked Set (ALS) is a group of N cells containing N+1 candidates. " +
+                "If any candidate is eliminated, the remaining N candidates must fill the N cells. " +
+                "This $alsType uses $numALS Almost Locked Sets.",
+            highlightCells = emptyList()
+        ))
+        
+        // Step 2: Identify the ALS components
+        val alsDescriptions = mutableListOf<String>()
+        var stepNum = 2
+        
+        for ((nodeIndex, collective) in nodes.withIndex()) {
+            val alsList = collective.alsList()
+            for ((alsIndex, als) in alsList.withIndex()) {
+                val cells = mutableListOf<String>()
+                var cell = als.alsAllCells.nextSetBit(0)
+                while (cell >= 0) {
+                    cells.add("R${cell/9 + 1}C${cell%9 + 1}")
+                    cell = als.alsAllCells.nextSetBit(cell + 1)
+                }
+                
+                val digits = mutableListOf<Int>()
+                var digit = als.alsDigits.nextSetBit(0)
+                while (digit >= 0) {
+                    digits.add(digit + 1)
+                    digit = als.alsDigits.nextSetBit(digit + 1)
+                }
+                
+                val alsName = "ALS ${('A'.code + alsIndex).toChar()}"
+                alsDescriptions.add("$alsName: Cells ${cells.joinToString(", ")} with candidates {${digits.joinToString(", ")}}")
+                
+                // Get highlight cells for this ALS
+                val highlightCells = mutableListOf<Int>()
+                cell = als.alsAllCells.nextSetBit(0)
+                while (cell >= 0) {
+                    highlightCells.add(cell)
+                    cell = als.alsAllCells.nextSetBit(cell + 1)
+                }
+                
+                steps.add(ExplanationStepDto(
+                    stepNumber = stepNum++,
+                    title = "Identify $alsName",
+                    description = "$alsName contains ${cells.size} cells with ${digits.size} candidates: " +
+                        "${cells.joinToString(", ")} = {${digits.joinToString(", ")}}",
+                    highlightCells = highlightCells
+                ))
+            }
+            
+            // Step: Identify RCCs (Restricted Common Candidates)
+            val startRCCs = collective.StartRCCnode()
+            val linkRCCs = collective.LinkRCCnodes()
+            
+            if (startRCCs.isNotEmpty() || linkRCCs.isNotEmpty()) {
+                val rccDescriptions = mutableListOf<String>()
+                
+                for (rcc in startRCCs + linkRCCs) {
+                    val rccCells = mutableListOf<String>()
+                    var cell = rcc.rccCells.nextSetBit(0)
+                    while (cell >= 0) {
+                        rccCells.add("R${cell/9 + 1}C${cell%9 + 1}")
+                        cell = rcc.rccCells.nextSetBit(cell + 1)
+                    }
+                    rccDescriptions.add("Digit ${rcc.rccDigit + 1} at ${rccCells.joinToString(", ")}")
+                }
+                
+                if (rccDescriptions.isNotEmpty()) {
+                    steps.add(ExplanationStepDto(
+                        stepNumber = stepNum++,
+                        title = "Restricted Common Candidates",
+                        description = "The ALSs are connected by RCCs (digits that can only appear in one ALS or the other): " +
+                            rccDescriptions.joinToString("; "),
+                        highlightCells = emptyList()
+                    ))
+                }
+            }
+        }
+        
+        // Final step: Eliminations
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = eliminations.joinToString("; ") { elim ->
+                val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }
+                "${elim.digit} from ${cells.joinToString(", ")}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = stepNum,
+                title = "Apply Eliminations",
+                description = "Any cell that sees all instances of a digit in both ALSs can have that digit eliminated: $eliminationDesc",
                 highlightCells = eliminations.flatMap { it.cells }
             ))
         }

@@ -8,6 +8,7 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.dom.asList
 import org.w3c.fetch.Response
 import kotlin.js.Promise
 import adapter.GameEngine
@@ -78,6 +79,14 @@ class SudokuApp {
     private var showExplanation = false  // Whether explanation overlay is visible
     private var explanationStepIndex: Int = 0  // Current step in explanation
     
+    // Interactive chain highlighting state
+    private var highlightedLinkIndex: Int? = null  // Index of link being highlighted (for SVG line)
+    private var highlightedNodeCell: Int? = null  // Cell index being highlighted from notation
+    private var highlightedNodeCandidate: Int? = null  // Candidate being highlighted from notation
+    
+    // Cached hint list for event delegation
+    private var currentHintList: List<TechniqueMatchInfo> = emptyList()
+    
     // Modal state
     private var showAboutModal = false
     private var showHelpModal = false
@@ -134,6 +143,9 @@ class SudokuApp {
                 }
             }
         }, js("{ passive: false }"))
+        
+        // Global event delegation for chain notation interactions
+        setupChainInteractionDelegation()
         
         // Set up orientation/aspect ratio detection for responsive hint layout
         val mediaQuery = window.matchMedia("(min-aspect-ratio: 4/3)")
@@ -1750,6 +1762,7 @@ class SudokuApp {
                 
                 // Main content wrapper - flex row in landscape, column in portrait
                 val hints = if (showHints) gameEngine.getHints() else emptyList()
+                currentHintList = hints  // Cache for event delegation
                 val selectedHint = hints.getOrNull(selectedHintIndex)
                 
                 // Get current explanation step if showing explanation
@@ -2253,6 +2266,305 @@ class SudokuApp {
     }
     
     /**
+     * Render interactive chain description with clickable/hoverable elements
+     * Parses patterns like:
+     * - (3)R5C6 - cell/candidate reference
+     * - --[strong]--> or --[weak]--> - link indicators
+     */
+    private fun TagConsumer<HTMLElement>.renderInteractiveDescription(description: String, hint: TechniqueMatchInfo) {
+        // Regex patterns for chain notation
+        val cellPattern = Regex("""\((\d)\)([Rr])(\d)[Cc](\d)(?:,([Rr])(\d)[Cc](\d))*""")
+        val linkPattern = Regex("""--\[(strong|weak)\]-->""")
+        
+        var lastIndex = 0
+        var linkIndex = 0
+        val result = StringBuilder()
+        
+        // Find all matches and their positions
+        data class Match(val start: Int, val end: Int, val type: String, val content: String, val data: Any?)
+        val matches = mutableListOf<Match>()
+        
+        // Find cell references like (3)R5C6 or (3)R5C6,R5C7
+        cellPattern.findAll(description).forEach { match ->
+            val digit = match.groupValues[1].toInt()
+            // Parse all cells in the match (handles multi-cell nodes)
+            val cells = mutableListOf<Pair<Int, Int>>()  // row, col pairs
+            val fullMatch = match.value
+            val singleCellPattern = Regex("""[Rr](\d)[Cc](\d)""")
+            singleCellPattern.findAll(fullMatch).forEach { cellMatch ->
+                val row = cellMatch.groupValues[1].toInt() - 1
+                val col = cellMatch.groupValues[2].toInt() - 1
+                cells.add(row to col)
+            }
+            matches.add(Match(match.range.first, match.range.last + 1, "cell", match.value, digit to cells))
+        }
+        
+        // Find link indicators like --[strong]-->
+        linkPattern.findAll(description).forEach { match ->
+            val linkType = match.groupValues[1]
+            matches.add(Match(match.range.first, match.range.last + 1, "link", match.value, linkIndex++ to linkType))
+        }
+        
+        // Sort matches by position
+        matches.sortBy { it.start }
+        
+        // Build HTML with interactive spans
+        var currentPos = 0
+        matches.forEach { match ->
+            // Add text before this match
+            if (match.start > currentPos) {
+                result.append("""<span class="chain-text">${description.substring(currentPos, match.start)}</span>""")
+            }
+            
+            when (match.type) {
+                "cell" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val data = match.data as Pair<Int, List<Pair<Int, Int>>>
+                    val digit = data.first
+                    val cells = data.second
+                    val cellIndices = cells.map { pair -> pair.first * 9 + pair.second }
+                    val dataAttr = cellIndices.joinToString(",")
+                    result.append("""<span class="chain-cell-ref" data-cells="$dataAttr" data-candidate="$digit">${match.content}</span>""")
+                }
+                "link" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val data = match.data as Pair<Int, String>
+                    val idx = data.first
+                    val linkType = data.second
+                    result.append("""<span class="chain-link-ref chain-link-$linkType" data-link-index="$idx">[$linkType]</span>""")
+                }
+            }
+            currentPos = match.end
+        }
+        
+        // Add remaining text
+        if (currentPos < description.length) {
+            result.append("""<span class="chain-text">${description.substring(currentPos)}</span>""")
+        }
+        
+        // If no interactive elements found, just show plain text
+        if (matches.isEmpty()) {
+            span { +description }
+        } else {
+            // Generate unique ID first
+            val containerId = "desc-${kotlin.js.Date().getTime().toLong()}"
+            
+            div("interactive-description") {
+                id = containerId
+                unsafe { +result.toString() }
+            }
+            
+            // Use setTimeout to attach listeners after DOM is updated
+            kotlinx.browser.window.setTimeout({
+                attachChainInteractionListeners(containerId, hint)
+            }, 50)  // Small delay to ensure DOM is ready
+        }
+    }
+    
+    /**
+     * Set up global event delegation for chain notation interactions
+     * This uses event delegation so we don't need to re-attach listeners on each render
+     */
+    private fun setupChainInteractionDelegation() {
+        // Click delegation
+        document.addEventListener("click", { event ->
+            val target = (event.target as? HTMLElement) ?: return@addEventListener
+            
+            // Handle cell reference clicks
+            val cellRef = target.closest(".chain-cell-ref") as? HTMLElement
+            if (cellRef != null) {
+                val cellsAttr = cellRef.getAttribute("data-cells") ?: return@addEventListener
+                val candidateAttr = cellRef.getAttribute("data-candidate") ?: return@addEventListener
+                val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
+                val candidate = candidateAttr.toIntOrNull() ?: return@addEventListener
+                
+                event.stopPropagation()
+                
+                // Toggle persistent highlight
+                if (highlightedNodeCell == cells.firstOrNull() && highlightedNodeCandidate == candidate) {
+                    highlightedNodeCell = null
+                    highlightedNodeCandidate = null
+                    clearChainHighlights()
+                } else {
+                    highlightedNodeCell = cells.firstOrNull()
+                    highlightedNodeCandidate = candidate
+                    val hint = currentHintList.getOrNull(selectedHintIndex)
+                    if (hint != null) {
+                        updateChainHighlights(cells, candidate, hint)
+                    }
+                }
+                return@addEventListener
+            }
+            
+            // Handle link reference clicks
+            val linkRef = target.closest(".chain-link-ref") as? HTMLElement
+            if (linkRef != null) {
+                val linkIndexAttr = linkRef.getAttribute("data-link-index") ?: return@addEventListener
+                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
+                
+                event.stopPropagation()
+                
+                // Toggle persistent highlight
+                if (highlightedLinkIndex == linkIdx) {
+                    highlightedLinkIndex = null
+                    updateLinkHighlight(linkIdx, false)
+                } else {
+                    highlightedLinkIndex = linkIdx
+                    updateLinkHighlight(linkIdx, true)
+                }
+                return@addEventListener
+            }
+        })
+        
+        // Mouseenter delegation (uses mouseover with check)
+        document.addEventListener("mouseover", { event ->
+            val target = (event.target as? HTMLElement) ?: return@addEventListener
+            
+            // Handle cell reference hover
+            val cellRef = target.closest(".chain-cell-ref") as? HTMLElement
+            if (cellRef != null && !cellRef.classList.contains("chain-hovered")) {
+                cellRef.classList.add("chain-hovered")
+                val cellsAttr = cellRef.getAttribute("data-cells") ?: return@addEventListener
+                val candidateAttr = cellRef.getAttribute("data-candidate") ?: return@addEventListener
+                val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
+                val candidate = candidateAttr.toIntOrNull() ?: return@addEventListener
+                
+                val hint = currentHintList.getOrNull(selectedHintIndex)
+                if (hint != null) {
+                    updateChainHighlights(cells, candidate, hint)
+                }
+                return@addEventListener
+            }
+            
+            // Handle link reference hover
+            val linkRef = target.closest(".chain-link-ref") as? HTMLElement
+            if (linkRef != null && !linkRef.classList.contains("chain-hovered")) {
+                linkRef.classList.add("chain-hovered")
+                val linkIndexAttr = linkRef.getAttribute("data-link-index") ?: return@addEventListener
+                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
+                
+                updateLinkHighlight(linkIdx, true)
+                return@addEventListener
+            }
+        })
+        
+        // Mouseleave delegation (uses mouseout with check)
+        document.addEventListener("mouseout", { event ->
+            val target = (event.target as? HTMLElement) ?: return@addEventListener
+            
+            // Handle cell reference leave
+            if (target.classList.contains("chain-cell-ref") && target.classList.contains("chain-hovered")) {
+                target.classList.remove("chain-hovered")
+                // Only clear if not persistently highlighted
+                if (highlightedNodeCell == null) {
+                    clearChainHighlights()
+                }
+                return@addEventListener
+            }
+            
+            // Handle link reference leave
+            if (target.classList.contains("chain-link-ref") && target.classList.contains("chain-hovered")) {
+                target.classList.remove("chain-hovered")
+                val linkIndexAttr = target.getAttribute("data-link-index") ?: return@addEventListener
+                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
+                // Only clear if not persistently highlighted
+                if (highlightedLinkIndex == null) {
+                    updateLinkHighlight(linkIdx, false)
+                }
+                return@addEventListener
+            }
+        })
+    }
+    
+    /**
+     * Attach mouse/click listeners for interactive chain elements (legacy - now using delegation)
+     */
+    private fun attachChainInteractionListeners(containerId: String, hint: TechniqueMatchInfo) {
+        // Event delegation is now handled globally in setupChainInteractionDelegation()
+        // This function is kept for compatibility but does nothing
+    }
+    
+    /**
+     * Update visual highlights for cells and candidates
+     */
+    private fun updateChainHighlights(cells: List<Int>, candidate: Int, hint: TechniqueMatchInfo) {
+        // First clear any existing highlights
+        clearChainHighlights()
+        
+        // Highlight the cells - cells are in rows, so we need to find them properly
+        cells.forEach { cellIndex ->
+            val row = cellIndex / 9
+            val col = cellIndex % 9
+            // Selector: .sudoku-grid > .sudoku-row:nth-child(row+1) > .cell:nth-child(col+1)
+            val cellElement = document.querySelector(
+                ".sudoku-grid > .sudoku-row:nth-child(${row + 1}) > .cell:nth-child(${col + 1})"
+            ) as? HTMLElement
+            cellElement?.classList?.add("chain-node-highlight")
+            
+            // Highlight the specific candidate within the cell
+            val candidateElement = cellElement?.querySelector(".candidate:nth-child($candidate)") as? HTMLElement
+            candidateElement?.classList?.add("chain-candidate-highlight")
+        }
+        
+        // Also highlight corresponding SVG circles if they exist
+        val svgContainer = document.querySelector(".chain-lines-container svg") as? Element
+        svgContainer?.querySelectorAll(".board-candidate-highlight")?.asList()?.forEach { circle ->
+            val circleEl = circle as? Element ?: return@forEach
+            val cx = circleEl.getAttribute("cx")?.toDoubleOrNull() ?: return@forEach
+            val cy = circleEl.getAttribute("cy")?.toDoubleOrNull() ?: return@forEach
+            
+            // Check if this circle matches any of our cells and candidate
+            cells.forEach { cellIndex ->
+                val row = cellIndex / 9
+                val col = cellIndex % 9
+                val candCol = (candidate - 1) % 3
+                val candRow = (candidate - 1) / 3
+                val expectedCx = col * 100.0 + 20.0 + candCol * 30.0
+                val expectedCy = row * 100.0 + 20.0 + candRow * 30.0
+                
+                if (kotlin.math.abs(cx - expectedCx) < 5 && kotlin.math.abs(cy - expectedCy) < 5) {
+                    circleEl.classList.add("svg-highlight")
+                }
+            }
+        }
+    }
+    
+    /**
+     * Clear all chain highlights
+     */
+    private fun clearChainHighlights() {
+        document.querySelectorAll(".chain-node-highlight").asList().forEach {
+            (it as? Element)?.classList?.remove("chain-node-highlight")
+        }
+        document.querySelectorAll(".chain-candidate-highlight").asList().forEach {
+            (it as? Element)?.classList?.remove("chain-candidate-highlight")
+        }
+        document.querySelectorAll(".svg-highlight").asList().forEach {
+            (it as? Element)?.classList?.remove("svg-highlight")
+        }
+        document.querySelectorAll(".svg-line-highlight").asList().forEach {
+            (it as? Element)?.classList?.remove("svg-line-highlight")
+        }
+    }
+    
+    /**
+     * Update SVG line highlight
+     */
+    private fun updateLinkHighlight(linkIndex: Int, highlight: Boolean) {
+        val svgContainer = document.querySelector(".chain-lines-container svg") as? Element ?: return
+        val lines = svgContainer.querySelectorAll(".board-chain-line").asList()
+        
+        if (linkIndex < lines.size) {
+            val line = lines[linkIndex] as? Element
+            if (highlight) {
+                line?.classList?.add("svg-line-highlight")
+            } else {
+                line?.classList?.remove("svg-line-highlight")
+            }
+        }
+    }
+    
+    /**
      * Render full explanation view (replaces hint list in landscape sidebar)
      */
     private fun TagConsumer<HTMLElement>.renderExplanationView(hint: TechniqueMatchInfo, totalHints: Int) {
@@ -2300,11 +2612,11 @@ class SudokuApp {
                         span("step-title") { +currentStep.title }
                     }
                     div("step-description") {
-                        +currentStep.description
+                        renderInteractiveDescription(currentStep.description, hint)
                     }
                 } else {
                     div("step-description") {
-                        +hint.description
+                        renderInteractiveDescription(hint.description, hint)
                     }
                 }
             }
@@ -3589,6 +3901,83 @@ private val CSS_STYLES = """
     
     .board-candidate-highlight.group-default {
         fill: rgba(var(--color-accent-info), 0.6);
+    }
+    
+    /* SVG highlight states for interactive chain notation */
+    .board-chain-line.svg-line-highlight {
+        stroke-width: 8 !important;
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
+    }
+    
+    .board-candidate-highlight.svg-highlight {
+        r: 18;
+        opacity: 1;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) !important;
+    }
+    
+    /* Interactive chain notation styles */
+    .interactive-description {
+        line-height: 1.6;
+    }
+    
+    .chain-cell-ref {
+        background: rgba(var(--color-accent-info), 0.2);
+        padding: 2px 4px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.9em;
+    }
+    
+    .chain-cell-ref:hover {
+        background: rgba(var(--color-accent-info), 0.5);
+        box-shadow: 0 0 8px rgba(var(--color-accent-info), 0.5);
+    }
+    
+    .chain-link-ref {
+        padding: 2px 6px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-weight: 600;
+        font-size: 0.85em;
+    }
+    
+    .chain-link-strong {
+        background: rgba(var(--color-accent-success), 0.2);
+        color: rgb(var(--color-accent-success));
+    }
+    
+    .chain-link-strong:hover {
+        background: rgba(var(--color-accent-success), 0.5);
+        box-shadow: 0 0 8px rgba(var(--color-accent-success), 0.5);
+    }
+    
+    .chain-link-weak {
+        background: rgba(var(--color-accent-warning), 0.2);
+        color: rgb(var(--color-accent-warning));
+    }
+    
+    .chain-link-weak:hover {
+        background: rgba(var(--color-accent-warning), 0.5);
+        box-shadow: 0 0 8px rgba(var(--color-accent-warning), 0.5);
+    }
+    
+    .chain-text {
+        /* Normal text styling */
+    }
+    
+    /* Cell highlight from chain interaction */
+    .cell.chain-node-highlight {
+        box-shadow: inset 0 0 0 3px rgba(var(--color-accent-info), 0.8), 0 0 12px rgba(var(--color-accent-info), 0.6) !important;
+    }
+    
+    .candidate.chain-candidate-highlight {
+        background: rgba(var(--color-accent-info), 0.7) !important;
+        color: white !important;
+        border-radius: 50%;
+        font-weight: bold;
     }
     
     .sudoku-grid {

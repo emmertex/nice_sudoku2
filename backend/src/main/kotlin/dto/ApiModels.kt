@@ -91,7 +91,8 @@ data class LineDto(
     val to: CandidateLocationDto,
     val curveX: Double? = null,  // Curve control point X offset
     val curveY: Double? = null,  // Curve control point Y offset
-    val isStrongLink: Boolean = false  // Strong (=) vs weak (-) link
+    val isStrongLink: Boolean = false,  // Strong (=) vs weak (-) link
+    val lineType: String? = null  // "strong", "weak", "rcc", "rcc-link", etc.
 )
 
 /**

@@ -23,7 +23,7 @@ actual class GameEngine actual constructor() {
     private var currentPuzzleString: String? = null  // Keep track of original puzzle
     
     // Backend API base URL - configurable via environment or defaults to sudoku.emmertex.com
-    private val apiBaseUrl: String = js("window.STORMDOKU_API_URL || 'https://sudoku.emmertex.com'") as String
+    private val apiBaseUrl: String = js("window.STORMDOKU_API_URL || 'http://localhost:8181'") as String
     
     // Backend availability flag - checked on startup
     var isBackendAvailable: Boolean = false
@@ -875,7 +875,8 @@ data class LineDto(
     val to: CandidateLocationDto,
     val curveX: Double? = null,
     val curveY: Double? = null,
-    val isStrongLink: Boolean = false
+    val isStrongLink: Boolean = false,
+    val lineType: String? = null
 )
 
 /**
