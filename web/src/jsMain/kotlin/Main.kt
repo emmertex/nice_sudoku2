@@ -8,10 +8,15 @@ import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.dom.asList
 import org.w3c.fetch.Response
 import kotlin.js.Promise
 import adapter.GameEngine
 import adapter.TechniqueMatchInfo
+import adapter.LineDto
+import adapter.GroupDto
+import adapter.ExplanationStepDto
+import adapter.CandidateLocationDto
 import domain.*
 
 enum class AppScreen {
@@ -70,6 +75,18 @@ class SudokuApp {
     private var isLandscape = false  // Responsive layout detection
     private var isBackendAvailable = false  // Whether hint system can be used
     
+    // Explanation overlay state
+    private var showExplanation = false  // Whether explanation overlay is visible
+    private var explanationStepIndex: Int = 0  // Current step in explanation
+    
+    // Interactive chain highlighting state
+    private var highlightedLinkIndex: Int? = null  // Index of link being highlighted (for SVG line)
+    private var highlightedNodeCell: Int? = null  // Cell index being highlighted from notation
+    private var highlightedNodeCandidate: Int? = null  // Candidate being highlighted from notation
+    
+    // Cached hint list for event delegation
+    private var currentHintList: List<TechniqueMatchInfo> = emptyList()
+    
     // Modal state
     private var showAboutModal = false
     private var showHelpModal = false
@@ -127,6 +144,9 @@ class SudokuApp {
             }
         }, js("{ passive: false }"))
         
+        // Global event delegation for chain notation interactions
+        setupChainInteractionDelegation()
+        
         // Set up orientation/aspect ratio detection for responsive hint layout
         val mediaQuery = window.matchMedia("(min-aspect-ratio: 4/3)")
         isLandscape = mediaQuery.matches
@@ -143,7 +163,10 @@ class SudokuApp {
             resizeTimeout?.let { window.clearTimeout(it) }
             resizeTimeout = window.setTimeout({
                 if (currentScreen == AppScreen.GAME) {
-                    applyContainerScaling()
+                    matchHintSidebarHeight()
+                    if (isLandscape == false) {
+                        applyContainerScaling()
+                    }
                 }
             }, 100)
         })
@@ -536,6 +559,12 @@ class SudokuApp {
     private fun handleKeyPress(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
         // Handle Escape - always works regardless of screen
         if (key.lowercase() == "escape") {
+            if (showExplanation) {
+                showExplanation = false
+                explanationStepIndex = 0
+                render()
+                return true
+            }
             if (showAboutModal) {
                 showAboutModal = false
                 render()
@@ -599,6 +628,7 @@ class SudokuApp {
                 "ArrowUp" -> {
                     if (selectedHintIndex > 0) {
                         selectedHintIndex--
+                        explanationStepIndex = 0
                         render()
                         return true
                     }
@@ -607,18 +637,21 @@ class SudokuApp {
                     val hints = gameEngine.getHints()
                     if (selectedHintIndex < hints.size - 1) {
                         selectedHintIndex++
+                        explanationStepIndex = 0
                         render()
                         return true
                     }
                 }
                 "PageUp" -> {
                     selectedHintIndex = 0
+                    explanationStepIndex = 0
                     render()
                     return true
                 }
                 "PageDown" -> {
                     val hints = gameEngine.getHints()
                     selectedHintIndex = hints.size - 1
+                    explanationStepIndex = 0
                     render()
                     return true
                 }
@@ -969,6 +1002,7 @@ class SudokuApp {
             renderVersionModal()
         }
         
+        // Explanation overlay (shown when user clicks Explain on a hint)
         // Always show version number in bottom left corner (if loaded)
         if (currentVersion.isNotEmpty()) {
             renderVersionIndicator()
@@ -1733,23 +1767,37 @@ class SudokuApp {
                 
                 // Main content wrapper - flex row in landscape, column in portrait
                 val hints = if (showHints) gameEngine.getHints() else emptyList()
+                currentHintList = hints  // Cache for event delegation
                 val selectedHint = hints.getOrNull(selectedHintIndex)
+                
+                // Get current explanation step if showing explanation
+                val currentExplanationStep = if (showExplanation && selectedHint != null) {
+                    selectedHint.explanationSteps.getOrNull(explanationStepIndex)
+                } else null
                 
                 div("main-content ${if (showHints && isLandscape) "landscape-hints" else ""}") {
                 // Game area
                 div("game-area") {
-                    // Sudoku grid
-                    div("sudoku-grid") {
-                        for (row in 0..8) {
-                            div("sudoku-row") {
-                                for (col in 0..8) {
-                                    val cellIndex = row * 9 + col
-                                    val cell = grid.getCell(cellIndex)
-                                    val isPrimary = cellIndex in primaryCells
-                                    val isSecondary = cellIndex in secondaryCells
-                                    renderCell(cellIndex, cell, isPrimary, isSecondary, grid, selectedHint)
+                    // Sudoku grid container with SVG overlay
+                    div("sudoku-grid-container") {
+                        // Sudoku grid
+                        div("sudoku-grid") {
+                            for (row in 0..8) {
+                                div("sudoku-row") {
+                                    for (col in 0..8) {
+                                        val cellIndex = row * 9 + col
+                                        val cell = grid.getCell(cellIndex)
+                                        val isPrimary = cellIndex in primaryCells
+                                        val isSecondary = cellIndex in secondaryCells
+                                        renderCell(cellIndex, cell, isPrimary, isSecondary, grid, selectedHint, currentExplanationStep)
+                                    }
                                 }
                             }
+                        }
+                        
+                        // SVG overlay for chain lines (when hint with lines is selected)
+                        if (selectedHint != null && selectedHint.lines.isNotEmpty()) {
+                            renderChainLinesSvg(selectedHint, currentExplanationStep)
                         }
                     }
                     
@@ -2006,7 +2054,10 @@ class SudokuApp {
         
         // Apply scaling after DOM is updated
         window.setTimeout({
-            applyContainerScaling()
+            matchHintSidebarHeight()
+            if (isLandscape == false) {
+                applyContainerScaling()
+            }
         }, 0)
     }
     
@@ -2071,42 +2122,88 @@ class SudokuApp {
         wrapper.style.height = "100%"
     }
     
+    /**
+     * Match the hint sidebar height to the game area height in landscape mode.
+     * This prevents the sidebar from causing the parent container to expand vertically.
+     */
+    private fun matchHintSidebarHeight() {
+        // Only apply when hints are shown in landscape mode
+        val mainContent = document.querySelector(".main-content.landscape-hints") as? HTMLElement
+        if (mainContent == null) return
+        
+        val gameArea = document.querySelector(".main-content.landscape-hints .game-area") as? HTMLElement
+        val hintSidebar = document.querySelector(".hint-sidebar") as? HTMLElement
+        
+        if (gameArea == null || hintSidebar == null) return
+        
+        // Get the game area's height
+        val gameAreaHeight = gameArea.offsetHeight
+        
+        // Set the sidebar to match the game area height
+        hintSidebar.style.height = "${gameAreaHeight}px"
+    }
+    
     private fun TagConsumer<HTMLElement>.renderLandscapeHintSidebar(
         hints: List<TechniqueMatchInfo>,
         selectedHint: TechniqueMatchInfo?
     ) {
         div("hint-sidebar") {
-            div("hint-sidebar-header") {
-                h3 { +"Available Hints" }
-                span("hint-count") { +"(${hints.size})" }
-            }
-            
-            if (hints.isEmpty()) {
-                div("hint-empty") {
-                    p { +"Searching for hints..." }
-                }
+            // Show either the explanation view OR the list view (not both)
+            if (showExplanation && selectedHint != null) {
+                // Explanation view - replaces the entire list
+                renderExplanationView(selectedHint, hints.size)
             } else {
-                div("hint-list") {
-                    hints.forEachIndexed { index, hint ->
-                        val isSelected = index == selectedHintIndex
-                        div("hint-item ${if (isSelected) "selected" else ""}") {
-                            onClickFunction = {
-                                selectedHintIndex = index
-                                render()
+                // List view
+                div("hint-sidebar-header") {
+                    h3 { +"Available Hints" }
+                    span("hint-count") { +"(${hints.size})" }
+                }
+                
+                if (hints.isEmpty()) {
+                    div("hint-empty") {
+                        p { +"Searching for hints..." }
+                    }
+                } else {
+                    div("hint-list") {
+                        hints.forEachIndexed { index, hint ->
+                            val isSelected = index == selectedHintIndex
+                            div("hint-item ${if (isSelected) "selected" else ""}") {
+                                // Header row (always visible)
+                                div("hint-item-header") {
+                                    onClickFunction = { e ->
+                                        // Select this hint
+                                        selectedHintIndex = index
+                                        explanationStepIndex = 0
+                                        render()
+                                    }
+                                    div("hint-item-content") {
+                                        div("hint-technique") { +hint.techniqueName }
+                                        div("hint-description") { +hint.description }
+                                    }
+                                    if (isSelected) {
+                                        button(classes = "hint-explain-btn") {
+                                            +"📖 Explain"
+                                            onClickFunction = { e ->
+                                                e.stopPropagation()
+                                                showExplanation = true
+                                                explanationStepIndex = 0
+                                                render()
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            div("hint-technique") { +hint.techniqueName }
-                            div("hint-description") { +hint.description }
                         }
                     }
                 }
-            }
-            
-            // Close button
-            button(classes = "hint-close-btn") {
-                +"✕ Close"
-                onClickFunction = {
-                    showHints = false
-                    render()
+                
+                // Close button
+                button(classes = "hint-close-btn") {
+                    +"✕ Close"
+                    onClickFunction = {
+                        showHints = false
+                        render()
+                    }
                 }
             }
         }
@@ -2123,6 +2220,7 @@ class SudokuApp {
                     onClickFunction = {
                         if (selectedHintIndex > 0) {
                             selectedHintIndex--
+                            explanationStepIndex = 0
                             render()
                         }
                     }
@@ -2133,6 +2231,7 @@ class SudokuApp {
                     onClickFunction = {
                         if (selectedHintIndex < hints.size - 1) {
                             selectedHintIndex++
+                            explanationStepIndex = 0
                             render()
                         }
                     }
@@ -2147,14 +2246,643 @@ class SudokuApp {
             }
             
             if (selectedHint != null) {
-                div("hint-content") {
-                    div("hint-technique") { +selectedHint.techniqueName }
-                    div("hint-description") { +selectedHint.description }
+                if (showExplanation) {
+                    // Show inline explanation
+                    renderInlineExplanation(selectedHint)
+                } else {
+                    // Show hint content with explain button
+                    div("hint-content") {
+                        div("hint-technique") { +selectedHint.techniqueName }
+                        div("hint-description") { +selectedHint.description }
+                        button(classes = "hint-explain-btn") {
+                            +"📖 Explain"
+                            onClickFunction = {
+                                showExplanation = true
+                                explanationStepIndex = 0
+                                render()
+                            }
+                        }
+                    }
                 }
             } else {
                 div("hint-content hint-empty") {
                     p { +"Searching for hints..." }
                 }
+            }
+        }
+    }
+    
+    /**
+     * Escape HTML special characters to prevent injection attacks
+     */
+    private fun htmlEscape(text: String): String {
+        return text
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#x27;")
+    }
+
+    /**
+     * Render interactive chain description with clickable/hoverable elements
+     * Parses patterns like:
+     * - (3)R5C6 - cell/candidate reference
+     * - --[strong]--> or --[weak]--> - link indicators
+     */
+    private fun TagConsumer<HTMLElement>.renderInteractiveDescription(description: String, hint: TechniqueMatchInfo) {
+        // Regex patterns for chain notation
+        val cellPattern = Regex("""\((\d)\)([Rr])(\d)[Cc](\d)(?:,([Rr])(\d)[Cc](\d))*""")
+        val linkPattern = Regex("""--\[(strong|weak)\]-->""")
+        
+        var lastIndex = 0
+        var linkIndex = 0
+        val result = StringBuilder()
+        
+        // Find all matches and their positions
+        data class Match(val start: Int, val end: Int, val type: String, val content: String, val data: Any?)
+        val matches = mutableListOf<Match>()
+        
+        // Find cell references like (3)R5C6 or (3)R5C6,R5C7
+        cellPattern.findAll(description).forEach { match ->
+            val digit = match.groupValues[1].toInt()
+            // Parse all cells in the match (handles multi-cell nodes)
+            val cells = mutableListOf<Pair<Int, Int>>()  // row, col pairs
+            val fullMatch = match.value
+            val singleCellPattern = Regex("""[Rr](\d)[Cc](\d)""")
+            singleCellPattern.findAll(fullMatch).forEach { cellMatch ->
+                val row = cellMatch.groupValues[1].toInt() - 1
+                val col = cellMatch.groupValues[2].toInt() - 1
+                cells.add(row to col)
+            }
+            matches.add(Match(match.range.first, match.range.last + 1, "cell", match.value, digit to cells))
+        }
+        
+        // Find link indicators like --[strong]-->
+        linkPattern.findAll(description).forEach { match ->
+            val linkType = match.groupValues[1]
+            matches.add(Match(match.range.first, match.range.last + 1, "link", match.value, linkIndex++ to linkType))
+        }
+        
+        // Sort matches by position
+        matches.sortBy { it.start }
+        
+        // Build HTML with interactive spans
+        var currentPos = 0
+        matches.forEach { match ->
+            // Add text before this match
+            if (match.start > currentPos) {
+                result.append("""<span class="chain-text">${htmlEscape(description.substring(currentPos, match.start))}</span>""")
+            }
+            
+            when (match.type) {
+                "cell" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val data = match.data as Pair<Int, List<Pair<Int, Int>>>
+                    val digit = data.first
+                    val cells = data.second
+                    val cellIndices = cells.map { pair -> pair.first * 9 + pair.second }
+                    val dataAttr = cellIndices.joinToString(",")
+                    result.append("""<span class="chain-cell-ref" data-cells="$dataAttr" data-candidate="$digit">${match.content}</span>""")
+                }
+                "link" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val data = match.data as Pair<Int, String>
+                    val idx = data.first
+                    val linkType = data.second
+                    result.append("""<span class="chain-link-ref chain-link-$linkType" data-link-index="$idx">[$linkType]</span>""")
+                }
+            }
+            currentPos = match.end
+        }
+        
+        // Add remaining text
+        if (currentPos < description.length) {
+            result.append("""<span class="chain-text">${htmlEscape(description.substring(currentPos))}</span>""")
+        }
+        
+        // If no interactive elements found, just show plain text
+        if (matches.isEmpty()) {
+            span { +description }
+        } else {
+            // Generate unique ID first
+            val containerId = "desc-${kotlin.js.Date().getTime().toLong()}"
+            
+            div("interactive-description") {
+                id = containerId
+                unsafe { +result.toString() }
+            }
+            
+            // Use setTimeout to attach listeners after DOM is updated
+            kotlinx.browser.window.setTimeout({
+                attachChainInteractionListeners(containerId, hint)
+            }, 50)  // Small delay to ensure DOM is ready
+        }
+    }
+    
+    /**
+     * Set up global event delegation for chain notation interactions
+     * This uses event delegation so we don't need to re-attach listeners on each render
+     */
+    private fun setupChainInteractionDelegation() {
+        // Click delegation
+        document.addEventListener("click", { event ->
+            val target = (event.target as? HTMLElement) ?: return@addEventListener
+            
+            // Handle cell reference clicks
+            val cellRef = target.closest(".chain-cell-ref") as? HTMLElement
+            if (cellRef != null) {
+                val cellsAttr = cellRef.getAttribute("data-cells") ?: return@addEventListener
+                val candidateAttr = cellRef.getAttribute("data-candidate") ?: return@addEventListener
+                val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
+                val candidate = candidateAttr.toIntOrNull() ?: return@addEventListener
+                
+                event.stopPropagation()
+                
+                // Toggle persistent highlight
+                if (highlightedNodeCell == cells.firstOrNull() && highlightedNodeCandidate == candidate) {
+                    highlightedNodeCell = null
+                    highlightedNodeCandidate = null
+                    clearChainHighlights()
+                } else {
+                    highlightedNodeCell = cells.firstOrNull()
+                    highlightedNodeCandidate = candidate
+                    val hint = currentHintList.getOrNull(selectedHintIndex)
+                    if (hint != null) {
+                        updateChainHighlights(cells, candidate, hint)
+                    }
+                }
+                return@addEventListener
+            }
+            
+            // Handle link reference clicks
+            val linkRef = target.closest(".chain-link-ref") as? HTMLElement
+            if (linkRef != null) {
+                val linkIndexAttr = linkRef.getAttribute("data-link-index") ?: return@addEventListener
+                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
+                
+                event.stopPropagation()
+                
+                // Toggle persistent highlight
+                if (highlightedLinkIndex == linkIdx) {
+                    highlightedLinkIndex = null
+                    updateLinkHighlight(linkIdx, false)
+                } else {
+                    highlightedLinkIndex = linkIdx
+                    updateLinkHighlight(linkIdx, true)
+                }
+                return@addEventListener
+            }
+        })
+        
+        // Mouseenter delegation (uses mouseover with check)
+        document.addEventListener("mouseover", { event ->
+            val target = (event.target as? HTMLElement) ?: return@addEventListener
+            
+            // Handle cell reference hover
+            val cellRef = target.closest(".chain-cell-ref") as? HTMLElement
+            if (cellRef != null && !cellRef.classList.contains("chain-hovered")) {
+                cellRef.classList.add("chain-hovered")
+                val cellsAttr = cellRef.getAttribute("data-cells") ?: return@addEventListener
+                val candidateAttr = cellRef.getAttribute("data-candidate") ?: return@addEventListener
+                val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
+                val candidate = candidateAttr.toIntOrNull() ?: return@addEventListener
+                
+                val hint = currentHintList.getOrNull(selectedHintIndex)
+                if (hint != null) {
+                    updateChainHighlights(cells, candidate, hint)
+                }
+                return@addEventListener
+            }
+            
+            // Handle link reference hover
+            val linkRef = target.closest(".chain-link-ref") as? HTMLElement
+            if (linkRef != null && !linkRef.classList.contains("chain-hovered")) {
+                linkRef.classList.add("chain-hovered")
+                val linkIndexAttr = linkRef.getAttribute("data-link-index") ?: return@addEventListener
+                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
+                
+                updateLinkHighlight(linkIdx, true)
+                return@addEventListener
+            }
+        })
+        
+        // Mouseleave delegation (uses mouseout with check)
+        document.addEventListener("mouseout", { event ->
+            val target = (event.target as? HTMLElement) ?: return@addEventListener
+            
+            // Handle cell reference leave
+            if (target.classList.contains("chain-cell-ref") && target.classList.contains("chain-hovered")) {
+                target.classList.remove("chain-hovered")
+                // Only clear if not persistently highlighted
+                if (highlightedNodeCell == null) {
+                    clearChainHighlights()
+                }
+                return@addEventListener
+            }
+            
+            // Handle link reference leave
+            if (target.classList.contains("chain-link-ref") && target.classList.contains("chain-hovered")) {
+                target.classList.remove("chain-hovered")
+                val linkIndexAttr = target.getAttribute("data-link-index") ?: return@addEventListener
+                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
+                // Only clear if not persistently highlighted
+                if (highlightedLinkIndex == null) {
+                    updateLinkHighlight(linkIdx, false)
+                }
+                return@addEventListener
+            }
+        })
+    }
+    
+    /**
+     * Attach mouse/click listeners for interactive chain elements (legacy - now using delegation)
+     */
+    private fun attachChainInteractionListeners(containerId: String, hint: TechniqueMatchInfo) {
+        // Event delegation is now handled globally in setupChainInteractionDelegation()
+        // This function is kept for compatibility but does nothing
+    }
+    
+    /**
+     * Update visual highlights for cells and candidates
+     */
+    private fun updateChainHighlights(cells: List<Int>, candidate: Int, hint: TechniqueMatchInfo) {
+        // First clear any existing highlights
+        clearChainHighlights()
+        
+        // Highlight the cells - cells are in rows, so we need to find them properly
+        cells.forEach { cellIndex ->
+            val row = cellIndex / 9
+            val col = cellIndex % 9
+            // Selector: .sudoku-grid > .sudoku-row:nth-child(row+1) > .cell:nth-child(col+1)
+            val cellElement = document.querySelector(
+                ".sudoku-grid > .sudoku-row:nth-child(${row + 1}) > .cell:nth-child(${col + 1})"
+            ) as? HTMLElement
+            cellElement?.classList?.add("chain-node-highlight")
+            
+            // Highlight the specific candidate within the cell
+            val candidateElement = cellElement?.querySelector(".candidate:nth-child($candidate)") as? HTMLElement
+            candidateElement?.classList?.add("chain-candidate-highlight")
+        }
+        
+        // Also highlight corresponding SVG circles if they exist
+        val svgContainer = document.querySelector(".chain-lines-container svg") as? Element
+        svgContainer?.querySelectorAll(".board-candidate-highlight")?.asList()?.forEach { circle ->
+            val circleEl = circle as? Element ?: return@forEach
+            val cx = circleEl.getAttribute("cx")?.toDoubleOrNull() ?: return@forEach
+            val cy = circleEl.getAttribute("cy")?.toDoubleOrNull() ?: return@forEach
+            
+            // Check if this circle matches any of our cells and candidate
+            cells.forEach { cellIndex ->
+                val row = cellIndex / 9
+                val col = cellIndex % 9
+                val candCol = (candidate - 1) % 3
+                val candRow = (candidate - 1) / 3
+                val expectedCx = col * 100.0 + 20.0 + candCol * 30.0
+                val expectedCy = row * 100.0 + 20.0 + candRow * 30.0
+                
+                if (kotlin.math.abs(cx - expectedCx) < 5 && kotlin.math.abs(cy - expectedCy) < 5) {
+                    circleEl.classList.add("svg-highlight")
+                }
+            }
+        }
+    }
+    
+    /**
+     * Clear all chain highlights
+     */
+    private fun clearChainHighlights() {
+        document.querySelectorAll(".chain-node-highlight").asList().forEach {
+            (it as? Element)?.classList?.remove("chain-node-highlight")
+        }
+        document.querySelectorAll(".chain-candidate-highlight").asList().forEach {
+            (it as? Element)?.classList?.remove("chain-candidate-highlight")
+        }
+        document.querySelectorAll(".svg-highlight").asList().forEach {
+            (it as? Element)?.classList?.remove("svg-highlight")
+        }
+        document.querySelectorAll(".svg-line-highlight").asList().forEach {
+            (it as? Element)?.classList?.remove("svg-line-highlight")
+        }
+    }
+    
+    /**
+     * Update SVG line highlight
+     */
+    private fun updateLinkHighlight(linkIndex: Int, highlight: Boolean) {
+        val svgContainer = document.querySelector(".chain-lines-container svg") as? Element ?: return
+        val lines = svgContainer.querySelectorAll(".board-chain-line").asList()
+        
+        if (linkIndex < lines.size) {
+            val line = lines[linkIndex] as? Element
+            if (highlight) {
+                line?.classList?.add("svg-line-highlight")
+            } else {
+                line?.classList?.remove("svg-line-highlight")
+            }
+        }
+    }
+    
+    /**
+     * Render full explanation view (replaces hint list in landscape sidebar)
+     */
+    private fun TagConsumer<HTMLElement>.renderExplanationView(hint: TechniqueMatchInfo, totalHints: Int) {
+        // Use backend steps if available, otherwise generate fallback
+        val steps = if (hint.explanationSteps.isNotEmpty()) {
+            hint.explanationSteps
+        } else {
+            generateFallbackExplanationSteps(hint)
+        }
+        val currentStep = steps.getOrNull(explanationStepIndex)
+        
+        div("explanation-view") {
+            // Header with back button
+            div("explanation-view-header") {
+                button(classes = "explanation-back-btn") {
+                    +"← Back to List"
+                    onClickFunction = {
+                        showExplanation = false
+                        explanationStepIndex = 0
+                        render()
+                    }
+                }
+                span("hint-position-badge") { +"${selectedHintIndex + 1}/$totalHints" }
+            }
+            
+            // Technique info
+            div("explanation-technique-info") {
+                div("explanation-technique-name") { +hint.techniqueName }
+                div("explanation-technique-desc") { +hint.description }
+            }
+            
+            // Eureka notation if available (for chains)
+            val eureka = hint.eurekaNotation
+            if (eureka != null) {
+                div("explanation-eureka") {
+                    span("eureka-label") { +"Eureka: " }
+                    span("eureka-notation") { +eureka }
+                }
+            }
+            
+            // Step content
+            div("explanation-step-content") {
+                if (currentStep != null) {
+                    div("step-header") {
+                        span("step-number") { +"Step ${currentStep.stepNumber}" }
+                        span("step-title") { +currentStep.title }
+                    }
+                    div("step-description") {
+                        renderInteractiveDescription(currentStep.description, hint)
+                    }
+                } else {
+                    div("step-description") {
+                        renderInteractiveDescription(hint.description, hint)
+                    }
+                }
+            }
+            
+            // Navigation (only show if more than one step)
+            if (steps.size > 1) {
+                div("explanation-nav") {
+                    button(classes = "explanation-nav-btn ${if (explanationStepIndex <= 0) "disabled" else ""}") {
+                        +"◀ Prev"
+                        onClickFunction = {
+                            if (explanationStepIndex > 0) {
+                                explanationStepIndex--
+                                render()
+                            }
+                        }
+                    }
+                    span("step-indicator") { +"Step ${explanationStepIndex + 1} / ${steps.size}" }
+                    button(classes = "explanation-nav-btn ${if (explanationStepIndex >= steps.size - 1) "disabled" else ""}") {
+                        +"Next ▶"
+                        onClickFunction = {
+                            if (explanationStepIndex < steps.size - 1) {
+                                explanationStepIndex++
+                                render()
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Close button at bottom
+            button(classes = "hint-close-btn") {
+                +"✕ Close Hints"
+                onClickFunction = {
+                    showHints = false
+                    showExplanation = false
+                    explanationStepIndex = 0
+                    render()
+                }
+            }
+        }
+    }
+    
+    /**
+     * Render inline explanation content (used in both landscape sidebar and portrait card)
+     */
+    private fun TagConsumer<HTMLElement>.renderInlineExplanation(hint: TechniqueMatchInfo) {
+        // Use backend steps if available, otherwise generate fallback
+        val steps = if (hint.explanationSteps.isNotEmpty()) {
+            hint.explanationSteps
+        } else {
+            generateFallbackExplanationSteps(hint)
+        }
+        val currentStep = steps.getOrNull(explanationStepIndex)
+        
+        div("inline-explanation") {
+            // Collapse button
+            div("explanation-collapse-row") {
+                button(classes = "explanation-collapse-btn") {
+                    +"▲ Collapse"
+                    onClickFunction = { e ->
+                        e.stopPropagation()
+                        showExplanation = false
+                        explanationStepIndex = 0
+                        render()
+                    }
+                }
+            }
+            
+            // Eureka notation if available (for chains)
+            val eureka = hint.eurekaNotation
+            if (eureka != null) {
+                div("inline-eureka") {
+                    span("eureka-label") { +"Eureka: " }
+                    span("eureka-notation") { +eureka }
+                }
+            }
+            
+            // Step content
+            if (currentStep != null) {
+                div("inline-step") {
+                    div("step-header") {
+                        span("step-number") { +"Step ${currentStep.stepNumber}" }
+                        span("step-title") { +currentStep.title }
+                    }
+                    div("step-description") {
+                        renderInteractiveDescription(currentStep.description, hint)
+                    }
+                }
+            } else {
+                // Fallback if no steps at all
+                div("inline-step") {
+                    div("step-description") {
+                        renderInteractiveDescription(hint.description, hint)
+                    }
+                }
+            }
+            
+            // Navigation (only show if more than one step)
+            if (steps.size > 1) {
+                div("inline-nav") {
+                    button(classes = "inline-nav-btn ${if (explanationStepIndex <= 0) "disabled" else ""}") {
+                        +"◀ Prev"
+                        onClickFunction = { e ->
+                            e.stopPropagation()
+                            if (explanationStepIndex > 0) {
+                                explanationStepIndex--
+                                render()
+                            }
+                        }
+                    }
+                    span("step-indicator") { +"${explanationStepIndex + 1} / ${steps.size}" }
+                    button(classes = "inline-nav-btn ${if (explanationStepIndex >= steps.size - 1) "disabled" else ""}") {
+                        +"Next ▶"
+                        onClickFunction = { e ->
+                            e.stopPropagation()
+                            if (explanationStepIndex < steps.size - 1) {
+                                explanationStepIndex++
+                                render()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Generate fallback explanation steps if backend didn't provide any
+     */
+    private fun generateFallbackExplanationSteps(hint: TechniqueMatchInfo): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        
+        // Step 1: Overview
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = "Overview",
+            description = hint.description,
+            highlightCells = hint.highlightCells
+        ))
+        
+        // Step 2: Eliminations (if any)
+        if (hint.eliminations.isNotEmpty()) {
+            val elimDesc = hint.eliminations.joinToString("; ") { elim ->
+                val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }
+                "Remove ${elim.digit} from ${cells.joinToString(", ")}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = 2,
+                title = "Eliminations",
+                description = elimDesc,
+                highlightCells = hint.eliminations.flatMap { it.cells }
+            ))
+        }
+        
+        // Step 3: Solutions (if any)
+        if (hint.solvedCells.isNotEmpty()) {
+            val solvedDesc = hint.solvedCells.joinToString("; ") { solved ->
+                "R${solved.cell/9 + 1}C${solved.cell%9 + 1} = ${solved.digit}"
+            }
+            steps.add(ExplanationStepDto(
+                stepNumber = steps.size + 1,
+                title = "Solution",
+                description = solvedDesc,
+                highlightCells = hint.solvedCells.map { it.cell }
+            ))
+        }
+        
+        return steps
+    }
+    
+    
+    /**
+     * Render SVG overlay for chain lines on the main game board
+     */
+    private fun TagConsumer<HTMLElement>.renderChainLinesSvg(
+        hint: TechniqueMatchInfo,
+        currentStep: ExplanationStepDto? = null
+    ) {
+        // Use step-specific lines/groups if available, otherwise use hint's full data
+        val linesToDraw = currentStep?.lines?.takeIf { it.isNotEmpty() } ?: hint.lines
+        val groupsToDraw = currentStep?.groups?.takeIf { it.isNotEmpty() } ?: hint.groups
+        
+        // SVG viewBox is set to match a 9x9 grid where each cell is 100 units
+        // This allows us to position lines relative to cell/candidate positions
+        div("chain-lines-container") {
+            val svgContent = buildString {
+                append("""<svg class="chain-lines-overlay" viewBox="0 0 900 900" preserveAspectRatio="xMidYMid meet">""")
+                
+                // Draw group highlights first (behind lines)
+                groupsToDraw.forEach { group ->
+                    val colorClass = when (group.groupType) {
+                        "chain-on" -> "group-on"
+                        "chain-off" -> "group-off"
+                        "als" -> "group-als"
+                        else -> "group-default"
+                    }
+                    group.candidates.forEach { loc ->
+                        // Calculate position within the cell
+                        // Each cell is 100x100 units, candidates are in a 3x3 grid within
+                        val cellX = loc.col * 100
+                        val cellY = loc.row * 100
+                        // Candidate position within cell (1-9 maps to 3x3 grid)
+                        val candCol = (loc.candidate - 1) % 3
+                        val candRow = (loc.candidate - 1) / 3
+                        val cx = cellX + 20 + candCol * 30
+                        val cy = cellY + 20 + candRow * 30
+                        append("""<circle class="board-candidate-highlight $colorClass" cx="$cx" cy="$cy" r="12" />""")
+                    }
+                }
+                
+                // Draw lines
+                linesToDraw.forEach { line ->
+                    // Calculate positions
+                    val fromCellX = line.from.col * 100
+                    val fromCellY = line.from.row * 100
+                    val fromCandCol = (line.from.candidate - 1) % 3
+                    val fromCandRow = (line.from.candidate - 1) / 3
+                    val fromX = fromCellX + 20 + fromCandCol * 30
+                    val fromY = fromCellY + 20 + fromCandRow * 30
+                    
+                    val toCellX = line.to.col * 100
+                    val toCellY = line.to.row * 100
+                    val toCandCol = (line.to.candidate - 1) % 3
+                    val toCandRow = (line.to.candidate - 1) / 3
+                    val toX = toCellX + 20 + toCandCol * 30
+                    val toY = toCellY + 20 + toCandRow * 30
+                    
+                    val strokeClass = if (line.isStrongLink) "strong-link" else "weak-link"
+                    
+                    val curveXVal = line.curveX
+                    val curveYVal = line.curveY
+                    if (curveXVal != null && curveYVal != null) {
+                        // Curved line using quadratic bezier
+                        val midX = (fromX + toX) / 2 + (curveXVal * 100).toInt()
+                        val midY = (fromY + toY) / 2 + (curveYVal * 100).toInt()
+                        append("""<path class="board-chain-line $strokeClass" d="M$fromX,$fromY Q$midX,$midY $toX,$toY" />""")
+                    } else {
+                        // Straight line
+                        append("""<line class="board-chain-line $strokeClass" x1="$fromX" y1="$fromY" x2="$toX" y2="$toY" />""")
+                    }
+                }
+                
+                append("</svg>")
+            }
+            unsafe {
+                +svgContent
             }
         }
     }
@@ -2165,7 +2893,8 @@ class SudokuApp {
         isPrimaryHighlight: Boolean,
         isSecondaryHighlight: Boolean,
         grid: SudokuGrid,
-        selectedHint: TechniqueMatchInfo? = null
+        selectedHint: TechniqueMatchInfo? = null,
+        currentExplanationStep: ExplanationStepDto? = null
     ) {
         val row = cellIndex / 9
         val col = cellIndex % 9
@@ -2181,6 +2910,9 @@ class SudokuApp {
             val correctValue = solution!![cellIndex].digitToIntOrNull() ?: 0
             cell.value != correctValue
         } else false
+        
+        // Check if cell is highlighted by current explanation step
+        val isStepHighlighted = currentExplanationStep?.highlightCells?.contains(cellIndex) == true
         
         // Build highlight class
         val highlightClass = when {
@@ -2213,6 +2945,7 @@ class SudokuApp {
         
         // Hint class for cell background (blue for cover area)
         val hintClass = when {
+            isStepHighlighted -> " hint-step-highlight"  // Current explanation step highlight
             isHintSolved -> " hint-solved-cell"
             isInCoverArea -> " hint-cover-area"
             else -> ""
@@ -3124,6 +3857,151 @@ private val CSS_STYLES = """
         min-height: 0;
     }
     
+    /* Grid container for SVG overlay positioning */
+    .sudoku-grid-container {
+        position: relative;
+        width: var(--grid-size);
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    
+    /* SVG overlay container for chain lines */
+    .chain-lines-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+    }
+    
+    /* SVG overlay for chain lines */
+    .chain-lines-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+    }
+    
+    .board-chain-line {
+        fill: none;
+        stroke-width: 3;
+        stroke-linecap: round;
+        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+    }
+    
+    .board-chain-line.strong-link {
+        stroke: rgb(var(--color-accent-success));
+        stroke-width: 4;
+    }
+    
+    .board-chain-line.weak-link {
+        stroke: rgb(var(--color-accent-warning));
+        stroke-dasharray: 8 4;
+    }
+    
+    .board-candidate-highlight {
+        opacity: 0.5;
+        filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+    }
+    
+    .board-candidate-highlight.group-on {
+        fill: rgba(193, 155, 249, 0.8);
+    }
+    
+    .board-candidate-highlight.group-off {
+        fill: rgba(123, 249, 155, 0.8);
+    }
+    
+    .board-candidate-highlight.group-als {
+        fill: rgba(249, 200, 123, 0.8);
+    }
+    
+    .board-candidate-highlight.group-default {
+        fill: rgba(var(--color-accent-info), 0.6);
+    }
+    
+    /* SVG highlight states for interactive chain notation */
+    .board-chain-line.svg-line-highlight {
+        stroke-width: 8 !important;
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
+    }
+    
+    .board-candidate-highlight.svg-highlight {
+        r: 18;
+        opacity: 1;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) !important;
+    }
+    
+    /* Interactive chain notation styles */
+    .interactive-description {
+        line-height: 1.6;
+    }
+    
+    .chain-cell-ref {
+        background: rgba(var(--color-accent-info), 0.2);
+        padding: 2px 4px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.9em;
+    }
+    
+    .chain-cell-ref:hover {
+        background: rgba(var(--color-accent-info), 0.5);
+        box-shadow: 0 0 8px rgba(var(--color-accent-info), 0.5);
+    }
+    
+    .chain-link-ref {
+        padding: 2px 6px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-weight: 600;
+        font-size: 0.85em;
+    }
+    
+    .chain-link-strong {
+        background: rgba(var(--color-accent-success), 0.2);
+        color: rgb(var(--color-accent-success));
+    }
+    
+    .chain-link-strong:hover {
+        background: rgba(var(--color-accent-success), 0.5);
+        box-shadow: 0 0 8px rgba(var(--color-accent-success), 0.5);
+    }
+    
+    .chain-link-weak {
+        background: rgba(var(--color-accent-warning), 0.2);
+        color: rgb(var(--color-accent-warning));
+    }
+    
+    .chain-link-weak:hover {
+        background: rgba(var(--color-accent-warning), 0.5);
+        box-shadow: 0 0 8px rgba(var(--color-accent-warning), 0.5);
+    }
+    
+    .chain-text {
+        /* Normal text styling */
+    }
+    
+    /* Cell highlight from chain interaction */
+    .cell.chain-node-highlight {
+        box-shadow: inset 0 0 0 3px rgba(var(--color-accent-info), 0.8), 0 0 12px rgba(var(--color-accent-info), 0.6) !important;
+    }
+    
+    .candidate.chain-candidate-highlight {
+        background: rgba(var(--color-accent-info), 0.7) !important;
+        color: white !important;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+    
     .sudoku-grid {
         background: rgba(var(--color-bg-primary), 0.6);
         border-radius: clamp(6px, 1.5vmin, 12px);
@@ -3193,6 +4071,39 @@ private val CSS_STYLES = """
     
     .candidate.hidden { visibility: hidden; }
     
+    /* Hint highlighting for cells */
+    .cell.hint-cover-area {
+        background: rgba(var(--color-accent-info), 0.2);
+    }
+    
+    .cell.hint-solved-cell {
+        background: rgba(var(--color-accent-success), 0.3);
+    }
+    
+    .cell.hint-step-highlight {
+        background: rgba(var(--color-accent-warning), 0.3);
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-warning), 0.6);
+    }
+    
+    /* Hint highlighting for candidates */
+    .candidate.hint-elimination {
+        color: rgb(var(--color-accent-error));
+        font-weight: bold;
+        text-decoration: line-through;
+    }
+    
+    .candidate.hint-matching-not-eliminated {
+        color: rgb(var(--color-accent-info));
+        font-weight: bold;
+    }
+    
+    .candidate.hint-solved {
+        color: rgb(var(--color-accent-success));
+        font-weight: bold;
+        background: rgba(var(--color-accent-success), 0.3);
+        border-radius: 2px;
+    }
+    
     .controls {
         display: flex;
         gap: clamp(4px, 1vmin, 8px);
@@ -3239,6 +4150,9 @@ private val CSS_STYLES = """
     .main-content.landscape-hints {
         flex-direction: row;
         gap: clamp(10px, 2vmin, 20px);
+        align-items: flex-start;
+        min-height: 0;
+        overflow: hidden;
     }
     
     .main-content.landscape-hints .game-area {
@@ -3251,6 +4165,7 @@ private val CSS_STYLES = """
         flex: 1;
         min-width: 200px;
         max-width: 320px;
+        align-self: stretch;
         background: rgba(var(--color-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
@@ -3289,7 +4204,7 @@ private val CSS_STYLES = """
     .hint-item {
         background: rgba(var(--color-bg-tertiary), 0.15);
         border-radius: clamp(6px, 1vmin, 10px);
-        padding: clamp(8px, 1.5vmin, 14px);
+        padding: 0;
         cursor: pointer;
         transition: all 0.15s ease;
         border: 2px solid transparent;
@@ -3302,6 +4217,24 @@ private val CSS_STYLES = """
     .hint-item.selected {
         background: rgba(var(--color-accent-warning), 0.3);
         border-color: rgb(var(--color-accent-warning));
+        overflow: visible;
+    }
+    
+    .hint-item.expanded {
+        background: rgba(var(--color-accent-warning), 0.15);
+        border-color: rgb(var(--color-accent-warning));
+        overflow: visible;
+    }
+    
+    .hint-item-header {
+        padding: clamp(8px, 1.5vmin, 14px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(4px, 0.8vmin, 8px);
+    }
+    
+    .hint-item-content {
+        flex: 1;
     }
 
     .hint-technique {
@@ -3316,6 +4249,244 @@ private val CSS_STYLES = """
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
         line-height: 1.3;
         word-break: break-word;
+    }
+    
+    /* Inline Explanation Styles */
+    .inline-explanation {
+        padding: clamp(8px, 1.5vmin, 14px);
+        padding-top: 0;
+        border-top: 1px solid rgba(var(--color-text-primary), 0.1);
+        margin-top: clamp(4px, 0.8vmin, 8px);
+    }
+    
+    .explanation-collapse-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .explanation-collapse-btn {
+        padding: clamp(4px, 0.6vmin, 6px) clamp(8px, 1.2vmin, 12px);
+        border: none;
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        background: rgba(var(--color-accent-warning), 0.2);
+        color: rgb(var(--color-accent-warning));
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .explanation-collapse-btn:hover {
+        background: rgba(var(--color-accent-warning), 0.3);
+    }
+    
+    .inline-eureka {
+        background: rgba(var(--color-bg-tertiary), 0.3);
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        padding: clamp(6px, 1vmin, 10px);
+        margin-bottom: clamp(8px, 1.2vmin, 12px);
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+        overflow-x: auto;
+    }
+    
+    .eureka-label {
+        color: rgba(var(--color-text-primary), 0.6);
+    }
+    
+    .eureka-notation {
+        color: rgb(var(--color-accent-warning));
+    }
+    
+    .inline-step {
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        border-radius: clamp(6px, 1vmin, 10px);
+        padding: clamp(8px, 1.2vmin, 12px);
+        margin-bottom: clamp(8px, 1.2vmin, 12px);
+    }
+    
+    .step-header {
+        display: flex;
+        align-items: center;
+        gap: clamp(6px, 1vmin, 10px);
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .step-number {
+        background: rgba(var(--color-accent-info), 0.3);
+        color: rgb(var(--color-accent-info));
+        padding: clamp(2px, 0.4vmin, 4px) clamp(6px, 0.8vmin, 10px);
+        border-radius: clamp(3px, 0.5vmin, 5px);
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+        font-weight: 600;
+    }
+    
+    .step-title {
+        font-size: clamp(0.7rem, calc(0.65rem + 0.35vmin), 0.9rem);
+        font-weight: 600;
+        color: rgb(var(--color-text-primary));
+    }
+    
+    .step-description {
+        color: rgba(var(--color-text-primary), 0.8);
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.8rem);
+        line-height: 1.4;
+    }
+    
+    .inline-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: clamp(6px, 1vmin, 10px);
+    }
+    
+    .inline-nav-btn {
+        padding: clamp(4px, 0.8vmin, 8px) clamp(10px, 1.5vmin, 14px);
+        border: none;
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        background: rgba(var(--color-accent-info), 0.2);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.75rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .inline-nav-btn:hover:not(.disabled) {
+        background: rgba(var(--color-accent-info), 0.3);
+    }
+    
+    .inline-nav-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
+    .step-indicator {
+        color: rgba(var(--color-text-primary), 0.6);
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+    }
+    
+    /* Full Explanation View (replaces list in landscape sidebar) */
+    .explanation-view {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: clamp(8px, 1.5vmin, 14px);
+    }
+    
+    .explanation-view-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: clamp(8px, 1.2vmin, 12px);
+        flex-shrink: 0;
+    }
+    
+    .explanation-back-btn {
+        padding: clamp(6px, 1vmin, 10px) clamp(10px, 1.5vmin, 14px);
+        border: none;
+        border-radius: clamp(4px, 0.8vmin, 8px);
+        background: rgba(var(--color-text-primary), 0.1);
+        color: rgb(var(--color-text-primary));
+        font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .explanation-back-btn:hover {
+        background: rgba(var(--color-text-primary), 0.2);
+    }
+    
+    .hint-position-badge {
+        background: rgba(var(--color-accent-warning), 0.2);
+        color: rgb(var(--color-accent-warning));
+        padding: clamp(4px, 0.6vmin, 6px) clamp(8px, 1vmin, 12px);
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+        font-weight: 600;
+    }
+    
+    .explanation-technique-info {
+        background: rgba(var(--color-accent-warning), 0.15);
+        border-radius: clamp(6px, 1vmin, 10px);
+        padding: clamp(10px, 1.5vmin, 16px);
+        border-left: 3px solid rgb(var(--color-accent-warning));
+        flex-shrink: 0;
+    }
+    
+    .explanation-technique-name {
+        font-size: clamp(0.8rem, calc(0.75rem + 0.4vmin), 1rem);
+        font-weight: 700;
+        color: rgb(var(--color-accent-warning));
+        margin-bottom: clamp(4px, 0.6vmin, 8px);
+    }
+    
+    .explanation-technique-desc {
+        font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
+        color: rgba(var(--color-text-primary), 0.8);
+        line-height: 1.4;
+    }
+    
+    .explanation-eureka {
+        background: rgba(var(--color-bg-tertiary), 0.3);
+        border-radius: clamp(4px, 0.6vmin, 6px);
+        padding: clamp(8px, 1.2vmin, 12px);
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+        overflow-x: auto;
+        flex-shrink: 0;
+    }
+    
+    .explanation-step-content {
+        flex: 1;
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        border-radius: clamp(6px, 1vmin, 10px);
+        padding: clamp(10px, 1.5vmin, 16px);
+        overflow-y: auto;
+    }
+    
+    .explanation-step-content .step-header {
+        display: flex;
+        align-items: center;
+        gap: clamp(8px, 1.2vmin, 12px);
+        margin-bottom: clamp(8px, 1.2vmin, 12px);
+    }
+    
+    .explanation-step-content .step-description {
+        color: rgba(var(--color-text-primary), 0.85);
+        font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
+        line-height: 1.5;
+    }
+    
+    .explanation-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: clamp(8px, 1.2vmin, 12px);
+        flex-shrink: 0;
+    }
+    
+    .explanation-nav-btn {
+        padding: clamp(6px, 1vmin, 10px) clamp(12px, 1.8vmin, 18px);
+        border: none;
+        border-radius: clamp(4px, 0.8vmin, 8px);
+        background: rgba(var(--color-accent-info), 0.2);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.8rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .explanation-nav-btn:hover:not(.disabled) {
+        background: rgba(var(--color-accent-info), 0.3);
+    }
+    
+    .explanation-nav-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
     
     .hint-empty {
@@ -3413,6 +4584,31 @@ private val CSS_STYLES = """
     .hint-content.hint-empty {
         text-align: center;
         color: rgba(var(--color-text-primary), 0.5);
+    }
+    
+    /* Hint item with explain button */
+    .hint-item-content {
+        flex: 1;
+    }
+    
+    .hint-explain-btn {
+        margin-top: clamp(6px, 1vmin, 10px);
+        padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 14px);
+        border: none;
+        border-radius: clamp(4px, 0.8vmin, 8px);
+        background: rgba(var(--color-accent-info), 0.3);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.8rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: block;
+        width: 100%;
+    }
+    
+    .hint-explain-btn:hover {
+        background: rgba(var(--color-accent-info), 0.4);
+        transform: translateY(-1px);
     }
     
     .number-pad {
