@@ -1,3 +1,10 @@
+# v0.2.3 - 2025-12-04
+
+### Bug Fixes
+- The Hint System for vertical layout now displays properly.
+- UI Layout Improvements, much more vertically compact.
+
+
 # v0.2.2 - 2025-12-03c
 
 ### Features

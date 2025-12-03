@@ -2214,8 +2214,9 @@ class SudokuApp {
         selectedHint: TechniqueMatchInfo?
     ) {
         div("hint-card") {
-            div("hint-card-header") {
-                button(classes = "hint-nav-btn ${if (selectedHintIndex <= 0) "disabled" else ""}") {
+            // Compact header: [Prev] [Title or Position] [Next] [Collapse/Close]
+            div("hint-card-header-compact") {
+                button(classes = "hint-nav-btn-small ${if (selectedHintIndex <= 0) "disabled" else ""}") {
                     +"◀ Prev"
                     onClickFunction = {
                         if (selectedHintIndex > 0) {
@@ -2225,8 +2226,18 @@ class SudokuApp {
                         }
                     }
                 }
-                span("hint-position") { +"${selectedHintIndex + 1} / ${hints.size}" }
-                button(classes = "hint-nav-btn ${if (selectedHintIndex >= hints.size - 1) "disabled" else ""}") {
+                
+                // Title area: show technique name, or position if no hint selected
+                div("hint-title-area") {
+                    if (selectedHint != null) {
+                        span("hint-technique-compact") { +selectedHint.techniqueName }
+                        span("hint-position-small") { +"${selectedHintIndex + 1}/${hints.size}" }
+                    } else {
+                        span("hint-position") { +"${selectedHintIndex + 1} / ${hints.size}" }
+                    }
+                }
+                
+                button(classes = "hint-nav-btn-small ${if (selectedHintIndex >= hints.size - 1) "disabled" else ""}") {
                     +"Next ▶"
                     onClickFunction = {
                         if (selectedHintIndex < hints.size - 1) {
@@ -2236,10 +2247,26 @@ class SudokuApp {
                         }
                     }
                 }
+                
+                // Collapse button (when explaining) or Close button
+                if (showExplanation) {
+                    button(classes = "hint-collapse-btn-small") {
+                        +"▲"
+                        title = "Collapse"
+                        onClickFunction = { e ->
+                            e.stopPropagation()
+                            showExplanation = false
+                            explanationStepIndex = 0
+                            render()
+                        }
+                    }
+                }
+                
                 button(classes = "hint-close-btn-small") {
                     +"✕"
                     onClickFunction = {
                         showHints = false
+                        showExplanation = false
                         render()
                     }
                 }
@@ -2247,12 +2274,11 @@ class SudokuApp {
             
             if (selectedHint != null) {
                 if (showExplanation) {
-                    // Show inline explanation
-                    renderInlineExplanation(selectedHint)
+                    // Show inline explanation (without collapse button - it's in header now)
+                    renderInlineExplanationCompact(selectedHint)
                 } else {
                     // Show hint content with explain button
-                    div("hint-content") {
-                        div("hint-technique") { +selectedHint.techniqueName }
+                    div("hint-content-compact") {
                         div("hint-description") { +selectedHint.description }
                         button(classes = "hint-explain-btn") {
                             +"📖 Explain"
@@ -2267,6 +2293,75 @@ class SudokuApp {
             } else {
                 div("hint-content hint-empty") {
                     p { +"Searching for hints..." }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Render compact inline explanation (collapse button is in header)
+     */
+    private fun TagConsumer<HTMLElement>.renderInlineExplanationCompact(hint: TechniqueMatchInfo) {
+        val steps = if (hint.explanationSteps.isNotEmpty()) {
+            hint.explanationSteps
+        } else {
+            generateFallbackExplanationSteps(hint)
+        }
+        val currentStep = steps.getOrNull(explanationStepIndex)
+        
+        div("inline-explanation-compact") {
+            // Eureka notation if available (for chains)
+            val eureka = hint.eurekaNotation
+            if (eureka != null) {
+                div("inline-eureka") {
+                    span("eureka-label") { +"Eureka: " }
+                    span("eureka-notation") { +eureka }
+                }
+            }
+            
+            // Step content
+            if (currentStep != null) {
+                div("inline-step") {
+                    div("step-header-compact") {
+                        span("step-badge") { +"Step ${currentStep.stepNumber}" }
+                        span("step-title") { +currentStep.title }
+                    }
+                    div("step-description") {
+                        renderInteractiveDescription(currentStep.description, hint)
+                    }
+                }
+            } else {
+                div("inline-step") {
+                    div("step-description") {
+                        renderInteractiveDescription(hint.description, hint)
+                    }
+                }
+            }
+            
+            // Navigation (only show if more than one step)
+            if (steps.size > 1) {
+                div("inline-nav") {
+                    button(classes = "inline-nav-btn ${if (explanationStepIndex <= 0) "disabled" else ""}") {
+                        +"◀ Prev"
+                        onClickFunction = { e ->
+                            e.stopPropagation()
+                            if (explanationStepIndex > 0) {
+                                explanationStepIndex--
+                                render()
+                            }
+                        }
+                    }
+                    span("step-indicator") { +"${explanationStepIndex + 1} / ${steps.size}" }
+                    button(classes = "inline-nav-btn ${if (explanationStepIndex >= steps.size - 1) "disabled" else ""}") {
+                        +"Next ▶"
+                        onClickFunction = { e ->
+                            e.stopPropagation()
+                            if (explanationStepIndex < steps.size - 1) {
+                                explanationStepIndex++
+                                render()
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -4040,7 +4135,7 @@ private val CSS_STYLES = """
     
     .header {
         text-align: center;
-        margin-bottom: clamp(8px, 2vmin, 20px);
+        margin-bottom: 4px;
         flex-shrink: 0;
         position: relative;
     }
@@ -4077,7 +4172,7 @@ private val CSS_STYLES = """
     }
     
     .header h1 {
-        font-size: clamp(1.1rem, calc(1rem + 2vmin), 2rem);
+        font-size: clamp(1rem, calc(1rem + 1.8vmin), 1.8rem);
         font-weight: 700;
         color: rgb(var(--color-accent-primary));
         letter-spacing: -0.02em;
@@ -4086,20 +4181,25 @@ private val CSS_STYLES = """
     .powered-by {
         color: rgb(var(--color-text-primary));
         display: block;
+        font-size: small;
     }
     
     .game-info {
         display: flex;
-        justify-content: center;
-        gap: clamp(6px, 1.5vmin, 12px);
+        justify-content: space-between;
         flex-wrap: wrap;
         margin-top: clamp(4px, 1vmin, 8px);
-        margin-bottom: clamp(2px, 1vmin, 4px);
+        padding-left: 6px;
+        padding-right: 6px;
     }
     
     .game-info span {
+        align-content: center;
         font-size: clamp(0.6rem, calc(0.55rem + 0.5vmin), 0.8rem);
-        padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 4px);
+        padding-left: 6px;
+        padding-right: 6px;
+        padding-top: 2px;
+        padding-bottom: 2px;
         border-radius: 4px;
         background: rgba(var(--color-bg-tertiary), 0.2);
         color: rgba(var(--color-text-primary), 0.7);
@@ -4714,12 +4814,12 @@ private val CSS_STYLES = """
     }
     
     .inline-nav-btn {
-        padding: clamp(4px, 0.8vmin, 8px) clamp(10px, 1.5vmin, 14px);
+        padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
         border-radius: clamp(4px, 0.6vmin, 6px);
         background: rgba(var(--color-accent-info), 0.2);
         color: rgb(var(--color-accent-info));
-        font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.75rem);
+        font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
@@ -4890,7 +4990,6 @@ private val CSS_STYLES = """
         background: rgba(var(--color-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
-        margin-top: clamp(8px, 1.5vmin, 16px);
     }
     
     .hint-card-header {
@@ -4928,12 +5027,12 @@ private val CSS_STYLES = """
     }
     
     .hint-close-btn-small {
-        padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 14px);
+        padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
         background: rgba(var(--color-accent-error), 0.2);
         color: rgb(var(--color-accent-error));
-        font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
+        font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
         font-weight: bold;
         cursor: pointer;
         transition: all 0.15s ease;
@@ -4981,6 +5080,141 @@ private val CSS_STYLES = """
     .hint-explain-btn:hover {
         background: rgba(var(--color-accent-info), 0.4);
         transform: translateY(-1px);
+    }
+    
+    /* Compact hint card header */
+    .hint-card-header-compact {
+        display: flex;
+        align-items: center;
+        gap: clamp(4px, 0.8vmin, 8px);
+        padding-bottom: clamp(6px, 1vmin, 10px);
+        border-bottom: 1px solid rgba(var(--color-text-primary), 0.1);
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    .hint-title-area {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: clamp(4px, 0.8vmin, 8px);
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .hint-technique-compact {
+        color: rgb(var(--color-accent-warning));
+        font-weight: 600;
+        font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .hint-position-small {
+        color: rgba(var(--color-text-primary), 0.5);
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+        white-space: nowrap;
+    }
+    
+    .hint-nav-btn-small {
+        padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
+        border: none;
+        border-radius: clamp(3px, 0.6vmin, 6px);
+        background: rgba(var(--color-accent-warning), 0.2);
+        color: rgb(var(--color-accent-warning));
+        font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+    }
+    
+    .hint-nav-btn-small:hover:not(.disabled) {
+        background: rgba(var(--color-accent-warning), 0.3);
+    }
+    
+    .hint-nav-btn-small.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
+    .hint-collapse-btn-small {
+        padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
+        border: none;
+        border-radius: clamp(3px, 0.6vmin, 6px);
+        background: rgba(var(--color-accent-info), 0.2);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    .hint-collapse-btn-small:hover {
+        background: rgba(var(--color-accent-info), 0.3);
+    }
+    
+    .hint-content-compact {
+        padding: clamp(4px, 0.8vmin, 8px);
+    }
+    
+    .hint-content-compact .hint-description {
+        font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
+        color: rgba(var(--color-text-primary), 0.8);
+        line-height: 1.4;
+        margin-bottom: clamp(6px, 1vmin, 10px);
+    }
+    
+    /* Compact inline explanation */
+    .inline-explanation-compact {
+        padding: clamp(4px, 0.8vmin, 8px);
+    }
+    
+    .inline-explanation-compact .inline-eureka {
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+        margin-bottom: clamp(4px, 0.8vmin, 8px);
+        padding: clamp(3px, 0.5vmin, 6px);
+        background: rgba(var(--color-bg-tertiary), 0.1);
+        border-radius: clamp(3px, 0.5vmin, 6px);
+    }
+    
+    .step-header-compact {
+        display: flex;
+        align-items: center;
+        gap: clamp(6px, 1vmin, 10px);
+        margin-bottom: clamp(4px, 0.8vmin, 8px);
+    }
+    
+    .step-badge {
+        background: rgba(var(--color-accent-info), 0.3);
+        color: rgb(var(--color-accent-info));
+        padding: clamp(2px, 0.4vmin, 4px) clamp(6px, 1vmin, 10px);
+        border-radius: clamp(3px, 0.5vmin, 6px);
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .step-header-compact .step-title {
+        font-weight: 600;
+        font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
+        color: rgba(var(--color-text-primary), 0.9);
+    }
+    
+    .inline-explanation-compact .step-description {
+        font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
+        line-height: 1.5;
+        color: rgba(var(--color-text-primary), 0.8);
+    }
+    
+    .inline-explanation-compact .inline-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(8px, 1.5vmin, 14px);
+        margin-top: clamp(8px, 1.5vmin, 14px);
+        padding-top: clamp(6px, 1vmin, 10px);
+        border-top: 1px solid rgba(var(--color-text-primary), 0.1);
     }
     
     .number-pad {
