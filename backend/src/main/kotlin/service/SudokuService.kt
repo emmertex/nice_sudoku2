@@ -1118,6 +1118,21 @@ class SudokuService {
             subsetDigits.map { digit -> ColoredCandidateDto(r, c, digit, "target") }
         }
         
+        // Get cells in the main sector to separate normal vs pointing eliminations
+        val sectorCells = if (sectorIndex != null && sectorIndex >= 0) {
+            getSectorCells(sectorIndex).toSet()
+        } else {
+            emptySet()
+        }
+        
+        // Separate eliminations: normal (within sector) vs pointing (outside sector, locked candidates effect)
+        val normalEliminations = eliminations.filter { elim ->
+            elim.cells.all { it in sectorCells }
+        }
+        val pointingEliminations = eliminations.filter { elim ->
+            elim.cells.any { it !in sectorCells }
+        }
+        
         if (isNaked) {
             // Naked Subset: cells only contain these digits
             steps.add(ExplanationStepDto(
@@ -1130,25 +1145,84 @@ class SudokuService {
                 coloredCandidates = subsetCandidates
             ))
             
-            // Step 2: Eliminate these digits from other cells in the house
-            if (eliminations.isNotEmpty()) {
-                val eliminationCandidates = eliminations.flatMap { elim ->
+            var stepNumber = 2
+            
+            // Step 2: Normal eliminations within the sector
+            if (normalEliminations.isNotEmpty()) {
+                val eliminationCandidates = normalEliminations.flatMap { elim ->
                     elim.cells.map { c ->
                         ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                     }
                 }
-                val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+                val eliminationCells = normalEliminations.flatMap { it.cells }.distinct()
                 val eliminationCellNames = eliminationCells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+                val elimDigitNames = normalEliminations.map { it.digit }.distinct().sorted().joinToString(", ")
                 
                 steps.add(ExplanationStepDto(
-                    stepNumber = 2,
-                    title = "Eliminate from Other Cells",
-                    description = "Eliminate {$digitNames} from other cells in $houseName: $eliminationCellNames",
+                    stepNumber = stepNumber++,
+                    title = "Eliminate from $houseName",
+                    description = "Eliminate {$elimDigitNames} from other cells in $houseName: $eliminationCellNames",
                     highlightCells = eliminationCells,
                     regions = regions,
                     coloredCells = coloredSubsetCells,
                     coloredCandidates = subsetCandidates + eliminationCandidates
                 ))
+            }
+            
+            // Step 3 (or 2 if no normal eliminations): Pointing eliminations (locked candidates effect)
+            if (pointingEliminations.isNotEmpty()) {
+                // Group pointing eliminations by the box they affect
+                val pointingByBox = pointingEliminations.flatMap { elim ->
+                    elim.cells.filter { it !in sectorCells }.map { cell ->
+                        val boxIndex = (cell / 9 / 3) * 3 + (cell % 9 / 3)
+                        Triple(boxIndex, elim.digit, cell)
+                    }
+                }.groupBy { it.first }
+                
+                for ((boxIndex, elimsInBox) in pointingByBox) {
+                    val affectedDigits = elimsInBox.map { it.second }.distinct().sorted()
+                    val affectedCells = elimsInBox.map { it.third }.distinct()
+                    val affectedCellNames = affectedCells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+                    val affectedDigitNames = affectedDigits.joinToString(", ")
+                    
+                    // Find which subset cells are in this box
+                    val subsetCellsInBox = subsetCells.filter { cell ->
+                        val cellBox = (cell / 9 / 3) * 3 + (cell % 9 / 3)
+                        cellBox == boxIndex
+                    }
+                    val subsetCellsInBoxNames = subsetCellsInBox.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+                    
+                    val eliminationCandidates = affectedCells.flatMap { cell ->
+                        affectedDigits.map { digit ->
+                            ColoredCandidateDto(cell / 9, cell % 9, digit, "elimination")
+                        }
+                    }
+                    
+                    // Highlight the subset cells that are in this box with target candidates
+                    val boxSubsetCandidates = subsetCellsInBox.flatMap { cell ->
+                        affectedDigits.map { digit ->
+                            ColoredCandidateDto(cell / 9, cell % 9, digit, "target")
+                        }
+                    }
+                    
+                    // Regions: highlight both the main sector and the affected box
+                    val pointingRegions = listOfNotNull(
+                        if (sectorIndex != null && sectorIndex >= 0) {
+                            ColoredRegionDto(sectorType ?: "row", sectorIndex % 9, "primary")
+                        } else null,
+                        ColoredRegionDto("box", boxIndex, "secondary")
+                    )
+                    
+                    steps.add(ExplanationStepDto(
+                        stepNumber = stepNumber++,
+                        title = "Pointing: Eliminate $affectedDigitNames from Box ${boxIndex + 1}",
+                        description = "In Box ${boxIndex + 1}, $affectedDigitNames can only be in $subsetCellsInBoxNames (part of the $subsetType in $houseName). Eliminate $affectedDigitNames from $affectedCellNames.",
+                        highlightCells = affectedCells + subsetCellsInBox,
+                        regions = pointingRegions,
+                        coloredCells = subsetCellsInBox.map { ColoredCellDto(it, "warning") },
+                        coloredCandidates = boxSubsetCandidates + eliminationCandidates
+                    ))
+                }
             }
         } else {
             // Hidden Subset: digits only appear in these cells
@@ -1162,18 +1236,23 @@ class SudokuService {
                 coloredCandidates = subsetCandidates
             ))
             
-            // Step 2: Eliminate other candidates from the subset cells
-            if (eliminations.isNotEmpty()) {
-                val eliminationCandidates = eliminations.flatMap { elim ->
-                    elim.cells.map { c ->
+            var stepNumber = 2
+            
+            // Step 2: Normal eliminations (other candidates from subset cells)
+            val cellEliminations = eliminations.filter { elim ->
+                elim.cells.any { it in subsetCells }
+            }
+            if (cellEliminations.isNotEmpty()) {
+                val eliminationCandidates = cellEliminations.flatMap { elim ->
+                    elim.cells.filter { it in subsetCells }.map { c ->
                         ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                     }
                 }
-                val otherDigits = eliminations.map { it.digit }.distinct().sorted()
+                val otherDigits = cellEliminations.map { it.digit }.distinct().sorted()
                 val otherDigitNames = otherDigits.joinToString(", ")
                 
                 steps.add(ExplanationStepDto(
-                    stepNumber = 2,
+                    stepNumber = stepNumber++,
                     title = "Eliminate Other Candidates",
                     description = "Since cells $cellNames must contain {$digitNames}, eliminate other candidates {$otherDigitNames} from these cells.",
                     highlightCells = subsetCells,
@@ -1181,6 +1260,62 @@ class SudokuService {
                     coloredCells = coloredSubsetCells,
                     coloredCandidates = subsetCandidates + eliminationCandidates
                 ))
+            }
+            
+            // Step 3: Pointing eliminations for hidden subsets (similar logic)
+            val peerEliminations = eliminations.filter { elim ->
+                elim.cells.any { it !in subsetCells }
+            }
+            if (peerEliminations.isNotEmpty()) {
+                // Group by box affected
+                val pointingByBox = peerEliminations.flatMap { elim ->
+                    elim.cells.filter { it !in subsetCells && it !in sectorCells }.map { cell ->
+                        val boxIndex = (cell / 9 / 3) * 3 + (cell % 9 / 3)
+                        Triple(boxIndex, elim.digit, cell)
+                    }
+                }.groupBy { it.first }
+                
+                for ((boxIndex, elimsInBox) in pointingByBox) {
+                    val affectedDigits = elimsInBox.map { it.second }.distinct().sorted()
+                    val affectedCells = elimsInBox.map { it.third }.distinct()
+                    val affectedCellNames = affectedCells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+                    val affectedDigitNames = affectedDigits.joinToString(", ")
+                    
+                    val subsetCellsInBox = subsetCells.filter { cell ->
+                        val cellBox = (cell / 9 / 3) * 3 + (cell % 9 / 3)
+                        cellBox == boxIndex
+                    }
+                    val subsetCellsInBoxNames = subsetCellsInBox.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+                    
+                    val eliminationCandidates = affectedCells.flatMap { cell ->
+                        affectedDigits.map { digit ->
+                            ColoredCandidateDto(cell / 9, cell % 9, digit, "elimination")
+                        }
+                    }
+                    
+                    val boxSubsetCandidates = subsetCellsInBox.flatMap { cell ->
+                        affectedDigits.map { digit ->
+                            ColoredCandidateDto(cell / 9, cell % 9, digit, "target")
+                        }
+                    }
+                    
+                    val pointingRegions = listOfNotNull(
+                        if (sectorIndex != null && sectorIndex >= 0) {
+                            ColoredRegionDto(sectorType ?: "row", sectorIndex % 9, "primary")
+                        } else null,
+                        ColoredRegionDto("box", boxIndex, "secondary")
+                    )
+                    
+                    steps.add(ExplanationStepDto(
+                        stepNumber = stepNumber++,
+                        title = "Pointing: Eliminate $affectedDigitNames from Box ${boxIndex + 1}",
+                        description = "In Box ${boxIndex + 1}, $affectedDigitNames can only be in $subsetCellsInBoxNames (part of the $subsetType in $houseName). Eliminate $affectedDigitNames from $affectedCellNames.",
+                        highlightCells = affectedCells + subsetCellsInBox,
+                        regions = pointingRegions,
+                        coloredCells = subsetCellsInBox.map { ColoredCellDto(it, "warning") },
+                        coloredCandidates = boxSubsetCandidates + eliminationCandidates
+                    ))
+                }
             }
         }
         
