@@ -2914,6 +2914,24 @@ class SudokuApp {
         // Check if cell is highlighted by current explanation step
         val isStepHighlighted = currentExplanationStep?.highlightCells?.contains(cellIndex) == true
         
+        // Check if cell is in a highlighted region from the current explanation step
+        val isInHighlightedRegion = currentExplanationStep?.regions?.any { region ->
+            when (region.type) {
+                "row" -> row == region.index
+                "column" -> col == region.index
+                "box" -> {
+                    val boxRow = row / 3
+                    val boxCol = col / 3
+                    val boxIndex = boxRow * 3 + boxCol
+                    boxIndex == region.index
+                }
+                else -> false
+            }
+        } == true
+        
+        // Check if this cell has a colored cell highlight from the explanation step
+        val coloredCellType = currentExplanationStep?.coloredCells?.find { it.cellIndex == cellIndex }?.colorType
+        
         // Build highlight class
         val highlightClass = when {
             isPrimaryHighlight && isSecondaryHighlight -> " highlight-both"
@@ -2945,7 +2963,11 @@ class SudokuApp {
         
         // Hint class for cell background (blue for cover area)
         val hintClass = when {
+            coloredCellType == "warning" -> " hint-cell-warning"  // Warning highlight (yellow/orange)
+            coloredCellType == "target" -> " hint-cell-target"    // Target highlight (green)
+            coloredCellType == "primary" -> " hint-cell-primary"  // Primary highlight
             isStepHighlighted -> " hint-step-highlight"  // Current explanation step highlight
+            isInHighlightedRegion -> " hint-region-highlight"  // Cell is in a highlighted region
             isHintSolved -> " hint-solved-cell"
             isInCoverArea -> " hint-cover-area"
             else -> ""
@@ -2986,13 +3008,27 @@ class SudokuApp {
                         val isMatchingButNotEliminated = n in matchingButNotEliminatedDigits
                         val isSolvedHint = n == hintSolvedDigit
                         
+                        // Check for colored candidate from explanation step
+                        val coloredCandidate = currentExplanationStep?.coloredCandidates?.find { 
+                            it.row == row && it.col == col && it.candidate == n 
+                        }
+                        val coloredCandidateType = coloredCandidate?.colorType
+                        
                         val candidateClasses = buildString {
                             append("candidate")
                             if (n !in cell.displayCandidates) append(" hidden")
                             append(pencilHighlightClass)
-                            if (isElimination) append(" hint-elimination")
-                            if (isMatchingButNotEliminated) append(" hint-matching-not-eliminated")
-                            if (isSolvedHint) append(" hint-solved")
+                            // Colored candidates from explanation step take priority
+                            when (coloredCandidateType) {
+                                "target" -> append(" hint-candidate-target")  // Green
+                                "elimination" -> append(" hint-candidate-elimination")  // Red with strikethrough
+                                else -> {
+                                    // Fall back to existing hint highlighting
+                                    if (isElimination) append(" hint-elimination")
+                                    if (isMatchingButNotEliminated) append(" hint-matching-not-eliminated")
+                                    if (isSolvedHint) append(" hint-solved")
+                                }
+                            }
                         }
                         span(candidateClasses) {
                             +"$n"
@@ -4101,6 +4137,41 @@ private val CSS_STYLES = """
         color: rgb(var(--color-accent-success));
         font-weight: bold;
         background: rgba(var(--color-accent-success), 0.3);
+        border-radius: 2px;
+    }
+    
+    /* New explanation step highlighting */
+    .cell.hint-region-highlight {
+        background: rgba(var(--color-accent-info), 0.15);
+    }
+    
+    .cell.hint-cell-warning {
+        background: rgba(var(--color-accent-warning), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-warning), 0.7);
+    }
+    
+    .cell.hint-cell-target {
+        background: rgba(var(--color-accent-success), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-success), 0.7);
+    }
+    
+    .cell.hint-cell-primary {
+        background: rgba(var(--color-accent-info), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-info), 0.7);
+    }
+    
+    .candidate.hint-candidate-target {
+        color: rgb(var(--color-accent-success));
+        font-weight: bold;
+        background: rgba(var(--color-accent-success), 0.4);
+        border-radius: 2px;
+    }
+    
+    .candidate.hint-candidate-elimination {
+        color: rgb(var(--color-accent-error));
+        font-weight: bold;
+        text-decoration: line-through;
+        background: rgba(var(--color-accent-error), 0.2);
         border-radius: 2px;
     }
     

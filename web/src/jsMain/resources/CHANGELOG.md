@@ -1,3 +1,10 @@
+# v0.2.2 - 2025-12-03c
+
+### Features
+- Hint System
+- Naked Single, Double, Triple, Quadruple
+- Hidden Single, Double, Triple, Quadruple
+
 # v0.2.1 - 2025-12-03b
 
 ### Minor Changes
