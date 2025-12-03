@@ -2,9 +2,29 @@ plugins {
     kotlin("multiplatform")
     kotlin("plugin.compose")
     kotlin("plugin.serialization")
+    id("com.android.library")
+}
+
+android {
+    compileSdk = (findProperty("android.compileSdk") as String).toInt()
+    namespace = "com.nicesudoku.shared"
+
+    defaultConfig {
+        minSdk = (findProperty("android.minSdk") as String).toInt()
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
 }
 
 kotlin {
+    androidTarget {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
+    }
     jvm()
     iosX64()
     iosArm64()
@@ -41,6 +61,13 @@ kotlin {
             }
         }
 
+        val androidMain by getting {
+            dependencies {
+                // Android-specific dependencies (no StormDoku.jar)
+                implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+            }
+        }
+
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -53,5 +80,6 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.9.0")
             }
         }
+
     }
 }

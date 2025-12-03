@@ -1,3 +1,9 @@
+# v0.2.1 - 2025-12-03b
+
+### Minor Changes
+- Bump versions
+- Not moving ahead with Android for now, but got first build (unusable) working.
+
 # v0.2.0 - 2025-12-03
 
 ### Features
