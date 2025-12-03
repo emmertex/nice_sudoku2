@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             SudokuTheme {
-                val viewModel = viewModel<GameViewModel>()
+                val viewModel: GameViewModel = viewModel()
 
                 val gameState by viewModel.gameState.collectAsState()
 

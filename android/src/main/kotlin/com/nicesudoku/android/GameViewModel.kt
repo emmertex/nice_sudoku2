@@ -1,62 +1,67 @@
 package com.nicesudoku.android
 
 import androidx.lifecycle.ViewModel
-import repository.GameRepository
+import androidx.lifecycle.viewModelScope
+import domain.GameState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class GameViewModel(
-    private val repository: GameRepository = GameRepository()
-) : ViewModel() {
-    val gameState = repository.gameState
+class GameViewModel() : ViewModel() {
+    private val _gameState = MutableStateFlow(GameState.initial())
+    val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
     fun onCellClick(cellIndex: Int) {
-        repository.selectCell(cellIndex)
+        // TODO: Implement cell selection
+        println("Cell clicked: $cellIndex")
     }
 
     fun onNumberInput(number: Int) {
-        val selectedCell = gameState.value.selectedCell
-        if (selectedCell != null) {
-            repository.setCellValue(selectedCell, number)
-        }
+        // TODO: Implement number input
+        println("Number input: $number")
     }
 
     fun onEraseInput() {
-        val selectedCell = gameState.value.selectedCell
-        if (selectedCell != null) {
-            repository.setCellValue(selectedCell, null)
-        }
+        // TODO: Implement erase input
+        println("Erase input")
     }
 
     fun onTechniqueClick(technique: String) {
-        repository.selectTechnique(technique)
+        // TODO: Implement technique selection
+        println("Technique clicked: $technique")
     }
 
     fun onFindTechniques() {
-        repository.findAllTechniques()
+        // TODO: Implement technique finding
+        println("Find techniques")
     }
 
     fun onApplyTechnique() {
-        repository.applySelectedTechnique()
+        // TODO: Implement technique application
+        println("Apply technique")
     }
 
     fun onUndo() {
-        repository.undo()
+        // TODO: Implement undo
+        println("Undo")
     }
 
     fun onRedo() {
-        repository.redo()
+        // TODO: Implement redo
+        println("Redo")
     }
 
     fun onSolve() {
-        repository.solve()
+        // TODO: Implement solve
+        println("Solve")
     }
 
     fun loadSamplePuzzle(index: Int = 0) {
-        val puzzles = GameRepository.samplePuzzles
-        if (index in puzzles.indices) {
-            repository.loadPuzzle(puzzles[index])
-        }
+        // TODO: Implement puzzle loading
+        println("Load sample puzzle: $index")
     }
 
-    fun canUndo(): Boolean = repository.canUndo()
-    fun canRedo(): Boolean = repository.canRedo()
+    fun canUndo(): Boolean = false
+    fun canRedo(): Boolean = false
 }
