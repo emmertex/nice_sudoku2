@@ -2,8 +2,13 @@
 
 ### Features
 - Hint System
-- Naked Single, Double, Triple, Quadruple
-- Hidden Single, Double, Triple, Quadruple
+- - Universal Interactive Descriptions
+- - - Should work for **all** techniques, even before they are fully implemented
+- - Naked Single, Double, Triple, Quadruple
+- - - Includeing Pointing Eliminations
+- - Hidden Single, Double, Triple, Quadruple
+- - - Including Pointing Eliminations
+- - Pointing Candidates
 
 # v0.2.1 - 2025-12-03b
 
