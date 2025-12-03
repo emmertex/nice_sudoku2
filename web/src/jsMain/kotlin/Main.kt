@@ -2285,17 +2285,15 @@ class SudokuApp {
     }
 
     /**
-     * Render interactive chain description with clickable/hoverable elements
+     * Render interactive hint description with clickable/hoverable elements
      * Parses patterns like:
-     * - (3)R5C6 - cell/candidate reference
+     * - (3)R5C6 - cell/candidate reference (for chains)
+     * - R5C6 or R1C8, R1C9 - simple cell references
+     * - {5, 7, 8} or {7} - digit sets
+     * - Row 5, Column 7, Box 3 - house references
      * - --[strong]--> or --[weak]--> - link indicators
      */
     private fun TagConsumer<HTMLElement>.renderInteractiveDescription(description: String, hint: TechniqueMatchInfo) {
-        // Regex patterns for chain notation
-        val cellPattern = Regex("""\((\d)\)([Rr])(\d)[Cc](\d)(?:,([Rr])(\d)[Cc](\d))*""")
-        val linkPattern = Regex("""--\[(strong|weak)\]-->""")
-        
-        var lastIndex = 0
         var linkIndex = 0
         val result = StringBuilder()
         
@@ -2303,54 +2301,163 @@ class SudokuApp {
         data class Match(val start: Int, val end: Int, val type: String, val content: String, val data: Any?)
         val matches = mutableListOf<Match>()
         
-        // Find cell references like (3)R5C6 or (3)R5C6,R5C7
-        cellPattern.findAll(description).forEach { match ->
+        // Pattern for chain notation: (3)R5C6 or (3)R5C6,R5C7
+        val chainCellPattern = Regex("""\((\d)\)([Rr])(\d)[Cc](\d)(?:,([Rr])(\d)[Cc](\d))*""")
+        chainCellPattern.findAll(description).forEach { match ->
             val digit = match.groupValues[1].toInt()
-            // Parse all cells in the match (handles multi-cell nodes)
-            val cells = mutableListOf<Pair<Int, Int>>()  // row, col pairs
-            val fullMatch = match.value
+            val cells = mutableListOf<Pair<Int, Int>>()
             val singleCellPattern = Regex("""[Rr](\d)[Cc](\d)""")
-            singleCellPattern.findAll(fullMatch).forEach { cellMatch ->
+            singleCellPattern.findAll(match.value).forEach { cellMatch ->
                 val row = cellMatch.groupValues[1].toInt() - 1
                 val col = cellMatch.groupValues[2].toInt() - 1
                 cells.add(row to col)
             }
-            matches.add(Match(match.range.first, match.range.last + 1, "cell", match.value, digit to cells))
+            matches.add(Match(match.range.first, match.range.last + 1, "chain-cell", match.value, digit to cells))
         }
         
-        // Find link indicators like --[strong]-->
+        // Pattern for simple cell references: R5C6 or R1C8, R1C9 (but not preceded by digit in parens)
+        // Match cell lists like "R1C7, R3C7" or single cells like "R5C5"
+        val simpleCellPattern = Regex("""(?<!\(\d\))([Rr]\d[Cc]\d(?:\s*,\s*[Rr]\d[Cc]\d)*)""")
+        simpleCellPattern.findAll(description).forEach { match ->
+            // Skip if this overlaps with a chain-cell match
+            val overlaps = matches.any { m -> 
+                m.type == "chain-cell" && 
+                ((match.range.first >= m.start && match.range.first < m.end) ||
+                 (match.range.last >= m.start && match.range.last < m.end))
+            }
+            if (!overlaps) {
+                val cells = mutableListOf<Pair<Int, Int>>()
+                val singleCellPattern = Regex("""[Rr](\d)[Cc](\d)""")
+                singleCellPattern.findAll(match.value).forEach { cellMatch ->
+                    val row = cellMatch.groupValues[1].toInt() - 1
+                    val col = cellMatch.groupValues[2].toInt() - 1
+                    cells.add(row to col)
+                }
+                if (cells.isNotEmpty()) {
+                    matches.add(Match(match.range.first, match.range.last + 1, "simple-cell", match.value, cells))
+                }
+            }
+        }
+        
+        // Pattern for digit sets: {5, 7, 8} or {7}
+        val digitSetPattern = Regex("""\{(\d(?:\s*,\s*\d)*)\}""")
+        digitSetPattern.findAll(description).forEach { match ->
+            val digits = match.groupValues[1].split(",").mapNotNull { it.trim().toIntOrNull() }
+            if (digits.isNotEmpty()) {
+                matches.add(Match(match.range.first, match.range.last + 1, "digit-set", match.value, digits))
+            }
+        }
+        
+        // Pattern for single digits in context (e.g., "eliminate 7 from" or "candidate 5 only")
+        // Match digits after keywords like "candidate", "digit", "eliminate", or before certain words
+        val digitContextPatterns = listOf(
+            // Digit after keyword: "candidate 5", "digit 7", "eliminate 5"
+            Regex("""(?:candidate|digit|eliminate|Eliminate)\s+(\d)(?!\d)""", RegexOption.IGNORE_CASE),
+            // Digit before action word: "5 can", "7 from", "5 in", "5 must", "5 is", "5 only"
+            Regex("""(?<=\s|^)(\d)(?=\s+(?:can|from|in|must|is|only|appears?|be)\b)""", RegexOption.IGNORE_CASE),
+            // Digit at end of sentence or before comma
+            Regex("""(?<=\s)(\d)(?=\s*[.,]|\s*$)""")
+        )
+        
+        for (pattern in digitContextPatterns) {
+            pattern.findAll(description).forEach { match ->
+                val digit = match.groupValues[1].toIntOrNull()
+                if (digit != null && digit in 1..9) {
+                    // Find the actual position of the digit within the match
+                    val digitIndex = match.value.indexOfFirst { it.isDigit() }
+                    val digitStart = match.range.first + digitIndex
+                    val digitEnd = digitStart + 1
+                    
+                    // Skip if this overlaps with other matches
+                    val overlaps = matches.any { m ->
+                        (digitStart >= m.start && digitStart < m.end) ||
+                        (digitEnd > m.start && digitEnd <= m.end)
+                    }
+                    if (!overlaps) {
+                        matches.add(Match(digitStart, digitEnd, "single-digit", digit.toString(), digit))
+                    }
+                }
+            }
+        }
+        
+        // Pattern for house references: Row 5, Column 7, Box 3
+        val housePattern = Regex("""(Row|Column|Box)\s+(\d)""", RegexOption.IGNORE_CASE)
+        housePattern.findAll(description).forEach { match ->
+            val houseType = match.groupValues[1].lowercase()
+            val houseIndex = match.groupValues[2].toInt() - 1  // Convert to 0-indexed
+            if (houseIndex in 0..8) {
+                matches.add(Match(match.range.first, match.range.last + 1, "house", match.value, houseType to houseIndex))
+            }
+        }
+        
+        // Pattern for link indicators: --[strong]--> or --[weak]-->
+        val linkPattern = Regex("""--\[(strong|weak)\]-->""")
         linkPattern.findAll(description).forEach { match ->
             val linkType = match.groupValues[1]
             matches.add(Match(match.range.first, match.range.last + 1, "link", match.value, linkIndex++ to linkType))
         }
         
-        // Sort matches by position
+        // Sort matches by position and remove overlaps (keep longer/earlier matches)
         matches.sortBy { it.start }
+        val filteredMatches = mutableListOf<Match>()
+        for (match in matches) {
+            val overlaps = filteredMatches.any { existing ->
+                (match.start >= existing.start && match.start < existing.end) ||
+                (match.end > existing.start && match.end <= existing.end)
+            }
+            if (!overlaps) {
+                filteredMatches.add(match)
+            }
+        }
         
         // Build HTML with interactive spans
         var currentPos = 0
-        matches.forEach { match ->
+        filteredMatches.forEach { match ->
             // Add text before this match
             if (match.start > currentPos) {
-                result.append("""<span class="chain-text">${htmlEscape(description.substring(currentPos, match.start))}</span>""")
+                result.append("""<span class="desc-text">${htmlEscape(description.substring(currentPos, match.start))}</span>""")
             }
             
             when (match.type) {
-                "cell" -> {
+                "chain-cell" -> {
                     @Suppress("UNCHECKED_CAST")
                     val data = match.data as Pair<Int, List<Pair<Int, Int>>>
                     val digit = data.first
                     val cells = data.second
                     val cellIndices = cells.map { pair -> pair.first * 9 + pair.second }
                     val dataAttr = cellIndices.joinToString(",")
-                    result.append("""<span class="chain-cell-ref" data-cells="$dataAttr" data-candidate="$digit">${match.content}</span>""")
+                    result.append("""<span class="chain-cell-ref interactive-ref" data-cells="$dataAttr" data-candidate="$digit">${match.content}</span>""")
+                }
+                "simple-cell" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val cells = match.data as List<Pair<Int, Int>>
+                    val cellIndices = cells.map { pair -> pair.first * 9 + pair.second }
+                    val dataAttr = cellIndices.joinToString(",")
+                    result.append("""<span class="cell-ref interactive-ref" data-cells="$dataAttr">${match.content}</span>""")
+                }
+                "digit-set" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val digits = match.data as List<Int>
+                    val dataAttr = digits.joinToString(",")
+                    result.append("""<span class="digit-ref interactive-ref" data-digits="$dataAttr">${match.content}</span>""")
+                }
+                "single-digit" -> {
+                    val digit = match.data as Int
+                    result.append("""<span class="digit-ref interactive-ref" data-digits="$digit">${match.content}</span>""")
+                }
+                "house" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val data = match.data as Pair<String, Int>
+                    val houseType = data.first
+                    val houseIndex = data.second
+                    result.append("""<span class="house-ref interactive-ref" data-house-type="$houseType" data-house-index="$houseIndex">${match.content}</span>""")
                 }
                 "link" -> {
                     @Suppress("UNCHECKED_CAST")
                     val data = match.data as Pair<Int, String>
                     val idx = data.first
                     val linkType = data.second
-                    result.append("""<span class="chain-link-ref chain-link-$linkType" data-link-index="$idx">[$linkType]</span>""")
+                    result.append("""<span class="chain-link-ref interactive-ref chain-link-$linkType" data-link-index="$idx">[$linkType]</span>""")
                 }
             }
             currentPos = match.end
@@ -2358,11 +2465,11 @@ class SudokuApp {
         
         // Add remaining text
         if (currentPos < description.length) {
-            result.append("""<span class="chain-text">${htmlEscape(description.substring(currentPos))}</span>""")
+            result.append("""<span class="desc-text">${htmlEscape(description.substring(currentPos))}</span>""")
         }
         
         // If no interactive elements found, just show plain text
-        if (matches.isEmpty()) {
+        if (filteredMatches.isEmpty()) {
             span { +description }
         } else {
             // Generate unique ID first
@@ -2375,132 +2482,256 @@ class SudokuApp {
             
             // Use setTimeout to attach listeners after DOM is updated
             kotlinx.browser.window.setTimeout({
-                attachChainInteractionListeners(containerId, hint)
+                attachDescriptionInteractionListeners(containerId, hint)
             }, 50)  // Small delay to ensure DOM is ready
         }
     }
     
     /**
-     * Set up global event delegation for chain notation interactions
+     * Set up global event delegation for interactive hint description elements
      * This uses event delegation so we don't need to re-attach listeners on each render
      */
     private fun setupChainInteractionDelegation() {
-        // Click delegation
-        document.addEventListener("click", { event ->
+        // Mouseover delegation for all interactive elements
+        document.addEventListener("mouseover", { event ->
             val target = (event.target as? HTMLElement) ?: return@addEventListener
+            val interactiveRef = target.closest(".interactive-ref") as? HTMLElement
+            if (interactiveRef == null || interactiveRef.classList.contains("ref-hovered")) {
+                return@addEventListener
+            }
             
-            // Handle cell reference clicks
-            val cellRef = target.closest(".chain-cell-ref") as? HTMLElement
-            if (cellRef != null) {
-                val cellsAttr = cellRef.getAttribute("data-cells") ?: return@addEventListener
-                val candidateAttr = cellRef.getAttribute("data-candidate") ?: return@addEventListener
-                val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
-                val candidate = candidateAttr.toIntOrNull() ?: return@addEventListener
-                
-                event.stopPropagation()
-                
-                // Toggle persistent highlight
-                if (highlightedNodeCell == cells.firstOrNull() && highlightedNodeCandidate == candidate) {
-                    highlightedNodeCell = null
-                    highlightedNodeCandidate = null
-                    clearChainHighlights()
-                } else {
-                    highlightedNodeCell = cells.firstOrNull()
-                    highlightedNodeCandidate = candidate
+            interactiveRef.classList.add("ref-hovered")
+            
+            when {
+                // Chain cell reference: (3)R5C6
+                interactiveRef.classList.contains("chain-cell-ref") -> {
+                    val cellsAttr = interactiveRef.getAttribute("data-cells") ?: return@addEventListener
+                    val candidateAttr = interactiveRef.getAttribute("data-candidate") ?: return@addEventListener
+                    val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
+                    val candidate = candidateAttr.toIntOrNull() ?: return@addEventListener
                     val hint = currentHintList.getOrNull(selectedHintIndex)
                     if (hint != null) {
                         updateChainHighlights(cells, candidate, hint)
                     }
                 }
-                return@addEventListener
-            }
-            
-            // Handle link reference clicks
-            val linkRef = target.closest(".chain-link-ref") as? HTMLElement
-            if (linkRef != null) {
-                val linkIndexAttr = linkRef.getAttribute("data-link-index") ?: return@addEventListener
-                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
-                
-                event.stopPropagation()
-                
-                // Toggle persistent highlight
-                if (highlightedLinkIndex == linkIdx) {
-                    highlightedLinkIndex = null
-                    updateLinkHighlight(linkIdx, false)
-                } else {
-                    highlightedLinkIndex = linkIdx
+                // Simple cell reference: R5C6, R1C8
+                interactiveRef.classList.contains("cell-ref") -> {
+                    val cellsAttr = interactiveRef.getAttribute("data-cells") ?: return@addEventListener
+                    val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
+                    highlightCells(cells)
+                }
+                // Digit reference: {5, 7, 8} or single digit
+                interactiveRef.classList.contains("digit-ref") -> {
+                    val digitsAttr = interactiveRef.getAttribute("data-digits") ?: return@addEventListener
+                    val digits = digitsAttr.split(",").mapNotNull { it.toIntOrNull() }
+                    highlightDigits(digits)
+                }
+                // House reference: Row 5, Column 7, Box 3
+                interactiveRef.classList.contains("house-ref") -> {
+                    val houseType = interactiveRef.getAttribute("data-house-type") ?: return@addEventListener
+                    val houseIndex = interactiveRef.getAttribute("data-house-index")?.toIntOrNull() ?: return@addEventListener
+                    highlightHouse(houseType, houseIndex)
+                }
+                // Link reference: --[strong]-->
+                interactiveRef.classList.contains("chain-link-ref") -> {
+                    val linkIdx = interactiveRef.getAttribute("data-link-index")?.toIntOrNull() ?: return@addEventListener
                     updateLinkHighlight(linkIdx, true)
                 }
-                return@addEventListener
             }
         })
         
-        // Mouseenter delegation (uses mouseover with check)
-        document.addEventListener("mouseover", { event ->
-            val target = (event.target as? HTMLElement) ?: return@addEventListener
-            
-            // Handle cell reference hover
-            val cellRef = target.closest(".chain-cell-ref") as? HTMLElement
-            if (cellRef != null && !cellRef.classList.contains("chain-hovered")) {
-                cellRef.classList.add("chain-hovered")
-                val cellsAttr = cellRef.getAttribute("data-cells") ?: return@addEventListener
-                val candidateAttr = cellRef.getAttribute("data-candidate") ?: return@addEventListener
-                val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
-                val candidate = candidateAttr.toIntOrNull() ?: return@addEventListener
-                
-                val hint = currentHintList.getOrNull(selectedHintIndex)
-                if (hint != null) {
-                    updateChainHighlights(cells, candidate, hint)
-                }
-                return@addEventListener
-            }
-            
-            // Handle link reference hover
-            val linkRef = target.closest(".chain-link-ref") as? HTMLElement
-            if (linkRef != null && !linkRef.classList.contains("chain-hovered")) {
-                linkRef.classList.add("chain-hovered")
-                val linkIndexAttr = linkRef.getAttribute("data-link-index") ?: return@addEventListener
-                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
-                
-                updateLinkHighlight(linkIdx, true)
-                return@addEventListener
-            }
-        })
-        
-        // Mouseleave delegation (uses mouseout with check)
+        // Mouseout delegation
         document.addEventListener("mouseout", { event ->
             val target = (event.target as? HTMLElement) ?: return@addEventListener
-            
-            // Handle cell reference leave
-            if (target.classList.contains("chain-cell-ref") && target.classList.contains("chain-hovered")) {
-                target.classList.remove("chain-hovered")
-                // Only clear if not persistently highlighted
-                if (highlightedNodeCell == null) {
-                    clearChainHighlights()
-                }
+            if (!target.classList.contains("interactive-ref") || !target.classList.contains("ref-hovered")) {
                 return@addEventListener
             }
             
-            // Handle link reference leave
-            if (target.classList.contains("chain-link-ref") && target.classList.contains("chain-hovered")) {
-                target.classList.remove("chain-hovered")
-                val linkIndexAttr = target.getAttribute("data-link-index") ?: return@addEventListener
-                val linkIdx = linkIndexAttr.toIntOrNull() ?: return@addEventListener
-                // Only clear if not persistently highlighted
-                if (highlightedLinkIndex == null) {
-                    updateLinkHighlight(linkIdx, false)
+            target.classList.remove("ref-hovered")
+            
+            when {
+                target.classList.contains("chain-cell-ref") -> {
+                    if (highlightedNodeCell == null) {
+                        clearChainHighlights()
+                    }
                 }
-                return@addEventListener
+                target.classList.contains("cell-ref") -> {
+                    clearCellHighlights()
+                }
+                target.classList.contains("digit-ref") -> {
+                    clearDigitHighlights()
+                }
+                target.classList.contains("house-ref") -> {
+                    clearHouseHighlights()
+                }
+                target.classList.contains("chain-link-ref") -> {
+                    val linkIdx = target.getAttribute("data-link-index")?.toIntOrNull() ?: return@addEventListener
+                    if (highlightedLinkIndex == null) {
+                        updateLinkHighlight(linkIdx, false)
+                    }
+                }
+            }
+        })
+        
+        // Click delegation for toggle behavior
+        document.addEventListener("click", { event ->
+            val target = (event.target as? HTMLElement) ?: return@addEventListener
+            val interactiveRef = target.closest(".interactive-ref") as? HTMLElement ?: return@addEventListener
+            
+            event.stopPropagation()
+            
+            when {
+                interactiveRef.classList.contains("chain-cell-ref") -> {
+                    val cellsAttr = interactiveRef.getAttribute("data-cells") ?: return@addEventListener
+                    val candidateAttr = interactiveRef.getAttribute("data-candidate") ?: return@addEventListener
+                    val cells = cellsAttr.split(",").mapNotNull { it.toIntOrNull() }
+                    val candidate = candidateAttr.toIntOrNull() ?: return@addEventListener
+                    
+                    if (highlightedNodeCell == cells.firstOrNull() && highlightedNodeCandidate == candidate) {
+                        highlightedNodeCell = null
+                        highlightedNodeCandidate = null
+                        clearChainHighlights()
+                    } else {
+                        highlightedNodeCell = cells.firstOrNull()
+                        highlightedNodeCandidate = candidate
+                        val hint = currentHintList.getOrNull(selectedHintIndex)
+                        if (hint != null) {
+                            updateChainHighlights(cells, candidate, hint)
+                        }
+                    }
+                }
+                interactiveRef.classList.contains("chain-link-ref") -> {
+                    val linkIdx = interactiveRef.getAttribute("data-link-index")?.toIntOrNull() ?: return@addEventListener
+                    if (highlightedLinkIndex == linkIdx) {
+                        highlightedLinkIndex = null
+                        updateLinkHighlight(linkIdx, false)
+                    } else {
+                        highlightedLinkIndex = linkIdx
+                        updateLinkHighlight(linkIdx, true)
+                    }
+                }
             }
         })
     }
     
     /**
-     * Attach mouse/click listeners for interactive chain elements (legacy - now using delegation)
+     * Highlight specific cells on hover
+     */
+    private fun highlightCells(cellIndices: List<Int>) {
+        clearCellHighlights()
+        val grid = document.querySelector(".sudoku-grid") ?: return
+        val rows = grid.querySelectorAll(".sudoku-row")
+        
+        for (cellIndex in cellIndices) {
+            val row = cellIndex / 9
+            val col = cellIndex % 9
+            val rowElement = rows.item(row) ?: continue
+            val cellElement = rowElement.childNodes.item(col) as? HTMLElement ?: continue
+            cellElement.classList.add("hover-highlight-cell")
+        }
+    }
+    
+    /**
+     * Clear cell highlights
+     */
+    private fun clearCellHighlights() {
+        document.querySelectorAll(".hover-highlight-cell").asList().forEach { element ->
+            (element as? HTMLElement)?.classList?.remove("hover-highlight-cell")
+        }
+    }
+    
+    /**
+     * Highlight digits across the grid
+     */
+    private fun highlightDigits(digits: List<Int>) {
+        clearDigitHighlights()
+        val grid = document.querySelector(".sudoku-grid") ?: return
+        
+        // Highlight all candidates and solved cells with these digits
+        for (digit in digits) {
+            // Highlight candidates
+            grid.querySelectorAll(".candidate").asList().forEach { element ->
+                val candidateElement = element as? HTMLElement ?: return@forEach
+                val candidateText = candidateElement.textContent?.trim()?.toIntOrNull()
+                if (candidateText == digit && !candidateElement.classList.contains("hidden")) {
+                    candidateElement.classList.add("hover-highlight-digit")
+                }
+            }
+            // Highlight solved cells
+            grid.querySelectorAll(".cell-value").asList().forEach { element ->
+                val valueElement = element as? HTMLElement ?: return@forEach
+                val value = valueElement.textContent?.trim()?.toIntOrNull()
+                if (value == digit) {
+                    valueElement.parentElement?.classList?.add("hover-highlight-digit-cell")
+                }
+            }
+        }
+    }
+    
+    /**
+     * Clear digit highlights
+     */
+    private fun clearDigitHighlights() {
+        document.querySelectorAll(".hover-highlight-digit").asList().forEach { element ->
+            (element as? HTMLElement)?.classList?.remove("hover-highlight-digit")
+        }
+        document.querySelectorAll(".hover-highlight-digit-cell").asList().forEach { element ->
+            (element as? HTMLElement)?.classList?.remove("hover-highlight-digit-cell")
+        }
+    }
+    
+    /**
+     * Highlight a house (row, column, or box)
+     */
+    private fun highlightHouse(houseType: String, houseIndex: Int) {
+        clearHouseHighlights()
+        val grid = document.querySelector(".sudoku-grid") ?: return
+        val rows = grid.querySelectorAll(".sudoku-row")
+        
+        val cellIndices = when (houseType) {
+            "row" -> (0..8).map { col -> houseIndex * 9 + col }
+            "column" -> (0..8).map { row -> row * 9 + houseIndex }
+            "box" -> {
+                val boxRow = houseIndex / 3
+                val boxCol = houseIndex % 3
+                val startRow = boxRow * 3
+                val startCol = boxCol * 3
+                (0..2).flatMap { r -> (0..2).map { c -> (startRow + r) * 9 + (startCol + c) } }
+            }
+            else -> emptyList()
+        }
+        
+        for (cellIndex in cellIndices) {
+            val row = cellIndex / 9
+            val col = cellIndex % 9
+            val rowElement = rows.item(row) ?: continue
+            val cellElement = rowElement.childNodes.item(col) as? HTMLElement ?: continue
+            cellElement.classList.add("hover-highlight-house")
+        }
+    }
+    
+    /**
+     * Clear house highlights
+     */
+    private fun clearHouseHighlights() {
+        document.querySelectorAll(".hover-highlight-house").asList().forEach { element ->
+            (element as? HTMLElement)?.classList?.remove("hover-highlight-house")
+        }
+    }
+    
+    /**
+     * Attach listeners for interactive description elements (uses global delegation)
+     */
+    private fun attachDescriptionInteractionListeners(containerId: String, hint: TechniqueMatchInfo) {
+        // Event delegation is handled globally in setupChainInteractionDelegation()
+        // This function is kept for potential future use
+    }
+    
+    /**
+     * Legacy alias for attachDescriptionInteractionListeners
      */
     private fun attachChainInteractionListeners(containerId: String, hint: TechniqueMatchInfo) {
-        // Event delegation is now handled globally in setupChainInteractionDelegation()
-        // This function is kept for compatibility but does nothing
+        attachDescriptionInteractionListeners(containerId, hint)
     }
     
     /**
@@ -2914,6 +3145,24 @@ class SudokuApp {
         // Check if cell is highlighted by current explanation step
         val isStepHighlighted = currentExplanationStep?.highlightCells?.contains(cellIndex) == true
         
+        // Check if cell is in a highlighted region from the current explanation step
+        val isInHighlightedRegion = currentExplanationStep?.regions?.any { region ->
+            when (region.type) {
+                "row" -> row == region.index
+                "column" -> col == region.index
+                "box" -> {
+                    val boxRow = row / 3
+                    val boxCol = col / 3
+                    val boxIndex = boxRow * 3 + boxCol
+                    boxIndex == region.index
+                }
+                else -> false
+            }
+        } == true
+        
+        // Check if this cell has a colored cell highlight from the explanation step
+        val coloredCellType = currentExplanationStep?.coloredCells?.find { it.cellIndex == cellIndex }?.colorType
+        
         // Build highlight class
         val highlightClass = when {
             isPrimaryHighlight && isSecondaryHighlight -> " highlight-both"
@@ -2945,7 +3194,11 @@ class SudokuApp {
         
         // Hint class for cell background (blue for cover area)
         val hintClass = when {
+            coloredCellType == "warning" -> " hint-cell-warning"  // Warning highlight (yellow/orange)
+            coloredCellType == "target" -> " hint-cell-target"    // Target highlight (green)
+            coloredCellType == "primary" -> " hint-cell-primary"  // Primary highlight
             isStepHighlighted -> " hint-step-highlight"  // Current explanation step highlight
+            isInHighlightedRegion -> " hint-region-highlight"  // Cell is in a highlighted region
             isHintSolved -> " hint-solved-cell"
             isInCoverArea -> " hint-cover-area"
             else -> ""
@@ -2986,13 +3239,27 @@ class SudokuApp {
                         val isMatchingButNotEliminated = n in matchingButNotEliminatedDigits
                         val isSolvedHint = n == hintSolvedDigit
                         
+                        // Check for colored candidate from explanation step
+                        val coloredCandidate = currentExplanationStep?.coloredCandidates?.find { 
+                            it.row == row && it.col == col && it.candidate == n 
+                        }
+                        val coloredCandidateType = coloredCandidate?.colorType
+                        
                         val candidateClasses = buildString {
                             append("candidate")
                             if (n !in cell.displayCandidates) append(" hidden")
                             append(pencilHighlightClass)
-                            if (isElimination) append(" hint-elimination")
-                            if (isMatchingButNotEliminated) append(" hint-matching-not-eliminated")
-                            if (isSolvedHint) append(" hint-solved")
+                            // Colored candidates from explanation step take priority
+                            when (coloredCandidateType) {
+                                "target" -> append(" hint-candidate-target")  // Green
+                                "elimination" -> append(" hint-candidate-elimination")  // Red with strikethrough
+                                else -> {
+                                    // Fall back to existing hint highlighting
+                                    if (isElimination) append(" hint-elimination")
+                                    if (isMatchingButNotEliminated) append(" hint-matching-not-eliminated")
+                                    if (isSolvedHint) append(" hint-solved")
+                                }
+                            }
                         }
                         span(candidateClasses) {
                             +"$n"
@@ -3986,8 +4253,78 @@ private val CSS_STYLES = """
         box-shadow: 0 0 8px rgba(var(--color-accent-warning), 0.5);
     }
     
-    .chain-text {
+    .chain-text, .desc-text {
         /* Normal text styling */
+    }
+    
+    /* Interactive reference base styles */
+    .interactive-ref {
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    
+    /* Simple cell reference: R5C6 */
+    .cell-ref {
+        background: rgba(var(--color-accent-info), 0.2);
+        padding: 1px 4px;
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.9em;
+    }
+    
+    .cell-ref:hover, .cell-ref.ref-hovered {
+        background: rgba(var(--color-accent-info), 0.5);
+        box-shadow: 0 0 6px rgba(var(--color-accent-info), 0.4);
+    }
+    
+    /* Digit reference: {5, 7, 8} */
+    .digit-ref {
+        background: rgba(var(--color-accent-secondary), 0.2);
+        padding: 1px 4px;
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 0.9em;
+        color: rgb(var(--color-accent-secondary));
+    }
+    
+    .digit-ref:hover, .digit-ref.ref-hovered {
+        background: rgba(var(--color-accent-secondary), 0.5);
+        box-shadow: 0 0 6px rgba(var(--color-accent-secondary), 0.4);
+        color: white;
+    }
+    
+    /* House reference: Row 5, Column 7, Box 3 */
+    .house-ref {
+        background: rgba(var(--color-accent-warning), 0.15);
+        padding: 1px 4px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .house-ref:hover, .house-ref.ref-hovered {
+        background: rgba(var(--color-accent-warning), 0.4);
+        box-shadow: 0 0 6px rgba(var(--color-accent-warning), 0.4);
+    }
+    
+    /* Hover highlights on grid */
+    .cell.hover-highlight-cell {
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-info), 0.8) !important;
+        background: rgba(var(--color-accent-info), 0.15) !important;
+    }
+    
+    .cell.hover-highlight-house {
+        background: rgba(var(--color-accent-warning), 0.2) !important;
+    }
+    
+    .cell.hover-highlight-digit-cell {
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-secondary), 0.8) !important;
+    }
+    
+    .candidate.hover-highlight-digit {
+        background: rgba(var(--color-accent-secondary), 0.6) !important;
+        color: white !important;
+        border-radius: 50%;
+        font-weight: bold;
     }
     
     /* Cell highlight from chain interaction */
@@ -4101,6 +4438,41 @@ private val CSS_STYLES = """
         color: rgb(var(--color-accent-success));
         font-weight: bold;
         background: rgba(var(--color-accent-success), 0.3);
+        border-radius: 2px;
+    }
+    
+    /* New explanation step highlighting */
+    .cell.hint-region-highlight {
+        background: rgba(var(--color-accent-info), 0.15);
+    }
+    
+    .cell.hint-cell-warning {
+        background: rgba(var(--color-accent-warning), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-warning), 0.7);
+    }
+    
+    .cell.hint-cell-target {
+        background: rgba(var(--color-accent-success), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-success), 0.7);
+    }
+    
+    .cell.hint-cell-primary {
+        background: rgba(var(--color-accent-info), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-info), 0.7);
+    }
+    
+    .candidate.hint-candidate-target {
+        color: rgb(var(--color-accent-success));
+        font-weight: bold;
+        background: rgba(var(--color-accent-success), 0.4);
+        border-radius: 2px;
+    }
+    
+    .candidate.hint-candidate-elimination {
+        color: rgb(var(--color-accent-error));
+        font-weight: bold;
+        text-decoration: line-through;
+        background: rgba(var(--color-accent-error), 0.2);
         border-radius: 2px;
     }
     

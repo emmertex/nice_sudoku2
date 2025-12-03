@@ -106,6 +106,36 @@ data class GroupDto(
 )
 
 /**
+ * Represents a region (row, column, or box) to highlight
+ */
+@Serializable
+data class ColoredRegionDto(
+    val type: String,  // "row", "column", "box"
+    val index: Int,    // 0-8 for row/column, 0-8 for box
+    val colorType: String  // "primary", "secondary", "warning", etc.
+)
+
+/**
+ * Represents a cell to highlight with a specific color
+ */
+@Serializable
+data class ColoredCellDto(
+    val cellIndex: Int,
+    val colorType: String  // "primary", "secondary", "warning", "target", etc.
+)
+
+/**
+ * Represents a candidate to highlight with a specific color
+ */
+@Serializable
+data class ColoredCandidateDto(
+    val row: Int,
+    val col: Int,
+    val candidate: Int,  // 1-9
+    val colorType: String  // "target" (green), "elimination" (red/strikethrough), etc.
+)
+
+/**
  * Represents a single step in a technique explanation
  */
 @Serializable
@@ -116,7 +146,11 @@ data class ExplanationStepDto(
     val highlightCells: List<Int> = emptyList(),
     val highlightCandidates: List<CandidateLocationDto> = emptyList(),
     val lines: List<LineDto> = emptyList(),
-    val groups: List<GroupDto> = emptyList()
+    val groups: List<GroupDto> = emptyList(),
+    // New rich highlighting fields
+    val regions: List<ColoredRegionDto> = emptyList(),
+    val coloredCells: List<ColoredCellDto> = emptyList(),
+    val coloredCandidates: List<ColoredCandidateDto> = emptyList()
 )
 
 @Serializable
