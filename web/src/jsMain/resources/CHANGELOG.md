@@ -1,3 +1,9 @@
+# v0.2.4 - 2024-12-04b
+
+### Bug Fixes
+- Rebuilt StormDoku to return all techniques.
+- - Include StormDoku.jar in repo
+
 # v0.2.3 - 2025-12-04
 
 ### Bug Fixes

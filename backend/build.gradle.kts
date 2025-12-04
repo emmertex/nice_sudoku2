@@ -27,7 +27,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     
     // StormDoku JAR
-    implementation(files("../common/StormDoku/StormDoku.jar"))
+    implementation(files("../shared/libs/StormDoku.jar"))
     
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.14")
