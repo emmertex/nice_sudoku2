@@ -154,53 +154,61 @@ actual class GameEngine actual constructor() {
     
     // Technique priority order (lower = simpler/preferred)
     private val techniquePriority = mapOf(
-        // Basic strategies (1-6)
+        // --- BASIC ---
         "NAKED_SINGLE" to 1, "Naked Singles" to 1,
         "HIDDEN_SINGLE" to 1, "Hidden Singles" to 1,
-        "NAKED_PAIR" to 2, "Naked Pairs" to 2,
-        "NAKED_TRIPLE" to 2, "Naked Triples" to 2,
-        "HIDDEN_PAIR" to 3, "Hidden Pairs" to 3,
-        "HIDDEN_TRIPLE" to 3, "Hidden Triples" to 3,
-        "NAKED_QUADRUPLE" to 4, "Naked Quadruples" to 4,
-        "HIDDEN_QUADRUPLE" to 4, "Hidden Quadruples" to 4,
-        "POINTING_CANDIDATES" to 5, "Pointing Candidates" to 5, "Pointing Pairs" to 5,
-        "CLAIMING_CANDIDATES" to 6, "Claiming Candidates" to 6, "Box/Line Reduction" to 6,
         
-        // Tough strategies (7-15)
-        "BUG" to 7,
+        // Visually, Pointing is easier than Quads
+        "POINTING_CANDIDATES" to 2, "Pointing Candidates" to 2, "Pointing Pairs" to 2,
+        "CLAIMING_CANDIDATES" to 2, "Claiming Candidates" to 2, "Box/Line Reduction" to 2,
+
+        "NAKED_PAIR" to 3, "Naked Pairs" to 3,
+        "NAKED_TRIPLE" to 3, "Naked Triples" to 3,
+        "HIDDEN_PAIR" to 4, "Hidden Pairs" to 4,
+        "HIDDEN_TRIPLE" to 4, "Hidden Triples" to 4,
+        
+        // Quads are mentally taxing
+        "NAKED_QUADRUPLE" to 5, "Naked Quadruples" to 5,
+        "HIDDEN_QUADRUPLE" to 5, "Hidden Quadruples" to 5,
+
+        // --- TOUGH ---
         "X_WING_FISH" to 8, "X-Wing" to 8,
-        "UNIQUE_RECTANGLE" to 9, "Unique Rectangles" to 9,
-        "SIMPLE_COLOURING" to 11, "Simple Colouring" to 11,
+        "SKYSCRAPER_FISH" to 8, "Skyscraper" to 8,
+        "TWO_STRING_KITE_FISH" to 8, "2-String Kite" to 8,
+        
+        // Finned X-Wings are usually easier than full XY-Chains
+        "FINNED_X_WING_FISH" to 9, "Finned X-Wing" to 9,
+        "SASHIMI_X_WING_FISH" to 9, "Sashimi X-Wing" to 9,
+
+        "SIMPLE_COLOURING" to 10, "Simple Colouring" to 10,
+        "UNIQUE_RECTANGLE" to 11, "Unique Rectangles" to 11, // moved up slightly
+        "BUG" to 11, 
         "Y_WING" to 12, "XY-Wing" to 12,
         "EMPTY_RECTANGLE" to 13, "Empty Rectangles" to 13,
         "SWORDFISH_FISH" to 14, "Swordfish" to 14,
-        "XYZ_WING" to 15, "XYZ Wing" to 15,
+        "FINNED_SWORDFISH_FISH" to 15, "Finned Swordfish" to 15,
+        "XYZ_WING" to 16, "XYZ Wing" to 16,
+
+        // --- DIABOLICAL ---
+        "X_CYCLES" to 17, "X-Cycles" to 17,
+        "XY_CHAIN" to 18, "XY-Chain" to 18,
+        "WXYZ_WING" to 19, "WXYZ Wing" to 19, // Easier than Jellyfish
+        "JELLYFISH_FISH" to 20, "Jellyfish" to 20,
+        "MEDUSA_3D" to 21, "3D Medusa" to 21,
         
-        // Diabolical strategies (16-25)
-        "X_CYCLES" to 16, "X-Cycles" to 16,
-        "XY_CHAIN" to 17, "XY-Chain" to 17,
-        "MEDUSA_3D" to 18, "3D Medusa" to 18,
-        "JELLYFISH_FISH" to 19, "Jellyfish" to 19,
-        "WXYZ_WING" to 24, "WXYZ Wing" to 24,
-        
-        // Extreme strategies (26-40)
+        // --- EXTREME ---
         "GROUPED_X_CYCLES" to 27, "Grouped X-Cycles" to 27,
-        "FINNED_X_WING_FISH" to 28, "Finned X-Wing" to 28,
-        "FINNED_SWORDFISH_FISH" to 29, "Finned Swordfish" to 29,
-        "AIC" to 30, "Alternating Inference Chains" to 30,
-        "ALMOST_LOCKED_SETS" to 31, "Almost Locked Sets" to 31,
-        "SUE_DE_COQ" to 32, "Sue-de-Coq" to 32,
-        "FORCING_CHAINS" to 33, "Forcing Chains" to 33,
-        
-        // Fish variants
-        "SKYSCRAPER_FISH" to 8, "Skyscraper" to 8,
-        "TWO_STRING_KITE_FISH" to 8, "2-String Kite" to 8,
+        // Franken/Mutants are indeed very hard
         "FRANKEN_X_WING_FISH" to 28, "Franken X-Wing" to 28,
-        "SASHIMI_X_WING_FISH" to 28, "Sashimi X-Wing" to 28,
         "FINNED_FRANKEN_X_WING_FISH" to 29,
         "FINNED_MUTANT_X_WING_FISH" to 29,
         "FRANKEN_SWORDFISH_FISH" to 29,
         "FINNED_JELLYFISH_FISH" to 30,
+        
+        "AIC" to 31, "Alternating Inference Chains" to 31,
+        "ALMOST_LOCKED_SETS" to 32, "Almost Locked Sets" to 32,
+        "SUE_DE_COQ" to 33, "Sue-de-Coq" to 33,
+        "FORCING_CHAINS" to 40, "Forcing Chains" to 40,
     )
     
     private val MAX_HINTS_TOTAL = 10

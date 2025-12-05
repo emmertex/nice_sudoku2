@@ -2,23 +2,51 @@
 
 # Script to generate sudoku puzzles with difficulty grading
 # Requires:
-# - qqwing (for puzzle generation)
+# - qqwing (for puzzle generation) OR an input file with puzzles
 # - Backend server running (default: http://localhost:8181)
-# - Kotlin script runner (kscript or kotlin -script)
+# - Gradle (uses project's gradlew)
+#
+# Usage:
+#   ./scripts/generate_puzzles.sh                     # Generate with qqwing
+#   ./scripts/generate_puzzles.sh puzzles.txt        # Load puzzles from file
+#   ./scripts/generate_puzzles.sh http://host:port   # Custom API URL
+#   ./scripts/generate_puzzles.sh http://host:port puzzles.txt  # Both
+#   ./scripts/generate_puzzles.sh puzzles.txt 16     # With 16 parallel workers
 
-# Default API URL
-API_URL="${1:-http://localhost:8181}"
+# Parse arguments
+API_URL="http://localhost:8181"
+INPUT_FILE=""
+PARALLELISM="8"  # Default 8 parallel workers
+
+for arg in "$@"; do
+    if [[ "$arg" == http* ]]; then
+        API_URL="$arg"
+    elif [[ "$arg" =~ ^[0-9]+$ ]]; then
+        PARALLELISM="$arg"
+    elif [[ -f "$arg" ]] || [[ "$arg" == *.txt ]]; then
+        # Convert to absolute path for Gradle
+        INPUT_FILE="$(realpath "$arg")"
+    fi
+done
 
 echo "Puzzle Generator for Nice Sudoku 2"
 echo "==================================="
 echo ""
+if [ -n "$INPUT_FILE" ]; then
+    echo "Mode: Loading puzzles from file"
+    echo "Input file: $INPUT_FILE"
+else
+    echo "Mode: Generating puzzles with qqwing"
+fi
+echo "Parallel workers: $PARALLELISM"
+echo ""
 echo "This script will:"
-echo "1. Generate puzzles using qqwing"
-echo "2. Grade them using the backend solver"
+echo "1. Load/generate puzzles"
+echo "2. Grade them using the backend solver ($PARALLELISM parallel)"
 echo "3. Categorize by difficulty"
 echo "4. Save to JSON files in the puzzles/ directory"
 echo ""
-echo "Make sure the backend server is running at: $API_URL"
+echo "Backend server: $API_URL"
 echo ""
 read -p "Press Enter to continue or Ctrl+C to cancel..."
 
@@ -30,21 +58,28 @@ if ! curl -s "$API_URL/health" > /dev/null; then
     exit 1
 fi
 
-# Check if qqwing is available
-if ! command -v qqwing &> /dev/null; then
-    echo "ERROR: qqwing not found in PATH"
-    echo "Please install qqwing (e.g., via nix-shell or package manager)"
+# Check if input file exists (if specified)
+if [ -n "$INPUT_FILE" ] && [ ! -f "$INPUT_FILE" ]; then
+    echo "ERROR: Input file not found: $INPUT_FILE"
     exit 1
 fi
 
-# Run the Kotlin script
-if command -v kotlin &> /dev/null; then
-    kotlin -script scripts/generate_puzzles.kt "$API_URL"
-elif command -v kscript &> /dev/null; then
-    kscript scripts/generate_puzzles.kt "$API_URL"
+# Check if qqwing is available (only needed if not using input file)
+if [ -z "$INPUT_FILE" ]; then
+    if ! command -v qqwing &> /dev/null; then
+        echo "ERROR: qqwing not found in PATH"
+        echo "Please install qqwing (e.g., via nix-shell or package manager)"
+        echo "Or provide an input file with puzzles: ./scripts/generate_puzzles.sh puzzles.txt"
+        exit 1
+    fi
+fi
+
+# Run using Gradle
+echo "Running puzzle generator via Gradle..."
+echo "Using $PARALLELISM parallel workers"
+if [ -n "$INPUT_FILE" ]; then
+    ./gradlew :scripts:run -PapiUrl="$API_URL" -PinputFile="$INPUT_FILE" -Pparallelism="$PARALLELISM"
 else
-    echo "ERROR: Neither 'kotlin' nor 'kscript' found in PATH"
-    echo "Please install Kotlin or kscript to run this script"
-    exit 1
+    ./gradlew :scripts:run -PapiUrl="$API_URL" -Pparallelism="$PARALLELISM"
 fi
 

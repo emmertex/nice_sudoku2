@@ -332,9 +332,25 @@ class SudokuService {
             }
         }
 
-        // Recalculate candidates based on solved cells
-        // This ensures StormDoku has a consistent state
+        // Clean up candidates based on solved cells (standard Sudoku rules)
         basicGrid.cleanUpCandidates()
+        
+        // IMPORTANT: Also apply any additional candidate eliminations from the GridDto
+        // This preserves technique eliminations (e.g., X-Wing eliminations)
+        for (cellIndex in 0 until cardinals.Length) {
+            val cellDto = cellMap[cellIndex]
+            if (cellDto != null && cellDto.value == null && cellDto.candidates.isNotEmpty()) {
+                // Cell is unsolved but has explicit candidates - apply them
+                for (digit in 1..9) {
+                    val digitIndex = digit - 1
+                    // If the candidate is NOT in the GridDto's candidate set, remove it
+                    if (digit !in cellDto.candidates && basicGrid.hasCandidate(cellIndex, digitIndex)) {
+                        basicGrid.clearCandidate(cellIndex, digitIndex)
+                    }
+                }
+            }
+        }
+        
         return basicGrid
     }
 

@@ -12,9 +12,8 @@ This script generates sudoku puzzles using `qqwing` and grades them using the ba
    - Default: `http://localhost:8181`
    - Start with: `cd backend && ./gradlew run`
 
-3. **Kotlin** - To run the script
-   - Available via nix-shell
-   - Or install Kotlin separately
+3. **Gradle** - To build and run the script
+   - Uses the project's Gradle wrapper (gradlew)
 
 ## Usage
 
@@ -32,10 +31,14 @@ cd ..
 ./scripts/generate_puzzles.sh http://localhost:8181
 ```
 
-### Direct Kotlin Script
+### Direct Gradle
 
 ```bash
-kotlin -script scripts/generate_puzzles.kt [API_URL]
+# Default (http://localhost:8181)
+./gradlew :scripts:run
+
+# Custom API URL
+./gradlew :scripts:run -PapiUrl="http://localhost:8181"
 ```
 
 ## How It Works
