@@ -7,38 +7,34 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class PuzzleDefinition(
-    val id: String,           // Unique identifier (checksum from file)
-    val puzzleString: String, // 81-char puzzle string
-    val difficulty: Float,    // Difficulty rating (1.2 = easy, 8.5 = hardest)
-    val category: DifficultyCategory
-) {
-    companion object {
-        fun fromLine(line: String, category: DifficultyCategory): PuzzleDefinition? {
-            val parts = line.trim().split("\\s+".toRegex())
-            if (parts.size < 3) return null
-            
-            val checksum = parts[0]
-            val puzzleString = parts[1]
-            val difficulty = parts[2].toFloatOrNull() ?: return null
-            
-            if (puzzleString.length != 81) return null
-            
-            return PuzzleDefinition(
-                id = checksum,
-                puzzleString = puzzleString,
-                difficulty = difficulty,
-                category = category
-            )
-        }
-    }
-}
+    val id: String,           // Unique identifier (puzzleId from JSON)
+    val puzzleString: String, // 81-char puzzle string (givens)
+    val difficulty: Float,    // Difficulty rating from solver
+    val category: DifficultyCategory = DifficultyCategory.EASY,  // Default for backwards compatibility
+    val solution: String? = null  // 81-char solution string (pre-computed)
+)
 
 enum class DifficultyCategory(val displayName: String) {
+    BASIC("Basic"),
     EASY("Easy"),
-    MEDIUM("Medium"),
-    HARD("Hard"),
+    TOUGH("Tough"),
     DIABOLICAL("Diabolical"),
-    CUSTOM("Custom")
+    CUSTOM("Custom");
+    
+    companion object {
+        /**
+         * Determine the appropriate category based on difficulty value.
+         * Used for displaying saved games when the original category might not exist.
+         */
+        fun fromDifficulty(difficulty: Float): DifficultyCategory {
+            return when {
+                difficulty < 0.5f -> BASIC
+                difficulty < 1.1f -> EASY
+                difficulty < 3.0f -> TOUGH
+                else -> DIABOLICAL
+            }
+        }
+    }
 }
 
 /**
@@ -56,7 +52,7 @@ data class SavedGameState(
     val puzzleString: String,        // Original 81-char puzzle
     val currentState: String,        // 810-char state (81 values + 729 user eliminations)
     val solution: String?,           // 81-char solution (from background solver)
-    val category: DifficultyCategory,
+    val category: DifficultyCategory = DifficultyCategory.EASY,  // Default for backwards compatibility
     val difficulty: Float,
     val elapsedTimeMs: Long,         // Time spent on puzzle
     val mistakeCount: Int,           // Number of mistakes made
@@ -207,7 +203,7 @@ data class SavedGameState(
 @Serializable
 data class GameSummary(
     val puzzleId: String,
-    val category: DifficultyCategory,
+    val category: DifficultyCategory = DifficultyCategory.EASY,  // Default for backwards compatibility
     val difficulty: Float,
     val elapsedTimeMs: Long,
     val mistakeCount: Int,

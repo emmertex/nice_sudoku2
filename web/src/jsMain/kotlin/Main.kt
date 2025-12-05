@@ -192,6 +192,9 @@ class SudokuApp {
         // Load changelog and check for new version
         loadChangelog()
         
+        // Preload all puzzle categories for better UX
+        PuzzleLibrary.preloadAll()
+        
         // Try to resume last game
         val lastGameId = GameStateManager.getCurrentGameId()
         if (lastGameId != null) {
@@ -204,11 +207,12 @@ class SudokuApp {
         }
         
         // Otherwise start fresh with a random easy puzzle
-        val puzzle = PuzzleLibrary.getRandomPuzzle(DifficultyCategory.EASY)
-        if (puzzle != null) {
-            startNewGame(puzzle)
-        } else {
-            render()
+        PuzzleLibrary.getRandomPuzzleAsync(DifficultyCategory.EASY) { puzzle ->
+            if (puzzle != null) {
+                startNewGame(puzzle)
+            } else {
+                render()
+            }
         }
     }
     
@@ -247,11 +251,11 @@ class SudokuApp {
     private fun startNewGame(puzzle: PuzzleDefinition) {
         gameEngine.loadPuzzle(puzzle.puzzleString)
         
-        // Start with null solution, will be populated async
-        solution = null
+        // Use pre-loaded solution from puzzle definition
+        solution = puzzle.solution
         
-        // Create new saved game (solution will be updated when available)
-        currentGame = GameStateManager.createNewGame(puzzle, null)
+        // Create new saved game with solution
+        currentGame = GameStateManager.createNewGame(puzzle, puzzle.solution)
         currentGame?.let { 
             GameStateManager.saveGame(it)
             GameStateManager.setCurrentGameId(it.puzzleId)
@@ -264,27 +268,31 @@ class SudokuApp {
         currentScreen = AppScreen.GAME
         render()
         
-        // Solve in background for mistake detection
-        val solverEngine = GameEngine()
-        solverEngine.loadPuzzle(puzzle.puzzleString)
-        solverEngine.getSolutionString(
-            onStatus = { status -> 
-                showToast("⏳ $status")
-            },
-            onComplete = { solutionStr ->
-                if (solutionStr != null) {
-                    solution = solutionStr
-                    // Update saved game with solution
-                    currentGame = currentGame?.copy(solution = solutionStr)
-                    currentGame?.let { GameStateManager.saveGame(it) }
-                    showToast("✓ Ready for mistake checking")
-                    println("Solution loaded: ${solutionStr.take(20)}...")
-                } else {
-                    showToast("⚠️ Could not verify solution")
-                    println("Failed to get solution for puzzle")
+        val puzzleSolution = puzzle.solution
+        if (puzzleSolution != null) {
+            println("Solution pre-loaded: ${puzzleSolution.take(20)}...")
+        } else {
+            // Fallback: solve in background for custom puzzles without solutions
+            val solverEngine = GameEngine()
+            solverEngine.loadPuzzle(puzzle.puzzleString)
+            solverEngine.getSolutionString(
+                onStatus = { status -> 
+                    showToast("⏳ $status")
+                },
+                onComplete = { solutionStr ->
+                    if (solutionStr != null) {
+                        solution = solutionStr
+                        currentGame = currentGame?.copy(solution = solutionStr)
+                        currentGame?.let { GameStateManager.saveGame(it) }
+                        showToast("✓ Ready for mistake checking")
+                        println("Solution loaded: ${solutionStr.take(20)}...")
+                    } else {
+                        showToast("⚠️ Could not verify solution")
+                        println("Failed to get solution for puzzle")
+                    }
                 }
-            }
-        )
+            )
+        }
     }
     
     private fun resumeGame(saved: SavedGameState) {
@@ -3332,9 +3340,11 @@ class SudokuApp {
                         h2 { +"⏸ Resume Game" }
                         div("game-list") {
                             for (summary in incompleteSummaries.take(5)) {
+                                // Use difficulty-based category for display (handles old games with removed categories)
+                                val displayCategory = DifficultyCategory.fromDifficulty(summary.difficulty)
                                 div("game-item") {
-                                    span("category ${summary.category.name.lowercase()}") { 
-                                        +summary.category.displayName 
+                                    span("category ${displayCategory.name.lowercase()}") { 
+                                        +displayCategory.displayName 
                                     }
                                     span("progress") { +"${summary.progressPercent}%" }
                                     span("time") { +formatTime(summary.elapsedTimeMs) }
@@ -3395,9 +3405,26 @@ class SudokuApp {
                     // Puzzle list
                     div("puzzle-list") {
                         val puzzles = PuzzleLibrary.getPuzzlesForCategory(selectedCategory)
-                        if (puzzles.isEmpty() && selectedCategory == DifficultyCategory.CUSTOM) {
+                        val isLoading = PuzzleLibrary.isPuzzlesLoading(selectedCategory)
+                        
+                        // Trigger async load with callback to re-render
+                        if (puzzles.isEmpty() && !isLoading && selectedCategory != DifficultyCategory.CUSTOM) {
+                            PuzzleLibrary.getPuzzlesForCategoryAsync(selectedCategory) {
+                                render()
+                            }
+                        }
+                        
+                        if (isLoading) {
+                            div("empty-message") {
+                                +"Loading puzzles..."
+                            }
+                        } else if (puzzles.isEmpty() && selectedCategory == DifficultyCategory.CUSTOM) {
                             div("empty-message") {
                                 +"No custom puzzles yet. Import a puzzle from the Import/Export page to add it here."
+                            }
+                        } else if (puzzles.isEmpty()) {
+                            div("empty-message") {
+                                +"No puzzles available for this category."
                             }
                         }
                         for ((index, puzzle) in puzzles.withIndex()) {
@@ -4151,9 +4178,9 @@ private val CSS_STYLES = """
         letter-spacing: 0.05em;
     }
     
+    .category.basic { background: rgba(var(--color-accent-info), 0.3); color: rgb(var(--color-accent-info)); }
     .category.easy { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
-    .category.medium { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
-    .category.hard { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
+    .category.tough { background: rgba(255, 165, 0, 0.3); color: rgb(255, 165, 0); }
     .category.diabolical { background: rgba(var(--color-accent-error), 0.3); color: rgb(var(--color-accent-error)); }
     
     .game-area {

@@ -1,4 +1,4 @@
-# v0.2.5 - 2025-12-
+# v0.3.0 - 2025-12-
 
 ### Features
 - Hint System
@@ -8,6 +8,7 @@
 - - Every puzzzle ranked
 - - Puzzle generator based on qqwing
 - - All source for generating and ranking puzzles included
+- New puzzle resource format
 - - New puzzle format, to include solution, elminating need to solve puzzle on load to detect mistakes
 - - New difficulty rankings, to make it more logical and intuitive
 
