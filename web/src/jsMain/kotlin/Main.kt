@@ -45,6 +45,12 @@ enum class Theme {
     EPAPER       // High contrast ePaper theme
 }
 
+enum class MistakeDetectionMode {
+    OFF,         // No mistake detection
+    PLACEMENT,   // Only detect wrong number placements
+    CANDIDATE    // Detect wrong placements AND wrong candidate removals
+}
+
 class SudokuApp {
     private val gameEngine = GameEngine()
     private var selectedCell: Int? = null
@@ -66,6 +72,7 @@ class SudokuApp {
     private var highlightMode = GameStateManager.getHighlightMode()
     private var playMode = GameStateManager.getPlayMode()
     private var currentTheme = GameStateManager.getTheme()
+    private var mistakeDetectionMode = GameStateManager.getMistakeDetectionMode()
     private var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Primary selected numbers (light blue)
     private var selectedNumbers2: MutableSet<Int> = mutableSetOf()  // Secondary selected numbers (light red)
     
@@ -375,12 +382,41 @@ class SudokuApp {
     }
     
     private fun checkMistake(cellIndex: Int, value: Int): Boolean {
+        // Don't check if mistake detection is off
+        if (mistakeDetectionMode == MistakeDetectionMode.OFF) return false
+        
         val isMistake = GameStateManager.isMistake(solution, cellIndex, value)
         if (isMistake) {
             currentGame = currentGame?.copy(mistakeCount = (currentGame?.mistakeCount ?: 0) + 1)
             currentGame?.let { GameStateManager.saveGame(it) }
         }
         return isMistake
+    }
+    
+    /**
+     * Check if removing a candidate would be a mistake (removing the correct answer).
+     * Only counts as mistake if:
+     * - Mistake detection is CANDIDATE mode
+     * - The candidate being removed equals the solution for that cell
+     * - The candidate is currently present (being removed, not added)
+     */
+    private fun checkCandidateRemovalMistake(cellIndex: Int, candidate: Int, isCurrentlyPresent: Boolean): Boolean {
+        // Only check in CANDIDATE mode
+        if (mistakeDetectionMode != MistakeDetectionMode.CANDIDATE) return false
+        
+        // Only check if we're removing (candidate is currently present)
+        if (!isCurrentlyPresent) return false
+        
+        // Check if this candidate is the correct answer
+        if (solution == null || cellIndex < 0 || cellIndex >= 81) return false
+        val correctValue = solution!![cellIndex].digitToIntOrNull() ?: return false
+        
+        if (candidate == correctValue) {
+            currentGame = currentGame?.copy(mistakeCount = (currentGame?.mistakeCount ?: 0) + 1)
+            currentGame?.let { GameStateManager.saveGame(it) }
+            return true
+        }
+        return false
     }
     
     private fun formatTime(ms: Long): String {
@@ -491,6 +527,9 @@ class SudokuApp {
                     val cell = grid.getCell(cellIndex)
                     if (!cell.isGiven && !cell.isSolved) {
                         if (isNotesMode) {
+                            val isCandidatePresent = num in cell.displayCandidates
+                            val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
+                            if (wasMistake) showToast("❌ Wrong candidate removed!")
                             gameEngine.toggleCandidate(cellIndex, num)
                         } else {
                             val wasMistake = checkMistake(cellIndex, num)
@@ -544,6 +583,9 @@ class SudokuApp {
             if (isNotesMode) {
                 // Toggle pencil mark
                 if (!cell.isSolved) {
+                    val isCandidatePresent = selectedNum in cell.displayCandidates
+                    val wasMistake = checkCandidateRemovalMistake(cellIndex, selectedNum, isCandidatePresent)
+                    if (wasMistake) showToast("❌ Wrong candidate removed!")
                     gameEngine.toggleCandidate(cellIndex, selectedNum)
                     saveCurrentState()
                     selectedCell = null
@@ -744,6 +786,9 @@ class SudokuApp {
                 selectedCell?.let { cellIndex ->
                     val cell = grid.getCell(cellIndex)
                     if (!cell.isGiven && !cell.isSolved) {
+                        val isCandidatePresent = num in cell.displayCandidates
+                        val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
+                        if (wasMistake) showToast("❌ Wrong candidate removed!")
                         gameEngine.toggleCandidate(cellIndex, num)
                         saveCurrentState()
                         render()
@@ -798,6 +843,9 @@ class SudokuApp {
                     if (num != null) {
                         val cell = grid.getCell(cellIndex)
                         if (!cell.isGiven && !cell.isSolved) {
+                            val isCandidatePresent = num in cell.displayCandidates
+                            val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
+                            if (wasMistake) showToast("❌ Wrong candidate removed!")
                             gameEngine.toggleCandidate(cellIndex, num)
                             saveCurrentState()
                             render()
@@ -1981,9 +2029,15 @@ class SudokuApp {
                                 button(classes = "action-btn clr-btn primary") {
                                     +"Clr ${primaryInCandidates.sorted().joinToString(",")}"
                                     onClickFunction = {
+                                        var hadMistake = false
                                         primaryInCandidates.forEach { num ->
+                                            // All candidates in primaryInCandidates are present (being removed)
+                                            if (checkCandidateRemovalMistake(selectedCell!!, num, true)) {
+                                                hadMistake = true
+                                            }
                                             gameEngine.toggleCandidate(selectedCell!!, num)
                                         }
+                                        if (hadMistake) showToast("❌ Wrong candidate removed!")
                                         saveCurrentState()
                                         render()
                                     }
@@ -1993,9 +2047,15 @@ class SudokuApp {
                                 button(classes = "action-btn clr-btn secondary") {
                                     +"Clr ${secondaryInCandidates.sorted().joinToString(",")}"
                                     onClickFunction = {
+                                        var hadMistake = false
                                         secondaryInCandidates.forEach { num ->
+                                            // All candidates in secondaryInCandidates are present (being removed)
+                                            if (checkCandidateRemovalMistake(selectedCell!!, num, true)) {
+                                                hadMistake = true
+                                            }
                                             gameEngine.toggleCandidate(selectedCell!!, num)
                                         }
+                                        if (hadMistake) showToast("❌ Wrong candidate removed!")
                                         saveCurrentState()
                                         render()
                                     }
@@ -2010,9 +2070,15 @@ class SudokuApp {
                                     +"Clr ✕"
                                     attributes["title"] = "Clear all pencil marks except ${keepNumbers.sorted().joinToString(", ")}"
                                     onClickFunction = {
+                                        var hadMistake = false
                                         candidatesToRemove.forEach { candidate ->
+                                            // All candidatesToRemove are present (being removed)
+                                            if (checkCandidateRemovalMistake(selectedCell!!, candidate, true)) {
+                                                hadMistake = true
+                                            }
                                             gameEngine.toggleCandidate(selectedCell!!, candidate)
                                         }
+                                        if (hadMistake) showToast("❌ Wrong candidate removed!")
                                         saveCurrentState()
                                         render()
                                     }
@@ -3949,6 +4015,47 @@ class SudokuApp {
                         +when (playMode) {
                             PlayMode.FAST -> "Click number, then click cell to fill. Quick and simple."
                             PlayMode.ADVANCED -> "Two number rows for highlighting. Select multiple numbers per color. Cells with ALL selected numbers highlight. Click cell for action buttons."
+                        }
+                    }
+                }
+                
+                // Mistake Detection section
+                div("section") {
+                    h2 { +"⚠️ Mistake Detection" }
+                    p("setting-desc") { +"Choose when mistakes are detected and counted" }
+                    
+                    div("mode-options") {
+                        button(classes = "mode-btn ${if (mistakeDetectionMode == MistakeDetectionMode.OFF) "active" else ""}") {
+                            +"Off"
+                            onClickFunction = {
+                                mistakeDetectionMode = MistakeDetectionMode.OFF
+                                GameStateManager.setMistakeDetectionMode(MistakeDetectionMode.OFF)
+                                render()
+                            }
+                        }
+                        button(classes = "mode-btn ${if (mistakeDetectionMode == MistakeDetectionMode.PLACEMENT) "active" else ""}") {
+                            +"Placement"
+                            onClickFunction = {
+                                mistakeDetectionMode = MistakeDetectionMode.PLACEMENT
+                                GameStateManager.setMistakeDetectionMode(MistakeDetectionMode.PLACEMENT)
+                                render()
+                            }
+                        }
+                        button(classes = "mode-btn ${if (mistakeDetectionMode == MistakeDetectionMode.CANDIDATE) "active" else ""}") {
+                            +"Candidate"
+                            onClickFunction = {
+                                mistakeDetectionMode = MistakeDetectionMode.CANDIDATE
+                                GameStateManager.setMistakeDetectionMode(MistakeDetectionMode.CANDIDATE)
+                                render()
+                            }
+                        }
+                    }
+                    
+                    div("mode-explanation") {
+                        +when (mistakeDetectionMode) {
+                            MistakeDetectionMode.OFF -> "No mistake detection - play without feedback"
+                            MistakeDetectionMode.PLACEMENT -> "Alert when placing a wrong number in a cell"
+                            MistakeDetectionMode.CANDIDATE -> "Alert for wrong placements AND removing correct candidates"
                         }
                     }
                 }

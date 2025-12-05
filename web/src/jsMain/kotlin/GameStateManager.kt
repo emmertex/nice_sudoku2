@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import org.w3c.dom.get
 import org.w3c.dom.set
 import Theme
+import MistakeDetectionMode
 
 /**
  * Manages game state persistence in localStorage
@@ -21,6 +22,7 @@ object GameStateManager {
     private const val HIDE_COMPLETED_KEY = "nice_sudoku_hide_completed"
     private const val LAST_SEEN_VERSION_KEY = "nice_sudoku_last_seen_version"
     private const val THEME_KEY = "nice_sudoku_theme"
+    private const val MISTAKE_DETECTION_KEY = "nice_sudoku_mistake_detection"
     
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -254,6 +256,29 @@ object GameStateManager {
             localStorage[THEME_KEY] = theme.name
         } catch (e: Exception) {
             console.log("Error saving theme preference: ${e.message}")
+        }
+    }
+    
+    /**
+     * Get mistake detection mode preference (default: CANDIDATE)
+     */
+    fun getMistakeDetectionMode(): MistakeDetectionMode {
+        return try {
+            val name = localStorage[MISTAKE_DETECTION_KEY]
+            if (name != null) MistakeDetectionMode.valueOf(name) else MistakeDetectionMode.CANDIDATE
+        } catch (e: Exception) {
+            MistakeDetectionMode.CANDIDATE
+        }
+    }
+    
+    /**
+     * Set mistake detection mode preference
+     */
+    fun setMistakeDetectionMode(mode: MistakeDetectionMode) {
+        try {
+            localStorage[MISTAKE_DETECTION_KEY] = mode.name
+        } catch (e: Exception) {
+            console.log("Error saving mistake detection mode: ${e.message}")
         }
     }
     
