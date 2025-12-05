@@ -74,6 +74,7 @@ class SudokuApp {
     private var selectedHintIndex: Int = 0  // Currently selected hint in the list
     private var isLandscape = false  // Responsive layout detection
     private var isBackendAvailable = false  // Whether hint system can be used
+    private var expandedHintIndex: Int? = null  // Which hint is expanded in landscape mode (null = none)
     
     // Explanation overlay state
     private var showExplanation = false  // Whether explanation overlay is visible
@@ -94,6 +95,8 @@ class SudokuApp {
     private var showCompletionModal = false
     private var completionShownForPuzzle: String? = null  // Track which puzzle we've shown completion for
     private var showVersionModal = false
+    private var showPuzzleInfoModal = false
+    private var puzzleInfoTarget: PuzzleDefinition? = null  // Puzzle to show info for
     
     // Version info (loaded from CHANGELOG.md)
     private var currentVersion: String = ""
@@ -191,6 +194,9 @@ class SudokuApp {
         // Load changelog and check for new version
         loadChangelog()
         
+        // Preload all puzzle categories for better UX
+        PuzzleLibrary.preloadAll()
+        
         // Try to resume last game
         val lastGameId = GameStateManager.getCurrentGameId()
         if (lastGameId != null) {
@@ -203,11 +209,12 @@ class SudokuApp {
         }
         
         // Otherwise start fresh with a random easy puzzle
-        val puzzle = PuzzleLibrary.getRandomPuzzle(DifficultyCategory.EASY)
-        if (puzzle != null) {
-            startNewGame(puzzle)
-        } else {
-            render()
+        PuzzleLibrary.getRandomPuzzleAsync(DifficultyCategory.EASY) { puzzle ->
+            if (puzzle != null) {
+                startNewGame(puzzle)
+            } else {
+                render()
+            }
         }
     }
     
@@ -246,11 +253,11 @@ class SudokuApp {
     private fun startNewGame(puzzle: PuzzleDefinition) {
         gameEngine.loadPuzzle(puzzle.puzzleString)
         
-        // Start with null solution, will be populated async
-        solution = null
+        // Use pre-loaded solution from puzzle definition
+        solution = puzzle.solution
         
-        // Create new saved game (solution will be updated when available)
-        currentGame = GameStateManager.createNewGame(puzzle, null)
+        // Create new saved game with solution
+        currentGame = GameStateManager.createNewGame(puzzle, puzzle.solution)
         currentGame?.let { 
             GameStateManager.saveGame(it)
             GameStateManager.setCurrentGameId(it.puzzleId)
@@ -263,27 +270,31 @@ class SudokuApp {
         currentScreen = AppScreen.GAME
         render()
         
-        // Solve in background for mistake detection
-        val solverEngine = GameEngine()
-        solverEngine.loadPuzzle(puzzle.puzzleString)
-        solverEngine.getSolutionString(
-            onStatus = { status -> 
-                showToast("⏳ $status")
-            },
-            onComplete = { solutionStr ->
-                if (solutionStr != null) {
-                    solution = solutionStr
-                    // Update saved game with solution
-                    currentGame = currentGame?.copy(solution = solutionStr)
-                    currentGame?.let { GameStateManager.saveGame(it) }
-                    showToast("✓ Ready for mistake checking")
-                    println("Solution loaded: ${solutionStr.take(20)}...")
-                } else {
-                    showToast("⚠️ Could not verify solution")
-                    println("Failed to get solution for puzzle")
+        val puzzleSolution = puzzle.solution
+        if (puzzleSolution != null) {
+            println("Solution pre-loaded: ${puzzleSolution.take(20)}...")
+        } else {
+            // Fallback: solve in background for custom puzzles without solutions
+            val solverEngine = GameEngine()
+            solverEngine.loadPuzzle(puzzle.puzzleString)
+            solverEngine.getSolutionString(
+                onStatus = { status -> 
+                    showToast("⏳ $status")
+                },
+                onComplete = { solutionStr ->
+                    if (solutionStr != null) {
+                        solution = solutionStr
+                        currentGame = currentGame?.copy(solution = solutionStr)
+                        currentGame?.let { GameStateManager.saveGame(it) }
+                        showToast("✓ Ready for mistake checking")
+                        println("Solution loaded: ${solutionStr.take(20)}...")
+                    } else {
+                        showToast("⚠️ Could not verify solution")
+                        println("Failed to get solution for puzzle")
+                    }
                 }
-            }
-        )
+            )
+        }
     }
     
     private fun resumeGame(saved: SavedGameState) {
@@ -1002,6 +1013,11 @@ class SudokuApp {
             renderVersionModal()
         }
         
+        // Puzzle info modal
+        if (showPuzzleInfoModal && puzzleInfoTarget != null) {
+            renderPuzzleInfoModal(puzzleInfoTarget!!)
+        }
+        
         // Explanation overlay (shown when user clicks Explain on a hint)
         // Always show version number in bottom left corner (if loaded)
         if (currentVersion.isNotEmpty()) {
@@ -1086,9 +1102,9 @@ class SudokuApp {
                     div("about-section") {
                         h3 { +"Puzzles" }
                         p {
-                            +"Puzzles sourced from: "
-                            a(href = "https://github.com/grantm/sudoku-exchange-puzzle-bank", target = "_blank") {
-                                +"Sudoku Exchange Puzzle Bank"
+                            +"Puzzles generated by: "
+                            a(href = "https://github.com/stephenostermiller/qqwing", target = "_blank") {
+                                +"qqwing"
                             }
                         }
                     }
@@ -1450,45 +1466,9 @@ class SudokuApp {
                             +"Thank you for testing Nice Sudoku."
                         }
                         
-                        p {
-                            +"In short, I, Andrew, wanted a good Android Sudoku app."
-                        }
-                        
-                        p {
-                            +"I am not even good at Sudoku, I crap out after X Wings. So I wanted a way to genuinely learn."
-                        }
-                        
-                        p {
-                            +"Well, I tried almost all the apps, and they were all crap, Ad ridden nonsense, or alike."
-                        }
-                        
-                        p {
-                            +"I also wanted to learn godot, so wrote a sudoku app. I got all basic solvers working, but then StrmCkr seen my work, and things got hard and complex. After getting a few intermediate solvers working nice, and a world of UI issues, I threw it all away."
-                        }
-                        
-                        p {
-                            +"This is the second version, written in Kotlin, with the intent to be native on all platforms. Using not just the knowledge of StrmCkr, but his years of knowledge making solvers as a backend, and a new frontend, hooking into it as an API."
-                        }
-                        
-                        p {
-                            +"Currently this means it must be online, but over time I intend to make it all offline."
-                        }
-                        
-                        p {
-                            +"I am asking nothing more than community support for me and StrmCkr, and I will endeavour to make this app something I want to use."
-                        }
-                        
-                        p {
-                            +"This isn't a first version, it is way too early for that, it is a feedback gathering exercise."
-                        }
-                        
-                        p {
-                            +"If you try it, please, offer feedback. The earlier in the development process I get feedback, the better the chance I can make it happen."
-                        }
+
                         
                         p("greeting-signature") {
-                            +"Thanks for testing,"
-                            br
                             +"Andrew"
                         }
                     }
@@ -1571,6 +1551,112 @@ class SudokuApp {
                 onClickFunction = {
                     showVersionModal = true
                     render()
+                }
+            }
+        }
+    }
+    
+    private fun renderPuzzleInfoModal(puzzle: PuzzleDefinition) {
+        appRoot.append {
+            div("modal-overlay") {
+                onClickFunction = { event ->
+                    if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
+                        showPuzzleInfoModal = false
+                        puzzleInfoTarget = null
+                        render()
+                    }
+                }
+                div("modal-content puzzle-info-modal") {
+                    button(classes = "modal-close") {
+                        +"✕"
+                        onClickFunction = {
+                            showPuzzleInfoModal = false
+                            puzzleInfoTarget = null
+                            render()
+                        }
+                    }
+                    h2 { +"Puzzle Info" }
+                    
+                    div("info-grid") {
+                        // Title (if available)
+                        val puzzleTitle = puzzle.title
+                        val puzzleUrl = puzzle.url
+                        if (puzzleTitle != null) {
+                            div("info-row") {
+                                span("info-label") { +"Title:" }
+                                if (puzzleUrl != null) {
+                                    a(href = puzzleUrl, target = "_blank", classes = "info-value link") {
+                                        +puzzleTitle
+                                    }
+                                } else {
+                                    span("info-value") { +puzzleTitle }
+                                }
+                            }
+                        }
+                        
+                        // Puzzle ID
+                        div("info-row") {
+                            span("info-label") { +"Puzzle ID:" }
+                            span("info-value") { +puzzle.id }
+                        }
+                        
+                        // Difficulty
+                        div("info-row") {
+                            span("info-label") { +"Difficulty:" }
+                            span("info-value") { +"${puzzle.difficulty}" }
+                        }
+                        
+                        // Quality (if available)
+                        if (puzzle.quality != null) {
+                            div("info-row") {
+                                span("info-label") { +"Quality:" }
+                                span("info-value") { +"${puzzle.quality}/10" }
+                            }
+                        }
+                        
+                        // Category
+                        div("info-row") {
+                            span("info-label") { +"Category:" }
+                            span("info-value category ${puzzle.category.name.lowercase()}") { 
+                                +puzzle.category.displayName 
+                            }
+                        }
+                        
+                        // Techniques (if available)
+                        val techniques = puzzle.techniques
+                        if (!techniques.isNullOrEmpty()) {
+                            div("info-section") {
+                                h3 { +"Techniques Used" }
+                                div("techniques-list") {
+                                    techniques.entries.sortedByDescending { it.value }.forEach { (technique, count) ->
+                                        div("technique-row") {
+                                            span("technique-name") { +technique }
+                                            span("technique-count") { +"×$count" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    div("modal-actions") {
+                        button(classes = "close-btn") {
+                            +"Close"
+                            onClickFunction = {
+                                showPuzzleInfoModal = false
+                                puzzleInfoTarget = null
+                                render()
+                            }
+                        }
+                        button(classes = "play-btn") {
+                            +"Play Puzzle"
+                            onClickFunction = {
+                                showPuzzleInfoModal = false
+                                puzzleInfoTarget = null
+                                startNewGame(puzzle)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1835,7 +1921,16 @@ class SudokuApp {
                                     showHints = !showHints
                                     if (showHints) {
                                         selectedHintIndex = 0
+                                        explanationStepIndex = 0
+                                        showExplanation = false
+                                        expandedHintIndex = null
+                                        selectedCell = null
+                                        selectedNumbers1.clear()
+                                        selectedNumbers2.clear()
                                         gameEngine.findAllTechniques()
+                                    } else {
+                                        // Reset expansion state when closing
+                                        expandedHintIndex = null
                                     }
                                     render()
                                 }
@@ -2151,6 +2246,8 @@ class SudokuApp {
             // Show either the explanation view OR the list view (not both)
             if (showExplanation && selectedHint != null) {
                 // Explanation view - replaces the entire list
+                // Collapse any expanded hint when showing explanation
+                expandedHintIndex = null
                 renderExplanationView(selectedHint, hints.size)
             } else {
                 // List view
@@ -2167,20 +2264,35 @@ class SudokuApp {
                     div("hint-list") {
                         hints.forEachIndexed { index, hint ->
                             val isSelected = index == selectedHintIndex
-                            div("hint-item ${if (isSelected) "selected" else ""}") {
-                                // Header row (always visible)
+                            val isExpanded = expandedHintIndex == index
+                            div("hint-item ${if (isSelected) "selected" else ""} ${if (isExpanded) "expanded" else ""}") {
+                                // Header row (always visible) - title only
                                 div("hint-item-header") {
                                     onClickFunction = { e ->
                                         // Select this hint
                                         selectedHintIndex = index
                                         explanationStepIndex = 0
+                                        // Toggle expansion: if clicking the same one, collapse it; otherwise expand this one
+                                        expandedHintIndex = if (isExpanded) null else index
                                         render()
                                     }
                                     div("hint-item-content") {
                                         div("hint-technique") { +hint.techniqueName }
-                                        div("hint-description") { +hint.description }
+                                        // Description is hidden in landscape mode - only show when expanded
                                     }
-                                    if (isSelected) {
+                                }
+                                // Expanded content: eurekaNotation and Explain button
+                                if (isExpanded) {
+                                    div("hint-item-expanded") {
+                                        // Show eurekaNotation if available
+                                        val eureka = hint.eurekaNotation
+                                        if (eureka != null) {
+                                            div("inline-eureka") {
+                                                span("eureka-label") { +"Eureka: " }
+                                                span("eureka-notation") { +eureka }
+                                            }
+                                        }
+                                        // Explain button
                                         button(classes = "hint-explain-btn") {
                                             +"📖 Explain"
                                             onClickFunction = { e ->
@@ -2202,6 +2314,7 @@ class SudokuApp {
                     +"✕ Close"
                     onClickFunction = {
                         showHints = false
+                        expandedHintIndex = null
                         render()
                     }
                 }
@@ -2248,48 +2361,21 @@ class SudokuApp {
                     }
                 }
                 
-                // Collapse button (when explaining) or Close button
-                if (showExplanation) {
-                    button(classes = "hint-collapse-btn-small") {
-                        +"▲"
-                        title = "Collapse"
-                        onClickFunction = { e ->
-                            e.stopPropagation()
-                            showExplanation = false
-                            explanationStepIndex = 0
-                            render()
-                        }
-                    }
-                }
+                // Close button (no collapse button in portrait mode - always showing step 1)
                 
                 button(classes = "hint-close-btn-small") {
                     +"✕"
                     onClickFunction = {
                         showHints = false
-                        showExplanation = false
                         render()
                     }
                 }
             }
             
             if (selectedHint != null) {
-                if (showExplanation) {
-                    // Show inline explanation (without collapse button - it's in header now)
-                    renderInlineExplanationCompact(selectedHint)
-                } else {
-                    // Show hint content with explain button
-                    div("hint-content-compact") {
-                        div("hint-description") { +selectedHint.description }
-                        button(classes = "hint-explain-btn") {
-                            +"📖 Explain"
-                            onClickFunction = {
-                                showExplanation = true
-                                explanationStepIndex = 0
-                                render()
-                            }
-                        }
-                    }
-                }
+                // Always show step 1 explanation in portrait mode (no explain button)
+                explanationStepIndex = 0  // Always reset to step 1
+                renderInlineExplanationCompact(selectedHint)
             } else {
                 div("hint-content hint-empty") {
                     p { +"Searching for hints..." }
@@ -2330,40 +2416,15 @@ class SudokuApp {
                         renderInteractiveDescription(currentStep.description, hint)
                     }
                 }
-            } else {
-                div("inline-step") {
-                    div("step-description") {
-                        renderInteractiveDescription(hint.description, hint)
+                } else {
+                    div("inline-step") {
+                        div("step-description") {
+                            renderInteractiveDescription(hint.description, hint)
+                        }
                     }
                 }
-            }
             
-            // Navigation (only show if more than one step)
-            if (steps.size > 1) {
-                div("inline-nav") {
-                    button(classes = "inline-nav-btn ${if (explanationStepIndex <= 0) "disabled" else ""}") {
-                        +"◀ Prev"
-                        onClickFunction = { e ->
-                            e.stopPropagation()
-                            if (explanationStepIndex > 0) {
-                                explanationStepIndex--
-                                render()
-                            }
-                        }
-                    }
-                    span("step-indicator") { +"${explanationStepIndex + 1} / ${steps.size}" }
-                    button(classes = "inline-nav-btn ${if (explanationStepIndex >= steps.size - 1) "disabled" else ""}") {
-                        +"Next ▶"
-                        onClickFunction = { e ->
-                            e.stopPropagation()
-                            if (explanationStepIndex < steps.size - 1) {
-                                explanationStepIndex++
-                                render()
-                            }
-                        }
-                    }
-                }
-            }
+            // No navigation in portrait mode - always show step 1 only
         }
     }
     
@@ -3392,9 +3453,11 @@ class SudokuApp {
                         h2 { +"⏸ Resume Game" }
                         div("game-list") {
                             for (summary in incompleteSummaries.take(5)) {
+                                // Use difficulty-based category for display (handles old games with removed categories)
+                                val displayCategory = DifficultyCategory.fromDifficulty(summary.difficulty)
                                 div("game-item") {
-                                    span("category ${summary.category.name.lowercase()}") { 
-                                        +summary.category.displayName 
+                                    span("category ${displayCategory.name.lowercase()}") { 
+                                        +displayCategory.displayName 
                                     }
                                     span("progress") { +"${summary.progressPercent}%" }
                                     span("time") { +formatTime(summary.elapsedTimeMs) }
@@ -3455,9 +3518,26 @@ class SudokuApp {
                     // Puzzle list
                     div("puzzle-list") {
                         val puzzles = PuzzleLibrary.getPuzzlesForCategory(selectedCategory)
-                        if (puzzles.isEmpty() && selectedCategory == DifficultyCategory.CUSTOM) {
+                        val isLoading = PuzzleLibrary.isPuzzlesLoading(selectedCategory)
+                        
+                        // Trigger async load with callback to re-render
+                        if (puzzles.isEmpty() && !isLoading && selectedCategory != DifficultyCategory.CUSTOM) {
+                            PuzzleLibrary.getPuzzlesForCategoryAsync(selectedCategory) {
+                                render()
+                            }
+                        }
+                        
+                        if (isLoading) {
+                            div("empty-message") {
+                                +"Loading puzzles..."
+                            }
+                        } else if (puzzles.isEmpty() && selectedCategory == DifficultyCategory.CUSTOM) {
                             div("empty-message") {
                                 +"No custom puzzles yet. Import a puzzle from the Import/Export page to add it here."
+                            }
+                        } else if (puzzles.isEmpty()) {
+                            div("empty-message") {
+                                +"No puzzles available for this category."
                             }
                         }
                         for ((index, puzzle) in puzzles.withIndex()) {
@@ -3469,6 +3549,18 @@ class SudokuApp {
                             
                             div("puzzle-item ${if (isCompleted) "completed" else ""}") {
                                 span("puzzle-num") { +"#${index + 1}" }
+                                // Show title if available (as link if URL exists)
+                                val puzzleTitle = puzzle.title
+                                val puzzleUrl = puzzle.url
+                                if (puzzleTitle != null) {
+                                    if (puzzleUrl != null) {
+                                        a(href = puzzleUrl, target = "_blank", classes = "puzzle-title-link") {
+                                            +puzzleTitle
+                                        }
+                                    } else {
+                                        span("puzzle-title") { +puzzleTitle }
+                                    }
+                                }
                                 if (puzzle.difficulty > 0) {
                                     span("difficulty") { +"★ ${puzzle.difficulty}" }
                                 }
@@ -3480,6 +3572,15 @@ class SudokuApp {
                                         }
                                     } else {
                                         span("status progress") { +"${existingGame.progressPercent}%" }
+                                    }
+                                }
+                                button(classes = "info-btn") {
+                                    +"ℹ️"
+                                    attributes["title"] = "Puzzle info"
+                                    onClickFunction = {
+                                        puzzleInfoTarget = puzzle
+                                        showPuzzleInfoModal = true
+                                        render()
                                     }
                                 }
                                 button(classes = "play-btn") {
@@ -4211,10 +4312,171 @@ private val CSS_STYLES = """
         letter-spacing: 0.05em;
     }
     
+    .category.beginner { background: rgba(var(--color-accent-info), 0.3); color: rgb(var(--color-accent-info)); }
     .category.easy { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
-    .category.medium { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
-    .category.hard { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
+    .category.medium { background: rgba(100, 200, 100, 0.3); color: rgb(100, 200, 100); }
+    .category.tough { background: rgba(255, 200, 0, 0.3); color: rgb(255, 200, 0); }
+    .category.hard { background: rgba(255, 165, 0, 0.3); color: rgb(255, 165, 0); }
+    .category.expert { background: rgba(255, 100, 100, 0.3); color: rgb(255, 100, 100); }
     .category.diabolical { background: rgba(var(--color-accent-error), 0.3); color: rgb(var(--color-accent-error)); }
+    
+    /* Info button in puzzle list */
+    .info-btn {
+        padding: 4px 8px;
+        background: transparent;
+        border: 1px solid rgba(var(--color-border), 0.3);
+        border-radius: 4px;
+        color: rgba(var(--color-text-primary), 0.7);
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: all 0.2s ease;
+    }
+    
+    .info-btn:hover {
+        background: rgba(var(--color-accent-info), 0.2);
+        border-color: rgb(var(--color-accent-info));
+        color: rgb(var(--color-accent-info));
+    }
+    
+    /* Puzzle title in list */
+    .puzzle-title, .puzzle-title-link {
+        font-weight: 500;
+        color: rgba(var(--color-text-primary), 0.9);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .puzzle-title-link {
+        color: rgb(var(--color-accent-info));
+        text-decoration: none;
+    }
+    
+    .puzzle-title-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Puzzle info modal */
+    .puzzle-info-modal {
+        max-width: 450px;
+    }
+    
+    .puzzle-info-modal h2 {
+        text-align: center;
+        margin-bottom: clamp(16px, 3vmin, 24px);
+        color: rgb(var(--color-text-primary));
+    }
+    
+    .puzzle-info-modal h3 {
+        margin: clamp(12px, 2vmin, 16px) 0 clamp(8px, 1.5vmin, 12px);
+        color: rgba(var(--color-text-primary), 0.8);
+        font-size: 0.95em;
+    }
+    
+    .info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: clamp(8px, 1.5vmin, 12px);
+        background: rgba(var(--color-bg-tertiary), 0.3);
+        border-radius: 6px;
+    }
+    
+    .info-label {
+        color: rgba(var(--color-text-primary), 0.6);
+        font-size: 0.9em;
+    }
+    
+    .info-value {
+        color: rgb(var(--color-text-primary));
+        font-weight: 500;
+    }
+    
+    .info-value.link {
+        color: rgb(var(--color-accent-info));
+        text-decoration: none;
+    }
+    
+    .info-value.link:hover {
+        text-decoration: underline;
+    }
+    
+    .info-section {
+        margin-top: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .techniques-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        border-radius: 6px;
+        padding: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .technique-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+    }
+    
+    .technique-name {
+        color: rgba(var(--color-text-primary), 0.8);
+        font-size: 0.9em;
+    }
+    
+    .technique-count {
+        color: rgb(var(--color-accent-info));
+        font-weight: 600;
+        font-size: 0.85em;
+    }
+    
+    .modal-actions {
+        display: flex;
+        gap: clamp(8px, 1.5vmin, 12px);
+        justify-content: center;
+        margin-top: clamp(16px, 3vmin, 24px);
+        padding-top: clamp(12px, 2vmin, 16px);
+        border-top: 1px solid rgba(var(--color-border), 0.2);
+    }
+    
+    .modal-actions button {
+        padding: clamp(10px, 2vmin, 14px) clamp(20px, 4vmin, 32px);
+        border-radius: clamp(6px, 1.5vmin, 10px);
+        font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.05rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-actions .close-btn {
+        background: rgba(var(--color-bg-tertiary), 0.5);
+        border: 1px solid rgba(var(--color-border), 0.3);
+        color: rgb(var(--color-text-primary));
+    }
+    
+    .modal-actions .close-btn:hover {
+        background: rgba(var(--color-bg-tertiary), 0.8);
+    }
+    
+    .modal-actions .play-btn {
+        background: rgba(var(--color-accent-success), 0.8);
+        border: none;
+        color: rgb(var(--color-text-primary));
+    }
+    
+    .modal-actions .play-btn:hover {
+        background: rgb(var(--color-accent-success));
+        transform: translateY(-2px);
+    }
     
     .game-area {
         display: flex;
@@ -4721,6 +4983,16 @@ private val CSS_STYLES = """
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
         line-height: 1.3;
         word-break: break-word;
+    }
+    
+    .hint-item-expanded {
+        padding: clamp(8px, 1.5vmin, 14px);
+        padding-top: 0;
+        border-top: 1px solid rgba(var(--color-text-primary), 0.1);
+        margin-top: clamp(4px, 0.8vmin, 8px);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(8px, 1.2vmin, 12px);
     }
     
     /* Inline Explanation Styles */

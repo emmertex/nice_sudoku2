@@ -26,6 +26,7 @@ pkgs.mkShell {
     nodejs
     gradle
     tmux
+    qqwing
 #    androidSdk.androidsdk
   ];
 

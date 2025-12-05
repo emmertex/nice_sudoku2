@@ -25,6 +25,7 @@ object GameStateManager {
     private val json = Json { 
         ignoreUnknownKeys = true
         encodeDefaults = true
+        coerceInputValues = true  // Handles unknown enum values by using default
     }
     
     /**

@@ -214,3 +214,42 @@ data class SolveFromPuzzleResponse(
     val error: String? = null
 )
 
+// Optimized hint request - returns only the easiest applicable technique
+@Serializable
+data class HintRequest(
+    val puzzle: String
+)
+
+@Serializable
+data class HintResponse(
+    val success: Boolean,
+    val hint: TechniqueMatchDto? = null,
+    val difficulty: Int = 0,  // Priority of the technique (lower = easier)
+    val searchTimeMs: Long = 0,
+    val error: String? = null
+)
+
+// Grade puzzle request - solves puzzle and reports all techniques used
+@Serializable
+data class GradePuzzleRequest(
+    val puzzle: String
+)
+
+@Serializable
+data class TechniqueCount(
+    val technique: String,
+    val count: Int,
+    val priority: Int  // Difficulty priority (lower = easier)
+)
+
+@Serializable
+data class GradePuzzleResponse(
+    val success: Boolean,
+    val solved: Boolean = false,
+    val techniques: List<TechniqueCount> = emptyList(),  // Sorted by priority
+    val maxDifficulty: Int = 0,  // Highest priority technique needed
+    val totalSteps: Int = 0,
+    val searchTimeMs: Long = 0,
+    val error: String? = null
+)
+

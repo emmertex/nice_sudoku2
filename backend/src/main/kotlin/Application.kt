@@ -109,6 +109,20 @@ fun Application.module() {
                     val response = sudokuService.applyTechnique(request)
                     call.respond(response)
                 }
+                
+                // OPTIMIZED: Get single easiest hint (tiered search)
+                post("/hint") {
+                    val request = call.receive<HintRequest>()
+                    val response = sudokuService.findHint(request.puzzle)
+                    call.respond(response)
+                }
+                
+                // Grade puzzle - solve and return technique counts
+                post("/grade") {
+                    val request = call.receive<GradePuzzleRequest>()
+                    val response = sudokuService.gradePuzzle(request.puzzle)
+                    call.respond(response)
+                }
             }
         }
     }

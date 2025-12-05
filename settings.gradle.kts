@@ -20,6 +20,7 @@ include(":shared")
 include(":android")
 include(":web")
 include(":backend")
+include(":scripts")
 
 // iOS project will be handled separately via Xcode
 
