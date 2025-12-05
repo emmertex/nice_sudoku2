@@ -154,61 +154,59 @@ actual class GameEngine actual constructor() {
     
     // Technique priority order (lower = simpler/preferred)
     private val techniquePriority = mapOf(
-        // --- BASIC ---
-        "NAKED_SINGLE" to 1, "Naked Singles" to 1,
-        "HIDDEN_SINGLE" to 1, "Hidden Singles" to 1,
-        
-        // Visually, Pointing is easier than Quads
-        "POINTING_CANDIDATES" to 2, "Pointing Candidates" to 2, "Pointing Pairs" to 2,
-        "CLAIMING_CANDIDATES" to 2, "Claiming Candidates" to 2, "Box/Line Reduction" to 2,
+    // === BEGINNER (1-4): Singles + Intersection (pure scanning) ===
+    "NAKED_SINGLE" to 1, "Naked Singles" to 1,           // Only one candidate in cell
+    "HIDDEN_SINGLE" to 2, "Hidden Singles" to 2,         // Only place for a digit in house
+    "POINTING_CANDIDATES" to 3, "Pointing Candidates" to 3, "Pointing Pairs" to 3,
+    "CLAIMING_CANDIDATES" to 4, "Claiming Candidates" to 4, "Box/Line Reduction" to 4,
 
-        "NAKED_PAIR" to 3, "Naked Pairs" to 3,
-        "NAKED_TRIPLE" to 3, "Naked Triples" to 3,
-        "HIDDEN_PAIR" to 4, "Hidden Pairs" to 4,
-        "HIDDEN_TRIPLE" to 4, "Hidden Triples" to 4,
-        
-        // Quads are mentally taxing
-        "NAKED_QUADRUPLE" to 5, "Naked Quadruples" to 5,
-        "HIDDEN_QUADRUPLE" to 5, "Hidden Quadruples" to 5,
+    // === EASY (5-7): Basic subsets ===
+    "NAKED_PAIR" to 5, "Naked Pairs" to 5,               // Two cells, two candidates
+    "NAKED_TRIPLE" to 6, "Naked Triples" to 6,           // Three cells, three candidates
+    "HIDDEN_PAIR" to 7, "Hidden Pairs" to 7,             // Two candidates in only two cells
 
-        // --- TOUGH ---
-        "X_WING_FISH" to 8, "X-Wing" to 8,
-        "SKYSCRAPER_FISH" to 8, "Skyscraper" to 8,
-        "TWO_STRING_KITE_FISH" to 8, "2-String Kite" to 8,
-        
-        // Finned X-Wings are usually easier than full XY-Chains
-        "FINNED_X_WING_FISH" to 9, "Finned X-Wing" to 9,
-        "SASHIMI_X_WING_FISH" to 9, "Sashimi X-Wing" to 9,
+    // === MEDIUM (8-10): Harder subsets ===
+    "HIDDEN_TRIPLE" to 8, "Hidden Triples" to 8,         // Three candidates in only three cells
+    "NAKED_QUADRUPLE" to 9, "Naked Quadruples" to 9,     // Four cells, four candidates
+    "HIDDEN_QUADRUPLE" to 10, "Hidden Quadruples" to 10, // Four candidates in only four cells
 
-        "SIMPLE_COLOURING" to 10, "Simple Colouring" to 10,
-        "UNIQUE_RECTANGLE" to 11, "Unique Rectangles" to 11, // moved up slightly
-        "BUG" to 11, 
-        "Y_WING" to 12, "XY-Wing" to 12,
-        "EMPTY_RECTANGLE" to 13, "Empty Rectangles" to 13,
-        "SWORDFISH_FISH" to 14, "Swordfish" to 14,
-        "FINNED_SWORDFISH_FISH" to 15, "Finned Swordfish" to 15,
-        "XYZ_WING" to 16, "XYZ Wing" to 16,
+    // === TOUGH (11-15): Fish & single-digit patterns ===
+    "X_WING_FISH" to 11, "X-Wing" to 11,                 // 2x2 fish - fundamental pattern
+    "SKYSCRAPER_FISH" to 12, "Skyscraper" to 12,         // Two-string turbot fish
+    "TWO_STRING_KITE_FISH" to 13, "2-String Kite" to 13, // Box + row/col intersection
+    "FINNED_X_WING_FISH" to 14, "Finned X-Wing" to 14,   // X-Wing with extra candidate
+    "SASHIMI_X_WING_FISH" to 15, "Sashimi X-Wing" to 15, // Finned X-Wing with missing candidate
 
-        // --- DIABOLICAL ---
-        "X_CYCLES" to 17, "X-Cycles" to 17,
-        "XY_CHAIN" to 18, "XY-Chain" to 18,
-        "WXYZ_WING" to 19, "WXYZ Wing" to 19, // Easier than Jellyfish
-        "JELLYFISH_FISH" to 20, "Jellyfish" to 20,
-        "MEDUSA_3D" to 21, "3D Medusa" to 21,
-        
-        // --- EXTREME ---
-        "GROUPED_X_CYCLES" to 27, "Grouped X-Cycles" to 27,
-        // Franken/Mutants are indeed very hard
-        "FRANKEN_X_WING_FISH" to 28, "Franken X-Wing" to 28,
-        "FINNED_FRANKEN_X_WING_FISH" to 29,
-        "FINNED_MUTANT_X_WING_FISH" to 29,
-        "FRANKEN_SWORDFISH_FISH" to 29,
-        "FINNED_JELLYFISH_FISH" to 30,
-        
-        "AIC" to 31, "Alternating Inference Chains" to 31,
-        "ALMOST_LOCKED_SETS" to 32, "Almost Locked Sets" to 32,
-        "SUE_DE_COQ" to 33, "Sue-de-Coq" to 33,
-        "FORCING_CHAINS" to 40, "Forcing Chains" to 40,
+    // === HARD (16-22): Coloring, uniqueness, wings, swordfish ===
+    "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16,  // Single-digit coloring
+    "UNIQUE_RECTANGLE" to 17, "Unique Rectangles" to 17, // Avoid deadly patterns
+    "BUG" to 18,                                          // Bivalue Universal Grave
+    "Y_WING" to 19, "XY-Wing" to 19,                     // Three bivalue cells forming wing
+    "EMPTY_RECTANGLE" to 20, "Empty Rectangles" to 20,   // Box-based single-digit pattern
+    "SWORDFISH_FISH" to 21, "Swordfish" to 21,           // 3x3 fish
+    "FINNED_SWORDFISH_FISH" to 22, "Finned Swordfish" to 22,
+
+    // === EXPERT (23-28): Advanced wings, chains, 3D Medusa ===
+    "XYZ_WING" to 23, "XYZ Wing" to 23,                  // Three-cell wing with shared digit
+    "X_CYCLES" to 24, "X-Cycles" to 24,                  // Single-digit nice loops
+    "XY_CHAIN" to 25, "XY-Chain" to 25,                  // Chain of bivalue cells
+    "WXYZ_WING" to 26, "WXYZ Wing" to 26,                // Four-cell wing pattern
+    "JELLYFISH_FISH" to 27, "Jellyfish" to 27,           // 4x4 fish
+    "MEDUSA_3D" to 28, "3D Medusa" to 28,                // Multi-digit coloring
+
+    // === EXTREME (29-34): Franken/mutant fish, grouped techniques ===
+    "GROUPED_X_CYCLES" to 29, "Grouped X-Cycles" to 29,  // X-Cycles with grouped links
+    "FRANKEN_X_WING_FISH" to 30, "Franken X-Wing" to 30, // Fish using boxes
+    "FINNED_FRANKEN_X_WING_FISH" to 31,                  // Franken X-Wing with fin
+    "FINNED_MUTANT_X_WING_FISH" to 32,                   // Mutant fish with fin
+    "FRANKEN_SWORDFISH_FISH" to 33,                      // 3x3 Franken fish
+    "FINNED_JELLYFISH_FISH" to 34,                       // Jellyfish with fin
+
+    // === DIABOLICAL (35-38): AIC, ALS, Sue-de-Coq, Forcing Chains ===
+    "AIC" to 35, "Alternating Inference Chains" to 35,   // General inference chains
+    "ALMOST_LOCKED_SETS" to 36, "Almost Locked Sets" to 36,
+    "SUE_DE_COQ" to 37, "Sue-de-Coq" to 37,              // Two-sector disjoint subsets
+    "FORCING_CHAINS" to 38, "Forcing Chains" to 38,      // Near trial-and-error
     )
     
     private val MAX_HINTS_TOTAL = 10

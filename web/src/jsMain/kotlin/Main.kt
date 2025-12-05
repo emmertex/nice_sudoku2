@@ -95,6 +95,8 @@ class SudokuApp {
     private var showCompletionModal = false
     private var completionShownForPuzzle: String? = null  // Track which puzzle we've shown completion for
     private var showVersionModal = false
+    private var showPuzzleInfoModal = false
+    private var puzzleInfoTarget: PuzzleDefinition? = null  // Puzzle to show info for
     
     // Version info (loaded from CHANGELOG.md)
     private var currentVersion: String = ""
@@ -1011,6 +1013,11 @@ class SudokuApp {
             renderVersionModal()
         }
         
+        // Puzzle info modal
+        if (showPuzzleInfoModal && puzzleInfoTarget != null) {
+            renderPuzzleInfoModal(puzzleInfoTarget!!)
+        }
+        
         // Explanation overlay (shown when user clicks Explain on a hint)
         // Always show version number in bottom left corner (if loaded)
         if (currentVersion.isNotEmpty()) {
@@ -1544,6 +1551,112 @@ class SudokuApp {
                 onClickFunction = {
                     showVersionModal = true
                     render()
+                }
+            }
+        }
+    }
+    
+    private fun renderPuzzleInfoModal(puzzle: PuzzleDefinition) {
+        appRoot.append {
+            div("modal-overlay") {
+                onClickFunction = { event ->
+                    if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
+                        showPuzzleInfoModal = false
+                        puzzleInfoTarget = null
+                        render()
+                    }
+                }
+                div("modal-content puzzle-info-modal") {
+                    button(classes = "modal-close") {
+                        +"✕"
+                        onClickFunction = {
+                            showPuzzleInfoModal = false
+                            puzzleInfoTarget = null
+                            render()
+                        }
+                    }
+                    h2 { +"Puzzle Info" }
+                    
+                    div("info-grid") {
+                        // Title (if available)
+                        val puzzleTitle = puzzle.title
+                        val puzzleUrl = puzzle.url
+                        if (puzzleTitle != null) {
+                            div("info-row") {
+                                span("info-label") { +"Title:" }
+                                if (puzzleUrl != null) {
+                                    a(href = puzzleUrl, target = "_blank", classes = "info-value link") {
+                                        +puzzleTitle
+                                    }
+                                } else {
+                                    span("info-value") { +puzzleTitle }
+                                }
+                            }
+                        }
+                        
+                        // Puzzle ID
+                        div("info-row") {
+                            span("info-label") { +"Puzzle ID:" }
+                            span("info-value") { +puzzle.id }
+                        }
+                        
+                        // Difficulty
+                        div("info-row") {
+                            span("info-label") { +"Difficulty:" }
+                            span("info-value") { +"${puzzle.difficulty}" }
+                        }
+                        
+                        // Quality (if available)
+                        if (puzzle.quality != null) {
+                            div("info-row") {
+                                span("info-label") { +"Quality:" }
+                                span("info-value") { +"${puzzle.quality}/10" }
+                            }
+                        }
+                        
+                        // Category
+                        div("info-row") {
+                            span("info-label") { +"Category:" }
+                            span("info-value category ${puzzle.category.name.lowercase()}") { 
+                                +puzzle.category.displayName 
+                            }
+                        }
+                        
+                        // Techniques (if available)
+                        val techniques = puzzle.techniques
+                        if (!techniques.isNullOrEmpty()) {
+                            div("info-section") {
+                                h3 { +"Techniques Used" }
+                                div("techniques-list") {
+                                    techniques.entries.sortedByDescending { it.value }.forEach { (technique, count) ->
+                                        div("technique-row") {
+                                            span("technique-name") { +technique }
+                                            span("technique-count") { +"×$count" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    div("modal-actions") {
+                        button(classes = "close-btn") {
+                            +"Close"
+                            onClickFunction = {
+                                showPuzzleInfoModal = false
+                                puzzleInfoTarget = null
+                                render()
+                            }
+                        }
+                        button(classes = "play-btn") {
+                            +"Play Puzzle"
+                            onClickFunction = {
+                                showPuzzleInfoModal = false
+                                puzzleInfoTarget = null
+                                startNewGame(puzzle)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -3436,6 +3549,18 @@ class SudokuApp {
                             
                             div("puzzle-item ${if (isCompleted) "completed" else ""}") {
                                 span("puzzle-num") { +"#${index + 1}" }
+                                // Show title if available (as link if URL exists)
+                                val puzzleTitle = puzzle.title
+                                val puzzleUrl = puzzle.url
+                                if (puzzleTitle != null) {
+                                    if (puzzleUrl != null) {
+                                        a(href = puzzleUrl, target = "_blank", classes = "puzzle-title-link") {
+                                            +puzzleTitle
+                                        }
+                                    } else {
+                                        span("puzzle-title") { +puzzleTitle }
+                                    }
+                                }
                                 if (puzzle.difficulty > 0) {
                                     span("difficulty") { +"★ ${puzzle.difficulty}" }
                                 }
@@ -3447,6 +3572,15 @@ class SudokuApp {
                                         }
                                     } else {
                                         span("status progress") { +"${existingGame.progressPercent}%" }
+                                    }
+                                }
+                                button(classes = "info-btn") {
+                                    +"ℹ️"
+                                    attributes["title"] = "Puzzle info"
+                                    onClickFunction = {
+                                        puzzleInfoTarget = puzzle
+                                        showPuzzleInfoModal = true
+                                        render()
                                     }
                                 }
                                 button(classes = "play-btn") {
@@ -4178,10 +4312,171 @@ private val CSS_STYLES = """
         letter-spacing: 0.05em;
     }
     
-    .category.basic { background: rgba(var(--color-accent-info), 0.3); color: rgb(var(--color-accent-info)); }
+    .category.beginner { background: rgba(var(--color-accent-info), 0.3); color: rgb(var(--color-accent-info)); }
     .category.easy { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
-    .category.tough { background: rgba(255, 165, 0, 0.3); color: rgb(255, 165, 0); }
+    .category.medium { background: rgba(100, 200, 100, 0.3); color: rgb(100, 200, 100); }
+    .category.tough { background: rgba(255, 200, 0, 0.3); color: rgb(255, 200, 0); }
+    .category.hard { background: rgba(255, 165, 0, 0.3); color: rgb(255, 165, 0); }
+    .category.expert { background: rgba(255, 100, 100, 0.3); color: rgb(255, 100, 100); }
     .category.diabolical { background: rgba(var(--color-accent-error), 0.3); color: rgb(var(--color-accent-error)); }
+    
+    /* Info button in puzzle list */
+    .info-btn {
+        padding: 4px 8px;
+        background: transparent;
+        border: 1px solid rgba(var(--color-border), 0.3);
+        border-radius: 4px;
+        color: rgba(var(--color-text-primary), 0.7);
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: all 0.2s ease;
+    }
+    
+    .info-btn:hover {
+        background: rgba(var(--color-accent-info), 0.2);
+        border-color: rgb(var(--color-accent-info));
+        color: rgb(var(--color-accent-info));
+    }
+    
+    /* Puzzle title in list */
+    .puzzle-title, .puzzle-title-link {
+        font-weight: 500;
+        color: rgba(var(--color-text-primary), 0.9);
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .puzzle-title-link {
+        color: rgb(var(--color-accent-info));
+        text-decoration: none;
+    }
+    
+    .puzzle-title-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Puzzle info modal */
+    .puzzle-info-modal {
+        max-width: 450px;
+    }
+    
+    .puzzle-info-modal h2 {
+        text-align: center;
+        margin-bottom: clamp(16px, 3vmin, 24px);
+        color: rgb(var(--color-text-primary));
+    }
+    
+    .puzzle-info-modal h3 {
+        margin: clamp(12px, 2vmin, 16px) 0 clamp(8px, 1.5vmin, 12px);
+        color: rgba(var(--color-text-primary), 0.8);
+        font-size: 0.95em;
+    }
+    
+    .info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: clamp(8px, 1.5vmin, 12px);
+        background: rgba(var(--color-bg-tertiary), 0.3);
+        border-radius: 6px;
+    }
+    
+    .info-label {
+        color: rgba(var(--color-text-primary), 0.6);
+        font-size: 0.9em;
+    }
+    
+    .info-value {
+        color: rgb(var(--color-text-primary));
+        font-weight: 500;
+    }
+    
+    .info-value.link {
+        color: rgb(var(--color-accent-info));
+        text-decoration: none;
+    }
+    
+    .info-value.link:hover {
+        text-decoration: underline;
+    }
+    
+    .info-section {
+        margin-top: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .techniques-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        background: rgba(var(--color-bg-tertiary), 0.2);
+        border-radius: 6px;
+        padding: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .technique-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+    }
+    
+    .technique-name {
+        color: rgba(var(--color-text-primary), 0.8);
+        font-size: 0.9em;
+    }
+    
+    .technique-count {
+        color: rgb(var(--color-accent-info));
+        font-weight: 600;
+        font-size: 0.85em;
+    }
+    
+    .modal-actions {
+        display: flex;
+        gap: clamp(8px, 1.5vmin, 12px);
+        justify-content: center;
+        margin-top: clamp(16px, 3vmin, 24px);
+        padding-top: clamp(12px, 2vmin, 16px);
+        border-top: 1px solid rgba(var(--color-border), 0.2);
+    }
+    
+    .modal-actions button {
+        padding: clamp(10px, 2vmin, 14px) clamp(20px, 4vmin, 32px);
+        border-radius: clamp(6px, 1.5vmin, 10px);
+        font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.05rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .modal-actions .close-btn {
+        background: rgba(var(--color-bg-tertiary), 0.5);
+        border: 1px solid rgba(var(--color-border), 0.3);
+        color: rgb(var(--color-text-primary));
+    }
+    
+    .modal-actions .close-btn:hover {
+        background: rgba(var(--color-bg-tertiary), 0.8);
+    }
+    
+    .modal-actions .play-btn {
+        background: rgba(var(--color-accent-success), 0.8);
+        border: none;
+        color: rgb(var(--color-text-primary));
+    }
+    
+    .modal-actions .play-btn:hover {
+        background: rgb(var(--color-accent-success));
+        transform: translateY(-2px);
+    }
     
     .game-area {
         display: flex;

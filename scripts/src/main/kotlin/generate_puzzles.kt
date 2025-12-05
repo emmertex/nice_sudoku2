@@ -11,56 +11,74 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
-// Technique priority mapping (from GameEngine.kt)
+// Technique priority mapping - ordered by human difficulty (unique, no gaps)
+// Lower = easier to spot and apply, Higher = harder
 val techniquePriority = mapOf(
-    "NAKED_SINGLE" to 1, "Naked Singles" to 1,
-    "HIDDEN_SINGLE" to 1, "Hidden Singles" to 1,
-    "POINTING_CANDIDATES" to 2, "Pointing Candidates" to 2, "Pointing Pairs" to 2,
-    "CLAIMING_CANDIDATES" to 2, "Claiming Candidates" to 2, "Box/Line Reduction" to 2,
-    "NAKED_PAIR" to 3, "Naked Pairs" to 3,
-    "NAKED_TRIPLE" to 3, "Naked Triples" to 3,
-    "HIDDEN_PAIR" to 4, "Hidden Pairs" to 4,
-    "HIDDEN_TRIPLE" to 4, "Hidden Triples" to 4,
-    "NAKED_QUADRUPLE" to 5, "Naked Quadruples" to 5,
-    "HIDDEN_QUADRUPLE" to 5, "Hidden Quadruples" to 5,
-    "X_WING_FISH" to 8, "X-Wing" to 8,
-    "SKYSCRAPER_FISH" to 8, "Skyscraper" to 8,
-    "TWO_STRING_KITE_FISH" to 8, "2-String Kite" to 8,
-    "FINNED_X_WING_FISH" to 9, "Finned X-Wing" to 9,
-    "SASHIMI_X_WING_FISH" to 9, "Sashimi X-Wing" to 9,
-    "SIMPLE_COLOURING" to 10, "Simple Colouring" to 10,
-    "UNIQUE_RECTANGLE" to 11, "Unique Rectangles" to 11,
-    "BUG" to 11,
-    "Y_WING" to 12, "XY-Wing" to 12,
-    "EMPTY_RECTANGLE" to 13, "Empty Rectangles" to 13,
-    "SWORDFISH_FISH" to 14, "Swordfish" to 14,
-    "FINNED_SWORDFISH_FISH" to 15, "Finned Swordfish" to 15,
-    "XYZ_WING" to 16, "XYZ Wing" to 16,
-    "X_CYCLES" to 17, "X-Cycles" to 17,
-    "XY_CHAIN" to 18, "XY-Chain" to 18,
-    "WXYZ_WING" to 19, "WXYZ Wing" to 19,
-    "JELLYFISH_FISH" to 20, "Jellyfish" to 20,
-    "MEDUSA_3D" to 21, "3D Medusa" to 21,
-    "GROUPED_X_CYCLES" to 27, "Grouped X-Cycles" to 27,
-    "FRANKEN_X_WING_FISH" to 28, "Franken X-Wing" to 28,
-    "FINNED_FRANKEN_X_WING_FISH" to 29,
-    "FINNED_MUTANT_X_WING_FISH" to 29,
-    "FRANKEN_SWORDFISH_FISH" to 29,
-    "FINNED_JELLYFISH_FISH" to 30,
-    "AIC" to 31, "Alternating Inference Chains" to 31,
-    "ALMOST_LOCKED_SETS" to 32, "Almost Locked Sets" to 32,
-    "SUE_DE_COQ" to 33, "Sue-de-Coq" to 33,
-    "FORCING_CHAINS" to 40, "Forcing Chains" to 40,
+    // === BEGINNER (1-4): Singles + Intersection (pure scanning) ===
+    "NAKED_SINGLE" to 1, "Naked Singles" to 1,           // Only one candidate in cell
+    "HIDDEN_SINGLE" to 2, "Hidden Singles" to 2,         // Only place for a digit in house
+    "POINTING_CANDIDATES" to 3, "Pointing Candidates" to 3, "Pointing Pairs" to 3,
+    "CLAIMING_CANDIDATES" to 4, "Claiming Candidates" to 4, "Box/Line Reduction" to 4,
+
+    // === EASY (5-7): Basic subsets ===
+    "NAKED_PAIR" to 5, "Naked Pairs" to 5,               // Two cells, two candidates
+    "NAKED_TRIPLE" to 6, "Naked Triples" to 6,           // Three cells, three candidates
+    "HIDDEN_PAIR" to 7, "Hidden Pairs" to 7,             // Two candidates in only two cells
+
+    // === MEDIUM (8-10): Harder subsets ===
+    "HIDDEN_TRIPLE" to 8, "Hidden Triples" to 8,         // Three candidates in only three cells
+    "NAKED_QUADRUPLE" to 9, "Naked Quadruples" to 9,     // Four cells, four candidates
+    "HIDDEN_QUADRUPLE" to 10, "Hidden Quadruples" to 10, // Four candidates in only four cells
+
+    // === TOUGH (11-15): Fish & single-digit patterns ===
+    "X_WING_FISH" to 11, "X-Wing" to 11,                 // 2x2 fish - fundamental pattern
+    "SKYSCRAPER_FISH" to 12, "Skyscraper" to 12,         // Two-string turbot fish
+    "TWO_STRING_KITE_FISH" to 13, "2-String Kite" to 13, // Box + row/col intersection
+    "FINNED_X_WING_FISH" to 14, "Finned X-Wing" to 14,   // X-Wing with extra candidate
+    "SASHIMI_X_WING_FISH" to 15, "Sashimi X-Wing" to 15, // Finned X-Wing with missing candidate
+
+    // === HARD (16-22): Coloring, uniqueness, wings, swordfish ===
+    "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16,  // Single-digit coloring
+    "UNIQUE_RECTANGLE" to 17, "Unique Rectangles" to 17, // Avoid deadly patterns
+    "BUG" to 18,                                          // Bivalue Universal Grave
+    "Y_WING" to 19, "XY-Wing" to 19,                     // Three bivalue cells forming wing
+    "EMPTY_RECTANGLE" to 20, "Empty Rectangles" to 20,   // Box-based single-digit pattern
+    "SWORDFISH_FISH" to 21, "Swordfish" to 21,           // 3x3 fish
+    "FINNED_SWORDFISH_FISH" to 22, "Finned Swordfish" to 22,
+
+    // === EXPERT (23-28): Advanced wings, chains, 3D Medusa ===
+    "XYZ_WING" to 23, "XYZ Wing" to 23,                  // Three-cell wing with shared digit
+    "X_CYCLES" to 24, "X-Cycles" to 24,                  // Single-digit nice loops
+    "XY_CHAIN" to 25, "XY-Chain" to 25,                  // Chain of bivalue cells
+    "WXYZ_WING" to 26, "WXYZ Wing" to 26,                // Four-cell wing pattern
+    "JELLYFISH_FISH" to 27, "Jellyfish" to 27,           // 4x4 fish
+    "MEDUSA_3D" to 28, "3D Medusa" to 28,                // Multi-digit coloring
+
+    // === EXTREME (29-34): Franken/mutant fish, grouped techniques ===
+    "GROUPED_X_CYCLES" to 29, "Grouped X-Cycles" to 29,  // X-Cycles with grouped links
+    "FRANKEN_X_WING_FISH" to 30, "Franken X-Wing" to 30, // Fish using boxes
+    "FINNED_FRANKEN_X_WING_FISH" to 31,                  // Franken X-Wing with fin
+    "FINNED_MUTANT_X_WING_FISH" to 32,                   // Mutant fish with fin
+    "FRANKEN_SWORDFISH_FISH" to 33,                      // 3x3 Franken fish
+    "FINNED_JELLYFISH_FISH" to 34,                       // Jellyfish with fin
+
+    // === DIABOLICAL (35-38): AIC, ALS, Sue-de-Coq, Forcing Chains ===
+    "AIC" to 35, "Alternating Inference Chains" to 35,   // General inference chains
+    "ALMOST_LOCKED_SETS" to 36, "Almost Locked Sets" to 36,
+    "SUE_DE_COQ" to 37, "Sue-de-Coq" to 37,              // Two-sector disjoint subsets
+    "FORCING_CHAINS" to 38, "Forcing Chains" to 38,      // Near trial-and-error
 )
 
-// Difficulty categories
+// Difficulty categories (aligned with technique priority ranges)
 enum class DifficultyCategory(val minPriority: Int, val maxPriority: Int, val targetCount: Int, val minCount: Int, val maxCount: Int) {
-    BASIC(1, 2, 50000, 50, 50000),
-    EASY(3, 4, 25000, 250, 50000),
-    TOUGH(5, 9, 25000, 250, 50000),
-    HARD(10, 16, 10000, 100, 50000),
-    DIABOLICAL(17, 25000, 50, 25, 50000),
-    EXTREME(26, 40, 30000, 10, 50000);  // Note: User said 16-40, but 26-40 avoids overlap with Diabolical
+    BEGINNER(1, 4, 100, 100, 50000),     // Singles + Intersection (pure scanning)
+    EASY(5, 7, 300, 100, 50000),        // Naked Pair/Triple, Hidden Pair
+    MEDIUM(8, 10, 500, 250, 50000),     // Hidden Triple, Naked/Hidden Quad
+    TOUGH(11, 15, 300, 250, 50000),     // Fish & single-digit patterns
+    HARD(16, 22, 300, 100, 50000),      // Coloring, uniqueness, wings, swordfish
+    EXPERT(23, 28, 100, 50, 50000),     // Advanced wings, chains, 3D Medusa
+    EXTREME(29, 34, 100, 25, 50000),     // Franken/mutant fish, grouped techniques
+    DIABOLICAL(35, 50, 25, 10, 50000); // AIC, ALS, Sue-de-Coq, Forcing Chains
     
     val fileName: String get() = name.lowercase() + ".json"
 }
@@ -71,7 +89,8 @@ data class Puzzle(
     val difficulty: Double,
     val givens: String,
     val solution: String,
-    val title: String? = null
+    val title: String? = null,
+    val techniques: Map<String, Int> = emptyMap()  // Technique name -> count
 )
 
 @Serializable
@@ -152,6 +171,29 @@ data class SolveFromPuzzleResponse(
 )
 
 @Serializable
+data class GradePuzzleRequest(
+    val puzzle: String
+)
+
+@Serializable
+data class TechniqueCount(
+    val technique: String,
+    val count: Int,
+    val priority: Int
+)
+
+@Serializable
+data class GradePuzzleResponse(
+    val success: Boolean,
+    val solved: Boolean = false,
+    val techniques: List<TechniqueCount> = emptyList(),
+    val maxDifficulty: Int = 0,
+    val totalSteps: Int = 0,
+    val searchTimeMs: Long = 0,
+    val error: String? = null
+)
+
+@Serializable
 data class FindTechniquesRequest(
     val grid: GridDto,
     val basicOnly: Boolean = false
@@ -160,8 +202,8 @@ data class FindTechniquesRequest(
 class PuzzleGenerator(private val apiBaseUrl: String = "http://localhost:8181") {
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(240, TimeUnit.SECONDS)
+        .writeTimeout(240, TimeUnit.SECONDS)
         .build()
     
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
@@ -267,7 +309,7 @@ class PuzzleGenerator(private val apiBaseUrl: String = "http://localhost:8181") 
      */
     fun generatePuzzleBatch(count: Int): List<String> {
         // Use current difficulty level (cycles through: simple, easy, intermediate, expert)
-        val difficulty = getNextDifficulty()
+        val difficulty = "expert" //getNextDifficulty()
         
         return try {
             val process = ProcessBuilder("qqwing", "--generate", count.toString(), "--one-line", "--difficulty", difficulty)
@@ -477,124 +519,63 @@ class PuzzleGenerator(private val apiBaseUrl: String = "http://localhost:8181") 
     }
     
     /**
-     * Grade puzzle by solving step-by-step and tracking the hardest technique APPLIED.
-     * 
-     * The difficulty is determined by the hardest technique that was REQUIRED to solve the puzzle.
-     * We apply the simplest available technique at each step, and track the priority of each
-     * technique we actually apply. The maximum priority is the puzzle's difficulty.
+     * Grade puzzle using the backend's optimized grade endpoint.
+     * Returns priority, solution, and technique counts.
+     */
+    fun gradePuzzle(puzzle: String, debug: Boolean = false): Triple<Int, String?, Map<String, Int>> {
+        return try {
+            val requestBody = json.encodeToString(GradePuzzleRequest.serializer(), GradePuzzleRequest(puzzle))
+            val request = Request.Builder()
+                .url("$apiBaseUrl/api/techniques/grade")
+                .post(requestBody.toRequestBody("application/json; charset=utf-8".toMediaType()))
+                .build()
+            
+            val response = client.newCall(request).execute()
+            val responseBody = response.body?.string() ?: return Triple(0, null, emptyMap())
+            
+            if (!response.isSuccessful) {
+                if (debug) println("DEBUG: Grade request failed: ${response.code}")
+                return Triple(0, null, emptyMap())
+            }
+            
+            val result = json.decodeFromString<GradePuzzleResponse>(responseBody)
+            
+            if (!result.success) {
+                if (debug) println("DEBUG: Grade failed: ${result.error}")
+                return Triple(0, null, emptyMap())
+            }
+            
+            if (!result.solved) {
+                if (debug) println("DEBUG: Puzzle not fully solved: ${result.error}")
+                // Still return the techniques found, but mark as unsolved
+                val techniques = result.techniques.associate { it.technique to it.count }
+                return Triple(result.maxDifficulty, null, techniques)
+            }
+            
+            // Get solution
+            val solution = getSolution(puzzle)
+            
+            // Convert techniques list to map
+            val techniques = result.techniques.associate { it.technique to it.count }
+            
+            if (debug) {
+                println("DEBUG: Graded in ${result.searchTimeMs}ms, maxDifficulty=${result.maxDifficulty}, steps=${result.totalSteps}")
+                println("DEBUG: Techniques: $techniques")
+            }
+            
+            Triple(result.maxDifficulty, solution, techniques)
+        } catch (e: Exception) {
+            if (debug) println("DEBUG: Grade exception: ${e.message}")
+            Triple(0, null, emptyMap())
+        }
+    }
+    
+    /**
+     * Legacy wrapper for compatibility - calls the new gradePuzzle
      */
     fun gradePuzzleSimple(puzzle: String, debug: Boolean = false): Pair<Int, String?> {
-        val solution = getSolution(puzzle) ?: return Pair(0, null)
-        
-        // Load initial grid
-        var currentGrid = loadPuzzle(puzzle) ?: return Pair(1, solution)
-        var maxPriority = 0
-        var iterations = 0
-        val maxIterations = 500  // Increased for complex puzzles
-        var noProgressCount = 0
-        var usedAdvancedCount = 0
-        
-        if (debug) println("DEBUG: Starting puzzle grading")
-        
-        while (iterations < maxIterations) {
-            iterations++
-            
-            // Check if solved (all cells have values)
-            val puzzleString = gridDtoToPuzzleString(currentGrid)
-            if (!puzzleString.contains('0')) {
-                if (debug) println("DEBUG: Puzzle solved after $iterations iterations, maxPriority=$maxPriority, usedAdvanced=$usedAdvancedCount")
-                break
-            }
-            
-            // Try basic techniques first
-            var techniques = findTechniquesFromGrid(currentGrid, basicOnly = true)
-            var usedBasic = true
-            
-            if (techniques.isEmpty()) {
-                // Try all techniques - this is where we might find hard techniques
-                techniques = findTechniquesFromGrid(currentGrid, basicOnly = false)
-                usedBasic = false
-                usedAdvancedCount++
-                if (debug) println("DEBUG: Iteration $iterations - No basic techniques, trying advanced...")
-            }
-            
-            if (techniques.isEmpty()) {
-                // No techniques found - puzzle might need brute force or be unsolvable
-                if (debug) println("DEBUG: No techniques found at iteration $iterations")
-                break
-            }
-            
-            // Find the SIMPLEST technique to apply (lowest priority number)
-            var bestMatch: TechniqueMatchDto? = null
-            var bestPriority = Int.MAX_VALUE
-            
-            // Also track ALL available technique priorities for debugging
-            val allPriorities = mutableListOf<Pair<String, Int>>()
-            
-            for ((_, matches) in techniques) {
-                for (match in matches) {
-                    val priority = getTechniquePriority(match.techniqueName)
-                    allPriorities.add(match.techniqueName to priority)
-                    if (priority < bestPriority) {
-                        bestPriority = priority
-                        bestMatch = match
-                    }
-                }
-            }
-            
-            if (bestMatch == null || bestPriority == Int.MAX_VALUE) {
-                if (debug) println("DEBUG: No valid technique match found")
-                break
-            }
-            
-            if (debug && !usedBasic) {
-                println("DEBUG: Advanced search found: ${allPriorities.sortedBy { it.second }.take(5)}")
-                println("DEBUG: Applying ${bestMatch.techniqueName} (priority $bestPriority)")
-            }
-            
-            // Track the priority of the technique we're ACTUALLY APPLYING
-            // This is the key: we track the hardest technique REQUIRED
-            maxPriority = maxOf(maxPriority, bestPriority)
-            
-            // Apply the technique
-            val updatedGrid = applyTechniqueToGrid(currentGrid, bestMatch.id)
-            if (updatedGrid == null) {
-                // Technique application failed - try to continue with other techniques
-                if (debug) println("DEBUG: Technique application failed for ${bestMatch.techniqueName}")
-                noProgressCount++
-                if (noProgressCount > 20) {
-                    break
-                }
-                continue
-            }
-            
-            // Check if we made progress (grid changed)
-            val newPuzzleString = gridDtoToPuzzleString(updatedGrid)
-            val oldPuzzleString = gridDtoToPuzzleString(currentGrid)
-            
-            if (newPuzzleString == oldPuzzleString) {
-                // No cell was solved - technique only eliminated candidates
-                // This is still progress, update the grid
-                noProgressCount++
-                if (noProgressCount > 50) {
-                    // Too many iterations without solving cells
-                    if (debug) println("DEBUG: Breaking due to no cell progress after 50 iterations")
-                    break
-                }
-            } else {
-                // Made progress (solved a cell)
-                noProgressCount = 0
-            }
-            
-            currentGrid = updatedGrid
-        }
-        
-        // Default to basic (priority 1) if nothing found
-        if (maxPriority == 0) {
-            maxPriority = 1
-        }
-        
-        return Pair(maxPriority, solution)
+        val (priority, solution, _) = gradePuzzle(puzzle, debug)
+        return Pair(priority, solution)
     }
 }
 
@@ -602,7 +583,8 @@ class PuzzleGenerator(private val apiBaseUrl: String = "http://localhost:8181") 
 data class GradingResult(
     val puzzle: String,
     val priority: Int,
-    val solution: String?
+    val solution: String?,
+    val techniques: Map<String, Int> = emptyMap()  // Technique name -> count
 )
 
 fun main(args: Array<String>) = runBlocking {
@@ -613,7 +595,7 @@ fun main(args: Array<String>) = runBlocking {
     
     val apiUrl = args.getOrNull(0) ?: "http://localhost:8181"
     val inputFile = args.getOrNull(1)?.takeIf { it.isNotBlank() }  // Optional: path to file with puzzle strings
-    val parallelism = args.getOrNull(2)?.toIntOrNull() ?: 8  // Default 8 parallel workers
+    val parallelism = args.getOrNull(2)?.toIntOrNull() ?: 12  // Default 8 parallel workers
     val generator = PuzzleGenerator(apiUrl)
     val json = Json { ignoreUnknownKeys = true; isLenient = true }
     
@@ -712,7 +694,7 @@ fun main(args: Array<String>) = runBlocking {
         println("${validPuzzles.size} puzzles have empty cells to solve")
         
         // Process in chunks for better progress reporting
-        val chunkSize = parallelism * 10
+        val chunkSize = parallelism * 2
         val chunks = validPuzzles.chunked(chunkSize)
         
         for ((chunkIndex, chunk) in chunks.withIndex()) {
@@ -723,10 +705,10 @@ fun main(args: Array<String>) = runBlocking {
                     try {
                         // Enable debug for first 3 puzzles to diagnose grading
                         val debug = globalIdx < 3
-                        val (priority, solution) = generator.gradePuzzleSimple(puzzle, debug)
-                        GradingResult(puzzle, priority, solution)
+                        val (priority, solution, techniques) = generator.gradePuzzle(puzzle, debug)
+                        GradingResult(puzzle, priority, solution, techniques)
                     } catch (e: Exception) {
-                        GradingResult(puzzle, 0, null)
+                        GradingResult(puzzle, 0, null, emptyMap())
                     }
                 }
             }.awaitAll()
@@ -760,7 +742,8 @@ fun main(args: Array<String>) = runBlocking {
                         puzzleId = puzzleId,
                         difficulty = score,
                         givens = result.puzzle,
-                        solution = result.solution
+                        solution = result.solution,
+                        techniques = result.techniques
                     )
                     
                     synchronized(puzzlesByCategory[matchedCategory]!!) {
@@ -769,7 +752,9 @@ fun main(args: Array<String>) = runBlocking {
                     totalGenerated.incrementAndGet()
                     
                     val count = puzzlesByCategory[matchedCategory]!!.size
-                    println("${matchedCategory.name} #$puzzleId (priority ${result.priority}, score ${"%.1f".format(score)}) - $count/${matchedCategory.targetCount}")
+                    val techSummary = result.techniques.entries.sortedByDescending { it.value }.take(3)
+                        .joinToString(", ") { "${it.key}: ${it.value}" }
+                    println("${matchedCategory.name} #$puzzleId (priority ${result.priority}, score ${"%.1f".format(score)}) - $count/${matchedCategory.targetCount} [$techSummary]")
                 }
             }
             
@@ -794,7 +779,7 @@ fun main(args: Array<String>) = runBlocking {
         // qqwing mode - sequential generation, parallel grading
         println("\nGenerating puzzles using qqwing...")
         
-        val batchSize = 100
+        val batchSize = 12
         var attempts = 0
         val maxAttempts = 10000
         
@@ -829,10 +814,10 @@ fun main(args: Array<String>) = runBlocking {
             val results = validBatch.map { puzzle ->
                 async(dispatcher) {
                     try {
-                        val (priority, solution) = generator.gradePuzzleSimple(puzzle)
-                        GradingResult(puzzle, priority, solution)
+                        val (priority, solution, techniques) = generator.gradePuzzle(puzzle)
+                        GradingResult(puzzle, priority, solution, techniques)
                     } catch (e: Exception) {
-                        GradingResult(puzzle, 0, null)
+                        GradingResult(puzzle, 0, null, emptyMap())
                     }
                 }
             }.awaitAll()
@@ -866,7 +851,8 @@ fun main(args: Array<String>) = runBlocking {
                         puzzleId = puzzleId,
                         difficulty = score,
                         givens = result.puzzle,
-                        solution = result.solution
+                        solution = result.solution,
+                        techniques = result.techniques
                     )
                     
                     synchronized(puzzlesByCategory[matchedCategory]!!) {
@@ -875,11 +861,13 @@ fun main(args: Array<String>) = runBlocking {
                     totalGenerated.incrementAndGet()
                     
                     val count = puzzlesByCategory[matchedCategory]!!.size
-                    println("${matchedCategory.name} #$puzzleId (priority ${result.priority}, score ${"%.1f".format(score)}) - $count/${matchedCategory.targetCount}")
+                    val techSummary = result.techniques.entries.sortedByDescending { it.value }.take(3)
+                        .joinToString(", ") { "${it.key}: ${it.value}" }
+                    println("${matchedCategory.name} #$puzzleId (priority ${result.priority}, score ${"%.1f".format(score)}) - $count/${matchedCategory.targetCount} [$techSummary]")
                 }
             }
             
-            // Save progress
+            // Save progress after each batch
             fileMutex.withLock {
                 for (category in DifficultyCategory.values()) {
                     if (puzzlesByCategory[category]!!.isNotEmpty()) {
@@ -889,6 +877,10 @@ fun main(args: Array<String>) = runBlocking {
                     }
                 }
             }
+            
+            // Progress update
+            val generated = totalGenerated.get()
+            println("Batch complete - saved $generated total puzzles to disk")
         }
     }
     

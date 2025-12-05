@@ -31,6 +31,264 @@ class SudokuService {
         val timestamp: Long = System.currentTimeMillis()
     )
     
+    // Technique priority mapping - ordered by human difficulty (lower = easier)
+    private val techniquePriority = mapOf(
+        // BEGINNER (1-4): Singles + Intersection
+        "NAKED_SINGLE" to 1, "Naked Singles" to 1,
+        "HIDDEN_SINGLE" to 2, "Hidden Singles" to 2,
+        "POINTING_CANDIDATES" to 3, "Pointing Candidates" to 3, "Pointing Pairs" to 3,
+        "CLAIMING_CANDIDATES" to 4, "Claiming Candidates" to 4, "Box/Line Reduction" to 4,
+        // EASY (5-7): Basic subsets
+        "NAKED_PAIR" to 5, "Naked Pairs" to 5,
+        "NAKED_TRIPLE" to 6, "Naked Triples" to 6,
+        "HIDDEN_PAIR" to 7, "Hidden Pairs" to 7,
+        // MEDIUM (8-10): Harder subsets
+        "HIDDEN_TRIPLE" to 8, "Hidden Triples" to 8,
+        "NAKED_QUADRUPLE" to 9, "Naked Quadruples" to 9,
+        "HIDDEN_QUADRUPLE" to 10, "Hidden Quadruples" to 10,
+        // TOUGH (11-15): Fish & single-digit patterns
+        "X_WING_FISH" to 11, "X-Wing" to 11,
+        "SKYSCRAPER_FISH" to 12, "Skyscraper" to 12,
+        "TWO_STRING_KITE_FISH" to 13, "2-String Kite" to 13,
+        "FINNED_X_WING_FISH" to 14, "Finned X-Wing" to 14,
+        "SASHIMI_X_WING_FISH" to 15, "Sashimi X-Wing" to 15,
+        // HARD (16-22): Coloring, uniqueness, wings, swordfish
+        "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16, "Simple Coloring" to 16,
+        "UNIQUE_RECTANGLE" to 17, "Unique Rectangles" to 17,
+        "BUG" to 18, "Bivalue Universal Grave" to 18,
+        "Y_WING" to 19, "XY-Wing" to 19, "XY_WING" to 19,
+        "EMPTY_RECTANGLE" to 20, "Empty Rectangles" to 20, "Empty Rectangle" to 20,
+        "SWORDFISH_FISH" to 21, "Swordfish" to 21,
+        "FINNED_SWORDFISH_FISH" to 22, "Finned Swordfish" to 22,
+        // EXPERT (23-28): Advanced wings, chains, 3D Medusa
+        "XYZ_WING" to 23, "XYZ Wing" to 23, "XYZ-Wing" to 23,
+        "X_CYCLES" to 24, "X-Cycles" to 24, "X-Cycle" to 24,
+        "XY_CHAIN" to 25, "XY-Chain" to 25,
+        "WXYZ_WING" to 26, "WXYZ Wing" to 26, "WXYZ-Wing" to 26,
+        "JELLYFISH_FISH" to 27, "Jellyfish" to 27,
+        "MEDUSA_3D" to 28, "3D Medusa" to 28, "THREE_D_MEDUSA" to 28,
+        // EXTREME (29-34): Franken/mutant fish, grouped techniques
+        "GROUPED_X_CYCLES" to 29, "Grouped X-Cycles" to 29,
+        "FRANKEN_X_WING_FISH" to 30, "Franken X-Wing" to 30,
+        "FINNED_FRANKEN_X_WING_FISH" to 31,
+        "FINNED_MUTANT_X_WING_FISH" to 32,
+        "FRANKEN_SWORDFISH_FISH" to 33,
+        "FINNED_JELLYFISH_FISH" to 34,
+        // DIABOLICAL (35-38): AIC, ALS, Sue-de-Coq, Forcing Chains
+        "AIC" to 35, "Alternating Inference Chains" to 35,
+        "ALMOST_LOCKED_SETS" to 36, "Almost Locked Sets" to 36,
+        "SUE_DE_COQ" to 37, "Sue-de-Coq" to 37,
+        "FORCING_CHAINS" to 38, "Forcing Chains" to 38,
+        "NISHIO" to 39, "Nishio" to 39,
+    )
+    
+    private fun getTechniquePriority(techniqueName: String): Int {
+        return techniquePriority[techniqueName] 
+            ?: techniquePriority[techniqueName.uppercase()]
+            ?: techniquePriority[techniqueName.replace("_", " ")]
+            ?: 100 // Unknown techniques get high priority (harder)
+    }
+    
+    /**
+     * Find the easiest applicable technique (optimized for hints)
+     * Uses tiered search: tries basics first, only falls back to advanced if needed
+     */
+    fun findHint(puzzleString: String): HintResponse {
+        val startTime = System.currentTimeMillis()
+        
+        return try {
+            val basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
+            val sbrcGrid = SBRCGrid(basicGrid)
+            
+            // Clear old cache entries
+            val cutoff = System.currentTimeMillis() - 5 * 60 * 1000
+            matchCache.entries.removeIf { it.value.timestamp < cutoff }
+            
+            // TIER 1: Try basic techniques first (very fast)
+            var matches = FindBasics.invoke(sbrcGrid, false)
+            var foundInBasics = true
+            
+            // TIER 2: Only if no basics found, try all techniques
+            if (matches.isEmpty() || matches.values.all { it.isEmpty() }) {
+                matches = FindAll.invoke(sbrcGrid)
+                foundInBasics = false
+            }
+            
+            // Find the EASIEST technique (lowest priority)
+            var bestMatch: TechniqueMatch? = null
+            var bestTechnique: Technique? = null
+            var bestPriority = Int.MAX_VALUE
+            
+            for ((technique, techniqueMatches) in matches) {
+                if (techniqueMatches.isEmpty()) continue
+                
+                val priority = getTechniquePriority(technique.name)
+                if (priority < bestPriority) {
+                    bestPriority = priority
+                    bestMatch = techniqueMatches.first()
+                    bestTechnique = technique
+                }
+            }
+            
+            val elapsed = System.currentTimeMillis() - startTime
+            
+            if (bestMatch == null || bestTechnique == null) {
+                return HintResponse(
+                    success = true,
+                    hint = null,
+                    difficulty = 0,
+                    searchTimeMs = elapsed,
+                    error = "No techniques found - puzzle may need brute force"
+                )
+            }
+            
+            // Cache the match for later application
+            val matchId = UUID.randomUUID().toString()
+            matchCache[matchId] = CachedMatch(bestMatch, bestTechnique)
+            
+            val hintDto = techniqueMatchToDto(matchId, bestTechnique, bestMatch)
+            
+            HintResponse(
+                success = true,
+                hint = hintDto,
+                difficulty = bestPriority,
+                searchTimeMs = elapsed
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            HintResponse(
+                success = false,
+                error = "Failed to find hint: ${e.message}",
+                searchTimeMs = System.currentTimeMillis() - startTime
+            )
+        }
+    }
+    
+    /**
+     * Grade a puzzle by solving it step-by-step and tracking all techniques used
+     * Returns technique counts sorted by difficulty
+     */
+    fun gradePuzzle(puzzleString: String): GradePuzzleResponse {
+        val startTime = System.currentTimeMillis()
+        val techniqueCounts = mutableMapOf<String, Int>()
+        var maxDifficulty = 0
+        var totalSteps = 0
+        val maxIterations = 500  // Safety limit
+        
+        return try {
+            var basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
+            
+            while (totalSteps < maxIterations) {
+                // Check if solved
+                var isSolved = true
+                for (cell in 0 until cardinals.Length) {
+                    if (!basicGrid.getSolved(cell).isPresent) {
+                        isSolved = false
+                        break
+                    }
+                }
+                
+                if (isSolved) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    return GradePuzzleResponse(
+                        success = true,
+                        solved = true,
+                        techniques = techniqueCounts.map { (name, count) ->
+                            TechniqueCount(name, count, getTechniquePriority(name))
+                        }.sortedBy { it.priority },
+                        maxDifficulty = maxDifficulty,
+                        totalSteps = totalSteps,
+                        searchTimeMs = elapsed
+                    )
+                }
+                
+                // Find easiest technique
+                val sbrcGrid = SBRCGrid(basicGrid)
+                
+                // Try basics first
+                var matches = FindBasics.invoke(sbrcGrid, false)
+                
+                // Fall back to all techniques if no basics
+                if (matches.isEmpty() || matches.values.all { it.isEmpty() }) {
+                    matches = FindAll.invoke(sbrcGrid)
+                }
+                
+                // Find easiest available technique
+                var bestMatch: TechniqueMatch? = null
+                var bestTechniqueName: String? = null
+                var bestPriority = Int.MAX_VALUE
+                
+                for ((technique, techniqueMatches) in matches) {
+                    if (techniqueMatches.isEmpty()) continue
+                    
+                    val priority = getTechniquePriority(technique.name)
+                    if (priority < bestPriority) {
+                        bestPriority = priority
+                        bestMatch = techniqueMatches.first()
+                        bestTechniqueName = technique.name
+                    }
+                }
+                
+                if (bestMatch == null || bestTechniqueName == null) {
+                    // No technique found - puzzle may need brute force
+                    val elapsed = System.currentTimeMillis() - startTime
+                    return GradePuzzleResponse(
+                        success = true,
+                        solved = false,
+                        techniques = techniqueCounts.map { (name, count) ->
+                            TechniqueCount(name, count, getTechniquePriority(name))
+                        }.sortedBy { it.priority },
+                        maxDifficulty = maxDifficulty,
+                        totalSteps = totalSteps,
+                        searchTimeMs = elapsed,
+                        error = "Could not solve completely - may need brute force"
+                    )
+                }
+                
+                // Track this technique
+                techniqueCounts[bestTechniqueName] = (techniqueCounts[bestTechniqueName] ?: 0) + 1
+                maxDifficulty = maxOf(maxDifficulty, bestPriority)
+                totalSteps++
+                
+                // Apply the technique
+                for ((digit, cells) in bestMatch.eliminations) {
+                    var cell = cells.nextSetBit(0)
+                    while (cell >= 0) {
+                        basicGrid.clearCandidate(cell, digit)
+                        cell = cells.nextSetBit(cell + 1)
+                    }
+                }
+                
+                for ((cell, digit) in bestMatch.solvedCells) {
+                    basicGrid.setSolved(cell, digit, false)
+                }
+                
+                basicGrid.cleanUpCandidates()
+            }
+            
+            // Hit iteration limit
+            val elapsed = System.currentTimeMillis() - startTime
+            GradePuzzleResponse(
+                success = true,
+                solved = false,
+                techniques = techniqueCounts.map { (name, count) ->
+                    TechniqueCount(name, count, getTechniquePriority(name))
+                }.sortedBy { it.priority },
+                maxDifficulty = maxDifficulty,
+                totalSteps = totalSteps,
+                searchTimeMs = elapsed,
+                error = "Hit iteration limit"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            GradePuzzleResponse(
+                success = false,
+                error = "Failed to grade puzzle: ${e.message}",
+                searchTimeMs = System.currentTimeMillis() - startTime
+            )
+        }
+    }
+    
     /**
      * Load a puzzle from string representation
      */

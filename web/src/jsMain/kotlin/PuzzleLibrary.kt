@@ -14,7 +14,11 @@ private data class PuzzleJson(
     val puzzleId: Int,
     val difficulty: Float,
     val givens: String,
-    val solution: String
+    val solution: String,
+    val quality: Float? = null,
+    val techniques: Map<String, Int>? = null,
+    val title: String? = null,
+    val url: String? = null
 )
 
 @Serializable
@@ -43,9 +47,12 @@ object PuzzleLibrary {
      */
     private fun getFilenameForCategory(category: DifficultyCategory): String? {
         return when (category) {
-            DifficultyCategory.BASIC -> "basic.json"
+            DifficultyCategory.BEGINNER -> "beginner.json"
             DifficultyCategory.EASY -> "easy.json"
+            DifficultyCategory.MEDIUM -> "medium.json"
             DifficultyCategory.TOUGH -> "tough.json"
+            DifficultyCategory.HARD -> "hard.json"
+            DifficultyCategory.EXPERT -> "expert.json"
             DifficultyCategory.DIABOLICAL -> "diabolical.json"
             DifficultyCategory.CUSTOM -> null // Custom puzzles are stored separately
         }
@@ -117,7 +124,11 @@ object PuzzleLibrary {
                                 puzzleString = p.givens,
                                 difficulty = p.difficulty,
                                 category = category,
-                                solution = p.solution
+                                solution = p.solution,
+                                quality = p.quality,
+                                techniques = p.techniques,
+                                title = p.title,
+                                url = p.url
                             )
                         }
                         

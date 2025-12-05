@@ -1,17 +1,20 @@
-# v0.3.0 - 2025-12-
+# v0.3.0 - 2025-12-06
 
 ### Features
 - Hint System
 - - Reordered technique difficulty
 - - New user experience to minimise clicks/taps and scrolling
-- New puzzles
+- Training Puzzles
+- - Initial support for training Puzzles (not included)
+- New puzzles, and puzzle format
 - - Every puzzzle ranked
 - - Puzzle generator based on qqwing
 - - All source for generating and ranking puzzles included
-- New puzzle resource format
 - - New puzzle format, to include solution, elminating need to solve puzzle on load to detect mistakes
 - - New difficulty rankings, to make it more logical and intuitive
-
+- - Quality ratings, based on distribution and range of techniques needed.
+- - Puzzle format can be expanded on as needed without breaking saves in the future.
+- - **Lots** of difficulties, with information to see what techniques you need to know.
 
 ### Fixed Issues
 - Fixed issue where Hint would remain on the wrong stage
@@ -20,6 +23,13 @@
 - Hint panel remains open, but does not load hints when loading a new puzzle
 - Mistakes on Pencil/Candidate removal not detected
 
+### Hint System Status
+- Complete
+- - Basic Techniques
+- Features Implemented
+- - Cell and Candidate Highlighting
+- - Universal Interactive Descriptions
+- - Vector Lines for Chains
 
 
 # v0.2.4 - 2025-12-04b

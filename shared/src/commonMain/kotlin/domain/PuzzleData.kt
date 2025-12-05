@@ -11,13 +11,20 @@ data class PuzzleDefinition(
     val puzzleString: String, // 81-char puzzle string (givens)
     val difficulty: Float,    // Difficulty rating from solver
     val category: DifficultyCategory = DifficultyCategory.EASY,  // Default for backwards compatibility
-    val solution: String? = null  // 81-char solution string (pre-computed)
+    val solution: String? = null,  // 81-char solution string (pre-computed)
+    val quality: Float? = null,    // Quality rating (0-10)
+    val techniques: Map<String, Int>? = null,  // Techniques used: name -> count
+    val title: String? = null,     // Optional title (for training puzzles)
+    val url: String? = null        // Optional URL (for training puzzles)
 )
 
 enum class DifficultyCategory(val displayName: String) {
-    BASIC("Basic"),
+    BEGINNER("Beginner"),
     EASY("Easy"),
+    MEDIUM("Medium"),
     TOUGH("Tough"),
+    HARD("Hard"),
+    EXPERT("Expert"),
     DIABOLICAL("Diabolical"),
     CUSTOM("Custom");
     
@@ -28,9 +35,12 @@ enum class DifficultyCategory(val displayName: String) {
          */
         fun fromDifficulty(difficulty: Float): DifficultyCategory {
             return when {
-                difficulty < 0.5f -> BASIC
-                difficulty < 1.1f -> EASY
-                difficulty < 3.0f -> TOUGH
+                difficulty < 10f -> BEGINNER
+                difficulty < 18f -> EASY
+                difficulty < 25f -> MEDIUM
+                difficulty < 40f -> TOUGH
+                difficulty < 60f -> HARD
+                difficulty < 80f -> EXPERT
                 else -> DIABOLICAL
             }
         }
