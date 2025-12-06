@@ -74,13 +74,136 @@ class SudokuService {
         "FINNED_MUTANT_X_WING_FISH" to 32,
         "FRANKEN_SWORDFISH_FISH" to 33,
         "FINNED_JELLYFISH_FISH" to 34,
-        // DIABOLICAL (35-38): AIC, ALS, Sue-de-Coq, Forcing Chains
-        "AIC" to 35, "Alternating Inference Chains" to 35,
+        // DIABOLICAL (35-42): AIC, ALS, Sue-de-Coq, Forcing Chains, Rings
+        "AIC" to 35, "Alternating Inference Chains" to 35, "AIC Type 2" to 35,
         "ALMOST_LOCKED_SETS" to 36, "Almost Locked Sets" to 36,
+        "ALS_XY" to 36, "ALS-XY" to 36,
+        "ALS_XZ" to 36, "ALS-XZ" to 36,
         "SUE_DE_COQ" to 37, "Sue-de-Coq" to 37,
         "FORCING_CHAINS" to 38, "Forcing Chains" to 38,
         "NISHIO" to 39, "Nishio" to 39,
+        "RING" to 40, "Ring" to 40,
+        "L_WING" to 41, "L-Wing" to 41, "L(3)-Wing" to 41,
+        "W_WING" to 19, "W-Wing" to 19,
     )
+
+    private fun normalizeTechniqueKey(name: String): String {
+        return name.uppercase()
+            .replace("-", "_")
+            .replace(" ", "_")
+            .replace("/", "_")
+            .replace("(", "_")
+            .replace(")", "_")
+    }
+
+    private val techniqueDescriptions = mapOf(
+        // Singles / basics
+        "NAKED_SINGLE" to "Only one candidate fits in this cell, so place it.",
+        "NAKED_SINGLES" to "Only one candidate fits in this cell, so place it.",
+        "HIDDEN_SINGLE" to "A digit appears in only one cell of a house, forcing its placement.",
+        "HIDDEN_SINGLES" to "A digit appears in only one cell of a house, forcing its placement.",
+        "POINTING_CANDIDATES" to "A digit is locked in one line of a box, so it can be removed from that line outside the box.",
+        "POINTING_PAIRS" to "A digit is locked in one line of a box, so it can be removed from that line outside the box.",
+        "CLAIMING_CANDIDATES" to "A digit is locked in one box of a line, so it can be removed from that box outside the line.",
+        "BOX_LINE_REDUCTION" to "A digit is locked in one box of a line, so it can be removed from that box outside the line.",
+        // Subsets
+        "NAKED_PAIR" to "Two cells in a house contain exactly the same two candidates; they claim those digits.",
+        "NAKED_PAIRS" to "Two cells in a house contain exactly the same two candidates; they claim those digits.",
+        "NAKED_TRIPLE" to "Three cells in a house contain exactly the same three candidates; they claim those digits.",
+        "NAKED_TRIPLES" to "Three cells in a house contain exactly the same three candidates; they claim those digits.",
+        "NAKED_QUADRUPLE" to "Four cells in a house contain exactly the same four candidates; they claim those digits.",
+        "NAKED_QUADRUPLES" to "Four cells in a house contain exactly the same four candidates; they claim those digits.",
+        "HIDDEN_PAIR" to "Two digits can only appear in two cells of a house; other candidates in those cells are removed.",
+        "HIDDEN_PAIRS" to "Two digits can only appear in two cells of a house; other candidates in those cells are removed.",
+        "HIDDEN_TRIPLE" to "Three digits can only appear in three cells of a house; other candidates in those cells are removed.",
+        "HIDDEN_TRIPLES" to "Three digits can only appear in three cells of a house; other candidates in those cells are removed.",
+        "HIDDEN_QUADRUPLE" to "Four digits can only appear in four cells of a house; other candidates in those cells are removed.",
+        "HIDDEN_QUADRUPLES" to "Four digits can only appear in four cells of a house; other candidates in those cells are removed.",
+        // Fish and single-digit patterns
+        "X_WING_FISH" to "Rows and columns form an X-Wing so a digit can be eliminated from the covering lines.",
+        "X_WING" to "Rows and columns form an X-Wing so a digit can be eliminated from the covering lines.",
+        "SKYSCRAPER_FISH" to "Two strong links on a digit form a skyscraper, allowing eliminations in the shared columns/rows.",
+        "SKYSCRAPER" to "Two strong links on a digit form a skyscraper, allowing eliminations in the shared columns/rows.",
+        "TWO_STRING_KITE_FISH" to "A two-string kite uses 2 strong links, with a weak link in the same box, to eliminate a candidate at the intersection between the two strong links.",
+        "2_STRING_KITE" to "A two-string kite uses 2 strong links, with a weak link in the same box, to eliminate a candidate at the intersection between the two strong links.",
+        "2_STRING_KITE_FISH" to "A two-string kite uses 2 strong links, with a weak link in the same box, to eliminate a candidate at the intersection between the two strong links.",
+        "FINNED_X_WING_FISH" to "An X-Wing with a fin; cells seeing the fin can lose that digit.",
+        "FINNED_X_WING" to "An X-Wing with a fin; cells seeing the fin can lose that digit.",
+        "SASHIMI_X_WING_FISH" to "A sashimi X-Wing has a fin plus a missing base; cells seeing the fin can be eliminated.",
+        "SASHIMI_X_WING" to "A sashimi X-Wing has a fin plus a missing base; cells seeing the fin can be eliminated.",
+        "SWORDFISH_FISH" to "Three lines align candidates in three columns/rows, allowing eliminations (swordfish).",
+        "SWORDFISH" to "Three lines align candidates in three columns/rows, allowing eliminations (swordfish).",
+        "FINNED_SWORDFISH_FISH" to "A swordfish with a fin; cells seeing the fin lose that digit.",
+        "FINNED_SWORDFISH" to "A swordfish with a fin; cells seeing the fin lose that digit.",
+        "JELLYFISH_FISH" to "Four lines align candidates in four columns/rows, allowing eliminations (jellyfish).",
+        "JELLYFISH" to "Four lines align candidates in four columns/rows, allowing eliminations (jellyfish).",
+        "FINNED_JELLYFISH_FISH" to "A jellyfish with a fin; cells seeing the fin lose that digit.",
+        "FINNED_JELLYFISH" to "A jellyfish with a fin; cells seeing the fin lose that digit.",
+        "FRANKEN_X_WING_FISH" to "A Franken fish mixes boxes and lines to form the base/cover, enabling eliminations.",
+        "FRANKEN_X_WING" to "A Franken fish mixes boxes and lines to form the base/cover, enabling eliminations.",
+        "FINNED_FRANKEN_X_WING_FISH" to "A Franken fish with a fin; cells seeing the fin lose that digit.",
+        "FINNED_FRANKEN_X_WING" to "A Franken fish with a fin; cells seeing the fin lose that digit.",
+        "FINNED_MUTANT_X_WING_FISH" to "A mutant fish with a fin; eliminations come from cells seeing the fin.",
+        "FINNED_MUTANT_X_WING" to "A mutant fish with a fin; eliminations come from cells seeing the fin.",
+        "FRANKEN_SWORDFISH_FISH" to "A box/line swordfish variant enabling eliminations on the cover lines.",
+        "FRANKEN_SWORDFISH" to "A box/line swordfish variant enabling eliminations on the cover lines.",
+        "GROUPED_X_CYCLES" to "Grouped X-Cycles alternate strong and weak links on one digit to prove eliminations.",
+        // Coloring, uniqueness, wings
+        "SIMPLE_COLOURING" to "Color one digit into two sets of strong links; a contradiction color is eliminated.",
+        "SIMPLE_COLORING" to "Color one digit into two sets of strong links; a contradiction color is eliminated.",
+        "MEDUSA_3D" to "3D Medusa colors multiple digits; contradictions eliminate candidates or place values.",
+        "3D_MEDUSA" to "3D Medusa colors multiple digits; contradictions eliminate candidates or place values.",
+        "THREE_D_MEDUSA" to "3D Medusa colors multiple digits; contradictions eliminate candidates or place values.",
+        "UNIQUE_RECTANGLE" to "Prevent a deadly pattern by forcing or eliminating around a four-cell rectangle.",
+        "UNIQUE_RECTANGLES" to "Prevent a deadly pattern by forcing or eliminating around a four-cell rectangle.",
+        "BUG" to "Bivalue Universal Grave: only one candidate breaks the stalemate; place or eliminate accordingly.",
+        "BIVALUE_UNIVERSAL_GRAVE" to "Bivalue Universal Grave: only one candidate breaks the stalemate; place or eliminate accordingly.",
+        "Y_WING" to "XY-Wing (hinge + two pincers) eliminates a shared candidate seen by both pincers.",
+        "XY_WING" to "XY-Wing (hinge + two pincers) eliminates a shared candidate seen by both pincers.",
+        "XYZ_WING" to "XYZ-Wing (triad with XYZ) removes Z from cells seeing all three cells.",
+        "WXYZ_WING" to "WXYZ-Wing removes the shared candidate from peers of all four cells.",
+        "W_WING" to "W-Wing links two matching bivalue cells through a strong link, forcing eliminations.",
+        "L_3__WING" to "L-Wing with 3 cells links candidates to force eliminations.",
+        "L_WING" to "L-Wing links candidates in an L-shaped pattern to force eliminations.",
+        "EMPTY_RECTANGLE" to "An empty rectangle forces a conjugate pair interaction to eliminate a candidate.",
+        "EMPTY_RECTANGLES" to "An empty rectangle forces a conjugate pair interaction to eliminate a candidate.",
+        // Chains / advanced
+        "X_CYCLES" to "X-Cycles alternate strong/weak links on one digit; contradictions remove candidates.",
+        "X_CYCLE" to "X-Cycles alternate strong/weak links on one digit; contradictions remove candidates.",
+        "XY_CHAIN" to "XY-Chains link bivalue cells; the target digit is eliminated where both ends see.",
+        "AIC" to "Alternating Inference Chain proves eliminations via alternating strong/weak links.",
+        "AIC_TYPE_2" to "Alternating Inference Chain (Type 2) proves eliminations via alternating strong/weak links.",
+        "ALTERNATING_INFERENCE_CHAINS" to "Alternating Inference Chain proves eliminations via alternating strong/weak links.",
+        "FORCING_CHAINS" to "Forcing chains explore both outcomes and keep the deduction common to all paths.",
+        "RING" to "A ring structure of strong and weak links forces eliminations at junction points.",
+        // ALS / Sue / Nishio
+        "ALMOST_LOCKED_SETS" to "Almost Locked Sets connect via restricted candidates to force eliminations.",
+        "ALS_XY" to "ALS-XY links two almost locked sets through a shared restricted candidate.",
+        "ALS_XZ" to "ALS-XZ links two almost locked sets through shared restricted candidates.",
+        "SUE_DE_COQ" to "Sue-de-Coq divides a box-line overlap into disjoint digit sets, forcing eliminations.",
+        "NISHIO" to "Nishio assumes a digit placement and prunes branches that lead to contradiction.",
+    )
+
+    internal fun describeTechnique(name: String): String? {
+        return techniqueDescriptions[normalizeTechniqueKey(name)]
+    }
+
+    internal fun missingDescriptionsForPriority(): List<String> {
+        return techniquePriority.keys
+            .map { normalizeTechniqueKey(it) }
+            .distinct()
+            .filterNot { techniqueDescriptions.containsKey(it) }
+    }
+
+    init {
+        val missingDescriptions = techniquePriority.keys
+            .map { normalizeTechniqueKey(it) }
+            .filterNot { techniqueDescriptions.containsKey(it) }
+            .distinct()
+        if (missingDescriptions.isNotEmpty()) {
+            println("WARN: Missing descriptions for techniques: ${missingDescriptions.joinToString(", ")}")
+        }
+    }
     
     private fun getTechniquePriority(techniqueName: String): Int {
         return techniquePriority[techniqueName] 
@@ -658,6 +781,60 @@ class SudokuService {
             else -> "box"
         }
     }
+
+    private fun formatCellName(cell: Int): String {
+        return "R${cell / 9 + 1}C${cell % 9 + 1}"
+    }
+
+    private fun summarizeEliminations(eliminations: List<EliminationDto>): String? {
+        if (eliminations.isEmpty()) return null
+        return eliminations.joinToString("; ") { elim ->
+            val cells = elim.cells.joinToString(", ") { formatCellName(it) }
+            "${elim.digit} from $cells"
+        }
+    }
+
+    private fun summarizeSolvedCells(solvedCells: List<SolvedCellDto>): String? {
+        if (solvedCells.isEmpty()) return null
+        return solvedCells.joinToString("; ") { solved ->
+            "${formatCellName(solved.cell)} = ${solved.digit}"
+        }
+    }
+
+    private fun buildFallbackDescription(
+        techniqueName: String,
+        eliminations: List<EliminationDto>,
+        solvedCells: List<SolvedCellDto>,
+        match: TechniqueMatch
+    ): String {
+        val solvedSummary = summarizeSolvedCells(solvedCells)
+        val eliminationSummary = summarizeEliminations(eliminations)
+
+        return when {
+            solvedSummary != null && eliminationSummary != null ->
+                "$techniqueName places $solvedSummary and eliminates $eliminationSummary."
+            solvedSummary != null -> "$techniqueName places $solvedSummary."
+            eliminationSummary != null -> "$techniqueName eliminates $eliminationSummary."
+            else -> match.toString()
+        }
+    }
+
+    private fun getTechniqueDescription(
+        technique: Technique,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>,
+        solvedCells: List<SolvedCellDto>
+    ): String {
+        val candidates = listOf(technique.name, technique.getName())
+        for (name in candidates) {
+            val desc = describeTechnique(name)
+            if (desc != null) return desc
+        }
+
+        val fallback = buildFallbackDescription(technique.getName(), eliminations, solvedCells, match)
+        println("WARN: Missing description for technique ${technique.name}")
+        return fallback
+    }
     
     private fun techniqueMatchToDto(id: String, technique: Technique, match: TechniqueMatch): TechniqueMatchDto {
         val eliminations = match.eliminations.map { (digit, cells) ->
@@ -685,10 +862,12 @@ class SudokuService {
         // Generate explanation steps
         val explanationSteps = generateExplanationSteps(technique, match, eliminations, solvedCells)
         
+        val description = getTechniqueDescription(technique, match, eliminations, solvedCells)
+
         return TechniqueMatchDto(
             id = id,
             techniqueName = technique.getName(),
-            description = match.toString(),
+            description = description,
             eliminations = eliminations,
             solvedCells = solvedCells,
             highlightCells = highlightCells.toList(),
@@ -703,13 +882,59 @@ class SudokuService {
      * Extract visual data (lines, groups, eureka notation) from a TechniqueMatch
      */
     private fun extractVisualData(match: TechniqueMatch, technique: Technique): Triple<List<LineDto>, List<GroupDto>, String?> {
+        val techniqueName = technique.getName()
         return when (match) {
             is AICMatch -> extractAICVisualData(match)
             is ALSMatch -> extractALSVisualData(match)
             is SubsetMatch -> extractSubsetVisualData(match)
-            is FishMatch -> extractFishVisualData(match, technique.getName())
-            else -> Triple(emptyList(), emptyList(), null)
+            is FishMatch -> {
+                if (techniqueName.contains("2-String Kite", ignoreCase = true) ||
+                    (techniqueName.contains("Kite", ignoreCase = true) && !techniqueName.contains("String", ignoreCase = true))) {
+                    extractKiteVisualData(match, techniqueName)
+                } else {
+                    extractFishVisualData(match, techniqueName)
+                }
+            }
+            else -> {
+                if (techniqueName.contains("Wing", ignoreCase = true) ||
+                    techniqueName.contains("Fish", ignoreCase = true) ||
+                    techniqueName.contains("Cycle", ignoreCase = true) ||
+                    techniqueName.contains("Colour", ignoreCase = true) ||
+                    techniqueName.contains("Color", ignoreCase = true) ||
+                    techniqueName.contains("Medusa", ignoreCase = true) ||
+                    techniqueName.contains("Rectangle", ignoreCase = true) ||
+                    techniqueName.contains("Forcing", ignoreCase = true) ||
+                    techniqueName.contains("Sue", ignoreCase = true) ||
+                    techniqueName.contains("Nishio", ignoreCase = true) ||
+                    techniqueName.contains("BUG", ignoreCase = true)
+                ) {
+                    return extractEliminationVisuals(match)
+                }
+                Triple(emptyList(), emptyList(), null)
+            }
         }
+    }
+
+    private fun extractEliminationVisuals(match: TechniqueMatch): Triple<List<LineDto>, List<GroupDto>, String?> {
+        val groups = mutableListOf<GroupDto>()
+        match.eliminations.forEach { (digit, cells) ->
+            val candidates = mutableListOf<CandidateLocationDto>()
+            var cell = cells.nextSetBit(0)
+            while (cell >= 0) {
+                candidates.add(CandidateLocationDto(cell / 9, cell % 9, digit + 1))
+                cell = cells.nextSetBit(cell + 1)
+            }
+            if (candidates.isNotEmpty()) {
+                groups.add(
+                    GroupDto(
+                        candidates = candidates,
+                        groupType = "elimination",
+                        colorIndex = groups.size % 2
+                    )
+                )
+            }
+        }
+        return Triple(emptyList(), groups, null)
     }
     
     /**
@@ -1026,12 +1251,6 @@ class SudokuService {
         val lines = mutableListOf<LineDto>()
         val groups = mutableListOf<GroupDto>()
 
-        // Only process Pointing and Claiming Candidates
-        if (!techniqueName.contains("Pointing", ignoreCase = true) &&
-            !techniqueName.contains("Claiming", ignoreCase = true)) {
-            return Triple(lines, groups, null)
-        }
-
         try {
             // Use reflection to access private fields
             val matchClass = match.javaClass
@@ -1048,6 +1267,12 @@ class SudokuService {
             val coverSecs = coverSecsField.get(match) as java.util.BitSet
 
             val isPointing = techniqueName.contains("Pointing", ignoreCase = true)
+            val isClaiming = techniqueName.contains("Claiming", ignoreCase = true)
+
+            // For other fish (X-Wing, Swordfish, etc.), fall back to candidate-based visuals
+            if (!isPointing && !isClaiming) {
+                return extractEliminationVisuals(match)
+            }
 
             // Get the sectors involved
             val baseSector = baseSecs.nextSetBit(0)
@@ -1173,6 +1398,49 @@ class SudokuService {
             techniqueName.contains("Box/Line", ignoreCase = true) -> {
                 steps.addAll(generateIntersectionSteps(techniqueName, match, eliminations))
             }
+            techniqueName.contains("2-String Kite", ignoreCase = true) ||
+            (techniqueName.contains("Kite", ignoreCase = true) && !techniqueName.contains("String", ignoreCase = true)) -> {
+                steps.addAll(generateKiteSteps(techniqueName, match, eliminations))
+            }
+            techniqueName.contains("Fish", ignoreCase = true) ||
+            techniqueName.contains("X-Wing", ignoreCase = true) ||
+            techniqueName.contains("Swordfish", ignoreCase = true) ||
+            techniqueName.contains("Jellyfish", ignoreCase = true) ||
+            techniqueName.contains("Skyscraper", ignoreCase = true) -> {
+                steps.addAll(generateFishSteps(techniqueName, match, eliminations))
+            }
+            techniqueName.contains("Wing", ignoreCase = true) -> {
+                steps.addAll(generateWingSteps(techniqueName, match, eliminations))
+            }
+            techniqueName.contains("Cycle", ignoreCase = true) -> {
+                steps.addAll(generateCycleSteps(techniqueName, eliminations))
+            }
+            techniqueName.contains("Colour", ignoreCase = true) ||
+            techniqueName.contains("Color", ignoreCase = true) ||
+            techniqueName.contains("Medusa", ignoreCase = true) -> {
+                steps.addAll(generateColoringSteps(techniqueName, eliminations))
+            }
+            techniqueName.contains("Unique Rectangle", ignoreCase = true) -> {
+                steps.addAll(generateUniqueRectangleSteps(techniqueName, eliminations))
+            }
+            techniqueName.equals("BUG", ignoreCase = true) || techniqueName.contains("Bivalue", ignoreCase = true) -> {
+                steps.addAll(generateBugSteps(eliminations))
+            }
+            techniqueName.contains("Empty Rectangle", ignoreCase = true) -> {
+                steps.addAll(generateEmptyRectangleSteps(techniqueName, eliminations))
+            }
+            techniqueName.contains("Sue", ignoreCase = true) -> {
+                steps.addAll(generateSueDeCoqSteps(eliminations))
+            }
+            techniqueName.contains("Forcing", ignoreCase = true) -> {
+                steps.addAll(generateForcingChainSteps(techniqueName, eliminations))
+            }
+            techniqueName.contains("Nishio", ignoreCase = true) -> {
+                steps.addAll(generateNishioSteps(eliminations))
+            }
+            techniqueName.contains("Chain", ignoreCase = true) -> {
+                steps.addAll(generateChainLikeSteps(techniqueName, eliminations))
+            }
             match is AICMatch -> {
                 steps.addAll(generateChainSteps(techniqueName, match, eliminations))
             }
@@ -1188,6 +1456,1289 @@ class SudokuService {
         return steps
     }
     
+    private fun eliminationCandidates(
+        eliminations: List<EliminationDto>,
+        color: String = "elimination"
+    ): List<ColoredCandidateDto> {
+        val candidates = mutableListOf<ColoredCandidateDto>()
+        for (elim in eliminations) {
+            for (cell in elim.cells) {
+                candidates.add(
+                    ColoredCandidateDto(
+                        row = cell / 9,
+                        col = cell % 9,
+                        candidate = elim.digit,
+                        colorType = color
+                    )
+                )
+            }
+        }
+        return candidates
+    }
+
+    private fun generateFishSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+        
+        // Extract fish pattern data
+        var digit = eliminations.firstOrNull()?.digit ?: 0
+        val baseIndices = mutableListOf<Int>()
+        val coverIndices = mutableListOf<Int>()
+        
+        try {
+            val matchClass = match.javaClass
+            val digitField = matchClass.getDeclaredField("digit")
+            val baseSecsField = matchClass.getDeclaredField("baseSecs")
+            val coverSecsField = matchClass.getDeclaredField("coverSecs")
+            
+            digitField.isAccessible = true
+            baseSecsField.isAccessible = true
+            coverSecsField.isAccessible = true
+            
+            digit = (digitField.get(match) as Int) + 1 // Convert to 1-9
+            val baseSecs = baseSecsField.get(match) as java.util.BitSet
+            val coverSecs = coverSecsField.get(match) as java.util.BitSet
+            
+            // Extract all base sectors
+            var idx = baseSecs.nextSetBit(0)
+            while (idx >= 0) {
+                baseIndices.add(idx)
+                idx = baseSecs.nextSetBit(idx + 1)
+            }
+            
+            // Extract all cover sectors
+            idx = coverSecs.nextSetBit(0)
+            while (idx >= 0) {
+                coverIndices.add(idx)
+                idx = coverSecs.nextSetBit(idx + 1)
+            }
+        } catch (e: Exception) {
+            // Fallback if reflection fails
+        }
+        
+        // Determine base and cover types
+        val baseType = if (baseIndices.isNotEmpty()) getSectorType(baseIndices.first()) else null
+        val coverType = if (coverIndices.isNotEmpty()) getSectorType(coverIndices.first()) else null
+        
+        val baseTypeText = when (baseType) {
+            "row" -> "rows"
+            "column" -> "columns"
+            "box" -> "boxes"
+            else -> "lines"
+        }
+        
+        val coverTypeText = when (coverType) {
+            "row" -> "rows"
+            "column" -> "columns"
+            "box" -> "boxes"
+            else -> "lines"
+        }
+        
+        // Build region highlighting: base = primary (blue), cover = primary (blue)
+        val baseRegions = baseIndices.map { idx ->
+            ColoredRegionDto(baseType ?: "row", idx % 9, "primary")
+        }
+        val coverRegions = coverIndices.map { idx ->
+            ColoredRegionDto(coverType ?: "row", idx % 9, "primary")
+        }
+        val allRegions = baseRegions + coverRegions
+        
+        // Get all cells in base sectors
+        val baseCells = mutableListOf<Int>()
+        for (idx in baseIndices) {
+            baseCells.addAll(getSectorCells(idx))
+        }
+        
+        // Get all cells in cover sectors
+        val coverCells = mutableListOf<Int>()
+        for (idx in coverIndices) {
+            coverCells.addAll(getSectorCells(idx))
+        }
+        
+        // Find intersection cells (where base and cover sectors meet - the actual X-Wing pattern)
+        val intersectionCells = baseCells.filter { it in coverCells }.distinct()
+        
+        // Pattern cells are the intersection cells
+        val patternCells = intersectionCells
+        
+        // Colored candidates: pattern cells get "target", elimination cells get "elimination"
+        val patternCandidates = patternCells.map { cell ->
+            ColoredCandidateDto(cell / 9, cell % 9, digit, "target")
+        }
+        
+        val eliminationCandidates = eliminationCandidates(eliminations)
+        
+        // Build base line names
+        val baseNames = baseIndices.map { idx ->
+            when (baseType) {
+                "row" -> "Row ${idx % 9 + 1}"
+                "column" -> "Column ${idx % 9 + 1}"
+                "box" -> "Box ${idx % 9 + 1}"
+                else -> "Line ${idx + 1}"
+            }
+        }.joinToString(" and ")
+        
+        val coverNames = coverIndices.map { idx ->
+            when (coverType) {
+                "row" -> "Row ${idx % 9 + 1}"
+                "column" -> "Column ${idx % 9 + 1}"
+                "box" -> "Box ${idx % 9 + 1}"
+                else -> "Line ${idx + 1}"
+            }
+        }.joinToString(" and ")
+        
+        // Step 1: Identify the pattern
+        val patternDescription = when {
+            techniqueName.contains("X-Wing", ignoreCase = true) -> 
+                "In $baseNames, digit $digit appears in exactly ${baseIndices.size} $baseTypeText. " +
+                "These candidates line up perfectly in $coverNames. " +
+                "Because $digit must be placed in one of these positions in each base $baseTypeText, " +
+                "it locks $digit into the highlighted $baseTypeText."
+            
+            techniqueName.contains("Swordfish", ignoreCase = true) -> 
+                "In $baseNames, digit $digit appears in exactly three $baseTypeText. " +
+                "These candidates align across three $coverTypeText: $coverNames. " +
+                "The swordfish pattern locks $digit into these base $baseTypeText."
+            
+            techniqueName.contains("Jellyfish", ignoreCase = true) -> 
+                "In $baseNames, digit $digit appears in exactly four $baseTypeText. " +
+                "These candidates align across four $coverTypeText: $coverNames. " +
+                "The jellyfish pattern locks $digit into these base $baseTypeText."
+            
+            else -> 
+                "Digit $digit candidates align on base $baseTypeText ($baseNames) and cover $coverTypeText ($coverNames) to form a $techniqueName pattern."
+        }
+        
+        // Colored cells for the intersection points (yellow border)
+        val intersectionColoredCells = intersectionCells.map { ColoredCellDto(it, "warning") }
+        
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Identify the $techniqueName pattern",
+                description = patternDescription,
+                highlightCells = patternCells,
+                regions = baseRegions,
+                coloredCells = intersectionColoredCells,
+                coloredCandidates = patternCandidates
+            )
+        )
+
+        // Step 2: Explain why eliminations work
+        if (eliminations.isNotEmpty()) {
+            val eliminationExplanation = 
+                "Since $digit is locked in $baseNames (highlighted in the base $baseTypeText), " +
+                "any other $digit candidates in $coverNames must be false. " +
+                "Eliminate $digit from cells in the cover $coverTypeText that aren't part of the pattern."
+            
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Eliminate from cover $coverTypeText",
+                    description = eliminationExplanation,
+                    highlightCells = eliminationCells,
+                    regions = coverRegions,
+                    coloredCandidates = patternCandidates + eliminationCandidates
+                )
+            )
+            
+            // Step 3: Show specific eliminations with pattern cells highlighted in green
+            val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+            val eliminationColoredCells = eliminationCells.map { ColoredCellDto(it, "warning") }
+            
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 3,
+                    title = "Remove candidate $digit",
+                    description = "Remove $digit from: $eliminationNames. These cells see the fish pattern and cannot contain $digit.",
+                    highlightCells = eliminationCells,
+                    regions = allRegions,
+                    coloredCells = intersectionColoredCells + eliminationColoredCells,
+                    coloredCandidates = patternCandidates + eliminationCandidates
+                )
+            )
+        }
+
+        return steps
+    }
+
+    /**
+     * Extract visual data for 2-String Kite (show strong link between kite cells)
+     */
+    private fun extractKiteVisualData(match: TechniqueMatch, techniqueName: String): Triple<List<LineDto>, List<GroupDto>, String?> {
+        val lines = mutableListOf<LineDto>()
+        val groups = mutableListOf<GroupDto>()
+
+        var kiteCells: List<Int> = emptyList()
+        var rowIndex: Int? = null
+        var colIndex: Int? = null
+        var rowFin: Int? = null
+        var colFin: Int? = null
+
+        try {
+            val matchClass = match.javaClass
+            val digitField = matchClass.getDeclaredField("digit")
+            val baseSecsField = matchClass.getDeclaredField("baseSecs")
+            val coverSecsField = matchClass.getDeclaredField("coverSecs")
+            val finsField = matchClass.getDeclaredField("fins")
+
+            digitField.isAccessible = true
+            baseSecsField.isAccessible = true
+            coverSecsField.isAccessible = true
+            finsField.isAccessible = true
+
+            val digit = (digitField.get(match) as Int) + 1 // Convert to 1-9
+            val baseSecs = baseSecsField.get(match) as java.util.BitSet
+            val coverSecs = coverSecsField.get(match) as java.util.BitSet
+            val fins = finsField.get(match) as java.util.BitSet
+
+            // Collect base and cover sectors
+            val baseIndices = mutableListOf<Int>()
+            var idx = baseSecs.nextSetBit(0)
+            while (idx >= 0) {
+                baseIndices.add(idx)
+                idx = baseSecs.nextSetBit(idx + 1)
+            }
+
+            val coverIndices = mutableListOf<Int>()
+            idx = coverSecs.nextSetBit(0)
+            while (idx >= 0) {
+                coverIndices.add(idx)
+                idx = coverSecs.nextSetBit(idx + 1)
+            }
+
+            // Derive row/col from base sectors
+            rowIndex = baseIndices.firstOrNull { it < 9 }
+            colIndex = baseIndices.firstOrNull { it in 9..17 }?.let { it - 9 }
+
+            // Extract fin cells (these are CELL indices 0-80!)
+            // The commented AIC in TwoStringKite.java shows:
+            // Node 0: rowOuties (cell in row, outside box) = rowFin
+            // Node 1: difference(inRow, rowOuties) (cell in row, inside box)
+            // Node 2: difference(inCol, colOuties) (cell in column, inside box)
+            // Node 3: colOuties (cell in column, outside box) = colFin
+            
+            val finCells = mutableListOf<Int>()
+            var finIdx = fins.nextSetBit(0)
+            while (finIdx >= 0) {
+                finCells.add(finIdx)
+                finIdx = fins.nextSetBit(finIdx + 1)
+            }
+            
+            // Identify which fin is in the row and which is in the column
+            // rowFin: in row rowIndex, but NOT in column colIndex (outside box in that row)
+            // colFin: in column colIndex, but NOT in row rowIndex (outside box in that column)
+            if (finCells.size >= 2 && rowIndex != null && colIndex != null) {
+                for (cellIdx in finCells) {
+                    val cellRow = cellIdx / 9
+                    val cellCol = cellIdx % 9
+                    if (cellRow == rowIndex && cellCol != colIndex) {
+                        rowFin = cellIdx  // This cell is in the row (outside box)
+                    } else if (cellCol == colIndex && cellRow != rowIndex) {
+                        colFin = cellIdx  // This cell is in the column (outside box)
+                    }
+                }
+            }
+
+            // Cells in base (row/col) and cover (box)
+            val baseCells = baseIndices.flatMap { getSectorCells(it) }
+            val coverCells = coverIndices.flatMap { getSectorCells(it) }
+            
+            // Get the box cells (coverCells is the actual box)
+            // Use coverCells directly, not baseCells filtered
+            
+            // Get all cells in the row and column  
+            val rowCells = if (rowIndex != null) getSectorCells(rowIndex) else emptyList()
+            val colCells = if (colIndex != null) getSectorCells(colIndex + 9) else emptyList()
+            
+            // The row/col intersection cell (which must NOT have the digit)
+            val rowColIntersection = if (rowIndex != null && colIndex != null) {
+                rowIndex * 9 + colIndex
+            } else null
+            
+            // The difference operations from the AIC:
+            // inRow \ rowOuties = cells in row that are IN THE BOX and are NOT rowFin
+            // inCol \ colOuties = cells in column that are IN THE BOX and are NOT colFin
+            
+            val rowCellsInBox = if (rowFin != null && rowIndex != null) {
+                // Cells in the row, inside THE COVER BOX, but NOT the rowFin or intersection
+                rowCells.filter { cell ->
+                    cell in coverCells && 
+                    cell != rowFin && 
+                    cell != rowColIntersection
+                }
+            } else emptyList()
+            
+            val colCellsInBox = if (colFin != null && colIndex != null) {
+                // Cells in the column, inside THE COVER BOX, but NOT the colFin or intersection
+                colCells.filter { cell ->
+                    cell in coverCells && 
+                    cell != colFin && 
+                    cell != rowColIntersection
+                }
+            } else emptyList()
+
+            // The kite cells ARE the fin cells (they're already cell indices)
+            if (rowFin != null && colFin != null) {
+                kiteCells = listOf(rowFin, colFin)
+            } else if (finCells.size >= 2) {
+                // Fallback: use the fin cells directly
+                kiteCells = finCells.take(2)
+            } else {
+                // Double fallback: find cells in base sectors that are NOT in cover sectors
+                kiteCells = baseCells.filter { it !in coverCells }.distinct().take(2)
+            }
+
+            if (kiteCells.size >= 2 && rowIndex != null && colIndex != null) {
+                val c1 = kiteCells[0]
+                val c2 = kiteCells[1]
+                val r1 = c1 / 9
+                val c1c = c1 % 9
+                val r2 = c2 / 9
+                val c2c = c2 % 9
+
+                // Use the computed cells from the difference operations
+                // The two cells in the box MUST be in the same box (for the weak link)
+                val rowCellInBox = rowCellsInBox.lastOrNull()
+                
+                val colCellInBox = if (colCellsInBox.size > 1 && rowCellInBox != null) {
+                    // Pick the colCellInBox that's in the same box as rowCellInBox
+                    val rowCellBox = (rowCellInBox / 27) * 3 + ((rowCellInBox % 9) / 3)
+                    colCellsInBox.firstOrNull { cell ->
+                        val cellBox = (cell / 27) * 3 + ((cell % 9) / 3)
+                        cellBox == rowCellBox
+                    } ?: colCellsInBox.firstOrNull()
+                } else {
+                    colCellsInBox.firstOrNull()
+                }
+
+                // Strong link in the row (between kite endpoint and cell in box)
+                if (rowCellInBox != null) {
+                    val rr = rowCellInBox / 9
+                    val rc = rowCellInBox % 9
+                    lines.add(
+                        LineDto(
+                            from = CandidateLocationDto(r1, c1c, digit),
+                            to = CandidateLocationDto(rr, rc, digit),
+                            isStrongLink = true,
+                            lineType = "kite-strong-row",
+                            description = "Strong link: if $digit is not in R${r1+1}C${c1c+1}, it must be in R${rr+1}C${rc+1}"
+                        )
+                    )
+                }
+
+                // Strong link in the column (between kite endpoint and cell in box)
+                if (colCellInBox != null) {
+                    val cr = colCellInBox / 9
+                    val cc = colCellInBox % 9
+                    lines.add(
+                        LineDto(
+                            from = CandidateLocationDto(r2, c2c, digit),
+                            to = CandidateLocationDto(cr, cc, digit),
+                            isStrongLink = true,
+                            lineType = "kite-strong-col",
+                            description = "Strong link: if $digit is not in R${r2+1}C${c2c+1}, it must be in R${cr+1}C${cc+1}"
+                        )
+                    )
+                }
+
+                // Weak link (dashed) connecting the two cells in the box
+                if (rowCellInBox != null && colCellInBox != null) {
+                    val rr = rowCellInBox / 9
+                    val rc = rowCellInBox % 9
+                    val cr = colCellInBox / 9
+                    val cc = colCellInBox % 9
+                    lines.add(
+                        LineDto(
+                            from = CandidateLocationDto(rr, rc, digit),
+                            to = CandidateLocationDto(cr, cc, digit),
+                            isStrongLink = false,
+                            lineType = "kite-weak",
+                            description = "Weak link: $digit cannot be in both R${rr+1}C${rc+1} and R${cr+1}C${cc+1}"
+                        )
+                    )
+                }
+
+                // Group each kite endpoint
+                groups.add(
+                    GroupDto(
+                        candidates = listOf(CandidateLocationDto(r1, c1c, digit)),
+                        groupType = "kite-end",
+                        colorIndex = 0
+                    )
+                )
+                groups.add(
+                    GroupDto(
+                        candidates = listOf(CandidateLocationDto(r2, c2c, digit)),
+                        groupType = "kite-end",
+                        colorIndex = 1
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            // Fallback: no lines/groups
+        }
+
+        return Triple(lines, groups, null)
+    }
+
+    /**
+     * Generate step-by-step explanation for 2-String Kite
+     */
+    private fun generateKiteSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+
+        // Extract kite pattern data
+        var digit = eliminations.firstOrNull()?.digit ?: 0
+        val baseIndices = mutableListOf<Int>()
+        val coverIndices = mutableListOf<Int>()
+        var rowIndex: Int? = null
+        var colIndex: Int? = null
+        var fins = java.util.BitSet()
+
+        try {
+            val matchClass = match.javaClass
+            val digitField = matchClass.getDeclaredField("digit")
+            val baseSecsField = matchClass.getDeclaredField("baseSecs")
+            val coverSecsField = matchClass.getDeclaredField("coverSecs")
+            val finsField = matchClass.getDeclaredField("fins")
+
+            digitField.isAccessible = true
+            baseSecsField.isAccessible = true
+            coverSecsField.isAccessible = true
+            finsField.isAccessible = true
+
+            digit = (digitField.get(match) as Int) + 1 // Convert to 1-9
+            val baseSecs = baseSecsField.get(match) as java.util.BitSet
+            val coverSecs = coverSecsField.get(match) as java.util.BitSet
+            fins = finsField.get(match) as java.util.BitSet
+
+            // Extract all base sectors
+            var idx = baseSecs.nextSetBit(0)
+            while (idx >= 0) {
+                baseIndices.add(idx)
+                idx = baseSecs.nextSetBit(idx + 1)
+            }
+
+            // Extract all cover sectors
+            idx = coverSecs.nextSetBit(0)
+            while (idx >= 0) {
+                coverIndices.add(idx)
+                idx = coverSecs.nextSetBit(idx + 1)
+            }
+
+            // Derive row/col from base sectors
+            rowIndex = baseIndices.firstOrNull { it < 9 }
+            colIndex = baseIndices.firstOrNull { it in 9..17 }?.let { it - 9 }
+        } catch (e: Exception) {
+            // Fallback if reflection fails
+        }
+
+        // Determine base and cover types
+        val baseType = if (baseIndices.isNotEmpty()) getSectorType(baseIndices.first()) else null
+        val coverType = if (coverIndices.isNotEmpty()) getSectorType(coverIndices.first()) else null
+
+        // Get cells in base and cover sectors
+        val baseCells = mutableListOf<Int>()
+        for (idx in baseIndices) {
+            baseCells.addAll(getSectorCells(idx))
+        }
+        val coverCells = mutableListOf<Int>()
+        for (idx in coverIndices) {
+            coverCells.addAll(getSectorCells(idx))
+        }
+
+        // Use the same logic as extractKiteVisualData to identify the pattern cells
+        // Extract fin cells
+        val finCells = mutableListOf<Int>()
+        var finIdx = fins.nextSetBit(0)
+        while (finIdx >= 0) {
+            finCells.add(finIdx)
+            finIdx = fins.nextSetBit(finIdx + 1)
+        }
+        
+        // Identify which fin is in the row and which is in the column
+        // rowFin: in row rowIndex, but NOT in column colIndex (outside box in that row)
+        // colFin: in column colIndex, but NOT in row rowIndex (outside box in that column)
+        var rowFin: Int? = null
+        var colFin: Int? = null
+        if (finCells.size >= 2 && rowIndex != null && colIndex != null) {
+            for (cellIdx in finCells) {
+                val cellRow = cellIdx / 9
+                val cellCol = cellIdx % 9
+                if (cellRow == rowIndex && cellCol != colIndex) {
+                    rowFin = cellIdx  // This cell is in the row (outside box)
+                } else if (cellCol == colIndex && cellRow != rowIndex) {
+                    colFin = cellIdx  // This cell is in the column (outside box)
+                }
+            }
+        }
+
+        // Calculate the actual kite endpoint cells
+        val kiteCells = if (rowFin != null && colFin != null) {
+            listOf(rowFin, colFin)
+        } else if (finCells.size >= 2) {
+            finCells.take(2)
+        } else {
+            // Fallback: find cells in base sectors that are NOT in cover sectors
+            baseCells.filter { it !in coverCells }.distinct().take(2)
+        }
+
+        // Only show the cover region (box), not all the base regions
+        val coverRegions = coverIndices.map { idx ->
+            ColoredRegionDto(coverType ?: "box", idx % 9, "secondary")
+        }
+        val allRegions = coverRegions  // Only highlight the box
+
+        // Get all cells in the row and column
+        val rowCells = if (rowIndex != null) getSectorCells(rowIndex) else emptyList()
+        val colCells = if (colIndex != null) getSectorCells(colIndex + 9) else emptyList()
+        
+        // The row/col intersection cell (which must NOT have the digit)
+        val rowColIntersection = if (rowIndex != null && colIndex != null) {
+            rowIndex * 9 + colIndex
+        } else null
+        
+        // The difference operations from the AIC chain:
+        // inRow \ rowOuties = cells in row that are IN THE BOX and are NOT rowFin
+        // inCol \ colOuties = cells in column that are IN THE BOX and are NOT colFin
+        val rowCellsInBox = if (rowFin != null && rowIndex != null) {
+            // Cells in the row, inside THE COVER BOX, but NOT the rowFin or intersection
+            rowCells.filter { cell ->
+                cell in coverCells && 
+                cell != rowFin && 
+                cell != rowColIntersection
+            }
+        } else emptyList()
+        
+        val colCellsInBox = if (colFin != null && colIndex != null) {
+            // Cells in the column, inside THE COVER BOX, but NOT the colFin or intersection
+            colCells.filter { cell ->
+                cell in coverCells && 
+                cell != colFin && 
+                cell != rowColIntersection
+            }
+        } else emptyList()
+        
+        // The two cells in the box MUST be in the same box (for the weak link)
+        val rowCellInBox = rowCellsInBox.lastOrNull()
+        
+        val colCellInBox = if (colCellsInBox.size > 1 && rowCellInBox != null) {
+            // Pick the colCellInBox that's in the same box as rowCellInBox
+            val rowCellBox = (rowCellInBox / 27) * 3 + ((rowCellInBox % 9) / 3)
+            colCellsInBox.firstOrNull { cell ->
+                val cellBox = (cell / 27) * 3 + ((cell % 9) / 3)
+                cellBox == rowCellBox
+            } ?: colCellsInBox.firstOrNull()
+        } else {
+            colCellsInBox.firstOrNull()
+        }
+        
+        val boxCells = listOfNotNull(rowCellInBox, colCellInBox)
+
+        // All cells in the kite pattern (4 cells total: 2 endpoints + 2 in box)
+        val allPatternCells = kiteCells + boxCells
+
+        // Colored cells for kite endpoints (yellow borders)
+        val kiteColoredCells = kiteCells.map { ColoredCellDto(it, "warning") }
+
+        // Colored candidates: highlight all 4 cells in the kite pattern
+        val patternCandidates = allPatternCells.map { cell ->
+            val colorType = when (cell) {
+                in kiteCells -> "target"  // Kite endpoints in green
+                else -> "highlight"  // Box cells in yellow
+            }
+            ColoredCandidateDto(cell / 9, cell % 9, digit, colorType)
+        }
+
+        val eliminationCandidates = eliminationCandidates(eliminations)
+
+        // Build sector names
+        val baseNames = baseIndices.map { idx ->
+            when (baseType) {
+                "row" -> "Row ${idx % 9 + 1}"
+                "column" -> "Column ${idx % 9 + 1}"
+                else -> "Base ${idx + 1}"
+            }
+        }
+
+        val coverNames = coverIndices.map { idx ->
+            when (coverType) {
+                "box" -> "Box ${idx % 9 + 1}"
+                "row" -> "Row ${idx % 9 + 1}"
+                "column" -> "Column ${idx % 9 + 1}"
+                else -> "Cover ${idx + 1}"
+            }
+        }
+
+        val baseNamesText = if (baseNames.isNotEmpty()) baseNames.joinToString(" and ") else "the base line"
+        val coverNamesText = if (coverNames.isNotEmpty()) coverNames.joinToString(" and ") else "the cover box"
+
+        val kiteNames = kiteCells.map { formatCellName(it) }
+        val kiteNamesText = kiteNames.joinToString(" and ")
+        val firstCell = kiteNames.firstOrNull() ?: "the first cell"
+        val secondCell = kiteNames.getOrNull(1) ?: "the second cell"
+
+        // Step 1: Identify the pattern
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Find the kite pattern",
+                description = "Look at the two green $digit candidates at $kiteNamesText. " +
+                    "These are the endpoints of the kite. They're connected through $coverNamesText, " +
+                    "which contains two more $digit candidates (shown in yellow). " +
+                    "Think of it like this: one of the green cells MUST have $digit, but they can't BOTH have it.",
+                highlightCells = kiteCells,
+                regions = allRegions,  // Only show box
+                coloredCells = kiteColoredCells,
+                coloredCandidates = patternCandidates
+            )
+        )
+
+        // Step 2: Explain the logic with lines showing the kite pattern
+        if (eliminations.isNotEmpty()) {
+            val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+            
+            // Build lines for Step 2 to show the kite pattern
+            val step2Lines = mutableListOf<LineDto>()
+            val step2Groups = mutableListOf<GroupDto>()
+            
+            // Need to identify which fin is which for drawing correct lines
+            val rowFinCell = if (rowFin != null && rowFin in kiteCells) rowFin else null
+            val colFinCell = if (colFin != null && colFin in kiteCells) colFin else null
+            
+            if (rowFinCell != null && colFinCell != null && rowIndex != null && colIndex != null) {
+                val rowFinRow = rowFinCell / 9
+                val rowFinCol = rowFinCell % 9
+                val colFinRow = colFinCell / 9
+                val colFinCol = colFinCell % 9
+
+                // Strong link in the row (between rowFin and cell in box)
+                if (rowCellInBox != null) {
+                    val rr = rowCellInBox / 9
+                    val rc = rowCellInBox % 9
+                    step2Lines.add(
+                        LineDto(
+                            from = CandidateLocationDto(rowFinRow, rowFinCol, digit),
+                            to = CandidateLocationDto(rr, rc, digit),
+                            isStrongLink = true,
+                            lineType = "kite-strong-row",
+                            description = "Strong link: if $digit is not in R${rowFinRow+1}C${rowFinCol+1}, it must be in R${rr+1}C${rc+1}"
+                        )
+                    )
+                }
+
+                                // Weak link connecting the two cells in the box
+                if (rowCellInBox != null && colCellInBox != null) {
+                    val rr = rowCellInBox / 9
+                    val rc = rowCellInBox % 9
+                    val cr = colCellInBox / 9
+                    val cc = colCellInBox % 9
+                    step2Lines.add(
+                        LineDto(
+                            from = CandidateLocationDto(rr, rc, digit),
+                            to = CandidateLocationDto(cr, cc, digit),
+                            isStrongLink = false,
+                            lineType = "kite-weak",
+                            description = "Weak link: $digit cannot be in both R${rr+1}C${rc+1} and R${cr+1}C${cc+1}"
+                        )
+                    )
+                }
+
+                // Strong link in the column (between cell in box and colFin)
+                if (colCellInBox != null) {
+                    val cr = colCellInBox / 9
+                    val cc = colCellInBox % 9
+                    step2Lines.add(
+                        LineDto(
+                            from = CandidateLocationDto(cr, cc, digit),
+                            to = CandidateLocationDto(colFinRow, colFinCol, digit),
+                            isStrongLink = true,
+                            lineType = "kite-strong-col",
+                            description = "Strong link: if $digit is not in R${cr+1}C${cc+1}, it must be in R${colFinRow+1}C${colFinCol+1}"
+                        )
+                    )
+                }
+
+
+
+                // Group each kite endpoint
+                step2Groups.add(
+                    GroupDto(
+                        candidates = listOf(CandidateLocationDto(rowFinRow, rowFinCol, digit)),
+                        groupType = "kite-end",
+                        colorIndex = 0
+                    )
+                )
+                step2Groups.add(
+                    GroupDto(
+                        candidates = listOf(CandidateLocationDto(colFinRow, colFinCol, digit)),
+                        groupType = "kite-end",
+                        colorIndex = 1
+                    )
+                )
+            }
+            
+            // Build interactive chain description matching the visual line order
+            val chainDescription = buildString {
+                if (rowFinCell != null && colFinCell != null && rowCellInBox != null && colCellInBox != null) {
+                    // The chain follows the kite pattern
+                    append("($digit)${formatCellName(rowFinCell)}")
+                    append(" --[strong]--> ($digit)${formatCellName(rowCellInBox)}")
+                    append(" --[weak]--> ($digit)${formatCellName(colCellInBox)}")
+                    append(" --[strong]--> ($digit)${formatCellName(colFinCell)}")
+                }
+            }
+            
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Follow the chain",
+                    description = "The kite forms a chain: $chainDescription. " +
+                    "The solid lines indicate strong links, " +
+                    "and the dashed line indacates a weak link. " +
+                    "No matter which green cell has $digit, " +
+                    "the weak link ensures that at least one of the yellow cells in the box will have it. " +
+                    "Any cell that can see BOTH green cells at $kiteNamesText cannot have $digit.",
+                    highlightCells = kiteCells + eliminationCells,
+                    regions = allRegions,
+                    coloredCells = kiteColoredCells,
+                    coloredCandidates = patternCandidates,
+                    lines = step2Lines,
+                    groups = step2Groups
+                )
+            )
+
+            // Step 3: Show eliminations - highlight the row and column that form the kite intersection
+            val eliminationRegions = eliminationCells.flatMap { cell ->
+                val row = cell / 9
+                val col = cell % 9
+                listOf(
+                    ColoredRegionDto("row", row, "secondary"),
+                    ColoredRegionDto("column", col, "secondary")
+                )
+            }.distinctBy { "${it.type}-${it.index}" }
+            
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 3,
+                    title = "Make the elimination",
+                    description = "Since $eliminationNames can see both green cells, " +
+                        "we know $digit cannot go there. Eliminate $digit from: $eliminationNames.",
+                    highlightCells = eliminationCells,
+                    regions = eliminationRegions,
+                    coloredCells = kiteColoredCells + eliminationCells.map { ColoredCellDto(it, "warning") },
+                    coloredCandidates = patternCandidates + eliminationCandidates
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private data class WingMetadata(
+        val pivotCells: List<Int> = emptyList(),
+        val pincerCells: List<Int> = emptyList(),
+        val otherCells: List<Int> = emptyList(),
+        val digits: List<Int> = emptyList()
+    ) {
+        val allCells: List<Int> = (pivotCells + pincerCells + otherCells).distinct()
+    }
+
+    private fun detectWingType(techniqueName: String): String {
+        val lower = techniqueName.lowercase()
+        return when {
+            lower.contains("wxyz") -> "WXYZ-Wing"
+            lower.contains("xyz") -> "XYZ-Wing"
+            lower.contains("w-wing") || lower.contains("w wing") -> "W-Wing"
+            lower.contains("xy") || lower.contains("y-wing") -> "XY-Wing"
+            else -> techniqueName
+        }
+    }
+
+    private fun extractWingMetadata(match: TechniqueMatch): WingMetadata {
+        val pivotCells = mutableListOf<Int>()
+        val pincerCells = mutableListOf<Int>()
+        val otherCells = mutableListOf<Int>()
+        val digits = mutableListOf<Int>()
+
+        try {
+            val matchClass = match.javaClass
+            for (field in matchClass.declaredFields) {
+                try {
+                    field.isAccessible = true
+                    val name = field.name.lowercase()
+                    val value = field.get(match)
+
+                    fun addCells(target: MutableList<Int>, cells: List<Int>) {
+                        target.addAll(cells)
+                    }
+
+                    when (value) {
+                        is java.util.BitSet -> {
+                            val list = bitSetToList(value)
+                            when {
+                                name.contains("digit") -> digits.addAll(list.map { it + 1 })
+                                name.contains("hinge") || name.contains("pivot") -> addCells(pivotCells, list)
+                                name.contains("pincer") || name.contains("wing") -> addCells(pincerCells, list)
+                                name.contains("cell") -> addCells(otherCells, list)
+                            }
+                        }
+                        is IntArray -> {
+                            val list = value.toList()
+                            when {
+                                name.contains("digit") -> digits.addAll(list.map { it + 1 })
+                                name.contains("hinge") || name.contains("pivot") -> addCells(pivotCells, list)
+                                name.contains("pincer") || name.contains("wing") -> addCells(pincerCells, list)
+                                name.contains("cell") -> addCells(otherCells, list)
+                            }
+                        }
+                        is Int -> {
+                            when {
+                                name.contains("digit") -> digits.add(value + 1)
+                                name.contains("hinge") || name.contains("pivot") -> addCells(pivotCells, listOf(value))
+                                name.contains("pincer") || name.contains("wing") -> addCells(pincerCells, listOf(value))
+                                name.contains("cell") -> addCells(otherCells, listOf(value))
+                            }
+                        }
+                    }
+                } catch (_: Exception) {
+                    // Ignore individual field extraction issues
+                }
+            }
+        } catch (_: Exception) {
+            // Ignore reflection issues and fall back to eliminations only
+        }
+
+        return WingMetadata(
+            pivotCells = pivotCells.distinct(),
+            pincerCells = pincerCells.distinct(),
+            otherCells = otherCells.distinct(),
+            digits = digits.distinct()
+        )
+    }
+
+    private fun buildWingRegions(pivotCells: List<Int>, pincerCells: List<Int>): List<ColoredRegionDto> {
+        val regions = mutableSetOf<Pair<String, Int>>()
+
+        for (pivot in pivotCells) {
+            val pivotRow = pivot / 9
+            val pivotCol = pivot % 9
+            val pivotBox = (pivotRow / 3) * 3 + (pivotCol / 3)
+
+            for (pincer in pincerCells) {
+                val row = pincer / 9
+                val col = pincer % 9
+                val box = (row / 3) * 3 + (col / 3)
+
+                if (row == pivotRow) regions.add("row" to row)
+                if (col == pivotCol) regions.add("column" to col)
+                if (box == pivotBox) regions.add("box" to box)
+            }
+        }
+
+        return regions.map { (type, index) -> ColoredRegionDto(type, index, "primary") }
+    }
+
+    private fun generateWingSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+        val targetDigit = eliminations.firstOrNull()?.digit
+        val wingType = detectWingType(techniqueName)
+
+        val metadata = extractWingMetadata(match)
+        val wingCells = if (metadata.allCells.isNotEmpty()) metadata.allCells else eliminationCells
+        val pivotCells = if (metadata.pivotCells.isNotEmpty()) metadata.pivotCells else wingCells.take(1)
+        val pincerCells = metadata.pincerCells
+        val supportingCells = metadata.otherCells.filterNot { pivotCells.contains(it) || pincerCells.contains(it) }
+        val wingDigits = if (metadata.digits.isNotEmpty()) metadata.digits else listOfNotNull(targetDigit)
+
+        val coloredCells = mutableListOf<ColoredCellDto>()
+        pivotCells.forEach { coloredCells.add(ColoredCellDto(it, "warning")) }
+        pincerCells.forEach { coloredCells.add(ColoredCellDto(it, "info")) }
+        supportingCells.forEach { coloredCells.add(ColoredCellDto(it, "secondary")) }
+
+        val linkRegions = buildWingRegions(pivotCells, pincerCells)
+
+        val targetCandidates = mutableListOf<ColoredCandidateDto>()
+        if (targetDigit != null) {
+            val candidateCells = when (wingType) {
+                "XY-Wing", "W-Wing" -> if (pincerCells.isNotEmpty()) pincerCells else wingCells
+                else -> if (wingCells.isNotEmpty()) wingCells else eliminationCells
+            }
+            candidateCells.forEach { cell ->
+                targetCandidates.add(ColoredCandidateDto(cell / 9, cell % 9, targetDigit, "target"))
+            }
+        }
+
+        val wingDigitText = if (wingDigits.isNotEmpty()) wingDigits.joinToString(", ") else "the shared digit"
+        val pivotText = if (pivotCells.isNotEmpty()) {
+            "hinge ${pivotCells.joinToString(", ") { formatCellName(it) }}"
+        } else {
+            "a hinge cell"
+        }
+        val pincerText = if (pincerCells.isNotEmpty()) {
+            "pincers ${pincerCells.joinToString(", ") { formatCellName(it) }}"
+        } else {
+            "two pincers"
+        }
+
+        val introDescription = when (wingType) {
+            "XY-Wing" -> "$wingType uses a $pivotText with two candidates. Each of the $pincerText shares one candidate with the hinge and they see each other, so any cell seeing both pincers cannot keep $wingDigitText."
+            "XYZ-Wing" -> "$wingType keeps all three digits in the hinge. The two pincers each match two of those digits, so the third digit ($wingDigitText) is forced out of any cell seeing all three."
+            "WXYZ-Wing" -> "$wingType spreads four digits over four cells. One digit is common to all, and any cell that can see every wing cell must drop $wingDigitText."
+            "W-Wing" -> "$wingType links two matching bivalue cells through a strong link on one digit, forcing the other digit to be eliminated where both cells look."
+            else -> "$techniqueName links a hinge cell to two pincers; the shared candidate can be removed where both pincers see."
+        }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Spot the $wingType shape",
+                description = introDescription,
+                highlightCells = if (wingCells.isNotEmpty()) wingCells else eliminationCells,
+                regions = linkRegions,
+                coloredCells = coloredCells,
+                coloredCandidates = targetCandidates
+            )
+        )
+
+        if (pincerCells.isNotEmpty() || eliminationCells.isNotEmpty()) {
+            val seeingText = if (pincerCells.isNotEmpty()) {
+                "Any cell that sees both pincers must drop $wingDigitText."
+            } else {
+                "Cells that see the highlighted wing must drop $wingDigitText."
+            }
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Where the pincers meet",
+                    description = eliminationDesc ?: seeingText,
+                    highlightCells = if (eliminationCells.isNotEmpty()) eliminationCells else wingCells,
+                    regions = linkRegions,
+                    coloredCells = coloredCells,
+                    coloredCandidates = targetCandidates + eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        if (eliminationCells.isNotEmpty()) {
+            val eliminationNames = eliminationCells.joinToString(", ") { formatCellName(it) }
+            val elimDigit = targetDigit?.toString() ?: wingDigitText
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 3,
+                    title = "Eliminate the shared candidate",
+                    description = "Because both pincers cover the same spots, remove $elimDigit from $eliminationNames.",
+                    highlightCells = eliminationCells,
+                    regions = linkRegions,
+                    coloredCandidates = targetCandidates + eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateCycleSteps(
+        techniqueName: String,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Follow the cycle",
+                description = "$techniqueName alternates strong and weak links on one digit; any contradiction forces eliminations.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Apply eliminations",
+                    description = eliminationDesc ?: "Remove the digit from the highlighted cells reached by the weak links.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateColoringSteps(
+        techniqueName: String,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Color the candidate",
+                description = "$techniqueName splits the candidate into two color sets along strong links; any cell seeing both colors is invalid.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Remove the conflict color",
+                    description = eliminationDesc ?: "Cells seeing both colors cannot keep the candidate; remove it.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateUniqueRectangleSteps(
+        techniqueName: String,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Avoid the deadly pattern",
+                description = "$techniqueName finds four cells that could form two solutions; adjust one cell to break the rectangle.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Eliminate or place to break uniqueness",
+                    description = eliminationDesc ?: "Use the marked cell(s) to prevent the deadly rectangle.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateBugSteps(
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Spot the BUG pattern",
+                description = "A BUG leaves every unsolved cell with two candidates except one inconsistency. Resolve that cell to break the pattern.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Resolve the contradiction",
+                    description = eliminationDesc ?: "Clear the conflicting candidate shown in the highlighted cells.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateEmptyRectangleSteps(
+        techniqueName: String,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Find the empty rectangle",
+                description = "A box has only one candidate on a row/column; combined with a conjugate pair it triggers eliminations.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Use the conjugate to eliminate",
+                    description = eliminationDesc ?: "Remove the digit from peers of the conjugate pair.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateSueDeCoqSteps(
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Partition the overlap",
+                description = "Sue-de-Coq splits the box-line overlap into disjoint digit sets, forcing eliminations around it.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Eliminate outside the partition",
+                    description = eliminationDesc ?: "Remove digits that conflict with the partitioned sets.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateForcingChainSteps(
+        techniqueName: String,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Branch both possibilities",
+                description = "$techniqueName explores both outcomes from a start node; any conclusion common to all branches is forced.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Keep the common deduction",
+                    description = eliminationDesc ?: "Remove candidates invalid in every branch.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateNishioSteps(
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Assume and test",
+                description = "Nishio assumes a single digit placement and discards branches that lead to contradiction.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Discard impossible placements",
+                    description = eliminationDesc ?: "Remove the candidates that fail under every assumption.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
+    private fun generateChainLikeSteps(
+        techniqueName: String,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 1,
+                title = "Trace the chain",
+                description = "$techniqueName links candidates so that one end forces eliminations at the other end.",
+                highlightCells = eliminationCells
+            )
+        )
+
+        if (eliminations.isNotEmpty()) {
+            val eliminationDesc = summarizeEliminations(eliminations)
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = "Eliminate the target candidate",
+                    description = eliminationDesc ?: "Cells seen by both ends cannot keep the target candidate.",
+                    highlightCells = eliminationCells,
+                    coloredCandidates = eliminationCandidates(eliminations)
+                )
+            )
+        }
+
+        return steps
+    }
+
     private fun generateSingleSteps(
         techniqueName: String,
         match: TechniqueMatch,

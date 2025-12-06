@@ -1,3 +1,13 @@
+# v0.3.3 - 2025-12-06d
+
+### Fixed Issues
+- Hint Lines now under numbers and grid -- not great, but something
+
+### Hint System
+- Added X-Wing Explanation and Highlighting
+- Added Two-String Kite Explanation and Highlighting
+
+
 # v0.3.2 - 2025-12-06c
 
 ### Fixed Issues
