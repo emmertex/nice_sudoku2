@@ -1933,8 +1933,9 @@ class SudokuApp {
                 currentHintList = hints  // Cache for event delegation
                 val selectedHint = hints.getOrNull(selectedHintIndex)
                 
-                // Get current explanation step if showing explanation
-                val currentExplanationStep = if (showExplanation && selectedHint != null) {
+                // Get current explanation step if showing explanation OR if in portrait mode with hints
+                // In portrait mode, hints always show explanations inline
+                val currentExplanationStep = if (selectedHint != null && (showExplanation || (showHints && !isLandscape))) {
                     selectedHint.explanationSteps.getOrNull(explanationStepIndex)
                 } else null
                 
