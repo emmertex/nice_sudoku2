@@ -420,6 +420,12 @@ class SudokuService {
                 FindAll.invoke(sbrcGrid)
             }
             
+            // Sort techniques by priority (simpler first) to ensure easier techniques
+            // are returned before harder ones when limits are applied
+            val sortedTechniques = matches.entries.sortedBy { (technique, _) ->
+                getTechniquePriority(technique.name)
+            }
+            
             val techniquesDto = mutableMapOf<String, List<TechniqueMatchDto>>()
             var totalMatches = 0
             
@@ -427,8 +433,9 @@ class SudokuService {
             val maxMatchesPerTechnique = 5
             val maxTotalMatches = 50
             
-            for ((technique, techniqueMatches) in matches) {
+            for ((technique, techniqueMatches) in sortedTechniques) {
                 if (totalMatches >= maxTotalMatches) break
+                if (techniqueMatches.isEmpty()) continue
                 
                 val limitedMatches = techniqueMatches.take(maxMatchesPerTechnique)
                 val matchDtos = limitedMatches.map { match ->
@@ -471,6 +478,12 @@ class SudokuService {
                 FindAll.invoke(sbrcGrid)
             }
             
+            // Sort techniques by priority (simpler first) to ensure easier techniques
+            // are returned before harder ones when limits are applied
+            val sortedTechniques = matches.entries.sortedBy { (technique, _) ->
+                getTechniquePriority(technique.name)
+            }
+            
             val techniquesDto = mutableMapOf<String, List<TechniqueMatchDto>>()
             var totalMatches = 0
             
@@ -478,8 +491,9 @@ class SudokuService {
             val maxMatchesPerTechnique = 5
             val maxTotalMatches = 50
             
-            for ((technique, techniqueMatches) in matches) {
+            for ((technique, techniqueMatches) in sortedTechniques) {
                 if (totalMatches >= maxTotalMatches) break
+                if (techniqueMatches.isEmpty()) continue
                 
                 val limitedMatches = techniqueMatches.take(maxMatchesPerTechnique)
                 val matchDtos = limitedMatches.map { match ->

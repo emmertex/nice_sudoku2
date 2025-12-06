@@ -230,30 +230,48 @@ class SudokuApp {
         fetchPromise.then { response ->
             if (response.ok) {
                 response.text().then { text ->
-                    changelogContent = text as String
-                    
-                    // Extract version from first line (format: "# v0.0.2 - 2025-12-01")
-                    val firstLine = changelogContent.lines().firstOrNull() ?: ""
-                    val versionMatch = Regex("""#\s*(v[\d.]+)""").find(firstLine)
-                    currentVersion = versionMatch?.groupValues?.getOrNull(1) ?: ""
-                    
-                    // Check if this is a new version
-                    val lastSeenVersion = GameStateManager.getLastSeenVersion()
-                    if (currentVersion.isNotEmpty() && currentVersion != lastSeenVersion) {
-                        // New version detected - show the changelog modal
-                        // But not if greeting modal is already showing (first launch)
-                        if (!showGreetingModal) {
-                            showVersionModal = true
+                    try {
+                        changelogContent = text as String
+                        
+                        // Extract version from first line (format: "# v0.0.2 - 2025-12-01")
+                        val firstLine = changelogContent.lines().firstOrNull() ?: ""
+                        val versionMatch = Regex("""#\s*(v[\d.]+)""").find(firstLine)
+                        currentVersion = versionMatch?.groupValues?.getOrNull(1) ?: ""
+                        
+                        // Check if this is a new version
+                        val lastSeenVersion = GameStateManager.getLastSeenVersion()
+                        if (currentVersion.isNotEmpty() && currentVersion != lastSeenVersion) {
+                            // New version detected - show the changelog modal
+                            // But not if greeting modal is already showing (first launch)
+                            if (!showGreetingModal) {
+                                showVersionModal = true
+                            }
+                            // Always mark as seen so it doesn't show again
+                            GameStateManager.setLastSeenVersion(currentVersion)
+                            render()
+                        } else {
+                            // Just re-render to show the version number
+                            render()
                         }
-                        // Always mark as seen so it doesn't show again
-                        GameStateManager.setLastSeenVersion(currentVersion)
-                        render()
-                    } else {
-                        // Just re-render to show the version number
+                    } catch (e: Exception) {
+                        // Silently handle parsing errors - changelog is not critical
+                        println("Error parsing changelog: ${e.message}")
                         render()
                     }
+                }.catch { error: dynamic ->
+                    // Silently handle text parsing errors
+                    println("Error reading changelog text: $error")
+                    render()
                 }
+            } else {
+                // Response not OK - silently continue, changelog is not critical
+                render()
             }
+        }.catch { error: dynamic ->
+            // Silently handle fetch errors (network issues, 404, etc.)
+            // This prevents unhandled promise rejections on first launch
+            println("Error loading changelog: $error")
+            render()
         }
     }
     
@@ -2440,7 +2458,7 @@ class SudokuApp {
                     }
                 }
                 
-                // Close button (no collapse button in portrait mode - always showing step 1)
+                // Close button
                 
                 button(classes = "hint-close-btn-small") {
                     +"✕"
@@ -2452,8 +2470,7 @@ class SudokuApp {
             }
             
             if (selectedHint != null) {
-                // Always show step 1 explanation in portrait mode (no explain button)
-                explanationStepIndex = 0  // Always reset to step 1
+                // Show explanation with step navigation
                 renderInlineExplanationCompact(selectedHint)
             } else {
                 div("hint-content hint-empty") {
@@ -2488,8 +2505,36 @@ class SudokuApp {
             if (currentStep != null) {
                 div("inline-step") {
                     div("step-header-compact") {
+                        // Step navigation buttons (only show if more than one step)
+                        if (steps.size > 1) {
+                            button(classes = "step-nav-btn-small ${if (explanationStepIndex <= 0) "disabled" else ""}") {
+                                +"◀"
+                                onClickFunction = { e ->
+                                    e.stopPropagation()
+                                    if (explanationStepIndex > 0) {
+                                        explanationStepIndex--
+                                        render()
+                                    }
+                                }
+                            }
+                        }
+                        
                         span("step-badge") { +"Step ${currentStep.stepNumber}" }
                         span("step-title") { +currentStep.title }
+                        
+                        // Step navigation buttons (only show if more than one step)
+                        if (steps.size > 1) {
+                            button(classes = "step-nav-btn-small ${if (explanationStepIndex >= steps.size - 1) "disabled" else ""}") {
+                                +"▶"
+                                onClickFunction = { e ->
+                                    e.stopPropagation()
+                                    if (explanationStepIndex < steps.size - 1) {
+                                        explanationStepIndex++
+                                        render()
+                                    }
+                                }
+                            }
+                        }
                     }
                     div("step-description") {
                         renderInteractiveDescription(currentStep.description, hint)
@@ -2502,8 +2547,6 @@ class SudokuApp {
                         }
                     }
                 }
-            
-            // No navigation in portrait mode - always show step 1 only
         }
     }
     
@@ -4100,6 +4143,25 @@ class SudokuApp {
 }
 
 fun main() {
+    // Set up global error handlers to prevent unhandled promise rejections
+    // This prevents the webpack-dev-server overlay from showing errors on first launch
+    window.addEventListener("unhandledrejection", { event ->
+        // Silently handle unhandled promise rejections during initialization
+        // These are often non-critical (e.g., failed network requests)
+        val error = event.asDynamic().reason
+        println("Unhandled promise rejection (suppressed): $error")
+        event.preventDefault() // Prevent default error handling
+    })
+    
+    window.addEventListener("error", { event ->
+        // Only log errors, don't let them crash the app
+        val error = event.asDynamic().error
+        if (error != null) {
+            println("Global error caught: $error")
+        }
+        // Don't prevent default - let browser handle critical errors
+    })
+    
     window.onload = {
         // Add styles
         val style = document.createElement("style")
@@ -5578,6 +5640,29 @@ private val CSS_STYLES = """
         margin-bottom: clamp(4px, 0.8vmin, 8px);
     }
     
+    .step-nav-btn-small {
+        padding: clamp(2px, 0.4vmin, 4px) clamp(4px, 0.8vmin, 8px);
+        border: none;
+        border-radius: clamp(3px, 0.5vmin, 6px);
+        background: rgba(var(--color-accent-info), 0.2);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .step-nav-btn-small:hover:not(.disabled) {
+        background: rgba(var(--color-accent-info), 0.3);
+    }
+    
+    .step-nav-btn-small.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
     .step-badge {
         background: rgba(var(--color-accent-info), 0.3);
         color: rgb(var(--color-accent-info));
@@ -5592,6 +5677,8 @@ private val CSS_STYLES = """
         font-weight: 600;
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
         color: rgba(var(--color-text-primary), 0.9);
+        flex: 1;
+        min-width: 0;
     }
     
     .inline-explanation-compact .step-description {
