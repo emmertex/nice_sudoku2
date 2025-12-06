@@ -3334,29 +3334,7 @@ class SudokuApp {
             val svgContent = buildString {
                 append("""<svg class="chain-lines-overlay" viewBox="0 0 900 900" preserveAspectRatio="xMidYMid meet">""")
                 
-                // Draw group highlights first (behind lines)
-                groupsToDraw.forEach { group ->
-                    val colorClass = when (group.groupType) {
-                        "chain-on" -> "group-on"
-                        "chain-off" -> "group-off"
-                        "als" -> "group-als"
-                        else -> "group-default"
-                    }
-                    group.candidates.forEach { loc ->
-                        // Calculate position within the cell
-                        // Each cell is 100x100 units, candidates are in a 3x3 grid within
-                        val cellX = loc.col * 100
-                        val cellY = loc.row * 100
-                        // Candidate position within cell (1-9 maps to 3x3 grid)
-                        val candCol = (loc.candidate - 1) % 3
-                        val candRow = (loc.candidate - 1) / 3
-                        val cx = cellX + 20 + candCol * 30
-                        val cy = cellY + 20 + candRow * 30
-                        append("""<circle class="board-candidate-highlight $colorClass" cx="$cx" cy="$cy" r="12" />""")
-                    }
-                }
-                
-                // Draw lines
+                // Draw lines first (behind candidate highlights)
                 linesToDraw.forEach { line ->
                     // Calculate positions
                     val fromCellX = line.from.col * 100
@@ -3385,6 +3363,28 @@ class SudokuApp {
                     } else {
                         // Straight line
                         append("""<line class="board-chain-line $strokeClass" x1="$fromX" y1="$fromY" x2="$toX" y2="$toY" />""")
+                    }
+                }
+                
+                // Draw group highlights on top of lines
+                groupsToDraw.forEach { group ->
+                    val colorClass = when (group.groupType) {
+                        "chain-on" -> "group-on"
+                        "chain-off" -> "group-off"
+                        "als" -> "group-als"
+                        else -> "group-default"
+                    }
+                    group.candidates.forEach { loc ->
+                        // Calculate position within the cell
+                        // Each cell is 100x100 units, candidates are in a 3x3 grid within
+                        val cellX = loc.col * 100
+                        val cellY = loc.row * 100
+                        // Candidate position within cell (1-9 maps to 3x3 grid)
+                        val candCol = (loc.candidate - 1) % 3
+                        val candRow = (loc.candidate - 1) / 3
+                        val cx = cellX + 20 + candCol * 30
+                        val cy = cellY + 20 + candRow * 30
+                        append("""<circle class="board-candidate-highlight $colorClass" cx="$cx" cy="$cy" r="12" />""")
                     }
                 }
                 
@@ -3503,7 +3503,8 @@ class SudokuApp {
                         // Highlight pencil marks that match selected numbers (with color-coded classes)
                         val inPrimary = n in selectedNumbers1
                         val inSecondary = n in selectedNumbers2
-                        val pencilHighlightClass = if (highlightMode == HighlightMode.PENCIL) {
+                        // Always highlight selected numbers when viewing explanations, otherwise respect highlightMode
+                        val pencilHighlightClass = if (highlightMode == HighlightMode.PENCIL || showExplanation) {
                             when {
                                 inPrimary && inSecondary -> " pencil-highlight-both"
                                 inPrimary -> " pencil-highlight-primary"
@@ -3531,6 +3532,8 @@ class SudokuApp {
                             when (coloredCandidateType) {
                                 "target" -> append(" hint-candidate-target")  // Green
                                 "elimination" -> append(" hint-candidate-elimination")  // Red with strikethrough
+                                "highlight" -> append(" hint-candidate-highlight")  // Yellow/amber
+                                "info" -> append(" hint-candidate-info")  // Blue
                                 else -> {
                                     // Fall back to existing hint highlighting
                                     if (isElimination) append(" hint-elimination")
@@ -4700,19 +4703,19 @@ private val CSS_STYLES = """
     
     .board-chain-line {
         fill: none;
-        stroke-width: 3;
+        stroke-width: 10;
         stroke-linecap: round;
         filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
     }
     
     .board-chain-line.strong-link {
         stroke: rgb(var(--color-accent-success));
-        stroke-width: 4;
+        stroke-width: 10;
     }
     
     .board-chain-line.weak-link {
         stroke: rgb(var(--color-accent-warning));
-        stroke-dasharray: 8 4;
+        stroke-dasharray: 5 15;
     }
     
     .board-candidate-highlight {
@@ -4894,6 +4897,8 @@ private val CSS_STYLES = """
         max-width: 100%;
         margin: 0 auto;
         aspect-ratio: 1;
+        position: relative;
+        z-index: 20;
     }
     
     .sudoku-row {
@@ -4948,6 +4953,8 @@ private val CSS_STYLES = """
         display: flex;
         justify-content: center;
         align-items: center;
+        position: relative;
+        z-index: 20;
     }
     
     .candidate.hidden { visibility: hidden; }
@@ -5017,6 +5024,20 @@ private val CSS_STYLES = """
         font-weight: bold;
         text-decoration: line-through;
         background: rgba(var(--color-accent-error), 0.2);
+        border-radius: 2px;
+    }
+    
+    .candidate.hint-candidate-highlight {
+        color: rgb(var(--color-accent-warning));
+        font-weight: bold;
+        background: rgba(var(--color-accent-warning), 0.3);
+        border-radius: 2px;
+    }
+    
+    .candidate.hint-candidate-info {
+        color: rgb(var(--color-accent-info));
+        font-weight: bold;
+        background: rgba(var(--color-accent-info), 0.3);
         border-radius: 2px;
     }
     
