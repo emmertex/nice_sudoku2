@@ -28,6 +28,7 @@ class SudokuService {
     private data class CachedMatch(
         val match: TechniqueMatch,
         val technique: Technique,
+        val puzzleString: String,
         val timestamp: Long = System.currentTimeMillis()
     )
     
@@ -267,9 +268,9 @@ class SudokuService {
             
             // Cache the match for later application
             val matchId = UUID.randomUUID().toString()
-            matchCache[matchId] = CachedMatch(bestMatch, bestTechnique)
+            matchCache[matchId] = CachedMatch(bestMatch, bestTechnique, puzzleString)
             
-            val hintDto = techniqueMatchToDto(matchId, bestTechnique, bestMatch)
+            val hintDto = techniqueMatchToDto(matchId, bestTechnique, bestMatch, puzzleString)
             
             HintResponse(
                 success = true,
@@ -563,8 +564,8 @@ class SudokuService {
                 val limitedMatches = techniqueMatches.take(maxMatchesPerTechnique)
                 val matchDtos = limitedMatches.map { match ->
                     val matchId = UUID.randomUUID().toString()
-                    matchCache[matchId] = CachedMatch(match, technique)
-                    techniqueMatchToDto(matchId, technique, match)
+                    matchCache[matchId] = CachedMatch(match, technique, puzzleString)
+                    techniqueMatchToDto(matchId, technique, match, puzzleString)
                 }
                 if (matchDtos.isNotEmpty()) {
                     techniquesDto[technique.name] = matchDtos
@@ -590,6 +591,14 @@ class SudokuService {
         return try {
             val basicGrid = dtoToBasicGrid(request.grid)
             val sbrcGrid = SBRCGrid(basicGrid)
+            
+            // Convert grid to puzzle string for candidate checking
+            val puzzleString = buildString {
+                for (i in 0..80) {
+                    val solved = basicGrid.getSolved(i)
+                    append(if (solved.isPresent) ('0'.code + solved.asInt + 1).toChar() else '.')
+                }
+            }
             
             // Clear old cache entries (older than 5 minutes)
             val cutoff = System.currentTimeMillis() - 5 * 60 * 1000
@@ -622,9 +631,9 @@ class SudokuService {
                 val matchDtos = limitedMatches.map { match ->
                     val matchId = UUID.randomUUID().toString()
                     // Cache the match for later application
-                    matchCache[matchId] = CachedMatch(match, technique)
+                    matchCache[matchId] = CachedMatch(match, technique, puzzleString)
                     
-                    techniqueMatchToDto(matchId, technique, match)
+                    techniqueMatchToDto(matchId, technique, match, puzzleString)
                 }
                 if (matchDtos.isNotEmpty()) {
                     techniquesDto[technique.name] = matchDtos
@@ -836,7 +845,7 @@ class SudokuService {
         return fallback
     }
     
-    private fun techniqueMatchToDto(id: String, technique: Technique, match: TechniqueMatch): TechniqueMatchDto {
+    private fun techniqueMatchToDto(id: String, technique: Technique, match: TechniqueMatch, puzzleString: String): TechniqueMatchDto {
         val eliminations = match.eliminations.map { (digit, cells) ->
             val cellList = mutableListOf<Int>()
             var cell = cells.nextSetBit(0)
@@ -857,10 +866,10 @@ class SudokuService {
         solvedCells.forEach { highlightCells.add(it.cell) }
         
         // Extract visual data based on match type
-        val (lines, groups, eurekaNotation) = extractVisualData(match, technique)
+        val (lines, groups, eurekaNotation) = extractVisualData(match, technique, puzzleString)
         
         // Generate explanation steps
-        val explanationSteps = generateExplanationSteps(technique, match, eliminations, solvedCells)
+        val explanationSteps = generateExplanationSteps(technique, match, eliminations, solvedCells, puzzleString)
         
         val description = getTechniqueDescription(technique, match, eliminations, solvedCells)
 
@@ -881,7 +890,7 @@ class SudokuService {
     /**
      * Extract visual data (lines, groups, eureka notation) from a TechniqueMatch
      */
-    private fun extractVisualData(match: TechniqueMatch, technique: Technique): Triple<List<LineDto>, List<GroupDto>, String?> {
+    private fun extractVisualData(match: TechniqueMatch, technique: Technique, puzzleString: String): Triple<List<LineDto>, List<GroupDto>, String?> {
         val techniqueName = technique.getName()
         return when (match) {
             is AICMatch -> extractAICVisualData(match)
@@ -890,7 +899,7 @@ class SudokuService {
             is FishMatch -> {
                 if (techniqueName.contains("2-String Kite", ignoreCase = true) ||
                     (techniqueName.contains("Kite", ignoreCase = true) && !techniqueName.contains("String", ignoreCase = true))) {
-                    extractKiteVisualData(match, techniqueName)
+                    extractKiteVisualData(match, techniqueName, puzzleString)
                 } else {
                     extractFishVisualData(match, techniqueName)
                 }
@@ -1379,7 +1388,8 @@ class SudokuService {
         technique: Technique,
         match: TechniqueMatch,
         eliminations: List<EliminationDto>,
-        solvedCells: List<SolvedCellDto>
+        solvedCells: List<SolvedCellDto>,
+        puzzleString: String
     ): List<ExplanationStepDto> {
         val techniqueName = technique.getName()
         val steps = mutableListOf<ExplanationStepDto>()
@@ -1400,7 +1410,7 @@ class SudokuService {
             }
             techniqueName.contains("2-String Kite", ignoreCase = true) ||
             (techniqueName.contains("Kite", ignoreCase = true) && !techniqueName.contains("String", ignoreCase = true)) -> {
-                steps.addAll(generateKiteSteps(techniqueName, match, eliminations))
+                steps.addAll(generateKiteSteps(techniqueName, match, eliminations, puzzleString))
             }
             techniqueName.contains("Fish", ignoreCase = true) ||
             techniqueName.contains("X-Wing", ignoreCase = true) ||
@@ -1669,7 +1679,7 @@ class SudokuService {
     /**
      * Extract visual data for 2-String Kite (show strong link between kite cells)
      */
-    private fun extractKiteVisualData(match: TechniqueMatch, techniqueName: String): Triple<List<LineDto>, List<GroupDto>, String?> {
+    private fun extractKiteVisualData(match: TechniqueMatch, techniqueName: String, puzzleString: String): Triple<List<LineDto>, List<GroupDto>, String?> {
         val lines = mutableListOf<LineDto>()
         val groups = mutableListOf<GroupDto>()
 
@@ -1685,16 +1695,30 @@ class SudokuService {
             val baseSecsField = matchClass.getDeclaredField("baseSecs")
             val coverSecsField = matchClass.getDeclaredField("coverSecs")
             val finsField = matchClass.getDeclaredField("fins")
+            val endofinsField = matchClass.getDeclaredField("endofins")
 
             digitField.isAccessible = true
             baseSecsField.isAccessible = true
             coverSecsField.isAccessible = true
             finsField.isAccessible = true
+            endofinsField.isAccessible = true
 
             val digit = (digitField.get(match) as Int) + 1 // Convert to 1-9
             val baseSecs = baseSecsField.get(match) as java.util.BitSet
             val coverSecs = coverSecsField.get(match) as java.util.BitSet
             val fins = finsField.get(match) as java.util.BitSet
+            val endofins = endofinsField.get(match) as java.util.BitSet
+            
+            // Get elimination cells for this digit
+            val eliminationCells = mutableListOf<Int>()
+            val eliminations = match.eliminations[digit - 1] // eliminations use 0-8
+            if (eliminations != null) {
+                var elimCell = eliminations.nextSetBit(0)
+                while (elimCell >= 0) {
+                    eliminationCells.add(elimCell)
+                    elimCell = eliminations.nextSetBit(elimCell + 1)
+                }
+            }
 
             // Collect base and cover sectors
             val baseIndices = mutableListOf<Int>()
@@ -1729,6 +1753,18 @@ class SudokuService {
                 finIdx = fins.nextSetBit(finIdx + 1)
             }
             
+            val endofinCells = mutableListOf<Int>()
+            var endoIdx = endofins.nextSetBit(0)
+            while (endoIdx >= 0) {
+                endofinCells.add(endoIdx)
+                endoIdx = endofins.nextSetBit(endoIdx + 1)
+            }
+            
+            println("DEBUG Kite extract: digit=$digit")
+            println("  fins=$finCells -> ${finCells.map { formatCellName(it) }}")
+            println("  endofins=$endofinCells -> ${endofinCells.map { formatCellName(it) }}")
+            println("  eliminations=$eliminationCells -> ${eliminationCells.map { formatCellName(it) }}")
+            
             // Identify which fin is in the row and which is in the column
             // rowFin: in row rowIndex, but NOT in column colIndex (outside box in that row)
             // colFin: in column colIndex, but NOT in row rowIndex (outside box in that column)
@@ -1748,8 +1784,8 @@ class SudokuService {
             val baseCells = baseIndices.flatMap { getSectorCells(it) }
             val coverCells = coverIndices.flatMap { getSectorCells(it) }
             
-            // Get the box cells (coverCells is the actual box)
-            // Use coverCells directly, not baseCells filtered
+            // Fish cells are the intersection of base and cover - these are the cells with the candidate in the pattern
+            val fishCells = baseCells.filter { it in coverCells }
             
             // Get all cells in the row and column  
             val rowCells = if (rowIndex != null) getSectorCells(rowIndex) else emptyList()
@@ -1761,22 +1797,43 @@ class SudokuService {
             } else null
             
             // The difference operations from the AIC:
-            // inRow \ rowOuties = cells in row that are IN THE BOX and are NOT rowFin
-            // inCol \ colOuties = cells in column that are IN THE BOX and are NOT colFin
+            // inRow \ rowOuties = cells in row that are IN THE BOX and have the candidate (verified from grid)
+            // inCol \ colOuties = cells in column that are IN THE BOX and have the candidate (verified from grid)
+            
+            // Option 2: Parse the puzzle and find cells that actually have the candidate
+            // Simpler approach: iterate through the box to find all cells with the digit
+            val cellsWithCandidateInBox = mutableSetOf<Int>()
+            try {
+                val basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
+                val sbrcGrid = SBRCGrid(basicGrid)
+                
+                // Check each cell in the cover (box) to see if it has the candidate
+                for (cellIdx in coverCells) {
+                    val cellPencilMarks = sbrcGrid.pm[cellIdx]
+                    if (cellPencilMarks != null && cellPencilMarks.get(digit - 1)) {  // digit is 1-9, pencilMarks are 0-8
+                        cellsWithCandidateInBox.add(cellIdx)
+                    }
+                }
+            } catch (e: Exception) {
+                // If we can't parse, fall back to fishCells
+                cellsWithCandidateInBox.addAll(fishCells)
+            }
+            
+            println("DEBUG: Box cells with candidate $digit: ${cellsWithCandidateInBox.map { formatCellName(it) }}")
             
             val rowCellsInBox = if (rowFin != null && rowIndex != null) {
-                // Cells in the row, inside THE COVER BOX, but NOT the rowFin or intersection
+                // Cells in the row, inside the box, WITH the candidate (verified from grid), but NOT the rowFin or intersection
                 rowCells.filter { cell ->
-                    cell in coverCells && 
+                    cell in cellsWithCandidateInBox && 
                     cell != rowFin && 
                     cell != rowColIntersection
                 }
             } else emptyList()
             
             val colCellsInBox = if (colFin != null && colIndex != null) {
-                // Cells in the column, inside THE COVER BOX, but NOT the colFin or intersection
+                // Cells in the column, inside the box, WITH the candidate (verified from grid), but NOT the colFin or intersection
                 colCells.filter { cell ->
-                    cell in coverCells && 
+                    cell in cellsWithCandidateInBox && 
                     cell != colFin && 
                     cell != rowColIntersection
                 }
@@ -1803,7 +1860,10 @@ class SudokuService {
 
                 // Use the computed cells from the difference operations
                 // The two cells in the box MUST be in the same box (for the weak link)
-                val rowCellInBox = rowCellsInBox.lastOrNull()
+                // rowCellsInBox and colCellsInBox are already filtered to only include cells with the candidate
+                val rowCellInBox = rowCellsInBox.firstOrNull()
+                
+                println("DEBUG: rowCellsInBox candidates=${rowCellsInBox.map { formatCellName(it) }}, selected=${if (rowCellInBox != null) formatCellName(rowCellInBox) else "null"}")
                 
                 val colCellInBox = if (colCellsInBox.size > 1 && rowCellInBox != null) {
                     // Pick the colCellInBox that's in the same box as rowCellInBox
@@ -1815,6 +1875,8 @@ class SudokuService {
                 } else {
                     colCellsInBox.firstOrNull()
                 }
+                
+                println("DEBUG: colCellsInBox candidates=${colCellsInBox.map { formatCellName(it) }}, selected=${if (colCellInBox != null) formatCellName(colCellInBox) else "null"}")
 
                 // Strong link in the row (between kite endpoint and cell in box)
                 if (rowCellInBox != null) {
@@ -1892,7 +1954,8 @@ class SudokuService {
     private fun generateKiteSteps(
         techniqueName: String,
         match: TechniqueMatch,
-        eliminations: List<EliminationDto>
+        eliminations: List<EliminationDto>,
+        puzzleString: String
     ): List<ExplanationStepDto> {
         val steps = mutableListOf<ExplanationStepDto>()
         val eliminationCells = eliminations.flatMap { it.cells }.distinct()
@@ -1904,6 +1967,7 @@ class SudokuService {
         var rowIndex: Int? = null
         var colIndex: Int? = null
         var fins = java.util.BitSet()
+        var endofins = java.util.BitSet()
 
         try {
             val matchClass = match.javaClass
@@ -1911,16 +1975,19 @@ class SudokuService {
             val baseSecsField = matchClass.getDeclaredField("baseSecs")
             val coverSecsField = matchClass.getDeclaredField("coverSecs")
             val finsField = matchClass.getDeclaredField("fins")
+            val endofinsField = matchClass.getDeclaredField("endofins")
 
             digitField.isAccessible = true
             baseSecsField.isAccessible = true
             coverSecsField.isAccessible = true
             finsField.isAccessible = true
+            endofinsField.isAccessible = true
 
             digit = (digitField.get(match) as Int) + 1 // Convert to 1-9
             val baseSecs = baseSecsField.get(match) as java.util.BitSet
             val coverSecs = coverSecsField.get(match) as java.util.BitSet
             fins = finsField.get(match) as java.util.BitSet
+            endofins = endofinsField.get(match) as java.util.BitSet
 
             // Extract all base sectors
             var idx = baseSecs.nextSetBit(0)
@@ -1966,6 +2033,14 @@ class SudokuService {
             finIdx = fins.nextSetBit(finIdx + 1)
         }
         
+        // Extract endofin cells
+        val endofinCells = mutableListOf<Int>()
+        var endoIdx = endofins.nextSetBit(0)
+        while (endoIdx >= 0) {
+            endofinCells.add(endoIdx)
+            endoIdx = endofins.nextSetBit(endoIdx + 1)
+        }
+        
         // Identify which fin is in the row and which is in the column
         // rowFin: in row rowIndex, but NOT in column colIndex (outside box in that row)
         // colFin: in column colIndex, but NOT in row rowIndex (outside box in that column)
@@ -1999,6 +2074,30 @@ class SudokuService {
         }
         val allRegions = coverRegions  // Only highlight the box
 
+            // Fish cells are the intersection of base and cover - cells by position
+            val fishCells = baseCells.filter { it in coverCells }
+            
+            // Option 2: Parse the puzzle and find cells that actually have the candidate
+            // Simpler approach: iterate through the box to find all cells with the digit
+            val cellsWithCandidateInBox = mutableSetOf<Int>()
+            try {
+                val basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
+                val sbrcGrid = SBRCGrid(basicGrid)
+                
+                // Check each cell in the cover (box) to see if it has the candidate
+                for (cellIdx in coverCells) {
+                    val cellPencilMarks = sbrcGrid.pm[cellIdx]
+                    if (cellPencilMarks != null && cellPencilMarks.get(digit - 1)) {  // digit is 1-9, pencilMarks are 0-8
+                        cellsWithCandidateInBox.add(cellIdx)
+                    }
+                }
+            } catch (e: Exception) {
+                // If we can't parse, fall back to fishCells
+                cellsWithCandidateInBox.addAll(fishCells)
+            }
+            
+            println("DEBUG: Box cells with candidate $digit: ${cellsWithCandidateInBox.map { formatCellName(it) }}")
+
         // Get all cells in the row and column
         val rowCells = if (rowIndex != null) getSectorCells(rowIndex) else emptyList()
         val colCells = if (colIndex != null) getSectorCells(colIndex + 9) else emptyList()
@@ -2009,28 +2108,29 @@ class SudokuService {
         } else null
         
         // The difference operations from the AIC chain:
-        // inRow \ rowOuties = cells in row that are IN THE BOX and are NOT rowFin
-        // inCol \ colOuties = cells in column that are IN THE BOX and are NOT colFin
+        // inRow \ rowOuties = cells in row that are IN THE BOX and have the candidate (verified from grid)
+        // inCol \ colOuties = cells in column that are IN THE BOX and have the candidate (verified from grid)
         val rowCellsInBox = if (rowFin != null && rowIndex != null) {
-            // Cells in the row, inside THE COVER BOX, but NOT the rowFin or intersection
+            // Cells in the row, inside the box, WITH the candidate (verified from grid), but NOT the rowFin or intersection
             rowCells.filter { cell ->
-                cell in coverCells && 
+                cell in cellsWithCandidateInBox && 
                 cell != rowFin && 
                 cell != rowColIntersection
             }
         } else emptyList()
         
         val colCellsInBox = if (colFin != null && colIndex != null) {
-            // Cells in the column, inside THE COVER BOX, but NOT the colFin or intersection
+            // Cells in the column, inside the box, WITH the candidate (verified from grid), but NOT the colFin or intersection
             colCells.filter { cell ->
-                cell in coverCells && 
+                cell in cellsWithCandidateInBox && 
                 cell != colFin && 
                 cell != rowColIntersection
             }
         } else emptyList()
         
         // The two cells in the box MUST be in the same box (for the weak link)
-        val rowCellInBox = rowCellsInBox.lastOrNull()
+        // rowCellsInBox and colCellsInBox are already filtered to only include cells with the candidate
+        val rowCellInBox = rowCellsInBox.firstOrNull()
         
         val colCellInBox = if (colCellsInBox.size > 1 && rowCellInBox != null) {
             // Pick the colCellInBox that's in the same box as rowCellInBox
