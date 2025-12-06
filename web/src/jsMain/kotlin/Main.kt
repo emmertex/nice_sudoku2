@@ -230,30 +230,48 @@ class SudokuApp {
         fetchPromise.then { response ->
             if (response.ok) {
                 response.text().then { text ->
-                    changelogContent = text as String
-                    
-                    // Extract version from first line (format: "# v0.0.2 - 2025-12-01")
-                    val firstLine = changelogContent.lines().firstOrNull() ?: ""
-                    val versionMatch = Regex("""#\s*(v[\d.]+)""").find(firstLine)
-                    currentVersion = versionMatch?.groupValues?.getOrNull(1) ?: ""
-                    
-                    // Check if this is a new version
-                    val lastSeenVersion = GameStateManager.getLastSeenVersion()
-                    if (currentVersion.isNotEmpty() && currentVersion != lastSeenVersion) {
-                        // New version detected - show the changelog modal
-                        // But not if greeting modal is already showing (first launch)
-                        if (!showGreetingModal) {
-                            showVersionModal = true
+                    try {
+                        changelogContent = text as String
+                        
+                        // Extract version from first line (format: "# v0.0.2 - 2025-12-01")
+                        val firstLine = changelogContent.lines().firstOrNull() ?: ""
+                        val versionMatch = Regex("""#\s*(v[\d.]+)""").find(firstLine)
+                        currentVersion = versionMatch?.groupValues?.getOrNull(1) ?: ""
+                        
+                        // Check if this is a new version
+                        val lastSeenVersion = GameStateManager.getLastSeenVersion()
+                        if (currentVersion.isNotEmpty() && currentVersion != lastSeenVersion) {
+                            // New version detected - show the changelog modal
+                            // But not if greeting modal is already showing (first launch)
+                            if (!showGreetingModal) {
+                                showVersionModal = true
+                            }
+                            // Always mark as seen so it doesn't show again
+                            GameStateManager.setLastSeenVersion(currentVersion)
+                            render()
+                        } else {
+                            // Just re-render to show the version number
+                            render()
                         }
-                        // Always mark as seen so it doesn't show again
-                        GameStateManager.setLastSeenVersion(currentVersion)
-                        render()
-                    } else {
-                        // Just re-render to show the version number
+                    } catch (e: Exception) {
+                        // Silently handle parsing errors - changelog is not critical
+                        println("Error parsing changelog: ${e.message}")
                         render()
                     }
+                }.catch { error: dynamic ->
+                    // Silently handle text parsing errors
+                    println("Error reading changelog text: $error")
+                    render()
                 }
+            } else {
+                // Response not OK - silently continue, changelog is not critical
+                render()
             }
+        }.catch { error: dynamic ->
+            // Silently handle fetch errors (network issues, 404, etc.)
+            // This prevents unhandled promise rejections on first launch
+            println("Error loading changelog: $error")
+            render()
         }
     }
     
@@ -4125,6 +4143,25 @@ class SudokuApp {
 }
 
 fun main() {
+    // Set up global error handlers to prevent unhandled promise rejections
+    // This prevents the webpack-dev-server overlay from showing errors on first launch
+    window.addEventListener("unhandledrejection", { event ->
+        // Silently handle unhandled promise rejections during initialization
+        // These are often non-critical (e.g., failed network requests)
+        val error = event.asDynamic().reason
+        println("Unhandled promise rejection (suppressed): $error")
+        event.preventDefault() // Prevent default error handling
+    })
+    
+    window.addEventListener("error", { event ->
+        // Only log errors, don't let them crash the app
+        val error = event.asDynamic().error
+        if (error != null) {
+            println("Global error caught: $error")
+        }
+        // Don't prevent default - let browser handle critical errors
+    })
+    
     window.onload = {
         // Add styles
         val style = document.createElement("style")

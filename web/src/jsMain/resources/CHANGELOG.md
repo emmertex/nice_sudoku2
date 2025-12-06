@@ -1,3 +1,10 @@
+# v0.3.2 - 2025-12-06c
+
+### Bug Fix
+- Restored missing Next/Prev button on vertical hint view.
+- Error on changelog loading on startup will no longer show
+
+
 # v0.3.1 - 2025-12-06b
 
 ### Features
