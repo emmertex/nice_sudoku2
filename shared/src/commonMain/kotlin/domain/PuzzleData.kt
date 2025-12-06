@@ -67,7 +67,8 @@ data class SavedGameState(
     val elapsedTimeMs: Long,         // Time spent on puzzle
     val mistakeCount: Int,           // Number of mistakes made
     val isCompleted: Boolean,
-    val lastPlayedTimestamp: Long
+    val lastPlayedTimestamp: Long,
+    val actionStack: List<String> = emptyList()  // Eureka notation actions for undo (e.g., "R1C5=7", "R3C8<>4")
 ) {
     companion object {
         /**

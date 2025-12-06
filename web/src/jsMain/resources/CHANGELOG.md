@@ -1,3 +1,16 @@
+# v0.3.1 - 2025-12-06b
+
+### Features
+- Mistake Detection Settings
+- - Off: Mistakes are not detected, and not counted
+- - Placement: Mistakes are detected and counted when placing an invalid number
+- - Candidate: Mistakes are detected and counted when removing a valid candidate
+- Action/Undo Stack
+- - Every action taken is stored
+- - Undo walks back the action, not affected by natural candidates
+- - Saved with the puzzle even after completion.
+
+
 # v0.3.0 - 2025-12-06
 
 ### Features
