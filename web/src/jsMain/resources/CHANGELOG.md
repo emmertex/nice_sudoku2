@@ -1,3 +1,10 @@
+# v0.3.5 - 2025-12-07b
+
+### Fixed Issues
+- Fixed edge case where 2-string kite would display a wrong chain link
+
+
+
 # v0.3.4 - 2025-12-07
 
 ### Fixed Issues
