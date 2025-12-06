@@ -1,9 +1,9 @@
 # v0.3.2 - 2025-12-06c
 
-### Bug Fix
+### Fixed Issues
 - Restored missing Next/Prev button on vertical hint view.
 - Error on changelog loading on startup will no longer show
-
+- Hint Priority sorting by backend, as during gameplay, simpler hints were not being shown.
 
 # v0.3.1 - 2025-12-06b
 
@@ -54,14 +54,14 @@
 
 # v0.2.4 - 2025-12-04b
 
-### Bug Fixes
+### Fixed Issues
 - Rebuilt StormDoku to return all techniques.
 - - Include StormDoku.jar in repo
 
 
 # v0.2.3 - 2025-12-04
 
-### Bug Fixes
+### Fixed Issues
 - The Hint System for vertical layout now displays properly.
 - UI Layout Improvements, much more vertically compact.
 
