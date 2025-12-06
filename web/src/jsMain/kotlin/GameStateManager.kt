@@ -360,6 +360,7 @@ object GameStateManager {
     fun updateGameState(
         currentGame: SavedGameState,
         grid: SudokuGrid,
+        actionStack: List<String> = emptyList(),
         additionalTimeMs: Long = 0,
         newMistake: Boolean = false
     ): SavedGameState {
@@ -368,6 +369,7 @@ object GameStateManager {
         
         return currentGame.copy(
             currentState = stateString,
+            actionStack = actionStack,
             elapsedTimeMs = currentGame.elapsedTimeMs + additionalTimeMs,
             mistakeCount = currentGame.mistakeCount + (if (newMistake) 1 else 0),
             isCompleted = isComplete,

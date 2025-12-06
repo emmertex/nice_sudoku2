@@ -22,6 +22,10 @@ actual class GameEngine actual constructor() {
     private var selectedTechniqueKey: String? = null
     private var currentPuzzleString: String? = null  // Keep track of original puzzle
     
+    // Action stack for undo functionality - stores Eureka notation actions
+    // Format: "R{row}C{col}={value}" for placements, "R{row}C{col}<>{candidate}" for eliminations
+    private val actionStack: MutableList<String> = mutableListOf()
+    
     // Backend API base URL - configurable via environment or defaults to sudoku.emmertex.com
     private val apiBaseUrl: String = js("window.STORMDOKU_API_URL || 'http://localhost:8181'") as String
     
@@ -62,6 +66,7 @@ actual class GameEngine actual constructor() {
             currentPuzzleString = puzzle  // Store for technique finding
             currentMatches = emptyMap()
             selectedTechniqueKey = null
+            actionStack.clear()  // Clear action stack for new puzzle
             
             // Calculate candidates locally immediately so UI shows correct state
             grid = calculateAllCandidates(grid)
@@ -570,6 +575,130 @@ actual class GameEngine actual constructor() {
      */
     fun getHints(): List<TechniqueMatchInfo> {
         return currentMatches.values.flatten()
+    }
+    
+    // ===== Action Stack (Undo) =====
+    
+    /**
+     * Record an action in Eureka notation for undo functionality.
+     * @param action The action in Eureka notation (e.g., "R1C5=7" or "R3C8<>4")
+     */
+    fun recordAction(action: String) {
+        actionStack.add(action)
+    }
+    
+    /**
+     * Create an action string for a placement.
+     * @param cellIndex The cell index (0-80)
+     * @param value The value placed (1-9)
+     * @return Eureka notation string (e.g., "R1C5=7")
+     */
+    fun createPlacementAction(cellIndex: Int, value: Int): String {
+        val row = cellIndex / 9 + 1  // 1-indexed for Eureka
+        val col = cellIndex % 9 + 1
+        return "R${row}C${col}=$value"
+    }
+    
+    /**
+     * Create an action string for a candidate elimination.
+     * @param cellIndex The cell index (0-80)
+     * @param candidate The candidate eliminated (1-9)
+     * @return Eureka notation string (e.g., "R3C8<>4")
+     */
+    fun createEliminationAction(cellIndex: Int, candidate: Int): String {
+        val row = cellIndex / 9 + 1  // 1-indexed for Eureka
+        val col = cellIndex % 9 + 1
+        return "R${row}C${col}<>$candidate"
+    }
+    
+    /**
+     * Pop the last action from the stack.
+     * @return The last action string, or null if stack is empty
+     */
+    fun popAction(): String? {
+        return if (actionStack.isNotEmpty()) {
+            actionStack.removeAt(actionStack.size - 1)
+        } else {
+            null
+        }
+    }
+    
+    /**
+     * Check if there are any actions to undo.
+     */
+    fun canUndo(): Boolean = actionStack.isNotEmpty()
+    
+    /**
+     * Undo the last action by parsing it and reversing the effect.
+     * @return true if an action was undone, false if stack was empty
+     */
+    fun undoLastAction(): Boolean {
+        val action = popAction() ?: return false
+        
+        // Parse the action
+        // Placement format: R{row}C{col}={value}
+        // Elimination format: R{row}C{col}<>{candidate}
+        
+        val placementRegex = Regex("""R(\d)C(\d)=(\d)""")
+        val eliminationRegex = Regex("""R(\d)C(\d)<>(\d)""")
+        
+        val placementMatch = placementRegex.matchEntire(action)
+        val eliminationMatch = eliminationRegex.matchEntire(action)
+        
+        when {
+            placementMatch != null -> {
+                // Undo a placement: remove the value from the cell
+                val row = placementMatch.groupValues[1].toInt() - 1  // Convert back to 0-indexed
+                val col = placementMatch.groupValues[2].toInt() - 1
+                val cellIndex = row * 9 + col
+                
+                val cell = grid.getCell(cellIndex)
+                if (!cell.isGiven) {
+                    grid = grid.withCellValue(cellIndex, null)
+                    // Recalculate candidates after removing a value
+                    grid = calculateAllCandidates(grid)
+                }
+                return true
+            }
+            eliminationMatch != null -> {
+                // Undo an elimination: toggle the user elimination back (restore candidate)
+                val row = eliminationMatch.groupValues[1].toInt() - 1
+                val col = eliminationMatch.groupValues[2].toInt() - 1
+                val candidate = eliminationMatch.groupValues[3].toInt()
+                val cellIndex = row * 9 + col
+                
+                val cell = grid.getCell(cellIndex)
+                if (!cell.isGiven && !cell.isSolved) {
+                    // Toggle the elimination off (restore the candidate)
+                    grid = grid.toggleUserElimination(cellIndex, candidate)
+                }
+                return true
+            }
+            else -> {
+                println("JS: Unknown action format: $action")
+                return false
+            }
+        }
+    }
+    
+    /**
+     * Get the current action stack for saving.
+     */
+    fun getActionStack(): List<String> = actionStack.toList()
+    
+    /**
+     * Set the action stack (used when restoring a saved game).
+     */
+    fun setActionStack(actions: List<String>) {
+        actionStack.clear()
+        actionStack.addAll(actions)
+    }
+    
+    /**
+     * Clear the action stack (e.g., when starting a new puzzle).
+     */
+    fun clearActionStack() {
+        actionStack.clear()
     }
     
     // ===== HTTP helpers =====
