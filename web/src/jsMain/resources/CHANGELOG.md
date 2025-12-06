@@ -1,3 +1,9 @@
+# v0.3.4 - 2025-12-07
+
+### Fixed Issues
+- Hint Highlighting only worked in horizontal, now both.
+
+
 # v0.3.3 - 2025-12-06d
 
 ### Fixed Issues
