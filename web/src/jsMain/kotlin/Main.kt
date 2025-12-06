@@ -2440,7 +2440,7 @@ class SudokuApp {
                     }
                 }
                 
-                // Close button (no collapse button in portrait mode - always showing step 1)
+                // Close button
                 
                 button(classes = "hint-close-btn-small") {
                     +"✕"
@@ -2452,8 +2452,7 @@ class SudokuApp {
             }
             
             if (selectedHint != null) {
-                // Always show step 1 explanation in portrait mode (no explain button)
-                explanationStepIndex = 0  // Always reset to step 1
+                // Show explanation with step navigation
                 renderInlineExplanationCompact(selectedHint)
             } else {
                 div("hint-content hint-empty") {
@@ -2488,8 +2487,36 @@ class SudokuApp {
             if (currentStep != null) {
                 div("inline-step") {
                     div("step-header-compact") {
+                        // Step navigation buttons (only show if more than one step)
+                        if (steps.size > 1) {
+                            button(classes = "step-nav-btn-small ${if (explanationStepIndex <= 0) "disabled" else ""}") {
+                                +"◀"
+                                onClickFunction = { e ->
+                                    e.stopPropagation()
+                                    if (explanationStepIndex > 0) {
+                                        explanationStepIndex--
+                                        render()
+                                    }
+                                }
+                            }
+                        }
+                        
                         span("step-badge") { +"Step ${currentStep.stepNumber}" }
                         span("step-title") { +currentStep.title }
+                        
+                        // Step navigation buttons (only show if more than one step)
+                        if (steps.size > 1) {
+                            button(classes = "step-nav-btn-small ${if (explanationStepIndex >= steps.size - 1) "disabled" else ""}") {
+                                +"▶"
+                                onClickFunction = { e ->
+                                    e.stopPropagation()
+                                    if (explanationStepIndex < steps.size - 1) {
+                                        explanationStepIndex++
+                                        render()
+                                    }
+                                }
+                            }
+                        }
                     }
                     div("step-description") {
                         renderInteractiveDescription(currentStep.description, hint)
@@ -2502,8 +2529,6 @@ class SudokuApp {
                         }
                     }
                 }
-            
-            // No navigation in portrait mode - always show step 1 only
         }
     }
     
@@ -5578,6 +5603,29 @@ private val CSS_STYLES = """
         margin-bottom: clamp(4px, 0.8vmin, 8px);
     }
     
+    .step-nav-btn-small {
+        padding: clamp(2px, 0.4vmin, 4px) clamp(4px, 0.8vmin, 8px);
+        border: none;
+        border-radius: clamp(3px, 0.5vmin, 6px);
+        background: rgba(var(--color-accent-info), 0.2);
+        color: rgb(var(--color-accent-info));
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    .step-nav-btn-small:hover:not(.disabled) {
+        background: rgba(var(--color-accent-info), 0.3);
+    }
+    
+    .step-nav-btn-small.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
     .step-badge {
         background: rgba(var(--color-accent-info), 0.3);
         color: rgb(var(--color-accent-info));
@@ -5592,6 +5640,8 @@ private val CSS_STYLES = """
         font-weight: 600;
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
         color: rgba(var(--color-text-primary), 0.9);
+        flex: 1;
+        min-width: 0;
     }
     
     .inline-explanation-compact .step-description {
