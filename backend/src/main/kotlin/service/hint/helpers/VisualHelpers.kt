@@ -1,8 +1,8 @@
-package service.hintHelpers
+package service.hint.helpers
 import sudoku.match.TechniqueMatch
 import dto.*
 import sudoku.HelpingTools.cardinals
-import service.hintHelpers.eliminationCandidates
+import service.hint.helpers.eliminationCandidates
 
 
 

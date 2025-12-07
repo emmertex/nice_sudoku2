@@ -1,4 +1,4 @@
-package service.hintHelpers
+package service.hint.helpers
 import sudoku.HelpingTools.cardinals
 import sudoku.DataStorage.BasicGrid
 import sudoku.DataStorage.SBRCGrid

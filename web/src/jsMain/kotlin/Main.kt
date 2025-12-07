@@ -20,36 +20,11 @@ import adapter.CandidateLocationDto
 import view.*
 import domain.*
 
-enum class AppScreen {
-    GAME,
-    PUZZLE_BROWSER,
-    IMPORT_EXPORT,
-    SETTINGS
-}
-
-enum class HighlightMode {
-    CELL,        // Cells with matching numbers
-    RCB_SELECTED, // Rows, Columns, Boxes of selected cell
-    RCB_ALL,     // Rows, Columns, Boxes of all matching numbers
-    PENCIL       // Matching pencil marks
-}
-
-enum class PlayMode {
-    FAST,        // Click number then cell to fill
-    ADVANCED     // Click number to highlight, then choose action
-}
-
-enum class MistakeDetectionMode {
-    OFF,         // No mistake detection
-    PLACEMENT,   // Only detect wrong number placements
-    CANDIDATE    // Detect wrong placements AND wrong candidate removals
-}
-
 class SudokuApp {
-    private val gameEngine = GameEngine()
-    private var selectedCell: Int? = null
-    private var isNotesMode = false
-    
+    internal val gameEngine = GameEngine()
+    internal var selectedCell: Int? = null
+    internal var isNotesMode = false
+
     // Current game state
     private var currentGame: SavedGameState? = null
     private var solution: String? = null  // Background solved solution for mistake detection
@@ -57,29 +32,29 @@ class SudokuApp {
     private var pausedTime: Long = 0L
     
     // UI state
-    private var currentScreen = AppScreen.GAME
+    internal var currentScreen = AppScreen.GAME
     private var selectedCategory: DifficultyCategory = DifficultyCategory.EASY
     private var toastMessage: String? = null
     private var showSettingsMenu = false
     
     // Highlight and Play mode state (loaded from preferences)
     private var highlightMode = GameStateManager.getHighlightMode()
-    private var playMode = GameStateManager.getPlayMode()
+    internal var playMode = GameStateManager.getPlayMode()
     private var currentTheme = GameStateManager.getTheme()
     private var mistakeDetectionMode = GameStateManager.getMistakeDetectionMode()
-    private var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Primary selected numbers (light blue)
-    private var selectedNumbers2: MutableSet<Int> = mutableSetOf()  // Secondary selected numbers (light red)
+    internal var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Primary selected numbers (light blue)
+    internal var selectedNumbers2: MutableSet<Int> = mutableSetOf()  // Secondary selected numbers (light red)
     
     // Hint system state
-    private var showHints = false  // Whether hint panel is visible
-    private var selectedHintIndex: Int = 0  // Currently selected hint in the list
+    internal var showHints = false  // Whether hint panel is visible
+    internal var selectedHintIndex: Int = 0  // Currently selected hint in the list
     private var isLandscape = false  // Responsive layout detection
-    private var isBackendAvailable = false  // Whether hint system can be used
+    internal var isBackendAvailable = false  // Whether hint system can be used
     private var expandedHintIndex: Int? = null  // Which hint is expanded in landscape mode (null = none)
     
     // Explanation overlay state
-    private var showExplanation = false  // Whether explanation overlay is visible
-    private var explanationStepIndex: Int = 0  // Current step in explanation
+    internal var showExplanation = false  // Whether explanation overlay is visible
+    internal var explanationStepIndex: Int = 0  // Current step in explanation
     
     // Interactive chain highlighting state
     private var highlightedLinkIndex: Int? = null  // Index of link being highlighted (for SVG line)
@@ -90,12 +65,12 @@ class SudokuApp {
     private var currentHintList: List<TechniqueMatchInfo> = emptyList()
     
     // Modal state
-    private var showAboutModal = false
-    private var showHelpModal = false
-    private var showGreetingModal = false
+    internal var showAboutModal = false
+    internal var showHelpModal = false
+    internal var showGreetingModal = false
     private var showCompletionModal = false
     private var completionShownForPuzzle: String? = null  // Track which puzzle we've shown completion for
-    private var showVersionModal = false
+    internal var showVersionModal = false
     private var showPuzzleInfoModal = false
     private var puzzleInfoTarget: PuzzleDefinition? = null  // Puzzle to show info for
     
@@ -107,7 +82,135 @@ class SudokuApp {
     private var hideCompletedPuzzles = GameStateManager.getHideCompleted()
     
     private val appRoot: Element get() = document.getElementById("app")!!
-    
+
+    private fun startNewGame(puzzle: PuzzleDefinition) {
+        gameEngine.loadPuzzle(puzzle.puzzleString)
+
+        // Use pre-loaded solution from puzzle definition
+        solution = puzzle.solution
+
+        // Create new saved game with solution
+        currentGame = GameStateManager.createNewGame(puzzle, puzzle.solution)
+        currentGame?.let {
+            GameStateManager.saveGame(it)
+            GameStateManager.setCurrentGameId(it.puzzleId)
+        }
+
+        gameStartTime = currentTimeMillis()
+        pausedTime = 0L
+        selectedCell = null
+        completionShownForPuzzle = null  // Reset completion modal tracking for new game
+        currentScreen = AppScreen.GAME
+        render()
+
+        val puzzleSolution = puzzle.solution
+        if (puzzleSolution != null) {
+            println("Solution pre-loaded: ${puzzleSolution.take(20)}...")
+        } else {
+            // Fallback: solve in background for custom puzzles without solutions
+            val solverEngine = GameEngine()
+            solverEngine.loadPuzzle(puzzle.puzzleString)
+            solverEngine.getSolutionString(
+                onStatus = { status ->
+                    showToast("⏳ $status")
+                },
+                onComplete = { solutionStr ->
+                    if (solutionStr != null) {
+                        solution = solutionStr
+                        currentGame = currentGame?.copy(solution = solutionStr)
+                        currentGame?.let { GameStateManager.saveGame(it) }
+                        showToast("✓ Ready for mistake checking")
+                        println("Solution loaded: ${solutionStr.take(20)}...")
+                    } else {
+                        showToast("⚠️ Could not verify solution")
+                        println("Failed to get solution for puzzle")
+                    }
+                }
+            )
+        }
+    }
+
+    private fun resumeGame(saved: SavedGameState) {
+        // Parse the state - returns user eliminations (1 = eliminated by user)
+        val (values, userEliminations) = SavedGameState.parseStateString(saved.currentState)
+
+        // Load into engine - this calculates auto-candidates
+        gameEngine.loadPuzzle(saved.puzzleString)
+
+        // Restore action stack from saved game
+        gameEngine.setActionStack(saved.actionStack)
+
+        // Apply saved values and user eliminations
+        for (i in 0 until 81) {
+            val originalValue = saved.puzzleString[i].digitToIntOrNull() ?: 0
+            if (values[i] != 0 && values[i] != originalValue) {
+                // User-entered value - use setCellValue to properly update engine
+                gameEngine.setCellValue(i, values[i])
+            }
+            if (userEliminations[i].isNotEmpty()) {
+                // Set user eliminations for this cell
+                gameEngine.setUserEliminations(i, userEliminations[i])
+            }
+        }
+
+        solution = saved.solution
+        currentGame = saved
+        GameStateManager.setCurrentGameId(saved.puzzleId)
+
+        gameStartTime = currentTimeMillis()
+        pausedTime = saved.elapsedTimeMs
+        selectedCell = null
+        // If already completed, mark as shown so we don't re-show modal when resuming
+        completionShownForPuzzle = if (saved.isCompleted) saved.puzzleId else null
+        currentScreen = AppScreen.GAME
+        render()
+
+        // If no solution saved, solve in background
+        if (saved.solution == null) {
+            val solverEngine = GameEngine()
+            solverEngine.loadPuzzle(saved.puzzleString)
+            solverEngine.getSolutionString(
+                onStatus = { status -> showToast("⏳ $status") },
+                onComplete = { solutionStr ->
+                    if (solutionStr != null) {
+                        solution = solutionStr
+                        currentGame = currentGame?.copy(solution = solutionStr)
+                        currentGame?.let { GameStateManager.saveGame(it) }
+                        showToast("✓ Ready for mistake checking")
+                    }
+                }
+            )
+        }
+    }
+
+    /**
+     * Save the current game state to persistent storage.
+     * This includes all cell values AND all user eliminations.
+     * Must be called after any manual modification to candidates or cell values.
+     *
+     * User eliminations are stored separately from auto-calculated candidates.
+     * This ensures user eliminations are never lost when candidates are recalculated.
+     */
+    internal fun saveCurrentState() {
+        val game = currentGame ?: return
+        val grid = gameEngine.getCurrentGrid()
+        val elapsedSinceStart = currentTimeMillis() - gameStartTime
+
+        // updateGameState uses createStateString which saves user eliminations
+        val updated = GameStateManager.updateGameState(
+            currentGame = game,
+            grid = grid,
+            actionStack = gameEngine.getActionStack(),
+            additionalTimeMs = elapsedSinceStart
+        )
+        currentGame = updated
+        GameStateManager.saveGame(updated)
+
+        // Reset timer
+        gameStartTime = currentTimeMillis()
+        pausedTime = updated.elapsedTimeMs
+    }
+
     fun start() {
         // Apply the current theme
         applyTheme(currentTheme)
@@ -126,7 +229,7 @@ class SudokuApp {
             val tagName = (target?.tagName as? String)?.lowercase() ?: ""
             if (tagName != "input" && tagName != "textarea") {
                 val grid = gameEngine.getCurrentGrid()
-                val handled = handleKeyPress(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
+                val handled = KeyboardHandler.handleKeyPress(this, key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
                 if (handled) {
                     event.preventDefault()
                     event.stopPropagation()
@@ -268,139 +371,11 @@ class SudokuApp {
             render()
         }
     }
-    
-    private fun startNewGame(puzzle: PuzzleDefinition) {
-        gameEngine.loadPuzzle(puzzle.puzzleString)
-        
-        // Use pre-loaded solution from puzzle definition
-        solution = puzzle.solution
-        
-        // Create new saved game with solution
-        currentGame = GameStateManager.createNewGame(puzzle, puzzle.solution)
-        currentGame?.let { 
-            GameStateManager.saveGame(it)
-            GameStateManager.setCurrentGameId(it.puzzleId)
-        }
-        
-        gameStartTime = currentTimeMillis()
-        pausedTime = 0L
-        selectedCell = null
-        completionShownForPuzzle = null  // Reset completion modal tracking for new game
-        currentScreen = AppScreen.GAME
-        render()
-        
-        val puzzleSolution = puzzle.solution
-        if (puzzleSolution != null) {
-            println("Solution pre-loaded: ${puzzleSolution.take(20)}...")
-        } else {
-            // Fallback: solve in background for custom puzzles without solutions
-            val solverEngine = GameEngine()
-            solverEngine.loadPuzzle(puzzle.puzzleString)
-            solverEngine.getSolutionString(
-                onStatus = { status -> 
-                    showToast("⏳ $status")
-                },
-                onComplete = { solutionStr ->
-                    if (solutionStr != null) {
-                        solution = solutionStr
-                        currentGame = currentGame?.copy(solution = solutionStr)
-                        currentGame?.let { GameStateManager.saveGame(it) }
-                        showToast("✓ Ready for mistake checking")
-                        println("Solution loaded: ${solutionStr.take(20)}...")
-                    } else {
-                        showToast("⚠️ Could not verify solution")
-                        println("Failed to get solution for puzzle")
-                    }
-                }
-            )
-        }
-    }
-    
-    private fun resumeGame(saved: SavedGameState) {
-        // Parse the state - returns user eliminations (1 = eliminated by user)
-        val (values, userEliminations) = SavedGameState.parseStateString(saved.currentState)
-        
-        // Load into engine - this calculates auto-candidates
-        gameEngine.loadPuzzle(saved.puzzleString)
-        
-        // Restore action stack from saved game
-        gameEngine.setActionStack(saved.actionStack)
-        
-        // Apply saved values and user eliminations
-        for (i in 0 until 81) {
-            val originalValue = saved.puzzleString[i].digitToIntOrNull() ?: 0
-            if (values[i] != 0 && values[i] != originalValue) {
-                // User-entered value - use setCellValue to properly update engine
-                gameEngine.setCellValue(i, values[i])
-            }
-            if (userEliminations[i].isNotEmpty()) {
-                // Set user eliminations for this cell
-                gameEngine.setUserEliminations(i, userEliminations[i])
-            }
-        }
-        
-        solution = saved.solution
-        currentGame = saved
-        GameStateManager.setCurrentGameId(saved.puzzleId)
-        
-        gameStartTime = currentTimeMillis()
-        pausedTime = saved.elapsedTimeMs
-        selectedCell = null
-        // If already completed, mark as shown so we don't re-show modal when resuming
-        completionShownForPuzzle = if (saved.isCompleted) saved.puzzleId else null
-        currentScreen = AppScreen.GAME
-        render()
-        
-        // If no solution saved, solve in background
-        if (saved.solution == null) {
-            val solverEngine = GameEngine()
-            solverEngine.loadPuzzle(saved.puzzleString)
-            solverEngine.getSolutionString(
-                onStatus = { status -> showToast("⏳ $status") },
-                onComplete = { solutionStr ->
-                    if (solutionStr != null) {
-                        solution = solutionStr
-                        currentGame = currentGame?.copy(solution = solutionStr)
-                        currentGame?.let { GameStateManager.saveGame(it) }
-                        showToast("✓ Ready for mistake checking")
-                    }
-                }
-            )
-        }
-    }
-    
-    /**
-     * Save the current game state to persistent storage.
-     * This includes all cell values AND all user eliminations.
-     * Must be called after any manual modification to candidates or cell values.
-     * 
-     * User eliminations are stored separately from auto-calculated candidates.
-     * This ensures user eliminations are never lost when candidates are recalculated.
-     */
-    private fun saveCurrentState() {
-        val game = currentGame ?: return
-        val grid = gameEngine.getCurrentGrid()
-        val elapsedSinceStart = currentTimeMillis() - gameStartTime
-        
-        // updateGameState uses createStateString which saves user eliminations
-        val updated = GameStateManager.updateGameState(
-            currentGame = game,
-            grid = grid,
-            actionStack = gameEngine.getActionStack(),
-            additionalTimeMs = elapsedSinceStart
-        )
-        currentGame = updated
-        GameStateManager.saveGame(updated)
-        
-        // Reset timer
-        gameStartTime = currentTimeMillis()
-        pausedTime = updated.elapsedTimeMs
-    }
-    
+
     private fun checkMistake(cellIndex: Int, value: Int): Boolean {
         // Don't check if mistake detection is off
         if (mistakeDetectionMode == MistakeDetectionMode.OFF) return false
-        
+
         val isMistake = GameStateManager.isMistake(solution, cellIndex, value)
         if (isMistake) {
             currentGame = currentGame?.copy(mistakeCount = (currentGame?.mistakeCount ?: 0) + 1)
@@ -408,7 +383,7 @@ class SudokuApp {
         }
         return isMistake
     }
-    
+
     /**
      * Check if removing a candidate would be a mistake (removing the correct answer).
      * Only counts as mistake if:
@@ -416,17 +391,17 @@ class SudokuApp {
      * - The candidate being removed equals the solution for that cell
      * - The candidate is currently present (being removed, not added)
      */
-    private fun checkCandidateRemovalMistake(cellIndex: Int, candidate: Int, isCurrentlyPresent: Boolean): Boolean {
+    internal fun checkCandidateRemovalMistake(cellIndex: Int, candidate: Int, isCurrentlyPresent: Boolean): Boolean {
         // Only check in CANDIDATE mode
         if (mistakeDetectionMode != MistakeDetectionMode.CANDIDATE) return false
-        
+
         // Only check if we're removing (candidate is currently present)
         if (!isCurrentlyPresent) return false
-        
+
         // Check if this candidate is the correct answer
         if (solution == null || cellIndex < 0 || cellIndex >= 81) return false
         val correctValue = solution!![cellIndex].digitToIntOrNull() ?: return false
-        
+
         if (candidate == correctValue) {
             currentGame = currentGame?.copy(mistakeCount = (currentGame?.mistakeCount ?: 0) + 1)
             currentGame?.let { GameStateManager.saveGame(it) }
@@ -434,7 +409,7 @@ class SudokuApp {
         }
         return false
     }
-    
+
     private fun formatTime(ms: Long): String {
         val totalSeconds = ms / 1000
         val hours = totalSeconds / 3600
@@ -450,7 +425,7 @@ class SudokuApp {
         }
     }
     
-    private fun showToast(message: String) {
+    internal fun showToast(message: String) {
         toastMessage = message
         render()
         window.setTimeout({
@@ -526,7 +501,7 @@ class SudokuApp {
         return result
     }
     
-    private fun handleNumberClick(num: Int, grid: SudokuGrid) {
+    internal fun handleNumberClick(num: Int, grid: SudokuGrid) {
         when (playMode) {
             PlayMode.FAST -> {
                 // Select number for highlighting (single selection)
@@ -576,7 +551,7 @@ class SudokuApp {
     }
     
     // Toggle number in primary selection (for advanced mode primary number bar)
-    private fun togglePrimaryNumber(num: Int) {
+    internal fun togglePrimaryNumber(num: Int) {
         if (num in selectedNumbers1) {
             selectedNumbers1.remove(num)
         } else {
@@ -586,7 +561,7 @@ class SudokuApp {
     }
     
     // Toggle number in secondary selection (for advanced mode secondary number bar)
-    private fun toggleSecondaryNumber(num: Int) {
+    internal fun toggleSecondaryNumber(num: Int) {
         if (num in selectedNumbers2) {
             selectedNumbers2.remove(num)
         } else {
@@ -635,423 +610,10 @@ class SudokuApp {
         render()
     }
     
-    private fun handleKeyPress(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
-        // Handle Escape - always works regardless of screen
-        if (key.lowercase() == "escape") {
-            if (showExplanation) {
-                showExplanation = false
-                explanationStepIndex = 0
-                render()
-                return true
-            }
-            if (showAboutModal) {
-                showAboutModal = false
-                render()
-                return true
-            }
-            if (showHelpModal) {
-                showHelpModal = false
-                render()
-                return true
-            }
-            if (showGreetingModal) {
-                showGreetingModal = false
-                render()
-                return true
-            }
-            if (showVersionModal) {
-                showVersionModal = false
-                render()
-                return true
-            }
-            if (showHints) {
-                showHints = false
-                render()
-                return true
-            }
-            if (currentScreen != AppScreen.GAME) {
-                currentScreen = AppScreen.GAME
-                render()
-                return true
-            }
-            // Clear selections in game screen
-            selectedNumbers1.clear()
-            selectedNumbers2.clear()
-            selectedCell = null
-            render()
-            return true
-        }
-        
-        // Handle screen-specific shortcuts
-        when (currentScreen) {
-            AppScreen.GAME -> {
-                return handleGameScreenKeys(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
-            }
-            AppScreen.PUZZLE_BROWSER -> {
-                return handlePuzzleBrowserKeys(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
-            }
-            AppScreen.IMPORT_EXPORT -> {
-                return handleImportExportKeys(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
-            }
-            AppScreen.SETTINGS -> {
-                return handleSettingsKeys(key, ctrlKey, shiftKey, altKey, metaKey, grid, event)
-            }
-        }
-        return false
-    }
     
-    private fun handleGameScreenKeys(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
-        // Hint navigation takes priority when hints are shown
-        if (showHints && (key == "ArrowUp" || key == "ArrowDown" || key == "PageUp" || key == "PageDown")) {
-            when (key) {
-                "ArrowUp" -> {
-                    if (selectedHintIndex > 0) {
-                        selectedHintIndex--
-                        explanationStepIndex = 0
-                        render()
-                        return true
-                    }
-                }
-                "ArrowDown" -> {
-                    val hints = gameEngine.getHints()
-                    if (selectedHintIndex < hints.size - 1) {
-                        selectedHintIndex++
-                        explanationStepIndex = 0
-                        render()
-                        return true
-                    }
-                }
-                "PageUp" -> {
-                    selectedHintIndex = 0
-                    explanationStepIndex = 0
-                    render()
-                    return true
-                }
-                "PageDown" -> {
-                    val hints = gameEngine.getHints()
-                    selectedHintIndex = hints.size - 1
-                    explanationStepIndex = 0
-                    render()
-                    return true
-                }
-            }
-        }
-        
-        // Arrow key navigation for cells
-        when (key) {
-            "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight" -> {
-                return handleArrowNavigation(key, ctrlKey, shiftKey, grid)
-            }
-            "Home" -> {
-                selectedCell?.let { cellIndex ->
-                    val row = cellIndex / 9
-                    selectedCell = row * 9  // Move to first column of current row
-                    render()
-                    return true
-                }
-            }
-            "End" -> {
-                selectedCell?.let { cellIndex ->
-                    val row = cellIndex / 9
-                    selectedCell = row * 9 + 8  // Move to last column of current row
-                    render()
-                    return true
-                }
-            }
-        }
-        
-        // Ctrl+Home/End for row navigation
-        if (ctrlKey && (key == "Home" || key == "End")) {
-            if (key == "Home") {
-                selectedCell = 0  // Top-left
-                render()
-                return true
-            } else {
-                selectedCell = 80  // Bottom-right
-                render()
-                return true
-            }
-        }
-        
-        // Handle F1-F9 for filter digits (similar to HoDoKu)
-        if (key.startsWith("F") && key.length == 2) {
-            val fNum = key.substring(1).toIntOrNull()
-            if (fNum != null && fNum in 1..9) {
-                if (shiftKey) {
-                    // Shift+F1-F9: Set filter digit and toggle filter mode
-                    // For now, just set the number as selected (could add filter mode toggle later)
-                    if (fNum in selectedNumbers1) {
-                        selectedNumbers1.remove(fNum)
-                    } else {
-                        selectedNumbers1.clear()
-                        selectedNumbers1.add(fNum)
-                    }
-                    selectedNumbers2.clear()
-                    render()
-                    return true
-                } else {
-                    // F1-F9: Set/change the filtered digit
-                    if (fNum in selectedNumbers1) {
-                        selectedNumbers1.remove(fNum)
-                    } else {
-                        selectedNumbers1.clear()
-                        selectedNumbers1.add(fNum)
-                    }
-                    selectedNumbers2.clear()
-                    render()
-                    return true
-                }
-            }
-        }
-        
-        // Handle number keys 1-9
-        val num = key.toIntOrNull()
-        if (num != null && num in 1..9) {
-            if (ctrlKey) {
-                // Ctrl+number: Toggle candidate (pencil mark)
-                selectedCell?.let { cellIndex ->
-                    val cell = grid.getCell(cellIndex)
-                    if (!cell.isGiven && !cell.isSolved) {
-                        val isCandidatePresent = num in cell.displayCandidates
-                        val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
-                        if (wasMistake) showToast("❌ Wrong candidate removed!")
-                        // Only record elimination if candidate was present (we're removing it)
-                        if (isCandidatePresent) {
-                            gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
-                        }
-                        gameEngine.toggleCandidate(cellIndex, num)
-                        saveCurrentState()
-                        render()
-                        return true
-                    }
-                }
-            } else {
-                // Regular number: Handle based on play mode
-                handleNumberClick(num, grid)
-                return true
-            }
-        }
-        
-        // Handle other keys
-        when (key.lowercase()) {
-            "n" -> {
-                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                    isNotesMode = !isNotesMode
-                    render()
-                    return true
-                }
-            }
-            "h" -> {
-                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                    // Toggle hints
-                    if (isBackendAvailable) {
-                        showHints = !showHints
-                        if (showHints) {
-                            selectedHintIndex = 0
-                            gameEngine.findAllTechniques()
-                        }
-                        render()
-                        return true
-                    }
-                }
-            }
-            " " -> {
-                // Space: If a filter (selected number) is set, toggle the candidate
-                selectedCell?.let { cellIndex ->
-                    val num = selectedNumbers1.singleOrNull()
-                    if (num != null) {
-                        val cell = grid.getCell(cellIndex)
-                        if (!cell.isGiven && !cell.isSolved) {
-                            val isCandidatePresent = num in cell.displayCandidates
-                            val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
-                            if (wasMistake) showToast("❌ Wrong candidate removed!")
-                            // Only record elimination if candidate was present (we're removing it)
-                            if (isCandidatePresent) {
-                                gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
-                            }
-                            gameEngine.toggleCandidate(cellIndex, num)
-                            saveCurrentState()
-                            render()
-                            return true
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Advanced mode: Set primary number with keyboard (only works if exactly one number selected)
-        if (playMode == PlayMode.ADVANCED && selectedCell != null) {
-            val cell = grid.getCell(selectedCell!!)
-            if (!cell.isGiven && !cell.isSolved) {
-                val singleNum = selectedNumbers1.singleOrNull()
-                when (key.lowercase()) {
-                    "enter", "return" -> {
-                        // Enter: Set primary number if exactly one selected
-                        if (singleNum != null) {
-                            gameEngine.recordAction(gameEngine.createPlacementAction(selectedCell!!, singleNum))
-                            gameEngine.setCellValue(selectedCell!!, singleNum)
-                            saveCurrentState()
-                            render()
-                            return true
-                        }
-                    }
-                    "s" -> {
-                        if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                            // S: Set primary number if exactly one selected
-                            if (singleNum != null) {
-                                gameEngine.recordAction(gameEngine.createPlacementAction(selectedCell!!, singleNum))
-                                gameEngine.setCellValue(selectedCell!!, singleNum)
-                                saveCurrentState()
-                                render()
-                                return true
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Screen navigation shortcuts
-        when (key.lowercase()) {
-            "m" -> {
-                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                    // M: Open menu/settings
-                    saveCurrentState()
-                    currentScreen = AppScreen.SETTINGS
-                    render()
-                    return true
-                }
-            }
-            "b" -> {
-                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                    // B: Open puzzle browser
-                    saveCurrentState()
-                    currentScreen = AppScreen.PUZZLE_BROWSER
-                    render()
-                    return true
-                }
-            }
-            "i" -> {
-                if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                    // I: Open import/export
-                    saveCurrentState()
-                    currentScreen = AppScreen.IMPORT_EXPORT
-                    render()
-                    return true
-                }
-            }
-        }
-        
-        return false
-    }
     
-    private fun handleArrowNavigation(key: String, ctrlKey: Boolean, shiftKey: Boolean, grid: SudokuGrid): Boolean {
-        val current = selectedCell ?: 0
-        var row = current / 9
-        var col = current % 9
-        
-        when (key) {
-            "ArrowUp" -> {
-                if (ctrlKey) {
-                    // Ctrl+Up: Jump to next unsolved cell above
-                    val result = findNextUnsolvedCell(row, col, -1, 0, grid)
-                    selectedCell = result
-                    render()
-                    return true
-                } else {
-                    row = (row - 1 + 9) % 9
-                }
-            }
-            "ArrowDown" -> {
-                if (ctrlKey) {
-                    // Ctrl+Down: Jump to next unsolved cell below
-                    val result = findNextUnsolvedCell(row, col, 1, 0, grid)
-                    selectedCell = result
-                    render()
-                    return true
-                } else {
-                    row = (row + 1) % 9
-                }
-            }
-            "ArrowLeft" -> {
-                if (ctrlKey) {
-                    // Ctrl+Left: Jump to next unsolved cell to the left
-                    val result = findNextUnsolvedCell(row, col, 0, -1, grid)
-                    selectedCell = result
-                    render()
-                    return true
-                } else {
-                    col = (col - 1 + 9) % 9
-                }
-            }
-            "ArrowRight" -> {
-                if (ctrlKey) {
-                    // Ctrl+Right: Jump to next unsolved cell to the right
-                    val result = findNextUnsolvedCell(row, col, 0, 1, grid)
-                    selectedCell = result
-                    render()
-                    return true
-                } else {
-                    col = (col + 1) % 9
-                }
-            }
-        }
-        
-        selectedCell = row * 9 + col
-        render()
-        return true
-    }
     
-    private fun findNextUnsolvedCell(startRow: Int, startCol: Int, rowDelta: Int, colDelta: Int, grid: SudokuGrid): Int {
-        var row = startRow
-        var col = startCol
-        var attempts = 0
-        
-        while (attempts < 81) {
-            row = (row + rowDelta + 9) % 9
-            col = (col + colDelta + 9) % 9
-            val cellIndex = row * 9 + col
-            val cell = grid.getCell(cellIndex)
-            
-            if (!cell.isGiven && !cell.isSolved) {
-                return cellIndex
-            }
-            
-            attempts++
-            // If we've wrapped around to the starting position, stop
-            if (row == startRow && col == startCol) {
-                break
-            }
-        }
-        
-        // If no unsolved found, return current position
-        return startRow * 9 + startCol
-    }
-    
-    private fun handlePuzzleBrowserKeys(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
-        // Arrow keys for navigation in puzzle list
-        when (key) {
-            "ArrowUp", "ArrowDown" -> {
-                // Could be used for puzzle list navigation in future
-                return false
-            }
-        }
-        
-        // Escape already handled at top level
-        return false
-    }
-    
-    private fun handleImportExportKeys(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
-        // Escape already handled at top level
-        return false
-    }
-    
-    private fun handleSettingsKeys(key: String, ctrlKey: Boolean, shiftKey: Boolean, altKey: Boolean, metaKey: Boolean, grid: SudokuGrid, event: dynamic): Boolean {
-        // Escape already handled at top level
-        return false
-    }
-    
-    private fun render() {
+    internal fun render() {
         appRoot.innerHTML = ""
         
         when (currentScreen) {
@@ -2506,17 +2068,6 @@ class SudokuApp {
         }
     }
     
-    /**
-     * Escape HTML special characters to prevent injection attacks
-     */
-    private fun htmlEscape(text: String): String {
-        return text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&#x27;")
-    }
 
     /**
      * Render interactive hint description with clickable/hoverable elements
@@ -3546,10 +3097,10 @@ class SudokuApp {
                                     button(classes = "resume-btn") {
                                         +"Resume"
                                         onClickFunction = {
-                                            val saved = GameStateManager.loadGame(summary.puzzleId)
-                                            if (saved != null) {
-                                                resumeGame(saved)
-                                            }
+                                    val saved = GameStateManager.loadGame(summary.puzzleId)
+                                    if (saved != null) {
+                                        resumeGame(saved)
+                                    }
                                         }
                                     }
                                     button(classes = "delete-btn") {

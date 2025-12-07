@@ -1,8 +1,11 @@
-package service.hint
+package service.hint.converters
 
 import sudoku.match.TechniqueMatch
 import sudoku.solvingtechClassifier.Technique
 import dto.*
+import service.hint.techniques.extractVisualData
+import service.hint.explanations.generateExplanationSteps
+import service.hint.metadata.getTechniqueDescription
 
 /**
  * Convert a TechniqueMatch to a TechniqueMatchDto

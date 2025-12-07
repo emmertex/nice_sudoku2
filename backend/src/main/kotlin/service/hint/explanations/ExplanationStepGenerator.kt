@@ -1,10 +1,28 @@
-package service.hint
+package service.hint.explanations
 
 import sudoku.match.TechniqueMatch
 import sudoku.match.AICMatch
 import sudoku.match.ALSMatch
 import sudoku.solvingtechClassifier.Technique
 import dto.*
+import service.hint.explanations.generateSingleSteps
+import service.hint.explanations.generateSubsetSteps
+import service.hint.explanations.generateIntersectionSteps
+import service.hint.techniques.generateKiteSteps
+import service.hint.techniques.generateFishSteps
+import service.hint.techniques.generateWingSteps
+import service.hint.explanations.generateCycleSteps
+import service.hint.explanations.generateColoringSteps
+import service.hint.explanations.generateUniqueRectangleSteps
+import service.hint.explanations.generateBugSteps
+import service.hint.explanations.generateEmptyRectangleSteps
+import service.hint.explanations.generateSueDeCoqSteps
+import service.hint.explanations.generateForcingChainSteps
+import service.hint.explanations.generateNishioSteps
+import service.hint.explanations.generateChainLikeSteps
+import service.hint.explanations.generateChainSteps
+import service.hint.explanations.generateALSSteps
+import service.hint.explanations.generateGenericSteps
 
 /**
  * Generate step-by-step explanation for a technique

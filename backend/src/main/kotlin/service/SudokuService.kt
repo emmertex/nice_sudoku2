@@ -12,8 +12,11 @@ import sudoku.match.TechniqueMatch
 import sudoku.solvingtechClassifier.Technique
 import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
-import service.hint.*
-import service.hintHelpers.*
+import service.hint.metadata.missingDescriptionsForPriority
+import service.hint.metadata.getTechniquePriority
+import service.hint.converters.techniqueMatchToDto
+import service.hint.helpers.basicGridToDto
+import service.hint.helpers.dtoToBasicGrid
 /**
  * Service layer that wraps StormDoku functionality
  */

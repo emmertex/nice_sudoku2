@@ -1,5 +1,5 @@
-package service.hint
-import service.hintHelpers.*
+package service.hint.metadata
+import service.hint.helpers.*
 import sudoku.match.TechniqueMatch
 import sudoku.solvingtechClassifier.Technique
 import sudoku.HelpingTools.cardinals

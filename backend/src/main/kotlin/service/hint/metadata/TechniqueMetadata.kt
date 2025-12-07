@@ -1,4 +1,4 @@
-package service.hint
+package service.hint.metadata
 
 
 // Technique priority mapping - ordered by human difficulty (lower = easier)

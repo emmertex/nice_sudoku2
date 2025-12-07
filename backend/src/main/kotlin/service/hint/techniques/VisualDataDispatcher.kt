@@ -1,4 +1,4 @@
-package service.hint
+package service.hint.techniques
 
 import sudoku.match.TechniqueMatch
 import sudoku.match.AICMatch
@@ -7,7 +7,10 @@ import sudoku.match.SubsetMatch
 import sudoku.match.FishMatch
 import sudoku.solvingtechClassifier.Technique
 import dto.*
-import service.hintHelpers.extractEliminationVisuals
+import service.hint.helpers.extractEliminationVisuals
+import service.hint.techniques.extractFishVisualData
+import service.hint.techniques.extractKiteVisualData
+import service.hint.techniques.extractSubsetVisualData
 
 /**
  * Extract visual data (lines, groups, eureka notation) from a TechniqueMatch

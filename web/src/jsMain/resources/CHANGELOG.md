@@ -1,16 +1,21 @@
-# v0.4.0.1 - 2025-12-07c
+# v0.4.0.1 - 2025-12-08
 
 ### Complete Code Cleanup and Organisation
-- Backend 80%
-- Frontned 20%
+- Backend: Finished for now
+- Frontned: Finished for now
 
+
+# v0.4.0.0 - 2025-12-08
+
+### Complete Code Cleanup and Organisation
+- Backend: Mostly Done
+- Frontned: Started
 
 
 # v0.3.5 - 2025-12-07b
 
 ### Fixed Issues
 - Fixed edge case where 2-string kite would display a wrong chain link
-
 
 
 # v0.3.4 - 2025-12-07

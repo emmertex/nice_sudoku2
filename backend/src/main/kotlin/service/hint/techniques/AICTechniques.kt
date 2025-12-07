@@ -1,6 +1,6 @@
-package service.hint
+package service.hint.techniques
 import sudoku.match.AICMatch
-import service.hintHelpers.*
+import service.hint.helpers.*
 import sudoku.match.TechniqueMatch
 import dto.*
 
