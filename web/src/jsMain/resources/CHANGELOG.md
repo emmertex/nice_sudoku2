@@ -1,3 +1,11 @@
+# v0.4.0.1 - 2025-12-07c
+
+### Complete Code Cleanup and Organisation
+- Backend 80%
+- Frontned 20%
+
+
+
 # v0.3.5 - 2025-12-07b
 
 ### Fixed Issues

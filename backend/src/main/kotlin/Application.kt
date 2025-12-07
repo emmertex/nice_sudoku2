@@ -15,8 +15,7 @@ import service.SudokuService
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8181
-    embeddedServer(Netty, port = port, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
+    embeddedServer(Netty, port = port, host = "0.0.0.0", module = Application::module).start(wait = true)
 }
 
 fun Application.module() {
