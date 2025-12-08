@@ -1,7 +1,8 @@
-# v0.4.3.0 - 2025-12-08
+v0.4.3 - 2025-12-08
 
 ### Complete Code Cleanup and Organisation
 - Frontend: Rendering Functions
+- Frontend: Hint, Chain and GameScreen Renderers.
 
 # v0.4.2 - 2025-12-08
 
