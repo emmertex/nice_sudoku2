@@ -4,6 +4,7 @@ v0.4.3 - 2025-12-08
 - Frontend: Rendering Functions
 - Frontend: Hint, Chain and GameScreen Renderers.
 - Frontend: Modals
+- Frontend: Import/Export, Settings and Browser
 
 # v0.4.2 - 2025-12-08
 
