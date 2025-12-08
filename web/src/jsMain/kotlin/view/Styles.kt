@@ -32,6 +32,7 @@ val CSS_STYLES = """
         --color-bg-secondary: 22, 33, 62;
         --color-bg-tertiary: 15, 52, 96;
         --color-accent-primary: 100, 181, 246;
+        --color-accent-primary-text: 255,255,255;
         --color-accent-secondary: 255, 82, 82;
         --color-accent-tertiary: 255, 193, 7;
         --color-text-primary: 255, 255, 255;
@@ -42,9 +43,13 @@ val CSS_STYLES = """
         --color-grid-no: 244, 67, 54;
         /* Derived colors */
         --color-accent-success: 76, 175, 80;
+        --color-accent-success-text: 255, 255, 255;
         --color-accent-info: 100, 181, 246;
+        --color-accent-info-text: 255, 255, 255;
         --color-accent-warning: 255, 193, 7;
+        --color-accent-warning-text: 255, 255, 255;
         --color-accent-error: 244, 67, 54;
+        --color-accent-error-text: 255, 255, 255;
         --color-border: 22, 33, 62;
         --color-shadow: 0, 0, 0;
         --color-accent-desat: 255, 255, 255;
@@ -181,13 +186,13 @@ val CSS_STYLES = """
         letter-spacing: 0.05em;
     }
     
-    .category.beginner { background: rgba(var(--color-accent-info), 0.3); color: rgb(var(--color-accent-info)); }
-    .category.easy { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
-    .category.medium { background: rgba(100, 200, 100, 0.3); color: rgb(100, 200, 100); }
-    .category.tough { background: rgba(255, 200, 0, 0.3); color: rgb(255, 200, 0); }
-    .category.hard { background: rgba(255, 165, 0, 0.3); color: rgb(255, 165, 0); }
-    .category.expert { background: rgba(255, 100, 100, 0.3); color: rgb(255, 100, 100); }
-    .category.diabolical { background: rgba(var(--color-accent-error), 0.3); color: rgb(var(--color-accent-error)); }
+    .category.beginner { background:  rgba(30, 30, 108, 0.8); color: rgb(142, 141, 201); }
+    .category.easy { background:  rgba(14, 64, 77, 0.8); color: rgb(141, 186, 203); }
+    .category.medium { background: rgba(16, 82, 16, 0.8); color: rgb(141, 200, 141); }
+    .category.tough { background: rgba(98, 81, 19, 0.8); color: rgb(190, 180, 144); }
+    .category.hard { background: rgba(80, 58, 16, 0.8); color: rgb(192, 173, 139); }
+    .category.expert { background: rgba(80, 17, 17, 0.8); color: rgb(250, 182, 182); }
+    .category.diabolical {background: rgba(37, 33, 33, 0.8); color: rgb(255, 88, 88); }
     
     /* Info button in puzzle list */
     .info-btn {
@@ -337,7 +342,7 @@ val CSS_STYLES = """
     }
     
     .modal-actions .play-btn {
-        background: rgba(var(--color-accent-success), 0.8);
+        background: rgba(var(--color-accent-success), 0.4);
         border: none;
         color: rgb(var(--color-text-primary));
     }
@@ -425,8 +430,8 @@ val CSS_STYLES = """
     
     /* SVG highlight states for interactive chain notation */
     .board-chain-line.svg-line-highlight {
-        stroke-width: 8 !important;
-        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
+        stroke-width: 10 !important;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) !important;
     }
     
     .board-candidate-highlight.svg-highlight {
@@ -465,22 +470,22 @@ val CSS_STYLES = """
     }
     
     .chain-link-strong {
-        background: rgba(var(--color-accent-success), 0.2);
+        background: rgba(var(--color-accent-success-text), 0.2);
         color: rgb(var(--color-accent-success));
     }
     
     .chain-link-strong:hover {
-        background: rgba(var(--color-accent-success), 0.5);
+        background: rgba(var(--color-accent-success-text), 0.5);
         box-shadow: 0 0 8px rgba(var(--color-accent-success), 0.5);
     }
     
     .chain-link-weak {
-        background: rgba(var(--color-accent-warning), 0.2);
+        background: rgba(var(--color-accent-warning-text), 0.2);
         color: rgb(var(--color-accent-warning));
     }
     
     .chain-link-weak:hover {
-        background: rgba(var(--color-accent-warning), 0.5);
+        background: rgba(var(--color-accent-warning-text), 0.5);
         box-shadow: 0 0 8px rgba(var(--color-accent-warning), 0.5);
     }
     
@@ -571,7 +576,7 @@ val CSS_STYLES = """
     }
     
     .sudoku-grid {
-        background: rgba(var(--color-bg-primary), 0.6);
+        background: rgba(var(--color-bg-primary), 0.3);
         border-radius: clamp(6px, 1.5vmin, 12px);
         padding: clamp(3px, 0.75vmin, 6px);
         display: flex;
@@ -632,7 +637,7 @@ val CSS_STYLES = """
     }
     
     .candidate {
-        font-size: clamp(0.35rem, calc(var(--grid-size) / 60), 0.6rem);
+        font-size: clamp(0.85rem, calc(var(--grid-size) / 60), 1.2rem);
         color: rgba(var(--color-text-primary), 0.85);
         display: flex;
         justify-content: center;
@@ -670,7 +675,7 @@ val CSS_STYLES = """
     }
     
     .candidate.hint-solved {
-        color: rgb(var(--color-accent-success));
+        color: rgb(var(--color-accent-success-text));
         font-weight: bold;
         background: rgba(var(--color-accent-success), 0.3);
         border-radius: 2px;
@@ -697,31 +702,31 @@ val CSS_STYLES = """
     }
     
     .candidate.hint-candidate-target {
-        color: rgb(var(--color-accent-success));
+        color: rgb(var(--color-accent-success-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-success), 0.4);
+        background: rgba(var(--color-accent-success), 1.0);
         border-radius: 2px;
     }
     
     .candidate.hint-candidate-elimination {
-        color: rgb(var(--color-accent-error));
+        color: rgb(var(--color-accent-error-text));
         font-weight: bold;
         text-decoration: line-through;
-        background: rgba(var(--color-accent-error), 0.2);
+        background: rgba(var(--color-accent-error), 1.0);
         border-radius: 2px;
     }
     
     .candidate.hint-candidate-highlight {
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--color-accent-warning-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-warning), 0.3);
+        background: rgba(var(--color-accent-warning), 1.0);
         border-radius: 2px;
     }
     
     .candidate.hint-candidate-info {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--color-accent-info-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-info), 0.3);
+        background: rgba(var(--color-accent-info), 1.0);
         border-radius: 2px;
     }
     
@@ -753,7 +758,7 @@ val CSS_STYLES = """
     .toggle-btn.active { background: rgb(var(--color-accent-secondary)); color: rgb(var(--color-text-primary)); }
     .undo-btn { background: rgba(var(--color-accent-desat), 0.4); color: rgba(var(--color-text-primary), 0.8); }
     .undo-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-    .hint-btn { background: rgba(var(--color-accent-warning), 0.4); color: rgb(var(--color-accent-warning)); }
+    .hint-btn { background: rgba(var(--color-accent-warning), 0.4); color: rgb(var(--color-accent-warning-text)); }
     .hint-btn.active { background: rgb(var(--color-accent-warning)); color: rgb(var(--color-bg-primary)); }
     .hint-btn.disabled {
         opacity: 0.4;
@@ -837,14 +842,14 @@ val CSS_STYLES = """
     }
 
     .hint-item.selected {
-        background: rgba(var(--color-accent-warning), 0.3);
-        border-color: rgb(var(--color-accent-warning));
+        background: rgba(var(--color-accent-primary), 0.3);
+        border-color: rgb(var(--color-accent-primary));
         overflow: visible;
     }
     
     .hint-item.expanded {
-        background: rgba(var(--color-accent-warning), 0.15);
-        border-color: rgb(var(--color-accent-warning));
+        background: rgba(var(--color-accent-primary), 0.3);
+        border-color: rgb(var(--color-accent-primary));
         overflow: visible;
     }
     
@@ -861,7 +866,7 @@ val CSS_STYLES = """
 
     .hint-technique {
         font-weight: 600;
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--color-text-primary));
         font-size: clamp(0.75rem, calc(0.7rem + 0.4vmin), 0.95rem);
         margin-bottom: 4px;
     }
@@ -902,7 +907,7 @@ val CSS_STYLES = """
         border: none;
         border-radius: clamp(4px, 0.6vmin, 6px);
         background: rgba(var(--color-accent-warning), 0.2);
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--color-accent-warning-text));
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
         font-weight: 600;
         cursor: pointer;
@@ -914,7 +919,7 @@ val CSS_STYLES = """
     }
     
     .inline-eureka {
-        background: rgba(var(--color-bg-tertiary), 0.3);
+        background: rgba(var(--color-bg-tertiary), 0.15);
         border-radius: clamp(4px, 0.6vmin, 6px);
         padding: clamp(6px, 1vmin, 10px);
         margin-bottom: clamp(8px, 1.2vmin, 12px);
@@ -924,7 +929,7 @@ val CSS_STYLES = """
     }
     
     .eureka-label {
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--color-text-primary), 1.0);
     }
     
     .eureka-notation {
@@ -1228,7 +1233,7 @@ val CSS_STYLES = """
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
         background: rgba(var(--color-accent-info), 0.3);
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--color-text-primary));
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.8rem);
         font-weight: 600;
         cursor: pointer;
@@ -1536,8 +1541,8 @@ val CSS_STYLES = """
         border-radius: 4px;
     }
     
-    .status.completed { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
-    .status.progress { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
+    .status.completed { background: rgba(var(--color-accent-success), 1.0); color: rgb(var(--color-accent-success-text)); }
+    .status.progress { background: rgba(var(--color-accent-warning), 1.0); color: rgb(var(--color-accent-warning-text)); }
     
     /* Game item text elements */
     .game-item .progress {
@@ -1723,21 +1728,21 @@ val CSS_STYLES = """
     
     /* Pencil mark highlighting - color coded */
     .candidate.pencil-highlight-primary {
-        color: rgb(var(--color-accent-primary));
+        color: rgb(var(--color-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-primary), 0.3);
+        background: rgba(var(--color-accent-primary), 0.6);
         border-radius: 2px;
     }
     .candidate.pencil-highlight-secondary {
-        color: rgb(var(--color-accent-secondary));
+        color: rgb(var(--color-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-secondary), 0.3);
+        background: rgba(var(--color-accent-secondary), 0.6);
         border-radius: 2px;
     }
     .candidate.pencil-highlight-both {
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--color-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-warning), 0.35);
+        background: rgba(var(--color-accent-warning), 0.8);
         border-radius: 2px;
     }
     
@@ -1746,21 +1751,21 @@ val CSS_STYLES = """
         color: rgb(var(--color-accent-error)); /* Red number */
         text-decoration: line-through;
         font-weight: bold;
-        background: rgba(var(--color-grid-neutral), 0.4); /* Grey background */
+        background: rgba(var(--color-grid-neutral), 1); /* Grey background */
         border-radius: 2px;
     }
 
     .candidate.hint-matching-not-eliminated {
-        color: rgb(var(--color-accent-success)); /* Green number */
+        color: rgb(var(--color-accent-primary-text)); /* Green number */
         font-weight: bold;
-        background: rgba(var(--color-accent-success), 0.5); /* Light green background */
+        background: rgba(var(--color-accent-success), 1); /* Light green background */
         border-radius: 2px;
     }
 
     .candidate.hint-solved {
-        color: rgb(var(--color-accent-success));
+        color: rgb(var(--color-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-success), 0.35);
+        background: rgba(var(--color-accent-success), 1);
         border-radius: 2px;
         box-shadow: 0 0 0 1px rgba(var(--color-accent-success), 0.5);
     }
