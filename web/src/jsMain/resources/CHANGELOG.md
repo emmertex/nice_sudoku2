@@ -1,3 +1,20 @@
+# v0.4.4 - 2025-12-08
+
+### Features
+- Increased Candidate Font Size
+- Revised themes
+- - Prioritised readability over appearance
+- - Dark Themes are Okay
+- - Light Theme is still bad
+- - ePaper Theme is now usable on ePaper, but bad.
+- - If anyone is good at theming, comtact me!
+
+
+# v0.4.3 - 2025-12-08
+
+### Complete Code Cleanup and Organisation
+- Frontend: All done!
+
 # v0.4.2 - 2025-12-08
 
 ### Features
