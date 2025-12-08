@@ -177,22 +177,22 @@ data class SavedGameState(
         /**
          * Create a 810-char state string in the NOTES format for export/sharing.
          * Format: 81 chars for cell values + 729 chars for displayed notes (9 per cell)
-         * 
+         *
          * Each cell has 9 characters representing candidates 1-9:
          * - '1' = note is displayed (candidate - userElimination)
          * - '0' = note is not displayed
-         * 
+         *
          * This format is compatible with other Sudoku apps for sharing.
          */
         fun createStateStringForExport(grid: SudokuGrid): String {
             val sb = StringBuilder(810)
-            
+
             // First 81 chars: values (1-9 for solved cells, 0 for empty)
             for (i in 0 until 81) {
                 val cell = grid.getCell(i)
                 sb.append(if (cell.isSolved) cell.value else 0)
             }
-            
+
             // Next 729 chars: displayed notes (1 = shown, 0 = hidden)
             // displayCandidates = candidates - userEliminations
             for (i in 0 until 81) {
@@ -202,8 +202,93 @@ data class SavedGameState(
                     sb.append(if (n in cell.displayCandidates && !cell.isSolved) '1' else '0')
                 }
             }
-            
+
             return sb.toString()
+        }
+
+        /**
+         * Create a 891-char state string in the USER ELIMINATIONS format for export/sharing.
+         * Format: 81 chars for cell values + 729 chars for user eliminations + 81 chars for original puzzle
+         *
+         * Each cell has 9 characters representing candidates 1-9:
+         * - '1' = user has eliminated this candidate
+         * - '0' = user has not eliminated this candidate
+         *
+         * The last 81 chars are the original puzzle string.
+         * This format preserves user eliminations and the original puzzle for complete state restoration.
+         */
+        fun createStateStringFor891Export(grid: SudokuGrid, originalPuzzle: String): String {
+            val sb = StringBuilder(891)
+
+            // First 81 chars: values (1-9 for solved cells, 0 for empty)
+            for (i in 0 until 81) {
+                val cell = grid.getCell(i)
+                sb.append(if (cell.isSolved) cell.value else 0)
+            }
+
+            // Next 729 chars: user eliminations (1 = eliminated, 0 = not eliminated)
+            for (i in 0 until 81) {
+                val cell = grid.getCell(i)
+                for (n in 1..9) {
+                    // Save user eliminations - 1 if user eliminated, 0 if not
+                    sb.append(if (n in cell.userEliminations && !cell.isSolved) '1' else '0')
+                }
+            }
+
+            // Last 81 chars: original puzzle
+            sb.append(originalPuzzle)
+
+            return sb.toString()
+        }
+
+        /**
+         * Parse an import state string that can be 81, 810, or 891 characters.
+         * Returns Triple of (values, userEliminations, originalPuzzle)
+         * For 81-char strings: originalPuzzle will be the same as values string
+         * For 810-char strings: userEliminations will be empty (no eliminations data)
+         * For 891-char strings: all three components are present
+         *
+         * @return Triple of (values array, user eliminations array, original puzzle string) or null if invalid
+         */
+        fun parseImportStateString(state: String): Triple<IntArray, Array<Set<Int>>, String>? {
+            val length = state.length
+            if (length != 81 && length != 810 && length != 891) return null
+
+            val values = IntArray(81)
+            val userEliminations = Array<Set<Int>>(81) { emptySet() }
+            var originalPuzzle = ""
+
+            // Parse values (first 81 chars)
+            for (i in 0 until 81) {
+                values[i] = state[i].digitToIntOrNull() ?: return null
+            }
+
+            if (length >= 810) {
+                // Parse user eliminations (next 729 chars)
+                for (cell in 0 until 81) {
+                    val eliminationSet = mutableSetOf<Int>()
+                    for (n in 0 until 9) {
+                        val idx = 81 + cell * 9 + n
+                        if (state[idx] == '1') {
+                            eliminationSet.add(n + 1)
+                        }
+                    }
+                    userEliminations[cell] = eliminationSet
+                }
+            }
+
+            if (length == 891) {
+                // Parse original puzzle (last 81 chars)
+                originalPuzzle = state.substring(810, 891)
+            } else if (length == 81) {
+                // For 81-char strings, use values as original puzzle
+                originalPuzzle = state
+            } else {
+                // For 810-char strings, we don't have original puzzle, so create from values
+                originalPuzzle = values.joinToString("") { it.toString() }
+            }
+
+            return Triple(values, userEliminations, originalPuzzle)
         }
     }
 }
