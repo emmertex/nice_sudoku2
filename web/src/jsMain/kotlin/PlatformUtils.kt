@@ -104,17 +104,19 @@ object PuzzleStringParser {
     }
     
     /**
-     * Parse an 810-char state string into values and notes
+     * Parse a state string (81, 810, or 891 chars) into values and notes
+     * For 810 format: notes represent shown candidates (1=shown)
+     * For 891 format: notes represent user eliminations (1=eliminated)
      * Returns null if invalid
      */
     fun parseStateString(input: String): Pair<IntArray, Array<Set<Int>>>? {
         val cleaned = input.trim().replace("\\s+".toRegex(), "")
-        
-        if (cleaned.length < 81) return null
-        
+
+        if (cleaned.length != 81 && cleaned.length != 810 && cleaned.length != 891) return null
+
         val values = IntArray(81)
         val notes = Array<Set<Int>>(81) { emptySet() }
-        
+
         // Parse values
         for (i in 0 until 81) {
             val c = cleaned[i]
@@ -124,21 +126,21 @@ object PuzzleStringParser {
                 else -> return null
             }
         }
-        
-        // Parse notes if present (729 more chars)
+
+        // Parse notes/eliminations if present (729 more chars)
         if (cleaned.length >= 810) {
             for (cell in 0 until 81) {
                 val noteSet = mutableSetOf<Int>()
                 for (n in 0 until 9) {
                     val idx = 81 + cell * 9 + n
-                    if (cleaned[idx] == '1') {
+                    if (idx < cleaned.length && cleaned[idx] == '1') {
                         noteSet.add(n + 1)
                     }
                 }
                 notes[cell] = noteSet
             }
         }
-        
+
         return Pair(values, notes)
     }
     
@@ -154,43 +156,75 @@ object PuzzleStringParser {
      */
     fun createStateString(values: IntArray, notes: Array<Set<Int>>): String {
         val sb = StringBuilder(810)
-        
+
         // First 81 chars: values
         for (v in values) {
             sb.append(if (v == 0) '0' else v.digitToChar())
         }
-        
+
         // Next 729 chars: notes (9 per cell)
         for (cell in 0 until 81) {
             for (n in 1..9) {
                 sb.append(if (n in notes[cell]) '1' else '0')
             }
         }
-        
+
+        return sb.toString()
+    }
+
+    /**
+     * Create an 891-char state string from values, eliminations, and original puzzle
+     */
+    fun createStateString891(values: IntArray, eliminations: Array<Set<Int>>, originalPuzzle: String): String {
+        val sb = StringBuilder(891)
+
+        // First 81 chars: values
+        for (v in values) {
+            sb.append(if (v == 0) '0' else v.digitToChar())
+        }
+
+        // Next 729 chars: user eliminations (9 per cell)
+        for (cell in 0 until 81) {
+            for (n in 1..9) {
+                sb.append(if (n in eliminations[cell]) '1' else '0')
+            }
+        }
+
+        // Last 81 chars: original puzzle
+        sb.append(originalPuzzle)
+
         return sb.toString()
     }
     
     /**
-     * Validate a puzzle string format (81 or 810 chars)
+     * Validate a puzzle string format (81, 810, or 891 chars)
      */
     fun isValidPuzzleString(input: String): Boolean {
         val cleaned = input.trim().replace("\\s+".toRegex(), "")
-        
-        if (cleaned.length != 81 && cleaned.length != 810) return false
-        
+
+        if (cleaned.length != 81 && cleaned.length != 810 && cleaned.length != 891) return false
+
         // Check first 81 chars are valid digits or .
         for (i in 0 until 81) {
             val c = cleaned[i]
             if (c !in '0'..'9' && c != '.') return false
         }
-        
-        // Check remaining 729 chars are 0 or 1 (if present)
-        if (cleaned.length == 810) {
-            for (i in 81 until 810) {
+
+        // Check next 729 chars are 0 or 1 (if present)
+        if (cleaned.length >= 810) {
+            val endIndex = if (cleaned.length > 810) 810 else cleaned.length
+            for (i in 81 until endIndex) {
                 if (cleaned[i] != '0' && cleaned[i] != '1') return false
             }
         }
-        
+
+        // Check last 81 chars are valid digits (for 891 format)
+        if (cleaned.length == 891) {
+            for (i in 810 until 891) {
+                if (cleaned[i] !in '0'..'9') return false
+            }
+        }
+
         return true
     }
 }

@@ -20,6 +20,10 @@ import adapter.CandidateLocationDto
 import view.*
 import domain.*
 
+// External declarations for JavaScript global functions
+external fun decodeURIComponent(encodedURI: String): String
+external fun encodeURIComponent(uriComponent: String): String
+
 class SudokuApp {
     internal val gameEngine = GameEngine()
     internal var selectedCell: Int? = null
@@ -278,6 +282,11 @@ class SudokuApp {
             }, 100)
         })
         
+        // Handle shared game URLs when hash changes
+        window.addEventListener("hashchange", {
+            handleSharedGameLinkFromUrl()
+        })
+        
         // Check backend availability for hint system
         gameEngine.checkBackendAvailable { available ->
             isBackendAvailable = available
@@ -300,6 +309,11 @@ class SudokuApp {
         
         // Preload all puzzle categories for better UX
         PuzzleLibrary.preloadAll()
+        
+        // Handle shared game links from URL before resuming/starting a game
+        if (handleSharedGameLinkFromUrl()) {
+            return
+        }
         
         // Try to resume last game
         val lastGameId = GameStateManager.getCurrentGameId()
@@ -3238,8 +3252,8 @@ class SudokuApp {
         val currentValues = grid.cells.joinToString("") { 
             (it.value ?: 0).toString() 
         }
-        // Use export format (notes shown: 1 = visible) for sharing compatibility with other apps
-        val stateString = SavedGameState.createStateStringForExport(grid)
+        // Use new export format (user eliminations: 1 = eliminated) with original puzzle
+        val stateString891 = SavedGameState.createStateStringFor891Export(grid, game?.puzzleString ?: "")
         
         appRoot.append {
             div("sudoku-container import-export") {
@@ -3274,6 +3288,16 @@ class SudokuApp {
                                     )
                                 }
                             }
+                            button(classes = "copy-btn") {
+                                +"Copy URL"
+                                onClickFunction = {
+                                    val shareUrl = buildShareUrl(puzzleString)
+                                    ClipboardUtils.copyToClipboard(shareUrl,
+                                        onSuccess = { showToast("✓ Copied puzzle URL!") },
+                                        onError = { showToast("Failed to copy URL") }
+                                    )
+                                }
+                            }
                         }
                     }
                     
@@ -3293,22 +3317,42 @@ class SudokuApp {
                                     )
                                 }
                             }
+                            button(classes = "copy-btn") {
+                                +"Copy URL"
+                                onClickFunction = {
+                                    val shareUrl = buildShareUrl(currentValues)
+                                    ClipboardUtils.copyToClipboard(shareUrl,
+                                        onSuccess = { showToast("✓ Copied state URL!") },
+                                        onError = { showToast("Failed to copy URL") }
+                                    )
+                                }
+                            }
                         }
                     }
                     
                     div("export-option") {
-                        label { +"Full State with Notes (810 chars)" }
+                        label { +"State, Givens and Eliminations (891 chars)" }
                         div("export-row") {
                             input(InputType.text, classes = "export-field") {
-                                value = stateString
+                                value = stateString891
                                 readonly = true
                             }
                             button(classes = "copy-btn") {
                                 +"Copy"
                                 onClickFunction = {
-                                    ClipboardUtils.copyToClipboard(stateString,
+                                    ClipboardUtils.copyToClipboard(stateString891,
                                         onSuccess = { showToast("✓ Copied full state!") },
                                         onError = { showToast("Failed to copy") }
+                                    )
+                                }
+                            }
+                            button(classes = "copy-btn") {
+                                +"Copy URL"
+                                onClickFunction = {
+                                    val shareUrl = buildShareUrl(stateString891)
+                                    ClipboardUtils.copyToClipboard(shareUrl,
+                                        onSuccess = { showToast("✓ Copied full state URL!") },
+                                        onError = { showToast("Failed to copy URL") }
                                     )
                                 }
                             }
@@ -3319,7 +3363,7 @@ class SudokuApp {
                 // Import section
                 div("section") {
                     h2 { +"📥 Import" }
-                    p("hint") { +"Paste an 81-char puzzle or 810-char state string" }
+                    p("hint") { +"Paste an 81-char puzzle, 810-char state, or 891-char full state string" }
                     
                     textArea(classes = "import-field") {
                         id = "import-input"
@@ -3348,76 +3392,7 @@ class SudokuApp {
                             onClickFunction = {
                                 val input = document.getElementById("import-input") as? HTMLTextAreaElement
                                 val text = input?.value?.trim() ?: ""
-                                
-                                if (PuzzleStringParser.isValidPuzzleString(text)) {
-                                    val puzzleStr = text.take(81).map { 
-                                        if (it == '.') '0' else it 
-                                    }.joinToString("")
-                                    
-                                    val puzzle = PuzzleDefinition(
-                                        id = "custom_${currentTimeMillis()}",
-                                        puzzleString = puzzleStr,
-                                        difficulty = 0f,
-                                        category = DifficultyCategory.CUSTOM
-                                    )
-                                    
-                                    // Save to custom puzzles library
-                                    GameStateManager.saveCustomPuzzle(puzzle)
-                                    
-                                    // Check if we have a full state string (810 chars) with notes
-                                    if (text.length >= 810) {
-                                        // Import includes notes - parse and convert to eliminations
-                                        // The import format uses notes (1 = shown), which we invert to eliminations
-                                        val (values, userEliminations) = SavedGameState.parseStateStringFromNotesFormat(text)
-                                        
-                                        // Start new game with puzzle
-                                        gameEngine.loadPuzzle(puzzleStr)
-                                        
-                                        // Apply values and eliminations
-                                        for (i in 0 until 81) {
-                                            val originalValue = puzzleStr[i].digitToIntOrNull() ?: 0
-                                            if (values[i] != 0 && values[i] != originalValue) {
-                                                gameEngine.setCellValue(i, values[i])
-                                            }
-                                            if (userEliminations[i].isNotEmpty()) {
-                                                gameEngine.setUserEliminations(i, userEliminations[i])
-                                            }
-                                        }
-                                        
-                                        // Create saved game with elimination format
-                                        val grid = gameEngine.getCurrentGrid()
-                                        val stateWithEliminations = SavedGameState.createStateString(grid)
-                                        currentGame = SavedGameState(
-                                            puzzleId = puzzle.id,
-                                            puzzleString = puzzleStr,
-                                            currentState = stateWithEliminations,
-                                            solution = null,
-                                            category = DifficultyCategory.CUSTOM,
-                                            difficulty = 0f,
-                                            elapsedTimeMs = 0L,
-                                            mistakeCount = 0,
-                                            isCompleted = false,
-                                            lastPlayedTimestamp = currentTimeMillis()
-                                        )
-                                        currentGame?.let { 
-                                            GameStateManager.saveGame(it)
-                                            GameStateManager.setCurrentGameId(it.puzzleId)
-                                        }
-                                        
-                                        gameStartTime = currentTimeMillis()
-                                        pausedTime = 0L
-                                        selectedCell = null
-                                        currentScreen = AppScreen.GAME
-                                        render()
-                                        showToast("✓ Full state imported with notes!")
-                                    } else {
-                                        // Just a puzzle string, start fresh
-                                        startNewGame(puzzle)
-                                        showToast("✓ Puzzle loaded and saved to Custom!")
-                                    }
-                                } else {
-                                    showToast("Invalid puzzle string")
-                                }
+                                importGameFromString(text)
                             }
                         }
                     }
@@ -3431,6 +3406,112 @@ class SudokuApp {
         }
     }
     
+    private fun importGameFromString(rawInput: String, fromUrl: Boolean = false): Boolean {
+        val text = rawInput.trim()
+
+        if (!PuzzleStringParser.isValidPuzzleString(text)) {
+            showToast(if (fromUrl) "Invalid shared game link" else "Invalid puzzle string")
+            return false
+        }
+
+        // Normalize first 81 chars by converting '.' to '0' for parsing
+        val normalized = text.take(81).map { if (it == '.') '0' else it }.joinToString("") + text.drop(81)
+        val importResult = SavedGameState.parseImportStateString(normalized)
+        if (importResult == null) {
+            showToast(if (fromUrl) "❌ Invalid shared game link" else "❌ Failed to parse import string")
+            return false
+        }
+
+        val (values, userEliminations, originalPuzzleStr) = importResult
+
+        val puzzle = PuzzleDefinition(
+            id = "custom_${currentTimeMillis()}",
+            puzzleString = originalPuzzleStr,
+            difficulty = 0f,
+            category = DifficultyCategory.CUSTOM
+        )
+
+        // Save to custom puzzles library for reuse
+        GameStateManager.saveCustomPuzzle(puzzle)
+
+        // Start new game with puzzle and apply imported state
+        gameEngine.loadPuzzle(originalPuzzleStr)
+        var hasStateData = false
+        for (i in 0 until 81) {
+            val originalValue = originalPuzzleStr[i].digitToIntOrNull() ?: 0
+            if (values[i] != 0 && values[i] != originalValue) {
+                gameEngine.setCellValue(i, values[i])
+                hasStateData = true
+            }
+            if (userEliminations[i].isNotEmpty()) {
+                gameEngine.setUserEliminations(i, userEliminations[i])
+                hasStateData = true
+            }
+        }
+
+        // Create saved game with elimination format
+        val grid = gameEngine.getCurrentGrid()
+        val stateWithEliminations = SavedGameState.createStateString(grid)
+        currentGame = SavedGameState(
+            puzzleId = puzzle.id,
+            puzzleString = originalPuzzleStr,
+            currentState = stateWithEliminations,
+            solution = null,
+            category = DifficultyCategory.CUSTOM,
+            difficulty = 0f,
+            elapsedTimeMs = 0L,
+            mistakeCount = 0,
+            isCompleted = false,
+            lastPlayedTimestamp = currentTimeMillis()
+        )
+        currentGame?.let {
+            GameStateManager.saveGame(it)
+            GameStateManager.setCurrentGameId(it.puzzleId)
+        }
+
+        // Reset timers/selection and render game screen
+        gameStartTime = currentTimeMillis()
+        pausedTime = 0L
+        selectedCell = null
+        currentScreen = AppScreen.GAME
+        solution = null
+        render()
+
+        val successMessage = when {
+            fromUrl -> "✓ Shared game loaded!"
+            hasStateData -> "✓ Full state imported!"
+            else -> "✓ Puzzle loaded and saved to Custom!"
+        }
+        showToast(successMessage)
+        return true
+    }
+
+    private fun buildShareUrl(stateString: String): String {
+        val baseUrl = "${window.location.origin}${window.location.pathname}${window.location.search}"
+        val encodedState = encodeURIComponent(stateString)
+        return "$baseUrl#/import/$encodedState"
+    }
+
+    private fun handleSharedGameLinkFromUrl(): Boolean {
+        val hash = window.location.hash ?: ""
+        val prefix = "#/import/"
+        if (!hash.startsWith(prefix)) return false
+
+        val encodedState = hash.removePrefix(prefix)
+        val stateString = try {
+            decodeURIComponent(encodedState)
+        } catch (e: Exception) {
+            null
+        }
+
+        if (stateString.isNullOrBlank()) {
+            showToast("❌ Invalid shared game link")
+            return false
+        }
+
+        return importGameFromString(stateString, fromUrl = true)
+    }
+
     private fun renderSettings() {
         appRoot.append {
             div("sudoku-container settings") {

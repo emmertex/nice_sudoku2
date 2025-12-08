@@ -1,18 +1,26 @@
-# v0.4.0.1 - 2025-12-08
+# v0.4.2 - 2025-12-08
+
+### Features
+- Share games, both original and game state, with URL!
+- Return the 81, 810 and 891 format game states for import and export
+- Complete code reorganization
+
+
+# v0.4.1 - 2025-12-08
 
 ### Complete Code Cleanup and Organisation
 - Backend: Finished for now
-- Frontned: Finished for now
+- Frontned: Finished for now, but needs a LOT more!
 
 
-# v0.4.0.0 - 2025-12-08
+# v0.4.0 - 2025-12-08
 
 ### Complete Code Cleanup and Organisation
 - Backend: Mostly Done
 - Frontned: Started
 
 
-# v0.3.5 - 2025-12-07b
+# v0.3.5 - 2025-12-07
 
 ### Fixed Issues
 - Fixed edge case where 2-string kite would display a wrong chain link
@@ -24,7 +32,7 @@
 - Hint Highlighting only worked in horizontal, now both.
 
 
-# v0.3.3 - 2025-12-06d
+# v0.3.3 - 2025-12-06
 
 ### Fixed Issues
 - Hint Lines now under numbers and grid -- not great, but something
@@ -34,14 +42,14 @@
 - Added Two-String Kite Explanation and Highlighting
 
 
-# v0.3.2 - 2025-12-06c
+# v0.3.2 - 2025-12-06
 
 ### Fixed Issues
 - Restored missing Next/Prev button on vertical hint view.
 - Error on changelog loading on startup will no longer show
 - Hint Priority sorting by backend, as during gameplay, simpler hints were not being shown.
 
-# v0.3.1 - 2025-12-06b
+# v0.3.1 - 2025-12-06
 
 ### Features
 - Mistake Detection Settings
@@ -88,7 +96,7 @@
 - - Vector Lines for Chains
 
 
-# v0.2.4 - 2025-12-04b
+# v0.2.4 - 2025-12-04
 
 ### Fixed Issues
 - Rebuilt StormDoku to return all techniques.
@@ -102,7 +110,7 @@
 - UI Layout Improvements, much more vertically compact.
 
 
-# v0.2.2 - 2025-12-03c
+# v0.2.2 - 2025-12-03
 
 ### Features
 - Hint System
@@ -115,7 +123,7 @@
 - - Pointing Candidates
 
 
-# v0.2.1 - 2025-12-03b
+# v0.2.1 - 2025-12-03
 
 ### Minor Changes
 - Bump versions
@@ -140,7 +148,7 @@
 - Returned hints are not logically chosen. 
 
 
-# v0.1.2 - 2025-12-02c
+# v0.1.2 - 2025-12-02
 
 ### Fixed Issues
 - Returned hints are now valid
@@ -153,7 +161,7 @@
 - - Returned hints are not logically chosen. 
 
 
-# v0.1.1 - 2025-12-02b
+# v0.1.1 - 2025-12-02
 
 ### Fixed Issues
 - UI No longer exceeds viewport boundaries.
@@ -190,7 +198,7 @@
 - - This is getting worse, now that Advanced needs more vertical space.
 
 
-# v0.0.3 - 2025-12-01b
+# v0.0.3 - 2025-12-01
 
 ### Features
 - Themes
