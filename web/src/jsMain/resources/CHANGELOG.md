@@ -3,6 +3,7 @@ v0.4.3 - 2025-12-08
 ### Complete Code Cleanup and Organisation
 - Frontend: Rendering Functions
 - Frontend: Hint, Chain and GameScreen Renderers.
+- Frontend: Modals
 
 # v0.4.2 - 2025-12-08
 
