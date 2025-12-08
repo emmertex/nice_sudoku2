@@ -1,3 +1,8 @@
+# v0.4.3.0 - 2025-12-08
+
+### Complete Code Cleanup and Organisation
+- Frontend: Rendering Functions
+
 # v0.4.2 - 2025-12-08
 
 ### Features
