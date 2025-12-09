@@ -63,6 +63,18 @@ fun Application.module() {
         }
         
         route("/api") {
+            // Cache info endpoint
+            route("/cache") {
+                get("/info") {
+                    val dbSize = cacheService.getDatabaseFileSize()
+                    call.respond(mapOf(
+                        "databaseFileSizeBytes" to dbSize,
+                        "databaseFileSizeMB" to (dbSize / (1024.0 * 1024.0)),
+                        "note" to "Use SQLite tools to query cache statistics directly"
+                    ))
+                }
+            }
+            
             route("/puzzle") {
                 // Load a puzzle from string
                 post("/load") {

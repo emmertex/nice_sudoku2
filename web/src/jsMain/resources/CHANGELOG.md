@@ -1,3 +1,10 @@
+# v0.6.1 - 2025-12
+
+### Features
+- Backend caches responses and processing.
+
+
+
 # v0.6.0 - 2025-12-10
 
 ### Anouncement

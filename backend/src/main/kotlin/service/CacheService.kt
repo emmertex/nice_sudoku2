@@ -2,10 +2,11 @@ package service
 
 import database.CacheDatabase
 import database.CacheTable
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.io.File
 import java.security.MessageDigest
 
 class CacheService {
@@ -98,6 +99,151 @@ class CacheService {
             // Log error but don't fail the request
             println("[CACHE-SERVICE] ERROR storing in cache: ${e.message}")
             e.printStackTrace()
+        }
+    }
+    
+    /**
+     * Get cache statistics
+     */
+    data class CacheStats(
+        val totalEntries: Long,
+        val totalSizeBytes: Long,
+        val entriesByEndpoint: Map<String, Long>,
+        val oldestEntryTimestamp: Long?,
+        val newestEntryTimestamp: Long?
+    )
+    
+    fun getCacheStats(): CacheStats {
+        return try {
+            transaction(CacheDatabase.getDatabase()) {
+                val totalEntries = CacheTable.selectAll().count().toLong()
+                
+                val entriesByEndpoint = CacheTable
+                    .slice(CacheTable.endpoint, CacheTable.id.count())
+                    .selectAll()
+                    .groupBy(CacheTable.endpoint)
+                    .associate { it[CacheTable.endpoint] to it[CacheTable.id.count()] }
+                
+                val timestamps = CacheTable
+                    .slice(CacheTable.createdAt)
+                    .selectAll()
+                    .mapNotNull { it[CacheTable.createdAt] }
+                
+                val oldestTimestamp = timestamps.minOrNull()
+                val newestTimestamp = timestamps.maxOrNull()
+                
+                // Estimate total size by reading all entries (for small-medium caches)
+                // For very large caches, this could be slow - consider sampling
+                val totalSize = if (totalEntries < 100000) {
+                    CacheTable
+                        .selectAll()
+                        .sumOf { 
+                            (it[CacheTable.requestJson]?.length?.toLong() ?: 0L) + 
+                            (it[CacheTable.responseJson]?.length?.toLong() ?: 0L)
+                        }
+                } else {
+                    // For large caches, estimate based on sample
+                    val sampleSize = 1000
+                    val sampleAvg = CacheTable
+                        .selectAll()
+                        .limit(sampleSize)
+                        .map { 
+                            (it[CacheTable.requestJson]?.length ?: 0) + 
+                            (it[CacheTable.responseJson]?.length ?: 0)
+                        }
+                        .average()
+                    (sampleAvg * totalEntries).toLong()
+                }
+                
+                CacheStats(
+                    totalEntries = totalEntries,
+                    totalSizeBytes = totalSize,
+                    entriesByEndpoint = entriesByEndpoint,
+                    oldestEntryTimestamp = oldestTimestamp,
+                    newestEntryTimestamp = newestTimestamp
+                )
+            }
+        } catch (e: Exception) {
+            println("[CACHE-SERVICE] ERROR getting cache stats: ${e.message}")
+            CacheStats(0, 0, emptyMap(), null, null)
+        }
+    }
+    
+    /**
+     * Get database file size on disk
+     */
+    fun getDatabaseFileSize(): Long {
+        return try {
+            val dbFile = File("./data/cache.db")
+            if (dbFile.exists()) dbFile.length() else 0L
+        } catch (e: Exception) {
+            println("[CACHE-SERVICE] ERROR getting database file size: ${e.message}")
+            0L
+        }
+    }
+    
+    /**
+     * Clean up old cache entries (older than specified days)
+     * Returns number of entries deleted
+     */
+    fun cleanupOldEntries(olderThanDays: Int): Int {
+        return try {
+            val cutoffTime = System.currentTimeMillis() - (olderThanDays * 24L * 60L * 60L * 1000L)
+            transaction(CacheDatabase.getDatabase()) {
+                // Get IDs of entries to delete
+                val idsToDelete = CacheTable
+                    .slice(CacheTable.id)
+                    .select { CacheTable.createdAt less cutoffTime }
+                    .map { it[CacheTable.id].value }
+                
+                var deleted = 0
+                idsToDelete.forEach { id ->
+                    CacheTable.deleteWhere { CacheTable.id eq id }
+                    deleted++
+                }
+                println("[CACHE-SERVICE] Cleaned up $deleted old cache entries (older than $olderThanDays days)")
+                deleted
+            }
+        } catch (e: Exception) {
+            println("[CACHE-SERVICE] ERROR cleaning up old entries: ${e.message}")
+            e.printStackTrace()
+            0
+        }
+    }
+    
+    /**
+     * Limit cache size by removing oldest entries when limit is exceeded
+     * Returns number of entries deleted
+     */
+    fun limitCacheSize(maxEntries: Long): Int {
+        return try {
+            transaction(CacheDatabase.getDatabase()) {
+                val currentCount = CacheTable.selectAll().count()
+                if (currentCount <= maxEntries) {
+                    0
+                } else {
+                    val toDelete = (currentCount - maxEntries).toInt()
+                    // Get IDs of oldest entries to delete
+                    val oldestIds = CacheTable
+                        .slice(CacheTable.id)
+                        .selectAll()
+                        .orderBy(CacheTable.createdAt to SortOrder.ASC)
+                        .limit(toDelete)
+                        .map { it[CacheTable.id].value }
+                    
+                    if (oldestIds.isNotEmpty()) {
+                        val deleted = CacheTable.deleteWhere { CacheTable.id inList oldestIds }
+                        println("[CACHE-SERVICE] Limited cache to $maxEntries entries, deleted $deleted oldest entries")
+                        deleted
+                    } else {
+                        0
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            println("[CACHE-SERVICE] ERROR limiting cache size: ${e.message}")
+            e.printStackTrace()
+            0
         }
     }
 }
