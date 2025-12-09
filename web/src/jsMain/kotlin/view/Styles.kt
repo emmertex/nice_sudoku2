@@ -418,6 +418,8 @@ val CSS_STYLES = """
         justify-content: center;
         z-index: 100;
         cursor: pointer;
+        transform: translateZ(0);
+        will-change: opacity;
         animation: fadeIn 0.3s ease;
     }
     
@@ -861,6 +863,15 @@ val CSS_STYLES = """
         cursor: not-allowed;
         pointer-events: none;
     }
+    .hint-btn.loading {
+        background: rgba(var(--color-accent-info), 0.4);
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
     
     /* Hint System Styles */
     .main-content {
@@ -1226,6 +1237,12 @@ val CSS_STYLES = """
         text-align: center;
         color: rgba(var(--color-text-primary), 0.5);
         padding: clamp(16px, 3vmin, 32px);
+    }
+    
+    .hint-loading-subtitle {
+        font-size: 0.85em;
+        margin-top: 8px;
+        opacity: 0.7;
     }
 
     .hint-close-btn {

@@ -147,6 +147,20 @@ private val techniqueDescriptions = mapOf(
     "ALS_XZ" to "ALS-XZ links two almost locked sets through shared restricted candidates.",
     "SUE_DE_COQ" to "Sue-de-Coq divides a box-line overlap into disjoint digit sets, forcing eliminations.",
     "NISHIO" to "Nishio assumes a digit placement and prunes branches that lead to contradiction.",
+    // Advanced AIC and chain variants
+    "AIC___ALS" to "Alternating Inference Chain combined with Almost Locked Sets to force eliminations.",
+    "AIC_TYPE_1" to "Alternating Inference Chain (Type 1) uses strong/weak link alternation to prove eliminations.",
+    "XY_CHAINS__TYPE_1" to "XY-Chain (Type 1) links bivalue cells; the target digit is eliminated where both ends see.",
+    "ALS_CHAIN" to "ALS-Chain links multiple almost locked sets in sequence to force eliminations.",
+    // Wing variants
+    "SPLIT_WING" to "Split-Wing uses a split pattern of candidates to force eliminations.",
+    "STRONG_WING__WINDMILL_" to "Strong-Wing (Windmill) uses a windmill pattern of strong links to eliminate candidates.",
+    "INVERTED_H_3__WING" to "Inverted H(3)-Wing uses an inverted H-shaped pattern with 3 cells to force eliminations.",
+    "INVERTED_M_3__WING" to "Inverted M(3)-Wing uses an inverted M-shaped pattern with 3 cells to force eliminations.",
+    "INVERTED_L_3__WINGS" to "Inverted L(3)-Wing uses an inverted L-shaped pattern with 3 cells to force eliminations.",
+    "UVWXYZ_WING" to "UVWXYZ-Wing (6-cell wing) removes the shared candidate from peers of all six cells.",
+    // Hidden chain variants
+    "HIDDEN_XY__TYPE_1" to "Hidden XY (Type 1) uses hidden bivalue cells in an XY-chain pattern to eliminate candidates.",
 )
 
 private fun normalizeTechniqueKey(name: String): String {
