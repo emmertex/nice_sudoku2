@@ -42,8 +42,28 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Create distribution directory by combining webpack output and resources
+PROD_DIR="$PROJECT_DIR/web/build/distributions"
+echo "Assembling production distribution..."
+rm -rf "$PROD_DIR"
+mkdir -p "$PROD_DIR"
+
+# Copy resources (HTML, manifest, service worker, puzzles)
+cp -r "$PROJECT_DIR/web/build/processedResources/js/main/"* "$PROD_DIR/"
+
+# Copy compiled JS
+cp "$PROJECT_DIR/web/build/kotlin-webpack/js/productionExecutable/web.js" "$PROD_DIR/"
+cp "$PROJECT_DIR/web/build/kotlin-webpack/js/productionExecutable/web.js.map" "$PROD_DIR/"
+
+# Verify the production directory exists and has files
+if [ ! -d "$PROD_DIR" ] || [ ! -f "$PROD_DIR/index.html" ] || [ ! -f "$PROD_DIR/web.js" ]; then
+    echo "❌ Production distribution assembly failed"
+    exit 1
+fi
+
 echo ""
 echo "✅ Production build complete!"
+echo "   Distribution ready at: $PROD_DIR"
 echo ""
 
 # Check if tmux session exists
@@ -52,8 +72,8 @@ if tmux has-session -t sudoku-prod 2>/dev/null; then
     
     # Kill frontend window and recreate
     tmux kill-window -t sudoku-prod:frontend 2>/dev/null
-    tmux new-window -t sudoku-prod -n frontend -c "$PROJECT_DIR/web/build/dist/js/productionExecutable"
-    tmux send-keys -t sudoku-prod:frontend "python3 -m http.server $FRONTEND_PORT" C-m
+    tmux new-window -t sudoku-prod -n frontend -c "$PROJECT_DIR"
+    tmux send-keys -t sudoku-prod:frontend "cd web/build/distributions && python3 -m http.server $FRONTEND_PORT" C-m
     
     # Optionally restart backend
     read -p "Restart backend? (y/N): " -n 1 -r

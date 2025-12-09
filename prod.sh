@@ -33,7 +33,27 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Create distribution directory by combining webpack output and resources
+PROD_DIR="$PROJECT_DIR/web/build/distributions"
+echo "Assembling production distribution..."
+rm -rf "$PROD_DIR"
+mkdir -p "$PROD_DIR"
+
+# Copy resources (HTML, manifest, service worker, puzzles)
+cp -r "$PROJECT_DIR/web/build/processedResources/js/main/"* "$PROD_DIR/"
+
+# Copy compiled JS
+cp "$PROJECT_DIR/web/build/kotlin-webpack/js/productionExecutable/web.js" "$PROD_DIR/"
+cp "$PROJECT_DIR/web/build/kotlin-webpack/js/productionExecutable/web.js.map" "$PROD_DIR/"
+
+# Verify the production directory exists and has files
+if [ ! -d "$PROD_DIR" ] || [ ! -f "$PROD_DIR/index.html" ] || [ ! -f "$PROD_DIR/web.js" ]; then
+    echo "❌ Production distribution assembly failed"
+    exit 1
+fi
+
 echo "✅ Production build complete!"
+echo "   Distribution ready at: $PROD_DIR"
 echo "Creating new tmux session 'sudoku-prod'..."
 
 # Create session with first window (backend)
@@ -46,12 +66,13 @@ else
 fi
 
 # Create second window (web frontend) - serve static files
-tmux new-window -t sudoku-prod -n frontend -c "$PROJECT_DIR/web/build/dist/js/productionExecutable"
+tmux new-window -t sudoku-prod -n frontend -c "$PROJECT_DIR"
 if check_port $FRONTEND_PORT; then
     echo "Frontend already running on port $FRONTEND_PORT, skipping startup..."
     tmux send-keys -t sudoku-prod:frontend "echo 'Frontend already running on port $FRONTEND_PORT. If you need to restart it, stop the existing process first.'" C-m
 else
-    tmux send-keys -t sudoku-prod:frontend "python3 -m http.server $FRONTEND_PORT" C-m
+    # Change to production directory and start server (all in one command to ensure correct directory)
+    tmux send-keys -t sudoku-prod:frontend "cd web/build/distributions && python3 -m http.server $FRONTEND_PORT" C-m
 fi
 
 # Create third window (spare) - just a shell
