@@ -14,7 +14,8 @@ kotlin {
             dependencies {
                 implementation(project(":shared"))
                 implementation("org.jetbrains.kotlinx:kotlinx-html-js:0.11.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")             
+                implementation(npm("pako", "2.1.0"))
             }
         }
     }

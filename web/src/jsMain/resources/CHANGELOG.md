@@ -1,3 +1,13 @@
+# v0.5.0 - 2025-12-09
+
+### Features
+- Support Sudoku Coach Format import/export
+- - Givens, Puzzle State and Candidates
+- - Colours are not supported, and are stripped if imported
+- Timer Pausing, with Blur over Game Screen
+- - Manual Pause next to timer
+- - Pause on loss of window focus
+
 # v0.4.4 - 2025-12-08
 
 ### Features

@@ -21,6 +21,9 @@ internal fun SudokuApp.renderImportExport() {
     // Use new export format (user eliminations: 1 = eliminated) with original puzzle
     val stateString891 = SavedGameState.createStateStringFor891Export(grid, game?.puzzleString ?: "")
     
+    // Sudoku Coach format
+    val sudokuCoachString = helpers.importExport.SudokuCoachFormat.exportToSudokuCoach(grid, game?.puzzleString ?: "")
+    
     appRoot.append {
         div("sudoku-container import-export") {
             div("header") {
@@ -124,12 +127,49 @@ internal fun SudokuApp.renderImportExport() {
                         }
                     }
                 }
+                
+                if (sudokuCoachString != null) {
+                    div("export-option") {
+                        label { +"Sudoku Coach Format" }
+                        div("export-row") {
+                            input(InputType.text, classes = "export-field") {
+                                value = sudokuCoachString
+                                readonly = true
+                            }
+                            button(classes = "copy-btn") {
+                                +"Copy"
+                                onClickFunction = {
+                                    ClipboardUtils.copyToClipboard(sudokuCoachString,
+                                        onSuccess = { showToast("✓ Copied Sudoku Coach format!") },
+                                        onError = { showToast("Failed to copy") }
+                                    )
+                                }
+                            }
+                            button(classes = "copy-btn") {
+                                +"Copy URL"
+                                onClickFunction = {
+                                    val shareUrl = buildShareUrl(sudokuCoachString)
+                                    ClipboardUtils.copyToClipboard(shareUrl,
+                                        onSuccess = { showToast("✓ Copied Sudoku Coach URL!") },
+                                        onError = { showToast("Failed to copy URL") }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
             
             // Import section
             div("section") {
                 h2 { +"📥 Import" }
-                p("hint") { +"Paste an 81-char puzzle, 810-char state, or 891-char full state string" }
+                p("hint") {
+                    +"Paste an 81-char puzzle, 810-char state, 891-char full state, or "
+                    a(href = "https://sudoku.coach", target = "_blank") {
+                        +"Sudoku Coach"
+                    }
+                    +" format"
+                }
                 
                 textArea(classes = "import-field") {
                     id = "import-input"

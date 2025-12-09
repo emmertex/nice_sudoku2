@@ -194,6 +194,35 @@ val CSS_STYLES = """
     .category.expert { background: rgba(80, 17, 17, 0.8); color: rgb(250, 182, 182); }
     .category.diabolical {background: rgba(37, 33, 33, 0.8); color: rgb(255, 88, 88); }
     
+    /* Timer container and pause button */
+    .timer-container {
+        display: flex !important;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .pause-btn {
+        padding: 2px 6px;
+        background: rgba(var(--color-accent), 0.2);
+        border: 1px solid rgba(var(--color-accent), 0.3);
+        border-radius: 4px;
+        color: rgba(var(--color-text-primary), 0.8);
+        cursor: pointer;
+        font-size: clamp(0.7rem, calc(0.6rem + 0.5vmin), 0.9rem);
+        transition: all 0.2s ease;
+        line-height: 1;
+    }
+    
+    .pause-btn:hover {
+        background: rgba(var(--color-accent), 0.3);
+        border-color: rgba(var(--color-accent), 0.5);
+        transform: scale(1.05);
+    }
+    
+    .pause-btn:active {
+        transform: scale(0.95);
+    }
+    
     /* Info button in puzzle list */
     .info-btn {
         padding: 4px 8px;
@@ -366,6 +395,73 @@ val CSS_STYLES = """
         width: var(--grid-size);
         max-width: 100%;
         margin: 0 auto;
+    }
+    
+    /* Blur effect when paused */
+    .sudoku-grid-container.paused .sudoku-grid {
+        filter: blur(8px);
+        pointer-events: none;
+        user-select: none;
+    }
+    
+    /* Pause overlay */
+    .pause-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(2px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        cursor: pointer;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    .pause-message {
+        text-align: center;
+        color: rgba(var(--color-text-primary), 0.95);
+        user-select: none;
+    }
+    
+    .pause-icon {
+        font-size: clamp(3rem, 8vmin, 5rem);
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+    
+    .pause-text {
+        font-size: clamp(1.5rem, 4vmin, 2.5rem);
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        margin-bottom: 0.5rem;
+    }
+    
+    .pause-subtext {
+        font-size: clamp(0.9rem, 2vmin, 1.2rem);
+        opacity: 0.7;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 0.5;
+        }
+        50% {
+            opacity: 0.9;
+        }
     }
     
     /* SVG overlay container for chain lines */
@@ -1627,6 +1723,20 @@ val CSS_STYLES = """
         color: rgba(var(--color-text-primary), 0.5);
         font-size: 0.75rem;
         margin-bottom: 8px;
+    }
+    
+    .hint a,
+    .hint a:visited,
+    .hint a:hover,
+    .hint a:active {
+        color: rgb(var(--color-accent-primary));
+        text-decoration: none;
+        transition: opacity 0.15s ease;
+    }
+    
+    .hint a:hover {
+        opacity: 0.8;
+        text-decoration: underline;
     }
     
     .import-field {
