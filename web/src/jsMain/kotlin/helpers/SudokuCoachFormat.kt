@@ -8,6 +8,7 @@ import kotlinx.serialization.decodeFromString
 
 /**
  * Data structure matching Sudoku Coach format
+ * Extended to support additional metadata fields
  */
 @Serializable
 data class SudokuCoachData(
@@ -18,7 +19,15 @@ data class SudokuCoachData(
     val userDigits: String,
     val userColours: String = "",
     val userCellCandidates: String,
-    val userCellCandidatesColours: String = ""
+    val userCellCandidatesColours: String = "",
+    // Extended metadata fields
+    val title: String = "",
+    val author: String = "",
+    val authorContact: String = "",
+    val description: String = "",
+    val playTimeMs: Long = 0,          // Time spent on puzzle in milliseconds
+    val mistakes: Int = 0,             // Number of mistakes made
+    val hints: Int = 0                 // Number of hints used
 )
 
 /**
@@ -134,9 +143,9 @@ object SudokuCoachFormat {
     
     /**
      * Import from Sudoku Coach format
-     * Returns Triple of (values, userEliminations, originalPuzzle) or null if invalid
+     * Returns ImportResult or null if invalid
      */
-    fun importFromSudokuCoach(input: String): Triple<IntArray, Array<Set<Int>>, String>? {
+    fun importFromSudokuCoach(input: String): ImportResult? {
         try {
             // Step 1: Remove prefix
             if (!input.startsWith(PREFIX)) return null
@@ -170,10 +179,30 @@ object SudokuCoachFormat {
     /**
      * Export to Sudoku Coach format
      */
-    fun exportToSudokuCoach(grid: SudokuGrid, originalPuzzle: String): String? {
+    fun exportToSudokuCoach(
+        grid: SudokuGrid, 
+        originalPuzzle: String,
+        title: String = "",
+        author: String = "",
+        authorContact: String = "",
+        description: String = "",
+        playTimeMs: Long = 0,
+        mistakes: Int = 0,
+        hints: Int = 0
+    ): String? {
         try {
             // Step 1: Convert to Sudoku Coach data structure
-            val coachData = convertToCoachFormat(grid, originalPuzzle)
+            val coachData = convertToCoachFormat(
+                grid, 
+                originalPuzzle,
+                title,
+                author,
+                authorContact,
+                description,
+                playTimeMs,
+                mistakes,
+                hints
+            )
             
             // Step 2: Convert to JSON
             val jsonString = json.encodeToString(coachData)
@@ -212,10 +241,26 @@ object SudokuCoachFormat {
     }
     
     /**
-     * Convert from Sudoku Coach format to our internal format
-     * Returns Triple of (values, userEliminations, originalPuzzle)
+     * Result of importing from Sudoku Coach format
      */
-    private fun convertFromCoachFormat(data: SudokuCoachData): Triple<IntArray, Array<Set<Int>>, String>? {
+    data class ImportResult(
+        val values: IntArray,
+        val userEliminations: Array<Set<Int>>,
+        val originalPuzzle: String,
+        val title: String = "",
+        val author: String = "",
+        val authorContact: String = "",
+        val description: String = "",
+        val playTimeMs: Long = 0,
+        val mistakes: Int = 0,
+        val hints: Int = 0
+    )
+    
+    /**
+     * Convert from Sudoku Coach format to our internal format
+     * Returns ImportResult or null if invalid
+     */
+    private fun convertFromCoachFormat(data: SudokuCoachData): ImportResult? {
         if (data.gridSize != 9) return null
         if (data.givenDigits.length != 81 || data.userDigits.length != 81) return null
         
@@ -264,13 +309,34 @@ object SudokuCoachFormat {
             }
         }
         
-        return Triple(values, userEliminations, data.givenDigits)
+        return ImportResult(
+            values = values,
+            userEliminations = userEliminations,
+            originalPuzzle = data.givenDigits,
+            title = data.title,
+            author = data.author,
+            authorContact = data.authorContact,
+            description = data.description,
+            playTimeMs = data.playTimeMs,
+            mistakes = data.mistakes,
+            hints = data.hints
+        )
     }
     
     /**
      * Convert from our internal format to Sudoku Coach format
      */
-    private fun convertToCoachFormat(grid: SudokuGrid, originalPuzzle: String): SudokuCoachData {
+    private fun convertToCoachFormat(
+        grid: SudokuGrid, 
+        originalPuzzle: String,
+        title: String = "",
+        author: String = "",
+        authorContact: String = "",
+        description: String = "",
+        playTimeMs: Long = 0,
+        mistakes: Int = 0,
+        hints: Int = 0
+    ): SudokuCoachData {
         val givenDigits = originalPuzzle
         val userDigitsBuilder = StringBuilder(81)
         val candidatesBuilder = mutableListOf<String>()
@@ -309,7 +375,14 @@ object SudokuCoachFormat {
             userDigits = userDigitsBuilder.toString(),
             userColours = ",".repeat(80),
             userCellCandidates = candidatesBuilder.joinToString("-"),
-            userCellCandidatesColours = ""
+            userCellCandidatesColours = "",
+            title = title,
+            author = author,
+            authorContact = authorContact,
+            description = description,
+            playTimeMs = playTimeMs,
+            mistakes = mistakes,
+            hints = hints
         )
     }
 }

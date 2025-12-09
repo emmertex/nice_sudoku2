@@ -63,7 +63,7 @@ object HighlightEngine {
         selectedCell: Int?
     ): Set<Int> {
         return when (highlightMode) {
-            HighlightMode.CELL -> getCellHighlights(grid, number)
+            HighlightMode.PLACED -> getPlacedHighlights(grid, number)
             HighlightMode.RCB_SELECTED -> getRCBSelectedHighlights(grid, number, selectedCell)
             HighlightMode.RCB_ALL -> getRCBAllHighlights(grid, number)
             HighlightMode.PENCIL -> getPencilHighlights(grid, number)
@@ -71,9 +71,9 @@ object HighlightEngine {
     }
 
     /**
-     * CELL mode: Highlight cells with matching solved values.
+     * PLACED mode: Highlight cells with matching placed values.
      */
-    private fun getCellHighlights(grid: SudokuGrid, number: Int): Set<Int> {
+    private fun getPlacedHighlights(grid: SudokuGrid, number: Int): Set<Int> {
         return grid.cells
             .filter { it.value == number }
             .map { it.index }
@@ -81,33 +81,23 @@ object HighlightEngine {
     }
 
     /**
-     * RCB_SELECTED mode: Highlight the row, column, and box of the selected cell,
-     * but only if those cells are relevant to the selected number.
+     * RCB_SELECTED mode: Highlight all cells with the matching number (like PLACED)
+     * PLUS the entire Row, Column, and Box of the selected cell.
      */
     private fun getRCBSelectedHighlights(
         grid: SudokuGrid,
         number: Int,
         selectedCell: Int?
     ): Set<Int> {
-        if (selectedCell == null) return emptySet()
-
-        val cell = grid.getCell(selectedCell)
         val result = mutableSetOf<Int>()
 
-        // Get all cells in the same row, column, and box
-        val relatedCells = getRelatedCellIndices(cell.row, cell.col, cell.box)
-        
-        for (idx in relatedCells) {
-            val relatedCell = grid.getCell(idx)
-            // Include if cell has the number as value or as displayed candidate
-            if (relatedCell.value == number || number in relatedCell.displayCandidates) {
-                result.add(idx)
-            }
-        }
+        // Add all cells with the matching number (like PLACED)
+        result.addAll(grid.cells.filter { it.value == number }.map { it.index })
 
-        // Also include the selected cell itself if it contains the number
-        if (cell.value == number || number in cell.displayCandidates) {
-            result.add(selectedCell)
+        // Add all cells in RCB of selected cell
+        if (selectedCell != null) {
+            val cell = grid.getCell(selectedCell)
+            result.addAll(getRelatedCellIndices(cell.row, cell.col, cell.box))
         }
 
         return result

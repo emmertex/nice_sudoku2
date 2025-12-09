@@ -14,8 +14,11 @@ data class PuzzleDefinition(
     val solution: String? = null,  // 81-char solution string (pre-computed)
     val quality: Float? = null,    // Quality rating (0-10)
     val techniques: Map<String, Int>? = null,  // Techniques used: name -> count
-    val title: String? = null,     // Optional title (for training puzzles)
-    val url: String? = null        // Optional URL (for training puzzles)
+    val title: String = "",        // Optional title (for training puzzles)
+    val url: String = "",          // Optional URL (for training puzzles)
+    val author: String = "",       // Optional author name
+    val authorContact: String = "",  // Optional author contact (URL or email)
+    val description: String = ""   // Optional puzzle description
 )
 
 enum class DifficultyCategory(val displayName: String) {
@@ -66,9 +69,15 @@ data class SavedGameState(
     val difficulty: Float,
     val elapsedTimeMs: Long,         // Time spent on puzzle
     val mistakeCount: Int,           // Number of mistakes made
+    val hintCount: Int = 0,          // Number of hints used
     val isCompleted: Boolean,
     val lastPlayedTimestamp: Long,
-    val actionStack: List<String> = emptyList()  // Eureka notation actions for undo (e.g., "R1C5=7", "R3C8<>4")
+    val actionStack: List<String> = emptyList(),  // Eureka notation actions for undo (e.g., "R1C5=7", "R3C8<>4")
+    // Puzzle metadata
+    val title: String = "",          // Optional puzzle title
+    val author: String = "",         // Optional author name
+    val authorContact: String = "",  // Optional author contact (URL or email)
+    val description: String = ""     // Optional puzzle description
 ) {
     companion object {
         /**
@@ -303,8 +312,13 @@ data class GameSummary(
     val difficulty: Float,
     val elapsedTimeMs: Long,
     val mistakeCount: Int,
+    val hintCount: Int = 0,      // Number of hints used
     val isCompleted: Boolean,
     val progressPercent: Int,    // 0-100
-    val lastPlayedTimestamp: Long
+    val lastPlayedTimestamp: Long,
+    val title: String = "",
+    val author: String = "",
+    val authorContact: String = "",
+    val description: String = ""
 )
 

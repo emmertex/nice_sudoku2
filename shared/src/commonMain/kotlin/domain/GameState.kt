@@ -13,7 +13,7 @@ data class GameState(
     val gameMode: GameMode = GameMode.PLAY,
     val difficulty: Difficulty = Difficulty.MEDIUM,
     // Highlight and Play Mode State
-    val highlightMode: HighlightMode = HighlightMode.CELL,
+    val highlightMode: HighlightMode = HighlightMode.PLACED,
     val playMode: PlayMode = PlayMode.FAST,
     val selectedNumber1: Int? = null, // Primary selected number (1-9)
     val selectedNumber2: Int? = null, // Secondary selected number (1-9) for advanced highlighting
@@ -102,8 +102,8 @@ enum class Difficulty {
  * Highlight modes for number selection
  */
 enum class HighlightMode {
-    /** Highlight cells with matching numbers */
-    CELL,
+    /** Highlight cells with matching placed numbers */
+    PLACED,
     /** Highlight Rows, Columns, and Boxes of selected cell(s) - Advanced */
     RCB_SELECTED,
     /** Highlight Rows, Columns, and Boxes of all cells matching the number */
@@ -123,6 +123,13 @@ enum class PlayMode {
      * - Double-pressing a number (or pencil button) toggles pencil mode
      */
     FAST,
+    /**
+     * Cell First mode:
+     * - Click a cell first to select it
+     * - Then click a number to fill that cell
+     * - Highlighting works based on the selected cell's value
+     */
+    CELL_FIRST,
     /**
      * Advanced mode:
      * - Pressing a number highlights but doesn't auto-fill

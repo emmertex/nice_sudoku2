@@ -39,44 +39,45 @@ fun ModeSelector(
             color = MaterialTheme.colorScheme.onSurface
         )
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            HighlightModeChip(
-                mode = HighlightMode.CELL,
-                label = "Cell",
-                isSelected = highlightMode == HighlightMode.CELL,
-                onClick = { onHighlightModeChange(HighlightMode.CELL) },
-                modifier = Modifier.weight(1f)
+        // Filter highlight modes based on play mode
+        val availableModes = when (playMode) {
+            PlayMode.FAST, PlayMode.ADVANCED -> listOf(
+                HighlightMode.PENCIL,
+                HighlightMode.RCB_ALL,
+                HighlightMode.PLACED
             )
-            HighlightModeChip(
-                mode = HighlightMode.RCB_SELECTED,
-                label = "RCB Sel",
-                isSelected = highlightMode == HighlightMode.RCB_SELECTED,
-                onClick = { onHighlightModeChange(HighlightMode.RCB_SELECTED) },
-                modifier = Modifier.weight(1f)
+            PlayMode.CELL_FIRST -> listOf(
+                HighlightMode.PLACED,
+                HighlightMode.RCB_SELECTED,
+                HighlightMode.RCB_ALL
             )
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            HighlightModeChip(
-                mode = HighlightMode.RCB_ALL,
-                label = "RCB All",
-                isSelected = highlightMode == HighlightMode.RCB_ALL,
-                onClick = { onHighlightModeChange(HighlightMode.RCB_ALL) },
-                modifier = Modifier.weight(1f)
-            )
-            HighlightModeChip(
-                mode = HighlightMode.PENCIL,
-                label = "Pencil",
-                isSelected = highlightMode == HighlightMode.PENCIL,
-                onClick = { onHighlightModeChange(HighlightMode.PENCIL) },
-                modifier = Modifier.weight(1f)
-            )
+        
+        // Display available modes in rows of 2
+        availableModes.chunked(2).forEach { rowModes ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                rowModes.forEach { mode ->
+                    HighlightModeChip(
+                        mode = mode,
+                        label = when (mode) {
+                            HighlightMode.PLACED -> "Placed"
+                            HighlightMode.RCB_SELECTED -> "RCB Sel"
+                            HighlightMode.RCB_ALL -> "RCB All"
+                            HighlightMode.PENCIL -> "Pencil"
+                        },
+                        isSelected = highlightMode == mode,
+                        onClick = { onHighlightModeChange(mode) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                // Fill remaining space if odd number of modes
+                if (rowModes.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -101,6 +102,13 @@ fun ModeSelector(
                 modifier = Modifier.weight(1f)
             )
             PlayModeChip(
+                mode = PlayMode.CELL_FIRST,
+                label = "Cell First",
+                isSelected = playMode == PlayMode.CELL_FIRST,
+                onClick = { onPlayModeChange(PlayMode.CELL_FIRST) },
+                modifier = Modifier.weight(1f)
+            )
+            PlayModeChip(
                 mode = PlayMode.ADVANCED,
                 label = "Advanced",
                 isSelected = playMode == PlayMode.ADVANCED,
@@ -113,6 +121,7 @@ fun ModeSelector(
         Text(
             text = when (playMode) {
                 PlayMode.FAST -> "Click number → Click cell to fill"
+                PlayMode.CELL_FIRST -> "Click cell → Click number to fill"
                 PlayMode.ADVANCED -> "Click number → Select action"
             },
             style = MaterialTheme.typography.bodySmall,
@@ -176,6 +185,7 @@ private fun PlayModeChip(
     val backgroundColor = if (isSelected) {
         when (mode) {
             PlayMode.FAST -> Color(0xFFE8F5E9) // Light green
+            PlayMode.CELL_FIRST -> Color(0xFFE3F2FD) // Light blue
             PlayMode.ADVANCED -> Color(0xFFFFF3E0) // Light orange
         }
     } else {
@@ -185,6 +195,7 @@ private fun PlayModeChip(
     val borderColor = if (isSelected) {
         when (mode) {
             PlayMode.FAST -> Color(0xFF4CAF50) // Green
+            PlayMode.CELL_FIRST -> Color(0xFF1976D2) // Blue
             PlayMode.ADVANCED -> Color(0xFFFF9800) // Orange
         }
     } else {
@@ -194,6 +205,7 @@ private fun PlayModeChip(
     val textColor = if (isSelected) {
         when (mode) {
             PlayMode.FAST -> Color(0xFF2E7D32) // Dark green
+            PlayMode.CELL_FIRST -> Color(0xFF0D47A1) // Dark blue
             PlayMode.ADVANCED -> Color(0xFFE65100) // Dark orange
         }
     } else {

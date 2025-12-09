@@ -17,6 +17,7 @@ This document describes all keyboard shortcuts available in Nice Sudoku. The sho
 ### Basic Entry
 - **1-9**: Enter numbers based on play mode:
   - **Fast Mode**: Selects the number for highlighting. If a cell is selected, applies the number to that cell
+  - **Cell First Mode**: Applies the number to the selected cell. Cell must be selected first
   - **Advanced Mode**: Sets number highlighting (primary/secondary). Pressing the same number again clears the selection
 
 ### Candidate Entry (Pencil Marks)
@@ -74,8 +75,14 @@ This document describes all keyboard shortcuts available in Nice Sudoku. The sho
 ## Play Mode Differences
 
 ### Fast Mode
-- Number keys immediately apply to selected cells when appropriate
+- Number keys select numbers for highlighting first
+- If a cell is selected, the number is immediately applied
 - Quick, streamlined input for faster solving
+
+### Cell First Mode
+- Click a cell first to select it
+- Then click a number to fill that cell
+- Highlighting is based on the selected cell's value
 
 ### Advanced Mode
 - Number keys primarily control highlighting

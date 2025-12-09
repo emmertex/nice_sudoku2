@@ -11,11 +11,21 @@ internal fun SudokuApp.startNewGame(puzzle: PuzzleDefinition) {
     // Use pre-loaded solution from puzzle definition
     solution = puzzle.solution
 
-    // Create new saved game with solution
+    // Create new saved game with solution (includes candidate mode-based eliminations)
     currentGame = GameStateManager.createNewGame(puzzle, puzzle.solution)
-    currentGame?.let {
-        GameStateManager.saveGame(it)
-        GameStateManager.setCurrentGameId(it.puzzleId)
+    
+    // Apply user eliminations based on candidate mode
+    currentGame?.let { game ->
+        val (_, userEliminations) = SavedGameState.parseStateString(game.currentState)
+        for (i in 0 until 81) {
+            // Apply user eliminations for this cell
+            // In AUTO mode: empty sets (show all auto-calculated candidates)
+            // In MANUAL mode: all 9 candidates eliminated (blank pencil marks)
+            gameEngine.setUserEliminations(i, userEliminations[i])
+        }
+        
+        GameStateManager.saveGame(game)
+        GameStateManager.setCurrentGameId(game.puzzleId)
     }
 
     gameStartTime = currentTimeMillis()
@@ -122,7 +132,18 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
 
         // Normalize first 81 chars by converting '.' to '0' for parsing
         val normalized = text.take(81).map { if (it == '.') '0' else it }.joinToString("") + text.drop(81)
-        SavedGameState.parseImportStateString(normalized)
+        val basicImport = SavedGameState.parseImportStateString(normalized)
+        // Convert to ImportResult format
+        if (basicImport != null) {
+            val (values, userEliminations, originalPuzzle) = basicImport
+            helpers.importExport.SudokuCoachFormat.ImportResult(
+                values = values,
+                userEliminations = userEliminations,
+                originalPuzzle = originalPuzzle
+            )
+        } else {
+            null
+        }
     }
     
     if (importResult == null) {
@@ -130,17 +151,9 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         return false
     }
 
-    val (values, userEliminations, originalPuzzleStr) = importResult
-
-    val puzzle = PuzzleDefinition(
-        id = "custom_${currentTimeMillis()}",
-        puzzleString = originalPuzzleStr,
-        difficulty = 0f,
-        category = DifficultyCategory.CUSTOM
-    )
-
-    // Save to custom puzzles library for reuse
-    GameStateManager.saveCustomPuzzle(puzzle)
+    val values = importResult.values
+    val userEliminations = importResult.userEliminations
+    val originalPuzzleStr = importResult.originalPuzzle
 
     // Start new game with puzzle and apply imported state
     gameEngine.loadPuzzle(originalPuzzleStr)
@@ -157,7 +170,23 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         }
     }
 
-    // Create saved game with elimination format
+    // Create initial puzzle definition with metadata from import
+    val puzzleId = "custom_${currentTimeMillis()}"
+    var puzzle = PuzzleDefinition(
+        id = puzzleId,
+        puzzleString = originalPuzzleStr,
+        difficulty = 0f,
+        category = DifficultyCategory.CUSTOM,
+        title = importResult.title,
+        author = importResult.author,
+        authorContact = importResult.authorContact,
+        description = importResult.description
+    )
+    
+    // Save custom puzzle immediately so it appears in Custom section
+    GameStateManager.saveCustomPuzzle(puzzle)
+
+    // Create saved game with elimination format and metadata
     val grid = gameEngine.getCurrentGrid()
     val stateWithEliminations = SavedGameState.createStateString(grid)
     currentGame = SavedGameState(
@@ -167,10 +196,15 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         solution = null,
         category = DifficultyCategory.CUSTOM,
         difficulty = 0f,
-        elapsedTimeMs = 0L,
-        mistakeCount = 0,
+        elapsedTimeMs = importResult.playTimeMs,
+        mistakeCount = importResult.mistakes,
+        hintCount = importResult.hints,
         isCompleted = false,
-        lastPlayedTimestamp = currentTimeMillis()
+        lastPlayedTimestamp = currentTimeMillis(),
+        title = importResult.title,
+        author = importResult.author,
+        authorContact = importResult.authorContact,
+        description = importResult.description
     )
     currentGame?.let {
         GameStateManager.saveGame(it)
@@ -191,6 +225,46 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         else -> "✓ Puzzle loaded and saved to Custom!"
     }
     showToast(successMessage)
+    
+    // Grade puzzle difficulty in background (async)
+    if (isBackendAvailable) {
+        gameEngine.gradePuzzle(
+            puzzleString = originalPuzzleStr,
+            onStatus = { status -> 
+                // Silent grading, don't show status to user
+            },
+            onComplete = { difficulty, solutionStr, techniques ->
+                if (difficulty > 0) {
+                    // Determine category from difficulty
+                    val category = DifficultyCategory.fromDifficulty(difficulty.toFloat())
+                    
+                    // Update puzzle definition with graded difficulty
+                    puzzle = puzzle.copy(
+                        difficulty = difficulty.toFloat(),
+                        category = category,
+                        solution = solutionStr,
+                        techniques = techniques
+                    )
+                    GameStateManager.saveCustomPuzzle(puzzle)
+                    
+                    // Update current game with graded difficulty
+                    currentGame = currentGame?.copy(
+                        difficulty = difficulty.toFloat(),
+                        category = category,
+                        solution = solutionStr
+                    )
+                    currentGame?.let { game ->
+                        GameStateManager.saveGame(game)
+                        solution = solutionStr
+                    }
+                    
+                    println("Imported puzzle graded: difficulty=$difficulty, category=${category.displayName}")
+                    showToast("✓ Graded as ${category.displayName} (difficulty: $difficulty)")
+                }
+            }
+        )
+    }
+    
     return true
 }
 
@@ -202,7 +276,7 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
  * User eliminations are stored separately from auto-calculated candidates.
  * This ensures user eliminations are never lost when candidates are recalculated.
  */
-internal fun SudokuApp.saveCurrentState() {
+internal fun SudokuApp.saveCurrentState(newHint: Boolean = false) {
     val game = currentGame ?: return
     val grid = gameEngine.getCurrentGrid()
     val elapsedSinceStart = currentTimeMillis() - gameStartTime
@@ -212,7 +286,8 @@ internal fun SudokuApp.saveCurrentState() {
         currentGame = game,
         grid = grid,
         actionStack = gameEngine.getActionStack(),
-        additionalTimeMs = elapsedSinceStart
+        additionalTimeMs = elapsedSinceStart,
+        newHint = newHint
     )
     currentGame = updated
     GameStateManager.saveGame(updated)

@@ -232,12 +232,14 @@ class KeyboardHandler {
                 }
                 "h" -> {
                     if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                        // Toggle hints
-                        if (app.isBackendAvailable && !app.isLoadingHints) {
+                        // Toggle hints (only in AUTO mode)
+                        if (app.isBackendAvailable && !app.isLoadingHints && app.candidateMode == CandidateMode.AUTO) {
                             app.showHints = !app.showHints
                             if (app.showHints) {
                                 app.selectedHintIndex = 0
                                 app.gameEngine.findAllTechniques()
+                                // Increment hint counter
+                                app.saveCurrentState(newHint = true)
                             }
                             app.render()
                             return true

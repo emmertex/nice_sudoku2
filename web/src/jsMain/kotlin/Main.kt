@@ -30,6 +30,7 @@ class SudokuApp {
     internal var playMode = GameStateManager.getPlayMode()
     internal var currentTheme = GameStateManager.getTheme()
     internal var mistakeDetectionMode = GameStateManager.getMistakeDetectionMode()
+    internal var candidateMode = GameStateManager.getCandidateMode()
     internal var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Primary selected numbers (light blue)
     internal var selectedNumbers2: MutableSet<Int> = mutableSetOf()  // Secondary selected numbers (light red)
     
@@ -61,7 +62,7 @@ class SudokuApp {
     internal var completionShownForPuzzle: String? = null  // Track which puzzle we've shown completion for
     internal var showVersionModal = false
     internal var showPuzzleInfoModal = false
-    internal var puzzleInfoTarget: PuzzleDefinition? = null  // Puzzle to show info for
+    internal var puzzleInfoTarget: Any? = null  // Puzzle or SavedGameState to show info for
     
     // Version info (loaded from CHANGELOG.md)
     internal var currentVersion: String = ""
@@ -175,12 +176,6 @@ class SudokuApp {
         gameEngine.onLoadingStateChanged = { isLoading ->
             isLoadingHints = isLoading
             render()  // Re-render to show/hide loading indicator
-        }
-        
-        // Check if greeting should be shown on first load
-        if (!GameStateManager.hasGreetingBeenShown()) {
-            showGreetingModal = true
-            GameStateManager.markGreetingAsShown()
         }
         
         // Load changelog and check for new version

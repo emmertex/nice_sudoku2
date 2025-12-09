@@ -29,16 +29,42 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                 div("section") {
                     h2 { +"⏸ Resume Game" }
                     div("game-list") {
-                        for (summary in incompleteSummaries.take(5)) {
-                            // Use difficulty-based category for display (handles old games with removed categories)
-                            val displayCategory = DifficultyCategory.fromDifficulty(summary.difficulty)
+                        for (summary in incompleteSummaries) {
+                            // Use stored category, fallback to difficulty-based for edge cases
+                            val displayCategory = summary.category
                             div("game-item") {
+                                // Show title if available
+                                if (summary.title.isNotEmpty()) {
+                                    span("game-title") { 
+                                        +summary.title
+                                        // Info button if there's any metadata
+                                        if (summary.author.isNotEmpty() || summary.description.isNotEmpty()) {
+                                            +" ℹ️"
+                                        }
+                                    }
+                                    attributes["data-has-info"] = "true"
+                                    onClickFunction = { event ->
+                                        val target = event.target
+                                        val classList = (target as? org.w3c.dom.HTMLElement)?.classList
+                                        // Only show info if clicking on the title or info icon
+                                        if (classList?.contains("game-title") == true || 
+                                            (target as? org.w3c.dom.Element)?.textContent?.contains("ℹ️") == true) {
+                                            val saved = GameStateManager.loadGame(summary.puzzleId)
+                                            if (saved != null) {
+                                                puzzleInfoTarget = saved
+                                                showPuzzleInfoModal = true
+                                                render()
+                                            }
+                                        }
+                                    }
+                                }
                                 span("category ${displayCategory.name.lowercase()}") { 
                                     +displayCategory.displayName 
                                 }
                                 span("progress") { +"${summary.progressPercent}%" }
                                 span("time") { +formatTime(summary.elapsedTimeMs) }
                                 span("mistakes") { +"❌${summary.mistakeCount}" }
+                                span("hints") { +"💡${summary.hintCount}" }
                                 button(classes = "resume-btn") {
                                     +"Resume"
                                     onClickFunction = {
@@ -129,13 +155,32 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                             // Show title if available (as link if URL exists)
                             val puzzleTitle = puzzle.title
                             val puzzleUrl = puzzle.url
-                            if (puzzleTitle != null) {
-                                if (puzzleUrl != null) {
+                            if (puzzleTitle.isNotEmpty()) {
+                                if (puzzleUrl.isNotEmpty()) {
                                     a(href = puzzleUrl, target = "_blank", classes = "puzzle-title-link") {
                                         +puzzleTitle
                                     }
                                 } else {
                                     span("puzzle-title") { +puzzleTitle }
+                                }
+                                // Show info button if there's additional metadata
+                                if (puzzle.author.isNotEmpty() || puzzle.description.isNotEmpty()) {
+                                    button(classes = "info-btn") {
+                                        +"ℹ️"
+                                        attributes["title"] = "Show puzzle information"
+                                        onClickFunction = {
+                                            puzzleInfoTarget = puzzle
+                                            showPuzzleInfoModal = true
+                                            render()
+                                        }
+                                    }
+                                }
+                            }
+                            // Show category for graded custom puzzles
+                            if (selectedCategory == DifficultyCategory.CUSTOM && puzzle.difficulty > 0) {
+                                val displayCategory = DifficultyCategory.fromDifficulty(puzzle.difficulty)
+                                span("category ${displayCategory.name.lowercase()}") { 
+                                    +displayCategory.displayName 
                                 }
                             }
                             if (puzzle.difficulty > 0) {
@@ -145,7 +190,7 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                                 if (isCompleted) {
                                     span("status completed") { +"✓ Completed" }
                                     span("completion-stats") { 
-                                        +"${formatTime(existingGame.elapsedTimeMs)} · ❌${existingGame.mistakeCount}"
+                                        +"${formatTime(existingGame.elapsedTimeMs)} · ❌${existingGame.mistakeCount} · 💡${existingGame.hintCount}"
                                     }
                                 } else {
                                     span("status progress") { +"${existingGame.progressPercent}%" }
@@ -158,6 +203,20 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                                     puzzleInfoTarget = puzzle
                                     showPuzzleInfoModal = true
                                     render()
+                                }
+                            }
+                            // Show delete button for custom puzzles
+                            if (selectedCategory == DifficultyCategory.CUSTOM) {
+                                button(classes = "delete-btn") {
+                                    +"🗑️"
+                                    attributes["title"] = "Delete custom puzzle"
+                                    onClickFunction = {
+                                        GameStateManager.deleteCustomPuzzle(puzzle.id)
+                                        // Also delete the saved game if it exists
+                                        GameStateManager.deleteGame(puzzle.id)
+                                        showToast("Custom puzzle deleted")
+                                        render()
+                                    }
                                 }
                             }
                             button(classes = "play-btn") {

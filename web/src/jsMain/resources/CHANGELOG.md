@@ -1,3 +1,61 @@
+# v0.6.0 - 2025-12-10
+
+### Anouncement
+This release is special, because...
+- Feature Parity (of features I want to keep), and in some areas, in front of my previous Sudoku Game written in Godot
+- - Except solving algorithms, as they are external for now
+- All puzzles playable, with no known issues of actual gameplay
+
+Roadmap for now includes these milestones, intended to be, but not necessarily this order
+- Increase Test Coverage
+- Fix Theming and UI Issues
+- Hint Caching
+- Implement detailed explanations for all hint types
+- Android App
+- Native Local Solvers (100% Offline)
+
+### Features
+- **Support for Sudoku Coach Format**
+- - Thank you Jan!  https://sudoku.coach
+- - Importing of SCv7_32 format
+- - Exporting of SCv7_32 format
+- **Sudoku Coach Optional Extended Meta Data**: Ignored by sudoku.coach, but shareable between Nice Sudoku
+- - Puzzle: Title
+- - Puzzle: Author
+- - Puzzle: Author Contact
+- - Puzzle: Description
+- - Player: Play Time
+- - Player: Mistakes Made
+- - Player: Hints Used
+- **New Game Mode**
+- - **Cell First**: Traditional cell first experience.
+- - **Fast Mode**: as previous, number first, click cell to place
+- - **Advanced Mode**: as previous, Select multiple numbers first.
+- **Hint Counter**
+  - **Hint Counter**: Added a counter to track the number of hints used in the current puzzle
+- **New Candidate Mode setting**:
+- - **Auto Mode**: (default): Auto-calculate pencil marks, hints and error detection enabled
+- - **Manual Mode**: Start with blank pencil marks, fill them yourself, hints and pencil mark error detection disabled
+- - Switching modes resets current puzzle's pencil marks with confirmation dialog
+- **Highlight Modes** are now fully implemented.
+- - **Pencil Mode**: Highlighting of cells with that numbers pencil mark present (Fast and Advanced Mode Only)
+- - **Placed**: Highlighting of cells with that number, placed and given.
+- - **RCB Selected**: Highlighting of the Row, Column, and Box of the selected cell. (Cell First Mode Only)
+- - **RCB All**: Highlighting of every Row, Column and Box of every Cell with that number, placed and given.
+- **Better Handling of Imported Puzzles**
+- - Puzzles are graded on import, showing a difficulty
+- - If Puzzles have attribution or other Metadata, it is retained and kept
+- - Sharing of play game state, including puzzle state, pencil marks, and timer.
+- - Custom Puzzles can now be deleted.
+
+### Bug Fixes
+- Loading a puzzle via URI will now clear the URL as to avoid unintentional re-importing of the same puzzle
+- Difficulties show correctly in the Resume Game Browser
+- Resume Game Browser now scrollable
+- Removed the Welcome Message
+
+
+
 # v0.5.2 - 2025-12-09
 
 ### Fixed Issues

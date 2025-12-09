@@ -7,6 +7,21 @@ import domain.*
 // Compute which cells should have primary highlight (light blue)
 // Uses AND logic - only cells containing ALL selected numbers are highlighted
 internal fun SudokuApp.getPrimaryHighlightCells(grid: SudokuGrid): Set<Int> {
+    // In CELL_FIRST mode with no selected number, use RCB_SELECTED mode based on selected cell
+    if (playMode == PlayMode.CELL_FIRST && selectedNumbers1.isEmpty() && selectedCell != null) {
+        // For CELL_FIRST mode without a number, fall back to RCB_SELECTED behavior
+        val effectiveMode = when (highlightMode) {
+            HighlightMode.RCB_ALL, HighlightMode.PENCIL -> HighlightMode.RCB_SELECTED
+            else -> highlightMode
+        }
+        // Get all cells in RCB of selected cell
+        if (effectiveMode == HighlightMode.RCB_SELECTED) {
+            val cell = grid.getCell(selectedCell!!)
+            return getRelatedCellIndices(cell.row, cell.col, cell.box)
+        }
+        return emptySet()
+    }
+    
     if (selectedNumbers1.isEmpty()) return emptySet()
     // Get cells for each number, then intersect (AND logic)
     return selectedNumbers1.map { getHighlightCellsForNumber(grid, it) }
@@ -24,19 +39,27 @@ internal fun SudokuApp.getSecondaryHighlightCells(grid: SudokuGrid): Set<Int> {
 
 internal fun SudokuApp.getHighlightCellsForNumber(grid: SudokuGrid, number: Int): Set<Int> {
     return when (highlightMode) {
-        HighlightMode.CELL -> {
-            // Highlight cells with matching solved values
+        HighlightMode.PLACED -> {
+            // Highlight cells with matching placed values
             grid.cells.filter { it.value == number }.map { it.index }.toSet()
         }
         HighlightMode.RCB_SELECTED -> {
-            // Highlight row, column, box of selected cell where number is relevant
-            val cell = selectedCell ?: return emptySet()
-            val selectedCellData = grid.getCell(cell)
-            val relatedCells = getRelatedCellIndices(selectedCellData.row, selectedCellData.col, selectedCellData.box)
-            relatedCells.filter { idx ->
-                val c = grid.getCell(idx)
-                c.value == number || number in c.displayCandidates
-            }.toSet()
+            // Highlight all cells with matching number (like PLACED)
+            // PLUS the entire Row, Column, and Box of the selected cell
+            val result = mutableSetOf<Int>()
+            
+            // Add all cells with the matching number
+            grid.cells.filter { it.value == number }.forEach { 
+                result.add(it.index) 
+            }
+            
+            // Add all cells in RCB of selected cell
+            selectedCell?.let { cellIdx ->
+                val selectedCellData = grid.getCell(cellIdx)
+                result.addAll(getRelatedCellIndices(selectedCellData.row, selectedCellData.col, selectedCellData.box))
+            }
+            
+            result
         }
         HighlightMode.RCB_ALL -> {
             // For each cell with the number, highlight its row, column, box

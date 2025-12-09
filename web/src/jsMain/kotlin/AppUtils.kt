@@ -50,10 +50,7 @@ internal fun SudokuApp.loadChangelog() {
                     val lastSeenVersion = GameStateManager.getLastSeenVersion()
                     if (currentVersion.isNotEmpty() && currentVersion != lastSeenVersion) {
                         // New version detected - show the changelog modal
-                        // But not if greeting modal is already showing (first launch)
-                        if (!showGreetingModal) {
-                            showVersionModal = true
-                        }
+                        showVersionModal = true
                         // Always mark as seen so it doesn't show again
                         GameStateManager.setLastSeenVersion(currentVersion)
                         render()

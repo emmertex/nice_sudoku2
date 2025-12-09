@@ -561,6 +561,62 @@ actual class GameEngine actual constructor() {
         }
     }
     
+    /**
+     * Grade a puzzle to determine its difficulty.
+     * Returns Triple(maxDifficulty, solution, techniques).
+     * @param onStatus Called with status updates
+     * @param onComplete Called with (difficulty, solution, techniques) or (0, null, emptyMap) if failed
+     */
+    fun gradePuzzle(
+        puzzleString: String,
+        onStatus: ((String) -> Unit)? = null,
+        onComplete: (Int, String?, Map<String, Int>) -> Unit
+    ) {
+        MainScope().launch {
+            val result = gradePuzzleAsync(puzzleString, onStatus)
+            onComplete(result.first, result.second, result.third)
+        }
+    }
+    
+    private suspend fun gradePuzzleAsync(
+        puzzleString: String,
+        onStatus: ((String) -> Unit)?
+    ): Triple<Int, String?, Map<String, Int>> {
+        if (!isBackendAvailable) {
+            println("JS: Backend not available for grading")
+            return Triple(0, null, emptyMap())
+        }
+        
+        onStatus?.invoke("Grading puzzle difficulty...")
+        try {
+            val request = GradePuzzleRequest(puzzle = puzzleString)
+            val response = apiPost("/api/techniques/grade", request)
+            val result = json.decodeFromString<GradePuzzleResponse>(response)
+            
+            if (!result.success) {
+                println("JS: Grade failed: ${result.error}")
+                return Triple(0, null, emptyMap())
+            }
+            
+            // Convert techniques list to map
+            val techniques = result.techniques.associate { it.technique to it.count }
+            
+            // Get solution if puzzle was solved
+            val solution = if (result.solved) {
+                val solutionResult = getSolutionStringAsync(onStatus)
+                solutionResult
+            } else {
+                null
+            }
+            
+            println("JS: Graded puzzle - maxDifficulty=${result.maxDifficulty}, steps=${result.totalSteps}, solved=${result.solved}")
+            return Triple(result.maxDifficulty, solution, techniques)
+        } catch (e: Exception) {
+            println("JS: Backend unavailable for gradePuzzle: ${e.message}")
+            return Triple(0, null, emptyMap())
+        }
+    }
+    
     actual fun selectTechnique(technique: String) {
         selectedTechniqueKey = technique
     }
@@ -745,6 +801,7 @@ actual class GameEngine actual constructor() {
             is FindTechniquesRequest -> json.encodeToString(body)
             is FindTechniquesFromPuzzleRequest -> json.encodeToString(body)
             is ApplyTechniqueRequest -> json.encodeToString(body)
+            is GradePuzzleRequest -> json.encodeToString(body)
             else -> throw IllegalArgumentException("Unknown request type")
         }
         
@@ -1129,6 +1186,29 @@ data class ApplyTechniqueRequest(
 data class ApplyTechniqueResponse(
     val success: Boolean,
     val grid: GridDto? = null,
+    val error: String? = null
+)
+
+@Serializable
+data class GradePuzzleRequest(
+    val puzzle: String
+)
+
+@Serializable
+data class TechniqueCount(
+    val technique: String,
+    val count: Int,
+    val priority: Int  // Difficulty priority (lower = easier)
+)
+
+@Serializable
+data class GradePuzzleResponse(
+    val success: Boolean,
+    val solved: Boolean = false,
+    val techniques: List<TechniqueCount> = emptyList(),  // Sorted by priority
+    val maxDifficulty: Int = 0,  // Highest priority technique needed
+    val totalSteps: Int = 0,
+    val searchTimeMs: Long = 0,
     val error: String? = null
 )
 

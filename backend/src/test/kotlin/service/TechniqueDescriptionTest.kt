@@ -1,24 +1,26 @@
 package service
 
+
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import service.hint.metadata.describeTechnique
+import service.hint.metadata.missingDescriptionsForPriority
+
 
 class TechniqueDescriptionTest {
-    private val service = SudokuService()
 
     @Test
     fun `advanced techniques have descriptions`() {
-        assertNotNull(service.describeTechnique("XYZ Wing"))
-        assertNotNull(service.describeTechnique("Forcing Chains"))
+        assertNotNull(describeTechnique("XYZ Wing"))
+        assertNotNull(describeTechnique("Forcing Chains"))
     }
 
     @Test
     fun `description coverage matches priority table`() {
         assertEquals(
-            emptyList(),
-            service.missingDescriptionsForPriority(),
-            "Every technique in the priority table should have a description entry"
+            emptyList<String>(),
+            missingDescriptionsForPriority()
         )
     }
 }

@@ -4,6 +4,7 @@ import kotlinx.html.js.onClickFunction
 import org.w3c.dom.Element
 import view.parseMarkdownToHtml
 import domain.PuzzleDefinition
+import domain.SavedGameState
 
 /**
  * Extension functions for rendering modal dialogs in SudokuApp.
@@ -172,6 +173,11 @@ internal fun SudokuApp.renderCompletionModal() {
                             span("stat-value") { +"${game.mistakeCount}" }
                         }
                         div("stat") {
+                            span("stat-icon") { +"💡" }
+                            span("stat-label") { +"Hints" }
+                            span("stat-value") { +"${game.hintCount}" }
+                        }
+                        div("stat") {
                             span("stat-icon") { +"📊" }
                             span("stat-label") { +"Difficulty" }
                             span("stat-value") { +game.category.displayName }
@@ -242,7 +248,40 @@ internal fun SudokuApp.renderVersionModal() {
     }
 }
 
-internal fun SudokuApp.renderPuzzleInfoModal(puzzle: PuzzleDefinition) {
+internal fun SudokuApp.renderPuzzleInfoModal(target: Any) {
+    // Extract data from either PuzzleDefinition or SavedGameState
+    val (title, author, authorContact, description, difficulty, category, puzzleId, quality, techniques, url) = when (target) {
+        is PuzzleDefinition -> {
+            InfoData(
+                title = target.title,
+                author = target.author,
+                authorContact = target.authorContact,
+                description = target.description,
+                difficulty = target.difficulty,
+                category = target.category,
+                puzzleId = target.id,
+                quality = target.quality,
+                techniques = target.techniques,
+                url = target.url
+            )
+        }
+        is SavedGameState -> {
+            InfoData(
+                title = target.title,
+                author = target.author,
+                authorContact = target.authorContact,
+                description = target.description,
+                difficulty = target.difficulty,
+                category = target.category,
+                puzzleId = target.puzzleId,
+                quality = null,
+                techniques = null,
+                url = ""
+            )
+        }
+        else -> return
+    }
+    
     appRoot.append {
         div("modal-overlay") {
             onClickFunction = { event ->
@@ -261,55 +300,89 @@ internal fun SudokuApp.renderPuzzleInfoModal(puzzle: PuzzleDefinition) {
                         render()
                     }
                 }
-                h2 { +"Puzzle Info" }
+                h2 { +"Puzzle Information" }
                 
                 div("info-grid") {
                     // Title (if available)
-                    val puzzleTitle = puzzle.title
-                    val puzzleUrl = puzzle.url
-                    if (puzzleTitle != null) {
+                    if (title.isNotEmpty()) {
                         div("info-row") {
                             span("info-label") { +"Title:" }
-                            if (puzzleUrl != null) {
-                                a(href = puzzleUrl, target = "_blank", classes = "info-value link") {
-                                    +puzzleTitle
+                            if (url.isNotEmpty()) {
+                                a(href = url, target = "_blank", classes = "info-value link") {
+                                    +title
                                 }
                             } else {
-                                span("info-value") { +puzzleTitle }
+                                span("info-value") { +title }
                             }
                         }
                     }
                     
-                    // Puzzle ID
-                    div("info-row") {
-                        span("info-label") { +"Puzzle ID:" }
-                        span("info-value") { +puzzle.id }
+                    // Author (if available)
+                    if (author.isNotEmpty()) {
+                        div("info-row") {
+                            span("info-label") { +"Author:" }
+                            span("info-value") { +author }
+                        }
+                    }
+                    
+                    // Author Contact (if available)
+                    if (authorContact.isNotEmpty()) {
+                        div("info-row") {
+                            span("info-label") { +"Contact:" }
+                            // Check if it's a URL or email
+                            if (authorContact.startsWith("http://") || authorContact.startsWith("https://")) {
+                                a(href = authorContact, target = "_blank", classes = "info-value link") {
+                                    +authorContact
+                                }
+                            } else if (authorContact.contains("@")) {
+                                a(href = "mailto:$authorContact", classes = "info-value link") {
+                                    +authorContact
+                                }
+                            } else {
+                                span("info-value") { +authorContact }
+                            }
+                        }
+                    }
+                    
+                    // Description (if available)
+                    if (description.isNotEmpty()) {
+                        div("info-row full-width") {
+                            span("info-label") { +"Description:" }
+                            p("info-value description") { +description }
+                        }
                     }
                     
                     // Difficulty
-                    div("info-row") {
-                        span("info-label") { +"Difficulty:" }
-                        span("info-value") { +"${puzzle.difficulty}" }
-                    }
-                    
-                    // Quality (if available)
-                    if (puzzle.quality != null) {
+                    if (difficulty > 0) {
                         div("info-row") {
-                            span("info-label") { +"Quality:" }
-                            span("info-value") { +"${puzzle.quality}/10" }
+                            span("info-label") { +"Difficulty:" }
+                            span("info-value") { +"${difficulty}" }
                         }
                     }
                     
                     // Category
                     div("info-row") {
                         span("info-label") { +"Category:" }
-                        span("info-value category ${puzzle.category.name.lowercase()}") { 
-                            +puzzle.category.displayName 
+                        span("info-value category ${category.name.lowercase()}") { 
+                            +category.displayName 
                         }
                     }
                     
+                    // Quality (if available)
+                    if (quality != null) {
+                        div("info-row") {
+                            span("info-label") { +"Quality:" }
+                            span("info-value") { +"${quality}/10" }
+                        }
+                    }
+                    
+                    // Puzzle ID
+                    div("info-row") {
+                        span("info-label") { +"Puzzle ID:" }
+                        span("info-value puzzle-id") { +puzzleId }
+                    }
+                    
                     // Techniques (if available)
-                    val techniques = puzzle.techniques
                     if (!techniques.isNullOrEmpty()) {
                         div("info-section") {
                             h3 { +"Techniques Used" }
@@ -334,12 +407,15 @@ internal fun SudokuApp.renderPuzzleInfoModal(puzzle: PuzzleDefinition) {
                             render()
                         }
                     }
-                    button(classes = "play-btn") {
-                        +"Play Puzzle"
-                        onClickFunction = {
-                            showPuzzleInfoModal = false
-                            puzzleInfoTarget = null
-                            startNewGame(puzzle)
+                    // Only show play button for PuzzleDefinition
+                    if (target is PuzzleDefinition) {
+                        button(classes = "play-btn") {
+                            +"Play Puzzle"
+                            onClickFunction = {
+                                showPuzzleInfoModal = false
+                                puzzleInfoTarget = null
+                                startNewGame(target)
+                            }
                         }
                     }
                 }
@@ -347,3 +423,19 @@ internal fun SudokuApp.renderPuzzleInfoModal(puzzle: PuzzleDefinition) {
         }
     }
 }
+
+/**
+ * Data class to hold puzzle info extracted from either PuzzleDefinition or SavedGameState
+ */
+private data class InfoData(
+    val title: String,
+    val author: String,
+    val authorContact: String,
+    val description: String,
+    val difficulty: Float,
+    val category: domain.DifficultyCategory,
+    val puzzleId: String,
+    val quality: Float?,
+    val techniques: Map<String, Int>?,
+    val url: String
+)

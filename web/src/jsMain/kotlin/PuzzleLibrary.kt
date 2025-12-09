@@ -17,8 +17,11 @@ private data class PuzzleJson(
     val solution: String,
     val quality: Float? = null,
     val techniques: Map<String, Int>? = null,
-    val title: String? = null,
-    val url: String? = null
+    val title: String = "",
+    val url: String = "",
+    val author: String = "",
+    val authorContact: String = "",
+    val description: String = ""
 )
 
 @Serializable
@@ -128,7 +131,10 @@ object PuzzleLibrary {
                                 quality = p.quality,
                                 techniques = p.techniques,
                                 title = p.title,
-                                url = p.url
+                                url = p.url,
+                                author = p.author,
+                                authorContact = p.authorContact,
+                                description = p.description
                             )
                         }
                         
