@@ -32,6 +32,13 @@ dependencies {
     // Logging
     implementation("ch.qos.logback:logback-classic:1.4.14")
     
+    // Database - Exposed ORM and SQLite
+    val exposedVersion = "0.49.0"
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.xerial:sqlite-jdbc:3.44.1.0")
+    
     // Testing
     testImplementation(kotlin("test"))
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
