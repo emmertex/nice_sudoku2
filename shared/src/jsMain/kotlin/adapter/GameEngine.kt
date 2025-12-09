@@ -329,11 +329,13 @@ actual class GameEngine actual constructor() {
      * Fetch techniques from backend API
      */
     private suspend fun fetchTechniques(puzzleStr: String, basicOnly: Boolean): Map<String, List<TechniqueMatchInfo>> {
-        val request = FindTechniquesFromPuzzleRequest(
-            puzzle = puzzleStr,
+        // Use the /find endpoint which accepts full grid with candidates
+        // This ensures backend sees the same candidate state as the frontend
+        val request = FindTechniquesRequest(
+            grid = sudokuGridToDto(grid),
             basicOnly = basicOnly
         )
-        val response = apiPost("/api/techniques/find-from-puzzle", request)
+        val response = apiPost("/api/techniques/find", request)
         val result = json.decodeFromString<FindTechniquesResponse>(response)
         
         return if (result.success) {

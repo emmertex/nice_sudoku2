@@ -1,3 +1,8 @@
+# v0.5.1 - 2025-12-09
+
+### Fixed Issues
+- Fixed issue where imported puzzle had mismatched frontend and backend.
+
 # v0.5.0 - 2025-12-09
 
 ### Features
