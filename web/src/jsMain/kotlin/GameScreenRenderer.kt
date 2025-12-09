@@ -99,7 +99,15 @@ internal fun SudokuApp.renderGameScreen() {
                             +game.category.displayName 
                         }
                         span("difficulty") { +"★ ${game.difficulty}" }
-                        span("timer") { +"⏱ ${formatTime(currentElapsed)}" }
+                        span("timer-container") {
+                            span("timer") { +"⏱ ${formatTime(currentElapsed)}" }
+                            button(classes = "pause-btn") {
+                                +(if (isPaused) "▶" else "⏸")
+                                onClickFunction = {
+                                    togglePause()
+                                }
+                            }
+                        }
                         span("mistakes") { +"❌ ${game.mistakeCount}" }
                     }
                 }
@@ -120,7 +128,7 @@ internal fun SudokuApp.renderGameScreen() {
             // Game area
             div("game-area") {
                 // Sudoku grid container with SVG overlay
-                div("sudoku-grid-container") {
+                div("sudoku-grid-container ${if (isPaused) "paused" else ""}") {
                     // Sudoku grid
         div("sudoku-grid") {
                         for (row in 0..8) {
@@ -139,6 +147,20 @@ internal fun SudokuApp.renderGameScreen() {
                     // SVG overlay for chain lines (when hint with lines is selected)
                     if (selectedHint != null && selectedHint.lines.isNotEmpty()) {
                         renderChainLinesSvg(this@renderGameScreen, selectedHint, currentExplanationStep)
+                    }
+                    
+                    // Pause overlay (blur effect when paused)
+                    if (isPaused) {
+                        div("pause-overlay") {
+                            onClickFunction = {
+                                resumeGame()
+                            }
+                            div("pause-message") {
+                                div("pause-icon") { +"⏸" }
+                                div("pause-text") { +"PAUSED" }
+                                div("pause-subtext") { +"Click to resume" }
+                            }
+                        }
                     }
                 }
                 

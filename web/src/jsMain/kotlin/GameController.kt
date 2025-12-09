@@ -106,19 +106,25 @@ internal fun SudokuApp.resumeGame(saved: SavedGameState) {
 }
 
 /**
- * Import a game from a puzzle string (81, 810, or 891 chars)
+ * Import a game from a puzzle string (81, 810, 891 chars, or Sudoku Coach format)
  */
 internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean = false): Boolean {
     val text = rawInput.trim()
 
-    if (!PuzzleStringParser.isValidPuzzleString(text)) {
-        showToast(if (fromUrl) "Invalid shared game link" else "Invalid puzzle string")
-        return false
-    }
+    // Check if it's Sudoku Coach format
+    val importResult = if (text.startsWith("SCv7_32_")) {
+        helpers.importExport.SudokuCoachFormat.importFromSudokuCoach(text)
+    } else {
+        if (!PuzzleStringParser.isValidPuzzleString(text)) {
+            showToast(if (fromUrl) "Invalid shared game link" else "Invalid puzzle string")
+            return false
+        }
 
-    // Normalize first 81 chars by converting '.' to '0' for parsing
-    val normalized = text.take(81).map { if (it == '.') '0' else it }.joinToString("") + text.drop(81)
-    val importResult = SavedGameState.parseImportStateString(normalized)
+        // Normalize first 81 chars by converting '.' to '0' for parsing
+        val normalized = text.take(81).map { if (it == '.') '0' else it }.joinToString("") + text.drop(81)
+        SavedGameState.parseImportStateString(normalized)
+    }
+    
     if (importResult == null) {
         showToast(if (fromUrl) "❌ Invalid shared game link" else "❌ Failed to parse import string")
         return false

@@ -69,6 +69,11 @@ class SudokuApp {
     // Puzzle browser state
     internal var hideCompletedPuzzles = GameStateManager.getHideCompleted()
     
+    // Timer update interval
+    internal var timerIntervalId: Int? = null
+    internal var isPaused = false
+    internal var pauseStartTime: Long = 0L
+    
     internal val appRoot: Element get() = document.getElementById("app")!!
 
     fun start() {
@@ -138,6 +143,17 @@ class SudokuApp {
             }, 100)
         })
         
+        // Set up window focus/blur listeners for auto-pause
+        window.addEventListener("blur", {
+            if (currentScreen == AppScreen.GAME && currentGame != null && !isPaused) {
+                pauseGame()
+            }
+        })
+        
+        window.addEventListener("focus", {
+            // Don't auto-resume - let user click to resume
+        })
+        
         // Handle shared game URLs when hash changes
         window.addEventListener("hashchange", {
             handleSharedGameLinkFromUrl(::showToast, ::importGameFromString)
@@ -195,6 +211,11 @@ class SudokuApp {
     internal fun render() {
         appRoot.innerHTML = ""
         
+        // Stop timer when switching away from game screen
+        if (currentScreen != AppScreen.GAME) {
+            stopTimer()
+        }
+        
         when (currentScreen) {
             AppScreen.GAME -> renderGameScreen()
             AppScreen.PUZZLE_BROWSER -> renderPuzzleBrowser()
@@ -235,6 +256,73 @@ class SudokuApp {
         // Always show version number in bottom left corner (if loaded)
         if (currentVersion.isNotEmpty()) {
             renderVersionIndicator()
+        }
+        
+        // Start timer if on game screen with active game
+        if (currentScreen == AppScreen.GAME && currentGame != null) {
+            startTimer()
+        }
+    }
+    
+    private fun startTimer() {
+        // Clear existing timer if any
+        stopTimer()
+        
+        // Start new interval that updates every second
+        timerIntervalId = window.setInterval({
+            updateTimerDisplay()
+        }, 1000)
+    }
+    
+    private fun stopTimer() {
+        timerIntervalId?.let { window.clearInterval(it) }
+        timerIntervalId = null
+    }
+    
+    private fun updateTimerDisplay() {
+        // Only update if we're on the game screen with an active game
+        if (currentScreen != AppScreen.GAME || currentGame == null) {
+            stopTimer()
+            return
+        }
+        
+        // Calculate current elapsed time (don't increment if paused)
+        val currentElapsed = if (isPaused) {
+            pausedTime + (pauseStartTime - gameStartTime)
+        } else {
+            pausedTime + (currentTimeMillis() - gameStartTime)
+        }
+        
+        // Find and update the timer element
+        val timerElement = document.querySelector(".timer") as? HTMLElement
+        timerElement?.textContent = "⏱ ${formatTime(currentElapsed)}"
+    }
+    
+    internal fun pauseGame() {
+        if (isPaused || currentGame == null) return
+        
+        isPaused = true
+        pauseStartTime = currentTimeMillis()
+        render()
+    }
+    
+    internal fun resumeGame() {
+        if (!isPaused || currentGame == null) return
+        
+        // Add the paused time to pausedTime
+        val pauseDuration = currentTimeMillis() - pauseStartTime
+        pausedTime += pauseStartTime - gameStartTime
+        gameStartTime = currentTimeMillis()
+        
+        isPaused = false
+        render()
+    }
+    
+    internal fun togglePause() {
+        if (isPaused) {
+            resumeGame()
+        } else {
+            pauseGame()
         }
     }
 }
