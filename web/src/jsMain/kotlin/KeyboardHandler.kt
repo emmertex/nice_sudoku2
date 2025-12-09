@@ -233,7 +233,7 @@ class KeyboardHandler {
                 "h" -> {
                     if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
                         // Toggle hints
-                        if (app.isBackendAvailable) {
+                        if (app.isBackendAvailable && !app.isLoadingHints) {
                             app.showHints = !app.showHints
                             if (app.showHints) {
                                 app.selectedHintIndex = 0

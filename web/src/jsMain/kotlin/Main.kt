@@ -39,6 +39,7 @@ class SudokuApp {
     internal var isLandscape = false  // Responsive layout detection
     internal var isBackendAvailable = false  // Whether hint system can be used
     internal var expandedHintIndex: Int? = null  // Which hint is expanded in landscape mode (null = none)
+    internal var isLoadingHints = false  // Whether backend is currently processing hints
     
     // Explanation overlay state
     internal var showExplanation = false  // Whether explanation overlay is visible
@@ -168,6 +169,12 @@ class SudokuApp {
         // Set up callback for when hints are ready
         gameEngine.onHintsReady = {
             render()  // Re-render to show hints
+        }
+        
+        // Set up callback for loading state changes
+        gameEngine.onLoadingStateChanged = { isLoading ->
+            isLoadingHints = isLoading
+            render()  // Re-render to show/hide loading indicator
         }
         
         // Check if greeting should be shown on first load

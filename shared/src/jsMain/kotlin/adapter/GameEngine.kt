@@ -36,6 +36,9 @@ actual class GameEngine actual constructor() {
     // Callback for when hints are ready (async)
     var onHintsReady: (() -> Unit)? = null
     
+    // Callback for when loading state changes
+    var onLoadingStateChanged: ((Boolean) -> Unit)? = null
+    
     private val json = Json { 
         ignoreUnknownKeys = true 
         isLenient = true
@@ -231,6 +234,7 @@ actual class GameEngine actual constructor() {
      */
     private fun findTechniquesWithFallback() {
         MainScope().launch {
+            onLoadingStateChanged?.invoke(true)
             val puzzleStr = getCurrentStateString(grid)
             
             try {
@@ -240,6 +244,7 @@ actual class GameEngine actual constructor() {
                 if (basicMatches.isNotEmpty()) {
                     currentMatches = filterAndLimitHints(basicMatches)
                     println("JS: Found ${currentMatches.values.flatten().size} basic technique matches (filtered)")
+                    onLoadingStateChanged?.invoke(false)
                     onHintsReady?.invoke()
                 } else {
                     // No basic techniques found, try all techniques
@@ -247,11 +252,13 @@ actual class GameEngine actual constructor() {
                     val allMatches = fetchTechniques(puzzleStr, basicOnly = false)
                     currentMatches = filterAndLimitHints(allMatches)
                     println("JS: Found ${currentMatches.values.flatten().size} advanced technique matches (filtered)")
+                    onLoadingStateChanged?.invoke(false)
                     onHintsReady?.invoke()
                 }
             } catch (e: Exception) {
                 println("JS: Backend unavailable for findTechniques: ${e.message}")
                 findLocalBasicTechniques()
+                onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
             }
         }
@@ -365,6 +372,7 @@ actual class GameEngine actual constructor() {
     
     private fun findTechniquesAsync(basicOnly: Boolean) {
         MainScope().launch {
+            onLoadingStateChanged?.invoke(true)
             // Use current grid state (including user-solved cells) for accurate hints
             val puzzleStr = getCurrentStateString(grid)
             
@@ -372,10 +380,12 @@ actual class GameEngine actual constructor() {
                 val rawMatches = fetchTechniques(puzzleStr, basicOnly)
                 currentMatches = filterAndLimitHints(rawMatches)
                 println("JS: Found ${currentMatches.values.flatten().size} technique matches from backend (filtered)")
+                onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
             } catch (e: Exception) {
                 println("JS: Backend unavailable for findTechniques: ${e.message}")
                 findLocalBasicTechniques()
+                onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
             }
         }

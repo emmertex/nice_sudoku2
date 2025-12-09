@@ -1,3 +1,13 @@
+# v0.5.2 - 2025-12-09
+
+### Fixed Issues
+- Loss of connection to the backend can now recover without reload of the page.
+- Hint button how changes to indicate that it is waiting on the backend to solve.
+- - It used to show nothing, and appear as a silent fail.
+- Added more missing descriptions for techneques.
+- - Missing description was causing valid solves to be incorrectly filtered.
+
+
 # v0.5.1 - 2025-12-09
 
 ### Fixed Issues

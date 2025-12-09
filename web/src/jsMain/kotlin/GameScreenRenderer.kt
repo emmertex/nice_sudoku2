@@ -186,13 +186,19 @@ internal fun SudokuApp.renderGameScreen() {
                         }
                     }
                     
-                    button(classes = "hint-btn ${if (!isBackendAvailable) "disabled" else ""} ${if (showHints) "active" else ""}") {
-                        +"💡"
+                    button(classes = "hint-btn ${if (!isBackendAvailable) "disabled" else ""} ${if (showHints) "active" else ""} ${if (isLoadingHints) "loading" else ""}") {
+                        if (isLoadingHints) {
+                            +"🔄"
+                        } else {
+                            +"💡"
+                        }
                         if (!isBackendAvailable) {
                             attributes["title"] = "Hint system unavailable - backend not connected"
+                        } else if (isLoadingHints) {
+                            attributes["title"] = "Loading hints..."
                         }
                         onClickFunction = {
-                            if (isBackendAvailable) {
+                            if (isBackendAvailable && !isLoadingHints) {
                                 showHints = !showHints
                                 if (showHints) {
                                     selectedHintIndex = 0

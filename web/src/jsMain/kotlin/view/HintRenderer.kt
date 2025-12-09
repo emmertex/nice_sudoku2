@@ -29,7 +29,13 @@ internal fun TagConsumer<HTMLElement>.renderLandscapeHintSidebar(app: SudokuApp,
 
             if (hints.isEmpty()) {
                 div("hint-empty") {
-                    p { +"Searching for hints..." }
+                    if (app.isLoadingHints) {
+                        p { +"🔄 Searching for hints..." }
+                        p("hint-loading-subtitle") { +"Backend is processing..." }
+                    } else {
+                        p { +"No hints available" }
+                        p("hint-loading-subtitle") { +"Try solving more cells first" }
+                    }
                 }
             } else {
                 div("hint-list") {
@@ -148,7 +154,13 @@ internal fun TagConsumer<HTMLElement>.renderPortraitHintCard(app: SudokuApp,
             renderInlineExplanationCompact(app, selectedHint)
         } else {
             div("hint-content hint-empty") {
-                p { +"Searching for hints..." }
+                if (app.isLoadingHints) {
+                    p { +"🔄 Searching for hints..." }
+                    p("hint-loading-subtitle") { +"Backend is processing..." }
+                } else {
+                    p { +"No hints available" }
+                    p("hint-loading-subtitle") { +"Try solving more cells first" }
+                }
             }
         }
     }
