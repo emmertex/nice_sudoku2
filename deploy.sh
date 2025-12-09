@@ -18,9 +18,11 @@ check_port() {
 }
 
 echo "🔄 Pulling latest changes from git..."
-git stash
-git pull
-git stash pop
+if ! git pull; then
+    git stash
+    git pull
+    git stash pop
+fi
 
 if [ $? -ne 0 ]; then
     echo "❌ Git pull failed! Please resolve any conflicts and try again."
