@@ -95,18 +95,39 @@ class GameRepository {
     fun handleNumberInput(number: Int) {
         val state = _gameState.value
 
-        // Select the number for highlighting
-        selectNumber(number)
-
-        // In Fast mode, if a cell is selected, apply the number
-        if (state.playMode == PlayMode.FAST && state.selectedCell != null) {
-            val cell = state.grid.getCell(state.selectedCell)
-            if (!cell.isGiven) {
-                if (state.isPencilMode) {
-                    toggleCandidateInCell(state.selectedCell, number)
-                } else {
-                    setCellValue(state.selectedCell, number)
+        when (state.playMode) {
+            PlayMode.FAST -> {
+                // Select the number for highlighting
+                selectNumber(number)
+                
+                // If a cell is selected, apply the number
+                if (state.selectedCell != null) {
+                    val cell = state.grid.getCell(state.selectedCell)
+                    if (!cell.isGiven) {
+                        if (state.isPencilMode) {
+                            toggleCandidateInCell(state.selectedCell, number)
+                        } else {
+                            setCellValue(state.selectedCell, number)
+                        }
+                    }
                 }
+            }
+            PlayMode.CELL_FIRST -> {
+                // In CELL_FIRST mode, apply number to selected cell
+                if (state.selectedCell != null) {
+                    val cell = state.grid.getCell(state.selectedCell)
+                    if (!cell.isGiven) {
+                        if (state.isPencilMode) {
+                            toggleCandidateInCell(state.selectedCell, number)
+                        } else {
+                            setCellValue(state.selectedCell, number)
+                        }
+                    }
+                }
+            }
+            PlayMode.ADVANCED -> {
+                // Select the number for highlighting
+                selectNumber(number)
             }
         }
     }
@@ -118,6 +139,9 @@ class GameRepository {
      */
     fun selectNumber(number: Int) {
         val state = _gameState.value
+
+        // CELL_FIRST mode doesn't use selectNumber for highlighting (uses cell value instead)
+        if (state.playMode == PlayMode.CELL_FIRST) return
 
         val newState = if (state.selectedNumber1 == number) {
             // Clicking the same number clears it
@@ -201,25 +225,40 @@ class GameRepository {
         val state = _gameState.value
         val cell = state.grid.getCell(cellIndex)
 
-        // In Advanced mode, clicking a solved cell with a different number activates secondary highlight
-        if (state.playMode == PlayMode.ADVANCED && cell.isSolved && 
-            state.selectedNumber1 != null && cell.value != state.selectedNumber1) {
-            _gameState.value = state.copy(
-                selectedCell = cellIndex,
-                selectedNumber2 = cell.value
-            )
-            return
-        }
+        when (state.playMode) {
+            PlayMode.FAST -> {
+                // Select the cell
+                selectCell(cellIndex)
 
-        // Select the cell
-        selectCell(cellIndex)
+                // With a number selected, apply immediately
+                if (state.selectedNumber1 != null && !cell.isGiven) {
+                    if (state.isPencilMode) {
+                        toggleCandidateInCell(cellIndex, state.selectedNumber1)
+                    } else if (!cell.isSolved) {
+                        setCellValue(cellIndex, state.selectedNumber1)
+                    }
+                }
+            }
+            PlayMode.CELL_FIRST -> {
+                // Select the cell and set up highlighting based on its value
+                _gameState.value = state.copy(
+                    selectedCell = cellIndex,
+                    selectedNumber1 = if (cell.isSolved) cell.value else null,
+                    selectedNumber2 = null
+                )
+            }
+            PlayMode.ADVANCED -> {
+                // Clicking a solved cell with a different number activates secondary highlight
+                if (cell.isSolved && state.selectedNumber1 != null && cell.value != state.selectedNumber1) {
+                    _gameState.value = state.copy(
+                        selectedCell = cellIndex,
+                        selectedNumber2 = cell.value
+                    )
+                    return
+                }
 
-        // In Fast mode with a number selected, apply immediately
-        if (state.playMode == PlayMode.FAST && state.selectedNumber1 != null && !cell.isGiven) {
-            if (state.isPencilMode) {
-                toggleCandidateInCell(cellIndex, state.selectedNumber1)
-            } else if (!cell.isSolved) {
-                setCellValue(cellIndex, state.selectedNumber1)
+                // Select the cell
+                selectCell(cellIndex)
             }
         }
     }
@@ -250,10 +289,34 @@ class GameRepository {
     }
 
     fun setPlayMode(mode: PlayMode) {
-        _gameState.value = _gameState.value.withPlayMode(mode)
-        // Clear secondary selection when switching to Fast mode
-        if (mode == PlayMode.FAST) {
-            _gameState.value = _gameState.value.copy(selectedNumber2 = null)
+        val currentHighlightMode = _gameState.value.highlightMode
+        var newHighlightMode = currentHighlightMode
+        
+        // Auto-switch highlight modes based on new play mode
+        when (mode) {
+            PlayMode.CELL_FIRST -> {
+                // If Pencil mode is selected, switch to RCB All
+                if (currentHighlightMode == HighlightMode.PENCIL) {
+                    newHighlightMode = HighlightMode.RCB_ALL
+                }
+            }
+            PlayMode.FAST, PlayMode.ADVANCED -> {
+                // If RCB Selected is active, switch to Pencil
+                if (currentHighlightMode == HighlightMode.RCB_SELECTED) {
+                    newHighlightMode = HighlightMode.PENCIL
+                }
+            }
+        }
+        
+        _gameState.value = _gameState.value.withPlayMode(mode).withHighlightMode(newHighlightMode)
+        
+        // Clear secondary selection when switching to Fast or Cell First mode
+        if (mode == PlayMode.FAST || mode == PlayMode.CELL_FIRST) {
+            _gameState.value = _gameState.value.copy(
+                selectedNumber1 = null,
+                selectedNumber2 = null,
+                selectedCell = null
+            )
         }
     }
 

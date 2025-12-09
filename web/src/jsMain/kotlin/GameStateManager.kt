@@ -7,6 +7,7 @@ import org.w3c.dom.get
 import org.w3c.dom.set
 import view.Theme
 import MistakeDetectionMode
+import CandidateMode
 
 /**
  * Manages game state persistence in localStorage
@@ -23,6 +24,7 @@ object GameStateManager {
     private const val LAST_SEEN_VERSION_KEY = "nice_sudoku_last_seen_version"
     private const val THEME_KEY = "nice_sudoku_theme"
     private const val MISTAKE_DETECTION_KEY = "nice_sudoku_mistake_detection"
+    private const val CANDIDATE_MODE_KEY = "nice_sudoku_candidate_mode"
     
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -100,9 +102,14 @@ object GameStateManager {
                 difficulty = state.difficulty,
                 elapsedTimeMs = state.elapsedTimeMs,
                 mistakeCount = state.mistakeCount,
+                hintCount = state.hintCount,
                 isCompleted = state.isCompleted,
                 progressPercent = progress.coerceIn(0, 100),
-                lastPlayedTimestamp = state.lastPlayedTimestamp
+                lastPlayedTimestamp = state.lastPlayedTimestamp,
+                title = state.title,
+                author = state.author,
+                authorContact = state.authorContact,
+                description = state.description
             )
         }.sortedByDescending { it.lastPlayedTimestamp }
     }
@@ -145,7 +152,18 @@ object GameStateManager {
     fun getHighlightMode(): HighlightMode {
         return try {
             val name = localStorage[HIGHLIGHT_MODE_KEY]
-            if (name != null) HighlightMode.valueOf(name) else HighlightMode.PENCIL
+            if (name != null) {
+                // Migration: CELL was renamed to PLACED in v0.6.0
+                val migratedName = if (name == "CELL") "PLACED" else name
+                val mode = HighlightMode.valueOf(migratedName)
+                // If we migrated, save the new value
+                if (name == "CELL") {
+                    setHighlightMode(mode)
+                }
+                mode
+            } else {
+                HighlightMode.PENCIL
+            }
         } catch (e: Exception) {
             HighlightMode.PENCIL
         }
@@ -283,14 +301,44 @@ object GameStateManager {
     }
     
     /**
+     * Get candidate mode preference (default: AUTO)
+     */
+    fun getCandidateMode(): CandidateMode {
+        return try {
+            val name = localStorage[CANDIDATE_MODE_KEY]
+            if (name != null) CandidateMode.valueOf(name) else CandidateMode.AUTO
+        } catch (e: Exception) {
+            CandidateMode.AUTO
+        }
+    }
+    
+    /**
+     * Set candidate mode preference
+     */
+    fun setCandidateMode(mode: CandidateMode) {
+        try {
+            localStorage[CANDIDATE_MODE_KEY] = mode.name
+        } catch (e: Exception) {
+            console.log("Error saving candidate mode: ${e.message}")
+        }
+    }
+    
+    /**
      * Save a custom puzzle to the library
+     * Updates existing puzzle if it already exists (by ID), otherwise adds new
      */
     fun saveCustomPuzzle(puzzle: PuzzleDefinition) {
         val puzzles = loadCustomPuzzles().toMutableList()
-        // Avoid duplicates by puzzle string
-        if (puzzles.none { it.puzzleString == puzzle.puzzleString }) {
-            puzzles.add(0, puzzle) // Add to beginning (most recent first)
+        val existingIndex = puzzles.indexOfFirst { it.id == puzzle.id }
+        
+        if (existingIndex >= 0) {
+            // Update existing puzzle
+            puzzles[existingIndex] = puzzle
+        } else {
+            // Add new puzzle to beginning (most recent first)
+            puzzles.add(0, puzzle)
         }
+        
         try {
             localStorage[CUSTOM_PUZZLES_KEY] = json.encodeToString(puzzles)
         } catch (e: Exception) {
@@ -332,13 +380,18 @@ object GameStateManager {
      * Create a new saved game state from a puzzle.
      * 
      * The state format is: 81 values + 729 user eliminations
-     * Initial state has 729 zeros meaning NO user eliminations.
-     * All candidates can be shown (if auto-calculation allows).
+     * 
+     * AUTO mode: 729 zeros = NO user eliminations, all candidates shown (auto-calculated)
+     * MANUAL mode: 729 ones = ALL eliminated, start with blank pencil marks
      */
     fun createNewGame(puzzle: PuzzleDefinition, solution: String? = null): SavedGameState {
-        // Initialize state with puzzle string (81 chars) + no user eliminations (729 zeros)
-        // 0 = not eliminated by user = can be shown if auto-calc allows
-        val initialState = puzzle.puzzleString + "0".repeat(729)
+        // Initialize state based on candidate mode
+        val candidateMode = getCandidateMode()
+        val eliminationString = when (candidateMode) {
+            CandidateMode.AUTO -> "0".repeat(729)   // 0 = not eliminated, show auto-calculated
+            CandidateMode.MANUAL -> "1".repeat(729) // 1 = all eliminated, start blank
+        }
+        val initialState = puzzle.puzzleString + eliminationString
         
         return SavedGameState(
             puzzleId = puzzle.id,
@@ -349,6 +402,7 @@ object GameStateManager {
             difficulty = puzzle.difficulty,
             elapsedTimeMs = 0L,
             mistakeCount = 0,
+            hintCount = 0,
             isCompleted = false,
             lastPlayedTimestamp = currentTimeMillis()
         )
@@ -362,7 +416,8 @@ object GameStateManager {
         grid: SudokuGrid,
         actionStack: List<String> = emptyList(),
         additionalTimeMs: Long = 0,
-        newMistake: Boolean = false
+        newMistake: Boolean = false,
+        newHint: Boolean = false
     ): SavedGameState {
         val stateString = SavedGameState.createStateString(grid)
         val isComplete = grid.isComplete && grid.isValid
@@ -372,6 +427,7 @@ object GameStateManager {
             actionStack = actionStack,
             elapsedTimeMs = currentGame.elapsedTimeMs + additionalTimeMs,
             mistakeCount = currentGame.mistakeCount + (if (newMistake) 1 else 0),
+            hintCount = currentGame.hintCount + (if (newHint) 1 else 0),
             isCompleted = isComplete,
             lastPlayedTimestamp = currentTimeMillis()
         )

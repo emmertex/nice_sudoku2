@@ -292,6 +292,12 @@ val CSS_STYLES = """
         border-radius: 6px;
     }
     
+    .info-row.full-width {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: clamp(6px, 1.2vmin, 10px);
+    }
+    
     .info-label {
         color: rgba(var(--color-text-primary), 0.6);
         font-size: 0.9em;
@@ -300,6 +306,17 @@ val CSS_STYLES = """
     .info-value {
         color: rgb(var(--color-text-primary));
         font-weight: 500;
+    }
+    
+    .info-value.description {
+        font-weight: 400;
+        line-height: 1.5;
+        margin: 0;
+    }
+    
+    .info-value.puzzle-id {
+        font-family: monospace;
+        font-size: 0.85em;
     }
     
     .info-value.link {
@@ -1671,6 +1688,55 @@ val CSS_STYLES = """
     .game-item .mistakes {
         color: rgba(var(--color-text-primary), 0.6);
         font-size: 0.75rem;
+    }
+    
+    .game-item .hints {
+        color: rgba(var(--color-text-primary), 0.6);
+        font-size: 0.75rem;
+    }
+    
+    .game-title {
+        color: rgb(var(--color-accent-info));
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+    
+    .game-title:hover {
+        text-decoration: underline;
+    }
+    
+    .puzzle-title {
+        color: rgb(var(--color-text-primary));
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    
+    .puzzle-title-link {
+        color: rgb(var(--color-accent-info));
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+    }
+    
+    .puzzle-title-link:hover {
+        text-decoration: underline;
+    }
+    
+    .info-btn {
+        padding: 2px 8px;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        background: rgba(var(--color-accent-info), 0.2);
+        color: rgb(var(--color-accent-info));
+        transition: all 0.15s ease;
+    }
+    
+    .info-btn:hover {
+        background: rgba(var(--color-accent-info), 0.3);
+        transform: scale(1.05);
     }
     
     .play-btn, .resume-btn {

@@ -273,7 +273,7 @@ internal fun SudokuApp.renderHelpModal() {
                         li { +"All shortcuts are disabled when typing in input fields or text areas to prevent conflicts" }
                         li { +"Keyboard shortcuts follow HoDoKu conventions for consistency with standard Sudoku software" }
                         li { +"The game is fully playable using only keyboard input" }
-                        li { +"Some shortcuts may vary slightly in behavior between Fast and Advanced play modes" }
+                        li { +"Some shortcuts may vary slightly in behavior between Fast, Cell First, and Advanced play modes" }
                         li {
                             +"F1-F9 keys: Some browsers use F-keys for developer tools (e.g., F12) or other functions. If a browser shortcut conflicts, you may need to disable the browser's shortcut or use number keys 1-9 instead for filtering"
                         }
@@ -285,9 +285,18 @@ internal fun SudokuApp.renderHelpModal() {
                     
                     h3 { +"Fast Mode" }
                     ul {
-                        li { +"Number keys immediately apply to selected cells when appropriate" }
+                        li { +"Number keys select numbers for highlighting first" }
+                        li { +"If a cell is selected, the number is immediately applied" }
                         li { +"Quick, streamlined input for faster solving" }
                         li { +"Single number selection for highlighting" }
+                    }
+                    
+                    h3 { +"Cell First Mode" }
+                    ul {
+                        li { +"Click a cell first to select it" }
+                        li { +"Then click a number to fill that cell" }
+                        li { +"Highlighting is based on the selected cell's value" }
+                        li { +"Ideal for methodical cell-by-cell solving" }
                     }
                     
                     h3 { +"Advanced Mode" }
@@ -297,7 +306,7 @@ internal fun SudokuApp.renderHelpModal() {
                         li { +"When a cell is selected, number bars hide and action buttons appear" }
                         li { +"Use Deselect button to show number bars again" }
                         li { +"Use Set/Clr buttons to modify cells, or Enter/S for single-number selections" }
-                        li { +"Click Fast/Adv badge in header to quickly toggle modes" }
+                        li { +"Click Fast/Cell/Adv badge in header to quickly cycle modes" }
                         li { +"Supports two-number highlighting for complex solving techniques" }
                     }
                 }

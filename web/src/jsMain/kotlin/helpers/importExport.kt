@@ -33,7 +33,14 @@ fun handleSharedGameLinkFromUrl(showToast: (String) -> Unit, importFunction: (St
         return false
     }
 
-    return importFunction(stateString, true)
+    val success = importFunction(stateString, true)
+    
+    // Clear the URL hash after successful import to prevent re-importing on refresh
+    if (success) {
+        window.history.replaceState(null, "", window.location.pathname + window.location.search)
+    }
+    
+    return success
 }
 
 

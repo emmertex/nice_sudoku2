@@ -61,27 +61,47 @@ internal fun SudokuApp.renderGameScreen() {
                     div("mode-indicators") {
                         span("mode-badge highlight-mode") { 
                             +when (highlightMode) {
-                                HighlightMode.CELL -> "Cell"
+                                HighlightMode.PLACED -> "Placed"
                                 HighlightMode.RCB_SELECTED -> "RCB"
                                 HighlightMode.RCB_ALL -> "RCB+"
                                 HighlightMode.PENCIL -> "✏️"
                             }
                         }
-                        span("mode-badge play-mode clickable ${if (playMode == PlayMode.FAST) "fast" else "advanced"}") {
-                            +if (playMode == PlayMode.FAST) "Fast" else "Adv"
-                            onClickFunction = {
-                                if (playMode == PlayMode.FAST) {
-                                    playMode = PlayMode.ADVANCED
-                                    GameStateManager.setPlayMode(PlayMode.ADVANCED)
-                                } else {
-                                    playMode = PlayMode.FAST
-                                    GameStateManager.setPlayMode(PlayMode.FAST)
-                                    // Clear all state when switching to FAST
+                        span("mode-badge play-mode ${if (playMode != PlayMode.CELL_FIRST) "clickable" else ""} ${when (playMode) {
+                            PlayMode.FAST -> "fast"
+                            PlayMode.CELL_FIRST -> "cell-first"
+                            PlayMode.ADVANCED -> "advanced"
+                        }}") {
+                            +when (playMode) {
+                                PlayMode.FAST -> "Fast"
+                                PlayMode.CELL_FIRST -> "Cell"
+                                PlayMode.ADVANCED -> "Adv"
+                            }
+                            onClickFunction = { event ->
+                                // Only allow toggling between Fast and Advanced modes
+                                if (playMode != PlayMode.CELL_FIRST) {
+                                    // Toggle between Fast and Advanced
+                                    playMode = when (playMode) {
+                                        PlayMode.FAST -> PlayMode.ADVANCED
+                                        PlayMode.ADVANCED -> PlayMode.FAST
+                                        PlayMode.CELL_FIRST -> playMode // Should not reach here
+                                    }
+                                    GameStateManager.setPlayMode(playMode)
+                                    // Clear all state when switching modes
                                     selectedNumbers1.clear()
                                     selectedNumbers2.clear()
                                     selectedCell = null
+                                    
+                                    // Auto-switch highlight modes based on new play mode
+                                    // Only Fast/Advanced switching, so only check for RCB_SELECTED
+                                    if (highlightMode == HighlightMode.RCB_SELECTED) {
+                                        highlightMode = HighlightMode.PENCIL
+                                        GameStateManager.setHighlightMode(HighlightMode.PENCIL)
+                                    }
+                                    
+                                    render()
                                 }
-                                render()
+                                // Do nothing if in Cell First mode
                             }
                         }
                         // Selection info inline with mode badges
@@ -109,6 +129,7 @@ internal fun SudokuApp.renderGameScreen() {
                             }
                         }
                         span("mistakes") { +"❌ ${game.mistakeCount}" }
+                        span("hints") { +"💡 ${game.hintCount}" }
                     }
                 }
             }
@@ -186,19 +207,21 @@ internal fun SudokuApp.renderGameScreen() {
                         }
                     }
                     
-                    button(classes = "hint-btn ${if (!isBackendAvailable) "disabled" else ""} ${if (showHints) "active" else ""} ${if (isLoadingHints) "loading" else ""}") {
+                    button(classes = "hint-btn ${if (!isBackendAvailable || candidateMode == CandidateMode.MANUAL) "disabled" else ""} ${if (showHints) "active" else ""} ${if (isLoadingHints) "loading" else ""}") {
                         if (isLoadingHints) {
                             +"🔄"
                         } else {
                             +"💡"
                         }
-                        if (!isBackendAvailable) {
+                        if (candidateMode == CandidateMode.MANUAL) {
+                            attributes["title"] = "Hints are disabled in Manual mode"
+                        } else if (!isBackendAvailable) {
                             attributes["title"] = "Hint system unavailable - backend not connected"
                         } else if (isLoadingHints) {
                             attributes["title"] = "Loading hints..."
                         }
                         onClickFunction = {
-                            if (isBackendAvailable && !isLoadingHints) {
+                            if (isBackendAvailable && !isLoadingHints && candidateMode == CandidateMode.AUTO) {
                                 showHints = !showHints
                                 if (showHints) {
                                     selectedHintIndex = 0
@@ -209,6 +232,8 @@ internal fun SudokuApp.renderGameScreen() {
                                     selectedNumbers1.clear()
                                     selectedNumbers2.clear()
                                     gameEngine.findAllTechniques()
+                                    // Increment hint counter
+                                    saveCurrentState(newHint = true)
                                 } else {
                                     // Reset expansion state when closing
                                     expandedHintIndex = null
@@ -349,8 +374,8 @@ internal fun SudokuApp.renderGameScreen() {
                 val hideNumberPads = playMode == PlayMode.ADVANCED && selectedCell != null
                 
                 if (!hideNumberPads) {
-                    if (playMode == PlayMode.FAST) {
-                        // FAST mode: single number pad
+                    if (playMode == PlayMode.FAST || playMode == PlayMode.CELL_FIRST) {
+                        // FAST and CELL_FIRST modes: single number pad
                         div("number-pad") {
                             for (num in 1..9) {
                                 val isPrimaryNum = num in selectedNumbers1

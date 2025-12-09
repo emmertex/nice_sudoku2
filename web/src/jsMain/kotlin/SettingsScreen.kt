@@ -63,11 +63,25 @@ internal fun SudokuApp.renderSettings() {
                 p("setting-desc") { +"Choose how numbers are highlighted when selected" }
                 
                 div("mode-options") {
-                    for (mode in HighlightMode.entries) {
+                    // Filter highlight modes based on play mode
+                    val availableModes = when (playMode) {
+                        PlayMode.FAST, PlayMode.ADVANCED -> listOf(
+                            HighlightMode.PENCIL,
+                            HighlightMode.RCB_ALL,
+                            HighlightMode.PLACED
+                        )
+                        PlayMode.CELL_FIRST -> listOf(
+                            HighlightMode.PLACED,
+                            HighlightMode.RCB_SELECTED,
+                            HighlightMode.RCB_ALL
+                        )
+                    }
+                    
+                    for (mode in availableModes) {
                         val isActive = highlightMode == mode
                         button(classes = "mode-btn ${if (isActive) "active" else ""}") {
                             +when (mode) {
-                                HighlightMode.CELL -> "Cell"
+                                HighlightMode.PLACED -> "Placed"
                                 HighlightMode.RCB_SELECTED -> "RCB Selected"
                                 HighlightMode.RCB_ALL -> "RCB All"
                                 HighlightMode.PENCIL -> "Pencil"
@@ -83,7 +97,7 @@ internal fun SudokuApp.renderSettings() {
                 
                 div("mode-explanation") {
                     +when (highlightMode) {
-                        HighlightMode.CELL -> "Highlights cells with matching solved numbers"
+                        HighlightMode.PLACED -> "Highlights cells with matching placed numbers"
                         HighlightMode.RCB_SELECTED -> "Highlights Row, Column, Box of selected cell"
                         HighlightMode.RCB_ALL -> "Highlights all Row/Column/Box containing the number"
                         HighlightMode.PENCIL -> "Highlights cells with matching pencil marks"
@@ -141,14 +155,41 @@ internal fun SudokuApp.renderSettings() {
                             selectedNumbers1.clear()
                             selectedNumbers2.clear()
                             selectedCell = null
+                            // If RCB Selected is active, switch to Pencil
+                            if (highlightMode == HighlightMode.RCB_SELECTED) {
+                                highlightMode = HighlightMode.PENCIL
+                                GameStateManager.setHighlightMode(HighlightMode.PENCIL)
+                            }
+                            render()
+                        }
+                    }
+                    button(classes = "mode-btn cell-first ${if (playMode == PlayMode.CELL_FIRST) "active" else ""}") {
+                        +"🎯 Cell First"
+                        onClickFunction = {
+                            playMode = PlayMode.CELL_FIRST
+                            GameStateManager.setPlayMode(PlayMode.CELL_FIRST)
+                            // Clear all state when switching to CELL_FIRST mode
+                            selectedNumbers1.clear()
+                            selectedNumbers2.clear()
+                            selectedCell = null
+                            // If Pencil mode is selected, switch to RCB All
+                            if (highlightMode == HighlightMode.PENCIL) {
+                                highlightMode = HighlightMode.RCB_ALL
+                                GameStateManager.setHighlightMode(HighlightMode.RCB_ALL)
+                            }
                             render()
                         }
                     }
                     button(classes = "mode-btn advanced ${if (playMode == PlayMode.ADVANCED) "active" else ""}") {
-                        +"🎯 Advanced"
+                        +"🔧 Advanced"
                         onClickFunction = {
                             playMode = PlayMode.ADVANCED
                             GameStateManager.setPlayMode(PlayMode.ADVANCED)
+                            // If RCB Selected is active, switch to Pencil
+                            if (highlightMode == HighlightMode.RCB_SELECTED) {
+                                highlightMode = HighlightMode.PENCIL
+                                GameStateManager.setHighlightMode(HighlightMode.PENCIL)
+                            }
                             render()
                         }
                     }
@@ -157,7 +198,87 @@ internal fun SudokuApp.renderSettings() {
                 div("mode-explanation") {
                     +when (playMode) {
                         PlayMode.FAST -> "Click number, then click cell to fill. Quick and simple."
+                        PlayMode.CELL_FIRST -> "Click cell first, then click number to fill. Highlights based on selected cell."
                         PlayMode.ADVANCED -> "Two number rows for highlighting. Select multiple numbers per color. Cells with ALL selected numbers highlight. Click cell for action buttons."
+                    }
+                }
+            }
+            
+            // Candidate Mode section
+            div("section") {
+                h2 { +"📝 Candidate Mode" }
+                p("setting-desc") { +"Choose how pencil marks are managed" }
+                
+                div("mode-options") {
+                    button(classes = "mode-btn ${if (candidateMode == CandidateMode.AUTO) "active" else ""}") {
+                        +"Auto"
+                        onClickFunction = {
+                            if (candidateMode != CandidateMode.AUTO) {
+                                // Show confirmation before switching
+                                if (kotlinx.browser.window.confirm("Switching to Auto mode will reset all pencil marks in the current puzzle. Continue?")) {
+                                    candidateMode = CandidateMode.AUTO
+                                    GameStateManager.setCandidateMode(CandidateMode.AUTO)
+                                    // Reset current game's pencil marks
+                                    currentGame?.let { game ->
+                                        val puzzleString = game.puzzleString
+                                        val newState = puzzleString + "0".repeat(729)
+                                        currentGame = game.copy(currentState = newState)
+                                        GameStateManager.saveGame(currentGame!!)
+                                        // Reload the puzzle
+                                        gameEngine.loadPuzzle(puzzleString)
+                                        val (values, userEliminations) = SavedGameState.parseStateString(newState)
+                                        for (i in 0 until 81) {
+                                            val originalValue = puzzleString[i].digitToIntOrNull() ?: 0
+                                            if (values[i] != 0 && values[i] != originalValue) {
+                                                gameEngine.setCellValue(i, values[i])
+                                            }
+                                            // Apply user eliminations (empty set in AUTO mode)
+                                            gameEngine.setUserEliminations(i, userEliminations[i])
+                                        }
+                                    }
+                                    render()
+                                }
+                            }
+                        }
+                    }
+                    button(classes = "mode-btn ${if (candidateMode == CandidateMode.MANUAL) "active" else ""}") {
+                        +"Manual"
+                        onClickFunction = {
+                            if (candidateMode != CandidateMode.MANUAL) {
+                                // Show confirmation before switching
+                                if (kotlinx.browser.window.confirm("Switching to Manual mode will:\n• Reset all pencil marks\n• Disable hints\n• Disable pencil mark error detection\n\nContinue?")) {
+                                    candidateMode = CandidateMode.MANUAL
+                                    GameStateManager.setCandidateMode(CandidateMode.MANUAL)
+                                    showHints = false  // Disable hints when switching to manual
+                                    // Reset current game's pencil marks to all eliminated (blank)
+                                    currentGame?.let { game ->
+                                        val puzzleString = game.puzzleString
+                                        val newState = puzzleString + "1".repeat(729)
+                                        currentGame = game.copy(currentState = newState)
+                                        GameStateManager.saveGame(currentGame!!)
+                                        // Reload the puzzle
+                                        gameEngine.loadPuzzle(puzzleString)
+                                        val (values, userEliminations) = SavedGameState.parseStateString(newState)
+                                        for (i in 0 until 81) {
+                                            val originalValue = puzzleString[i].digitToIntOrNull() ?: 0
+                                            if (values[i] != 0 && values[i] != originalValue) {
+                                                gameEngine.setCellValue(i, values[i])
+                                            }
+                                            // Apply user eliminations (all candidates eliminated in MANUAL mode)
+                                            gameEngine.setUserEliminations(i, userEliminations[i])
+                                        }
+                                    }
+                                    render()
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                div("mode-explanation") {
+                    +when (candidateMode) {
+                        CandidateMode.AUTO -> "Auto-calculate pencil marks based on placed numbers. Hints and error detection enabled."
+                        CandidateMode.MANUAL -> "Start with blank pencil marks. Fill them in yourself. Hints and pencil mark error detection disabled."
                     }
                 }
             }

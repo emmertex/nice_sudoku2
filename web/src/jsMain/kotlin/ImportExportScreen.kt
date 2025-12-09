@@ -21,8 +21,18 @@ internal fun SudokuApp.renderImportExport() {
     // Use new export format (user eliminations: 1 = eliminated) with original puzzle
     val stateString891 = SavedGameState.createStateStringFor891Export(grid, game?.puzzleString ?: "")
     
-    // Sudoku Coach format
-    val sudokuCoachString = helpers.importExport.SudokuCoachFormat.exportToSudokuCoach(grid, game?.puzzleString ?: "")
+    // Sudoku Coach format with metadata
+    val sudokuCoachString = helpers.importExport.SudokuCoachFormat.exportToSudokuCoach(
+        grid = grid,
+        originalPuzzle = game?.puzzleString ?: "",
+        title = game?.title ?: "",
+        author = game?.author ?: "",
+        authorContact = game?.authorContact ?: "",
+        description = game?.description ?: "",
+        playTimeMs = game?.elapsedTimeMs ?: 0L,
+        mistakes = game?.mistakeCount ?: 0,
+        hints = game?.hintCount ?: 0
+    )
     
     appRoot.append {
         div("sudoku-container import-export") {

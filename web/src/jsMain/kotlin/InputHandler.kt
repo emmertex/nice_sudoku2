@@ -39,6 +39,30 @@ internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
                 }
             }
         }
+        PlayMode.CELL_FIRST -> {
+            // In CELL_FIRST mode, clicking a number applies it to the selected cell
+            selectedCell?.let { cellIndex ->
+                val cell = grid.getCell(cellIndex)
+                if (!cell.isGiven && !cell.isSolved) {
+                    if (isNotesMode) {
+                        val isCandidatePresent = num in cell.displayCandidates
+                        val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
+                        if (wasMistake) showToast("❌ Wrong candidate removed!")
+                        // Only record elimination if candidate was present (we're removing it)
+                        if (isCandidatePresent) {
+                            gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
+                        }
+                        gameEngine.toggleCandidate(cellIndex, num)
+                    } else {
+                        val wasMistake = checkMistake(cellIndex, num)
+                        if (wasMistake) showToast("❌ Wrong number!")
+                        gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, num))
+                        gameEngine.setCellValue(cellIndex, num)
+                    }
+                    saveCurrentState()
+                }
+            }
+        }
         PlayMode.ADVANCED -> {
             // In advanced mode, this is only used for keyboard input
             // The dual number pads handle clicking directly
@@ -109,6 +133,22 @@ internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
         return
     }
     
+    // In CELL_FIRST mode, select the cell and set up highlighting based on its value
+    if (playMode == PlayMode.CELL_FIRST) {
+        selectedCell = cellIndex
+        selectedNumbers1.clear()
+        
+        // If the cell has a placed number, select it for highlighting
+        if (cell.isSolved && cell.value != null) {
+            selectedNumbers1.add(cell.value!!)
+        }
+        // If cell has no number and highlight mode is RCB_ALL or PENCIL, 
+        // we don't select a number (highlighting will be based on cell position for RCB_SELECTED)
+        
+        render()
+        return
+    }
+    
     selectedCell = cellIndex
     render()
 }
@@ -131,11 +171,15 @@ internal fun SudokuApp.checkMistake(cellIndex: Int, value: Int): Boolean {
 /**
  * Check if removing a candidate would be a mistake (removing the correct answer).
  * Only counts as mistake if:
+ * - Candidate mode is AUTO (disabled in MANUAL mode)
  * - Mistake detection is CANDIDATE mode
  * - The candidate being removed equals the solution for that cell
  * - The candidate is currently present (being removed, not added)
  */
 internal fun SudokuApp.checkCandidateRemovalMistake(cellIndex: Int, candidate: Int, isCurrentlyPresent: Boolean): Boolean {
+    // Disabled in MANUAL candidate mode
+    if (candidateMode == CandidateMode.MANUAL) return false
+    
     // Only check in CANDIDATE mode
     if (mistakeDetectionMode != MistakeDetectionMode.CANDIDATE) return false
 
