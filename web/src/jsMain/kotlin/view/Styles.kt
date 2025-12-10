@@ -2457,7 +2457,8 @@ val CSS_STYLES = """
     }
     
     .help-section ul,
-    .help-section ol {
+    .help-section ol,
+    .help-section p {
         color: rgba(var(--colour-text-primary), 0.7);
         font-size: clamp(0.8rem, calc(0.7rem + 0.35vmin), 0.95rem);
         line-height: 1.6;
