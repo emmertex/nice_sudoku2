@@ -2,7 +2,7 @@ package adapter
 
 import domain.SudokuGrid
 import domain.SudokuCell
-import domain.HighlightColor
+import domain.HighlightColour
 import domain.Converters
 import sudoku.DataStorage.BasicGrid
 import sudoku.DataStorage.SBRCGrid

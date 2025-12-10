@@ -609,8 +609,8 @@ private fun FlowContent.renderCell(
         }
     } == true
     
-    // Check if this cell has a colored cell highlight from the explanation step
-    val coloredCellType = currentExplanationStep?.coloredCells?.find { it.cellIndex == cellIndex }?.colorType
+    // Check if this cell has a coloured cell highlight from the explanation step
+    val colouredCellType = currentExplanationStep?.colouredCells?.find { it.cellIndex == cellIndex }?.colourType
     
     // Build highlight class
     val highlightClass = when {
@@ -643,9 +643,9 @@ private fun FlowContent.renderCell(
     
     // Hint class for cell background (blue for cover area)
     val hintClass = when {
-        coloredCellType == "warning" -> " hint-cell-warning"  // Warning highlight (yellow/orange)
-        coloredCellType == "target" -> " hint-cell-target"    // Target highlight (green)
-        coloredCellType == "primary" -> " hint-cell-primary"  // Primary highlight
+        colouredCellType == "warning" -> " hint-cell-warning"  // Warning highlight (yellow/orange)
+        colouredCellType == "target" -> " hint-cell-target"    // Target highlight (green)
+        colouredCellType == "primary" -> " hint-cell-primary"  // Primary highlight
         isStepHighlighted -> " hint-step-highlight"  // Current explanation step highlight
         isInHighlightedRegion -> " hint-region-highlight"  // Cell is in a highlighted region
         isHintSolved -> " hint-solved-cell"
@@ -656,7 +656,7 @@ private fun FlowContent.renderCell(
     // Get solved digit for this cell from the hint
     val hintSolvedDigit = selectedHint?.solvedCells?.find { it.cell == cellIndex }?.digit
     
-    // Check if ALL candidates in this cell are covered by selected numbers (from either color)
+    // Check if ALL candidates in this cell are covered by selected numbers (from either colour)
     val allSelectedNumbers = app.selectedNumbers1 + app.selectedNumbers2
     val allCandidatesCovered = !cell.isSolved && 
         cell.displayCandidates.isNotEmpty() && 
@@ -671,7 +671,7 @@ private fun FlowContent.renderCell(
         } else if (cell.displayCandidates.isNotEmpty()) {
             div("candidates") {
                 for (n in 1..9) {
-                    // Highlight pencil marks that match selected numbers (with color-coded classes)
+                    // Highlight pencil marks that match selected numbers (with colour-coded classes)
                     val inPrimary = n in app.selectedNumbers1
                     val inSecondary = n in app.selectedNumbers2
                     // Always highlight selected numbers when viewing explanations, otherwise respect highlightMode
@@ -689,18 +689,18 @@ private fun FlowContent.renderCell(
                     val isMatchingButNotEliminated = n in matchingButNotEliminatedDigits
                     val isSolvedHint = n == hintSolvedDigit
                     
-                    // Check for colored candidate from explanation step
-                    val coloredCandidate = currentExplanationStep?.coloredCandidates?.find { 
+                    // Check for coloured candidate from explanation step
+                    val colouredCandidate = currentExplanationStep?.colouredCandidates?.find { 
                         it.row == row && it.col == col && it.candidate == n 
                     }
-                    val coloredCandidateType = coloredCandidate?.colorType
+                    val colouredCandidateType = colouredCandidate?.colourType
                     
                     val candidateClasses = buildString {
                         append("candidate")
                         if (n !in cell.displayCandidates) append(" hidden")
                         append(pencilHighlightClass)
-                        // Colored candidates from explanation step take priority
-                        when (coloredCandidateType) {
+                        // coloured candidates from explanation step take priority
+                        when (colouredCandidateType) {
                             "target" -> append(" hint-candidate-target")  // Green
                             "elimination" -> append(" hint-candidate-elimination")  // Red with strikethrough
                             "highlight" -> append(" hint-candidate-highlight")  // Yellow/amber

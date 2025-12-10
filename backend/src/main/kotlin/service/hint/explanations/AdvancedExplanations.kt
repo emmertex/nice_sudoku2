@@ -27,7 +27,7 @@ import dto.*
                     title = "Resolve the contradiction",
                     description = eliminationDesc ?: "Clear the conflicting candidate shown in the highlighted cells.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }
@@ -58,7 +58,7 @@ import dto.*
                     title = "Eliminate outside the partition",
                     description = eliminationDesc ?: "Remove digits that conflict with the partitioned sets.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }
@@ -90,7 +90,7 @@ import dto.*
                     title = "Keep the common deduction",
                     description = eliminationDesc ?: "Remove candidates invalid in every branch.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }
@@ -121,7 +121,7 @@ import dto.*
                     title = "Discard impossible placements",
                     description = eliminationDesc ?: "Remove the candidates that fail under every assumption.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }
@@ -153,7 +153,7 @@ import dto.*
                     title = "Eliminate the target candidate",
                     description = eliminationDesc ?: "Cells seen by both ends cannot keep the target candidate.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }
@@ -222,21 +222,21 @@ import dto.*
 
         // Build regions for highlighting
         val baseRegion = if (baseSectorIndex != null && baseSectorIndex >= 0) {
-            ColoredRegionDto(baseSectorType ?: "box", baseSectorIndex % 9, "primary")
+            ColouredRegionDto(baseSectorType ?: "box", baseSectorIndex % 9, "primary")
         } else null
 
         val coverRegion = if (coverSectorIndex != null && coverSectorIndex >= 0) {
-            ColoredRegionDto(coverSectorType ?: "row", coverSectorIndex % 9, "secondary")
+            ColouredRegionDto(coverSectorType ?: "row", coverSectorIndex % 9, "secondary")
         } else null
 
         val regions = listOfNotNull(baseRegion, coverRegion)
 
-        // Colored cells for intersection
-        val intersectionColoredCells = intersectionCells.map { ColoredCellDto(it, "warning") }
+        // Coloured cells for intersection
+        val intersectionColouredCells = intersectionCells.map { ColouredCellDto(it, "warning") }
 
-        // Colored candidates in intersection
+        // Coloured candidates in intersection
         val intersectionCandidates = intersectionCells.map { cell ->
-            ColoredCandidateDto(cell / 9, cell % 9, digit, "target")
+            ColouredCandidateDto(cell / 9, cell % 9, digit, "target")
         }
 
         if (isPointing) {
@@ -247,15 +247,15 @@ import dto.*
                 description = "In $baseHouseName, candidate $digit only appears in cells that also belong to $coverHouseName.",
                 highlightCells = intersectionCells,
                 regions = regions,
-                coloredCells = intersectionColoredCells,
-                coloredCandidates = intersectionCandidates
+                colouredCells = intersectionColouredCells,
+                colouredCandidates = intersectionCandidates
             ))
 
             // Step 2: Eliminate from the rest of the cover house (line)
             if (eliminations.isNotEmpty()) {
                 val eliminationCells = eliminations.flatMap { it.cells }
                 val eliminationCandidates = eliminationCells.map { cell ->
-                    ColoredCandidateDto(cell / 9, cell % 9, digit, "elimination")
+                    ColouredCandidateDto(cell / 9, cell % 9, digit, "elimination")
                 }
                 val eliminationCellNames = eliminationCells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
 
@@ -265,8 +265,8 @@ import dto.*
                     description = "Eliminate $digit from other cells in $coverHouseName: $eliminationCellNames",
                     highlightCells = eliminationCells,
                     regions = listOfNotNull(coverRegion),
-                    coloredCells = intersectionColoredCells,
-                    coloredCandidates = intersectionCandidates + eliminationCandidates
+                    colouredCells = intersectionColouredCells,
+                    colouredCandidates = intersectionCandidates + eliminationCandidates
                 ))
             }
         } else {
@@ -277,15 +277,15 @@ import dto.*
                 description = "In $baseHouseName, candidate $digit only appears in cells that also belong to $coverHouseName.",
                 highlightCells = intersectionCells,
                 regions = regions,
-                coloredCells = intersectionColoredCells,
-                coloredCandidates = intersectionCandidates
+                colouredCells = intersectionColouredCells,
+                colouredCandidates = intersectionCandidates
             ))
 
             // Step 2: Eliminate from the rest of the cover house (box)
             if (eliminations.isNotEmpty()) {
                 val eliminationCells = eliminations.flatMap { it.cells }
                 val eliminationCandidates = eliminationCells.map { cell ->
-                    ColoredCandidateDto(cell / 9, cell % 9, digit, "elimination")
+                    ColouredCandidateDto(cell / 9, cell % 9, digit, "elimination")
                 }
                 val eliminationCellNames = eliminationCells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
 
@@ -295,8 +295,8 @@ import dto.*
                     description = "Eliminate $digit from other cells in $coverHouseName: $eliminationCellNames",
                     highlightCells = eliminationCells,
                     regions = listOfNotNull(coverRegion),
-                    coloredCells = intersectionColoredCells,
-                    coloredCandidates = intersectionCandidates + eliminationCandidates
+                    colouredCells = intersectionColouredCells,
+                    colouredCandidates = intersectionCandidates + eliminationCandidates
                 ))
             }
         }

@@ -14,8 +14,8 @@ actual object Converters {
         return Unit
     }
     
-    actual fun techniqueMatchToDomainHighlight(match: Any): Pair<Set<Int>, HighlightColor> {
+    actual fun techniqueMatchToDomainHighlight(match: Any): Pair<Set<Int>, HighlightColour> {
         // Not used on Android - would come from network API
-        return Pair(emptySet(), HighlightColor.RED)
+        return Pair(emptySet(), HighlightColour.RED)
     }
 }

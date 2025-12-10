@@ -34,11 +34,6 @@ class KeyboardHandler {
                     app.render()
                     return true
                 }
-                if (app.showGreetingModal) {
-                    app.showGreetingModal = false
-                    app.render()
-                    return true
-                }
                 if (app.showVersionModal) {
                     app.showVersionModal = false
                     app.render()

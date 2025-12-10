@@ -39,8 +39,8 @@ TECHNIQUE_PRIORITY: dict[str, int] = {
     "TWO_STRING_KITE_FISH": 13, "2-String Kite": 13,
     "FINNED_X_WING_FISH": 14, "Finned X-Wing": 14,
     "SASHIMI_X_WING_FISH": 15, "Sashimi X-Wing": 15,
-    # HARD (16-22): Coloring, uniqueness, wings, swordfish
-    "SIMPLE_COLOURING": 16, "Simple Colouring": 16, "Simple Coloring": 16,
+    # HARD (16-22): Colouring, uniqueness, wings, swordfish
+    "SIMPLE_COLOURING": 16, "Simple Colouring": 16, "Simple Colouring": 16,
     "UNIQUE_RECTANGLE": 17, "Unique Rectangles": 17,
     "BUG": 18, "Bivalue Universal Grave": 18,
     "Y_WING": 19, "XY-Wing": 19, "XY_WING": 19,

@@ -8,12 +8,12 @@ import dto.*
     fun eliminationCandidates(
         eliminations: List<EliminationDto>,
         color: String = "elimination"
-    ): List<ColoredCandidateDto> {
-        val candidates = mutableListOf<ColoredCandidateDto>()
+    ): List<ColouredCandidateDto> {
+        val candidates = mutableListOf<ColouredCandidateDto>()
         for (elim in eliminations) {
             for (cell in elim.cells) {
                 candidates.add(
-                    ColoredCandidateDto(
+                    ColouredCandidateDto(
                         row = cell / 9,
                         col = cell % 9,
                         candidate = elim.digit,

@@ -73,7 +73,7 @@ data class SudokuGrid(
         return updateCell(cellIndex) { it.toggleUserElimination(candidate) }
     }
 
-    fun highlightCells(cellIndices: Set<Int>, color: HighlightColor?): SudokuGrid {
+    fun highlightCells(cellIndices: Set<Int>, color: HighlightColour?): SudokuGrid {
         return copy(cells = cells.mapIndexed { index, cell ->
             if (index in cellIndices) {
                 cell.withHighlight(color)

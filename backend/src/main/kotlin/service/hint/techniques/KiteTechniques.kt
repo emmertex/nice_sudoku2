@@ -403,7 +403,7 @@ import dto.*
 
         // Only show the cover region (box), not all the base regions
         val coverRegions = coverIndices.map { idx ->
-            ColoredRegionDto(coverType ?: "box", idx % 9, "secondary")
+            ColouredRegionDto(coverType ?: "box", idx % 9, "secondary")
         }
         val allRegions = coverRegions  // Only highlight the box
 
@@ -481,16 +481,16 @@ import dto.*
         // All cells in the kite pattern (4 cells total: 2 endpoints + 2 in box)
         val allPatternCells = kiteCells + boxCells
 
-        // Colored cells for kite endpoints (yellow borders)
-        val kiteColoredCells = kiteCells.map { ColoredCellDto(it, "warning") }
+        // Coloured cells for kite endpoints (yellow borders)
+        val kiteColouredCells = kiteCells.map { ColouredCellDto(it, "warning") }
 
-        // Colored candidates: highlight all 4 cells in the kite pattern
+        // Coloured candidates: highlight all 4 cells in the kite pattern
         val patternCandidates = allPatternCells.map { cell ->
             val colorType = when (cell) {
                 in kiteCells -> "target"  // Kite endpoints in green
                 else -> "highlight"  // Box cells in yellow
             }
-            ColoredCandidateDto(cell / 9, cell % 9, digit, colorType)
+            ColouredCandidateDto(cell / 9, cell % 9, digit, colorType)
         }
 
         val eliminationCandidates = eliminationCandidates(eliminations)
@@ -532,8 +532,8 @@ import dto.*
                     "Think of it like this: one of the green cells MUST have $digit, but they can't BOTH have it.",
                 highlightCells = kiteCells,
                 regions = allRegions,  // Only show box
-                coloredCells = kiteColoredCells,
-                coloredCandidates = patternCandidates
+                colouredCells = kiteColouredCells,
+                colouredCandidates = patternCandidates
             )
         )
 
@@ -642,8 +642,8 @@ import dto.*
                     "Any cell that can see BOTH green cells at $kiteNamesText cannot have $digit.",
                     highlightCells = kiteCells + eliminationCells,
                     regions = allRegions,
-                    coloredCells = kiteColoredCells,
-                    coloredCandidates = patternCandidates,
+                    colouredCells = kiteColouredCells,
+                    colouredCandidates = patternCandidates,
                     lines = step2Lines,
                     groups = step2Groups
                 )
@@ -654,8 +654,8 @@ import dto.*
                 val row = cell / 9
                 val col = cell % 9
                 listOf(
-                    ColoredRegionDto("row", row, "secondary"),
-                    ColoredRegionDto("column", col, "secondary")
+                    ColouredRegionDto("row", row, "secondary"),
+                    ColouredRegionDto("column", col, "secondary")
                 )
             }.distinctBy { "${it.type}-${it.index}" }
 
@@ -667,8 +667,8 @@ import dto.*
                         "we know $digit cannot go there. Eliminate $digit from: $eliminationNames.",
                     highlightCells = eliminationCells,
                     regions = eliminationRegions,
-                    coloredCells = kiteColoredCells + eliminationCells.map { ColoredCellDto(it, "warning") },
-                    coloredCandidates = patternCandidates + eliminationCandidates
+                    colouredCells = kiteColouredCells + eliminationCells.map { ColouredCellDto(it, "warning") },
+                    colouredCandidates = patternCandidates + eliminationCandidates
                 )
             )
         }

@@ -11,7 +11,7 @@ enum class Theme {
     EPAPER       // High contrast ePaper theme
 }
 
-data class ThemeColors(
+data class ThemeColours(
     // Core backgrounds
     val bgPrimary: Triple<Int, Int, Int>,
     val bgSecondary: Triple<Int, Int, Int>,
@@ -29,7 +29,7 @@ data class ThemeColors(
     val textSecondary: Triple<Int, Int, Int>,
     val textTertiary: Triple<Int, Int, Int>,
 
-    // Grid status colors
+    // Grid status colours
     val gridYes: Triple<Int, Int, Int>,
     val gridNeutral: Triple<Int, Int, Int>,
     val gridNo: Triple<Int, Int, Int>,
@@ -38,8 +38,8 @@ data class ThemeColors(
     val btnHoverOpacity: Double
 )
 
-val THEME_COLORS = mapOf(
-    Theme.DARK to ThemeColors(
+val THEME_COLOURS = mapOf(
+    Theme.DARK to ThemeColours(
         bgPrimary = Triple(5, 5, 5),
         bgSecondary = Triple(26, 26, 26),
         bgTertiary = Triple(100, 100, 100),
@@ -57,7 +57,7 @@ val THEME_COLORS = mapOf(
         btnOpacity = 0.2,
         btnHoverOpacity = 0.35
     ),
-    Theme.BLUE to ThemeColors(
+    Theme.BLUE to ThemeColours(
         // Higher-contrast deep blue theme
         bgPrimary = Triple(7, 13, 20),   // Very dark navy for main background
         bgSecondary = Triple(15, 23, 42), // Slightly lighter for panels
@@ -76,7 +76,7 @@ val THEME_COLORS = mapOf(
         btnOpacity = 0.15,
         btnHoverOpacity = 0.3
     ),
-    Theme.LIGHT to ThemeColors(
+    Theme.LIGHT to ThemeColours(
         // High-contrast light theme tuned for grid clarity
         bgPrimary = Triple(238, 242, 248),   // Soft light slate background
         bgSecondary = Triple(190, 190, 190), // Pure white for cards/panels
@@ -95,15 +95,15 @@ val THEME_COLORS = mapOf(
         btnOpacity = 0.10,
         btnHoverOpacity = 0.18
     ),
-    Theme.EPAPER to ThemeColors(
+    Theme.EPAPER to ThemeColours(
         // Monochrome, ultra high-contrast theme for ePaper displays.
-        // Keeps everything in greyscale to avoid artifacts on limited color panels
+        // Keeps everything in greyscale to avoid artifacts on limited colour panels
         // and biases toward very light backgrounds with pure black accents.
         bgPrimary = Triple(255, 255, 255),    
         bgSecondary = Triple(240, 240, 240),  // Slightly darker panels
         bgTertiary = Triple(220, 220, 220),   // Mid grey for grid cells
         accentPrimary = Triple(0, 0, 0),      // Black for primary highlights/lines
-        accentSecondary = Triple(0, 0, 0),    // Also black – avoid color on ePaper
+        accentSecondary = Triple(0, 0, 0),    // Also black
         accentTertiary = Triple(0, 0, 0),
         accentPrimaryText = Triple(255,255,255),
         textPrimary = Triple(0, 0, 0),
@@ -136,47 +136,76 @@ fun adjustTextLuminosity(rgb: Triple<Int, Int, Int>): Triple<Int, Int, Int> {
 }
 
 fun applyTheme(theme: Theme) {
-    val colors = THEME_COLORS[theme] ?: THEME_COLORS[Theme.BLUE]!!
-    val root = document.documentElement.asDynamic()
-    val style = root.style
+    val colours = THEME_COLOURS[theme] ?: THEME_COLOURS[Theme.BLUE]!!
+    val root = document.documentElement ?: return
+    val style = root.asDynamic().style
+    
+    // Remove all theme classes
+    root.classList.remove("theme-dark", "theme-blue", "theme-light", "theme-epaper")
+    // Add current theme class
+    root.classList.add("theme-${theme.name.lowercase()}")
 
-    // Core color variables
-    style.setProperty("--color-bg-primary", rgbToString(colors.bgPrimary))
-    style.setProperty("--color-bg-secondary", rgbToString(colors.bgSecondary))
-    style.setProperty("--color-bg-tertiary", rgbToString(colors.bgTertiary))
+    // Core colour variables
+    style.setProperty("--colour-bg-primary", rgbToString(colours.bgPrimary))
+    style.setProperty("--colour-bg-secondary", rgbToString(colours.bgSecondary))
+    style.setProperty("--colour-bg-tertiary", rgbToString(colours.bgTertiary))
 
-    style.setProperty("--color-accent-primary", rgbToString(colors.accentPrimary))
-    style.setProperty("--color-accent-secondary", rgbToString(colors.accentSecondary))
-    style.setProperty("--color-accent-tertiary", rgbToString(colors.accentTertiary))
-    style.setProperty("--color-btn-opacity", colors.btnOpacity.toString())
-    style.setProperty("--color-btn-hover-opacity", colors.btnHoverOpacity.toString())
+    style.setProperty("--colour-accent-primary", rgbToString(colours.accentPrimary))
+    style.setProperty("--colour-accent-secondary", rgbToString(colours.accentSecondary))
+    style.setProperty("--colour-accent-tertiary", rgbToString(colours.accentTertiary))
+    style.setProperty("--colour-btn-opacity", colours.btnOpacity.toString())
+    style.setProperty("--colour-btn-hover-opacity", colours.btnHoverOpacity.toString())
 
-    style.setProperty("--color-text-primary", rgbToString(colors.textPrimary))
-    style.setProperty("--color-text-secondary", rgbToString(colors.textSecondary))
-    style.setProperty("--color-text-tertiary", rgbToString(colors.textTertiary))
+    style.setProperty("--colour-text-primary", rgbToString(colours.textPrimary))
+    style.setProperty("--colour-text-secondary", rgbToString(colours.textSecondary))
+    style.setProperty("--colour-text-tertiary", rgbToString(colours.textTertiary))
 
-    style.setProperty("--color-accent-primary-text", rgbToString(colors.accentPrimaryText))
+    style.setProperty("--colour-accent-primary-text", rgbToString(colours.accentPrimaryText))
 
-    style.setProperty("--color-grid-yes", rgbToString(colors.gridYes))
-    style.setProperty("--color-grid-neutral", rgbToString(colors.gridNeutral))
-    style.setProperty("--color-grid-no", rgbToString(colors.gridNo))
+    style.setProperty("--colour-grid-yes", rgbToString(colours.gridYes))
+    style.setProperty("--colour-grid-neutral", rgbToString(colours.gridNeutral))
+    style.setProperty("--colour-grid-no", rgbToString(colours.gridNo))
 
-    // Derived color variables (for compatibility with existing CSS)
-    style.setProperty("--color-accent-success", rgbToString(colors.gridYes))
-    style.setProperty("--color-accent-success-text", rgbToString(adjustTextLuminosity(colors.gridYes)))
-    style.setProperty("--color-accent-info", rgbToString(colors.accentPrimary))
-    style.setProperty("--color-accent-info-text", rgbToString(adjustTextLuminosity(colors.accentPrimary)))
-    style.setProperty("--color-accent-warning", rgbToString(colors.accentTertiary))
-    style.setProperty("--color-accent-warning-text", rgbToString(adjustTextLuminosity(colors.accentTertiary)))
-    style.setProperty("--color-accent-error", rgbToString(colors.gridNo))
-    style.setProperty("--color-accent-error-text", rgbToString(adjustTextLuminosity(colors.gridNo)))
-    style.setProperty("--color-accent-desat", rgbToString(colors.desat))
+    // Derived colour variables (for compatibility with existing CSS)
+    style.setProperty("--colour-accent-success", rgbToString(colours.gridYes))
+    style.setProperty("--colour-accent-success-text", rgbToString(adjustTextLuminosity(colours.gridYes)))
+    style.setProperty("--colour-accent-info", rgbToString(colours.accentPrimary))
+    style.setProperty("--colour-accent-info-text", rgbToString(adjustTextLuminosity(colours.accentPrimary)))
+    style.setProperty("--colour-accent-warning", rgbToString(colours.accentTertiary))
+    style.setProperty("--colour-accent-warning-text", rgbToString(adjustTextLuminosity(colours.accentTertiary)))
+    style.setProperty("--colour-accent-error", rgbToString(colours.gridNo))
+    style.setProperty("--colour-accent-error-text", rgbToString(adjustTextLuminosity(colours.gridNo)))
+    style.setProperty("--colour-accent-desat", rgbToString(colours.desat))
 
-    // Border and shadow (derived from backgrounds and black/white)
-    style.setProperty("--color-border", rgbToString(colors.bgSecondary))
-    style.setProperty("--color-shadow", "0, 0, 0")  // Black for shadows
+    // Border colour: theme-specific for visibility
+    val borderColour = when (theme) {
+        Theme.DARK, Theme.BLUE -> colours.bgSecondary  // Use bgSecondary for dark themes
+        Theme.LIGHT -> Triple(200, 200, 210)  // Dark grey border for visibility on light background
+        Theme.EPAPER -> Triple(0, 0, 0)  // Pure black border for maximum contrast
+    }
+    style.setProperty("--colour-border", rgbToString(borderColour))
+    
+    // Shadow colour: black for dark themes, dark grey for light themes, none for ePaper
+    val shadowColour = when (theme) {
+        Theme.DARK, Theme.BLUE -> Triple(0, 0, 0)  // Black shadows
+        Theme.LIGHT -> Triple(0, 0, 0)  // Black shadows for depth
+        Theme.EPAPER -> Triple(200, 200, 200)  // Very light grey to minimize ghosting
+    }
+    style.setProperty("--colour-shadow", rgbToString(shadowColour))
+    
+    // Shadow opacity: higher for dark themes, lower for light/ePaper
+    val shadowOpacity = when (theme) {
+        Theme.DARK, Theme.BLUE -> 0.5
+        Theme.LIGHT -> 0.15  // Lighter shadows on light background
+        Theme.EPAPER -> 0.05  // Minimal shadow to avoid ghosting
+    }
+    style.setProperty("--colour-shadow-opacity", shadowOpacity.toString())
+    
+    // ePaper inverted selection flag
+    val useInvertedSelection = theme == Theme.EPAPER
+    style.setProperty("--epaper-invert-selection", if (useInvertedSelection) "1" else "0")
 
     // Gradient background - need to wrap RGB values in rgb() for valid CSS
-    style.setProperty("--gradient-bg", "linear-gradient(135deg, rgb(${rgbToString(colors.bgPrimary)}) 0%, rgb(${rgbToString(colors.bgSecondary)}) 100%")
+    style.setProperty("--gradient-bg", "linear-gradient(135deg, rgb(${rgbToString(colours.bgPrimary)}) 0%, rgb(${rgbToString(colours.bgSecondary)}) 100%")
 }
 

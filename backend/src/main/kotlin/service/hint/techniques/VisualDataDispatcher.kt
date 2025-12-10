@@ -35,7 +35,7 @@ fun extractVisualData(match: TechniqueMatch, technique: Technique, puzzleString:
                 techniqueName.contains("Fish", ignoreCase = true) ||
                 techniqueName.contains("Cycle", ignoreCase = true) ||
                 techniqueName.contains("Colour", ignoreCase = true) ||
-                techniqueName.contains("Color", ignoreCase = true) ||
+                techniqueName.contains("Colour", ignoreCase = true) ||
                 techniqueName.contains("Medusa", ignoreCase = true) ||
                 techniqueName.contains("Rectangle", ignoreCase = true) ||
                 techniqueName.contains("Forcing", ignoreCase = true) ||

@@ -19,9 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // Selection colors matching CellView
-private val PrimarySelectionColor = Color(0xFFBBDEFB)      // Light blue
-private val SecondarySelectionColor = Color(0xFFFFCDD2)    // Light red
-private val PencilModeColor = Color(0xFFE8F5E9)            // Light green for pencil mode
+private val PrimarySelectionColour = Color(0xFFBBDEFB)      // Light blue
+private val SecondarySelectionColour = Color(0xFFFFCDD2)    // Light red
+private val PencilModeColour = Color(0xFFE8F5E9)            // Light green for pencil mode
 
 @Composable
 fun NumberPad(
@@ -75,7 +75,7 @@ fun NumberPad(
                 onClick = onPencilToggle,
                 modifier = Modifier.weight(1f),
                 isActive = isPencilMode,
-                activeColor = PencilModeColor
+                activeColour = PencilModeColour
             )
 
             // Erase button
@@ -106,14 +106,14 @@ private fun NumberButton(
     selectionState: NumberSelectionState = NumberSelectionState.NONE,
     isPencilMode: Boolean = false
 ) {
-    val backgroundColor = when (selectionState) {
-        NumberSelectionState.NONE -> if (isPencilMode) PencilModeColor.copy(alpha = 0.3f) else Color(0xFFEEEEEE)
-        NumberSelectionState.PRIMARY -> PrimarySelectionColor
-        NumberSelectionState.SECONDARY -> SecondarySelectionColor
+    val backgroundColour = when (selectionState) {
+        NumberSelectionState.NONE -> if (isPencilMode) PencilModeColour.copy(alpha = 0.3f) else Color(0xFFEEEEEE)
+        NumberSelectionState.PRIMARY -> PrimarySelectionColour
+        NumberSelectionState.SECONDARY -> SecondarySelectionColour
         NumberSelectionState.BOTH -> Color(0xFFE1BEE7) // Light purple for both
     }
 
-    val borderColor = when (selectionState) {
+    val borderColour = when (selectionState) {
         NumberSelectionState.NONE -> if (isPencilMode) Color(0xFF4CAF50).copy(alpha = 0.5f) else Color.LightGray
         NumberSelectionState.PRIMARY -> Color(0xFF1976D2) // Blue
         NumberSelectionState.SECONDARY -> Color(0xFFD32F2F) // Red
@@ -126,8 +126,8 @@ private fun NumberButton(
         modifier = modifier
             .aspectRatio(1f)
             .clip(CircleShape)
-            .background(backgroundColor, CircleShape)
-            .border(borderWidth, borderColor, CircleShape)
+            .background(backgroundColour, CircleShape)
+            .border(borderWidth, borderColour, CircleShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -152,16 +152,16 @@ private fun ActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     isActive: Boolean = false,
-    activeColor: Color = PrimarySelectionColor,
+    activeColour: Color = PrimarySelectionColour,
     isDestructive: Boolean = false
 ) {
-    val backgroundColor = when {
+    val backgroundColour = when {
         isDestructive -> Color(0xFFFF5722)
-        isActive -> activeColor
+        isActive -> activeColour
         else -> Color(0xFFEEEEEE)
     }
 
-    val borderColor = when {
+    val borderColour = when {
         isDestructive -> Color(0xFFD84315)
         isActive -> Color(0xFF4CAF50)
         else -> Color.LightGray
@@ -171,8 +171,8 @@ private fun ActionButton(
         modifier = modifier
             .aspectRatio(1f)
             .clip(CircleShape)
-            .background(backgroundColor, CircleShape)
-            .border(if (isActive) 3.dp else 1.dp, borderColor, CircleShape)
+            .background(backgroundColour, CircleShape)
+            .border(if (isActive) 3.dp else 1.dp, borderColour, CircleShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {

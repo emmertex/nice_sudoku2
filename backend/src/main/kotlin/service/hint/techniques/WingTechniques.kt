@@ -87,7 +87,7 @@ import dto.*
         )
     }
 
-    fun buildWingRegions(pivotCells: List<Int>, pincerCells: List<Int>): List<ColoredRegionDto> {
+    fun buildWingRegions(pivotCells: List<Int>, pincerCells: List<Int>): List<ColouredRegionDto> {
         val regions = mutableSetOf<Pair<String, Int>>()
 
         for (pivot in pivotCells) {
@@ -106,7 +106,7 @@ import dto.*
             }
         }
 
-        return regions.map { (type, index) -> ColoredRegionDto(type, index, "primary") }
+        return regions.map { (type, index) -> ColouredRegionDto(type, index, "primary") }
     }
 
     fun generateWingSteps(
@@ -126,21 +126,21 @@ import dto.*
         val supportingCells = metadata.otherCells.filterNot { pivotCells.contains(it) || pincerCells.contains(it) }
         val wingDigits = if (metadata.digits.isNotEmpty()) metadata.digits else listOfNotNull(targetDigit)
 
-        val coloredCells = mutableListOf<ColoredCellDto>()
-        pivotCells.forEach { coloredCells.add(ColoredCellDto(it, "warning")) }
-        pincerCells.forEach { coloredCells.add(ColoredCellDto(it, "info")) }
-        supportingCells.forEach { coloredCells.add(ColoredCellDto(it, "secondary")) }
+        val colouredCells = mutableListOf<ColouredCellDto>()
+        pivotCells.forEach { colouredCells.add(ColouredCellDto(it, "warning")) }
+        pincerCells.forEach { colouredCells.add(ColouredCellDto(it, "info")) }
+        supportingCells.forEach { colouredCells.add(ColouredCellDto(it, "secondary")) }
 
         val linkRegions = buildWingRegions(pivotCells, pincerCells)
 
-        val targetCandidates = mutableListOf<ColoredCandidateDto>()
+        val targetCandidates = mutableListOf<ColouredCandidateDto>()
         if (targetDigit != null) {
             val candidateCells = when (wingType) {
                 "XY-Wing", "W-Wing" -> if (pincerCells.isNotEmpty()) pincerCells else wingCells
                 else -> if (wingCells.isNotEmpty()) wingCells else eliminationCells
             }
             candidateCells.forEach { cell ->
-                targetCandidates.add(ColoredCandidateDto(cell / 9, cell % 9, targetDigit, "target"))
+                targetCandidates.add(ColouredCandidateDto(cell / 9, cell % 9, targetDigit, "target"))
             }
         }
 
@@ -171,8 +171,8 @@ import dto.*
                 description = introDescription,
                 highlightCells = if (wingCells.isNotEmpty()) wingCells else eliminationCells,
                 regions = linkRegions,
-                coloredCells = coloredCells,
-                coloredCandidates = targetCandidates
+                colouredCells = colouredCells,
+                colouredCandidates = targetCandidates
             )
         )
 
@@ -190,8 +190,8 @@ import dto.*
                     description = eliminationDesc ?: seeingText,
                     highlightCells = if (eliminationCells.isNotEmpty()) eliminationCells else wingCells,
                     regions = linkRegions,
-                    coloredCells = coloredCells,
-                    coloredCandidates = targetCandidates + eliminationCandidates(eliminations)
+                    colouredCells = colouredCells,
+                    colouredCandidates = targetCandidates + eliminationCandidates(eliminations)
                 )
             )
         }
@@ -206,7 +206,7 @@ import dto.*
                     description = "Because both pincers cover the same spots, remove $elimDigit from $eliminationNames.",
                     highlightCells = eliminationCells,
                     regions = linkRegions,
-                    coloredCandidates = targetCandidates + eliminationCandidates(eliminations)
+                    colouredCandidates = targetCandidates + eliminationCandidates(eliminations)
                 )
             )
         }

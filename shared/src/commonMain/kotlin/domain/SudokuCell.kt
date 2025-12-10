@@ -16,7 +16,7 @@ data class SudokuCell(
     val userEliminations: Set<Int> = emptySet(), // Candidates manually eliminated by user
     val isGiven: Boolean = false, // Whether this was part of the original puzzle
     val isHighlighted: Boolean = false, // For technique highlighting
-    val highlightColor: HighlightColor? = null,
+    val highlightColour: HighlightColour? = null,
     // Multi-layer highlight support for number selection
     val highlightType: CellHighlightType = CellHighlightType.NONE
 ) {
@@ -77,10 +77,10 @@ data class SudokuCell(
         return toggleUserElimination(candidate)
     }
 
-    fun withHighlight(color: HighlightColor?): SudokuCell {
+    fun withHighlight(color: HighlightColour?): SudokuCell {
         return copy(
             isHighlighted = color != null,
-            highlightColor = color
+            highlightColour = color
         )
     }
 
@@ -99,7 +99,7 @@ data class SudokuCell(
     }
 }
 
-enum class HighlightColor {
+enum class HighlightColour {
     RED,
     BLUE,
     GREEN,

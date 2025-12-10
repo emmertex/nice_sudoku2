@@ -7,5 +7,5 @@ package domain
 expect object Converters {
     fun basicGridToSudokuGrid(basicGrid: Any): SudokuGrid
     fun sudokuGridToBasicGrid(grid: SudokuGrid): Any
-    fun techniqueMatchToDomainHighlight(match: Any): Pair<Set<Int>, HighlightColor>
+    fun techniqueMatchToDomainHighlight(match: Any): Pair<Set<Int>, HighlightColour>
 }

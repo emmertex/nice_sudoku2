@@ -22,8 +22,8 @@ private val techniquePriority = mapOf(
     "TWO_STRING_KITE_FISH" to 13, "2-String Kite" to 13,
     "FINNED_X_WING_FISH" to 14, "Finned X-Wing" to 14,
     "SASHIMI_X_WING_FISH" to 15, "Sashimi X-Wing" to 15,
-    // HARD (16-22): Coloring, uniqueness, wings, swordfish
-    "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16, "Simple Coloring" to 16,
+    // HARD (16-22): Colouring, uniqueness, wings, swordfish
+    "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16, "Simple Colouring" to 16,
     "UNIQUE_RECTANGLE" to 17, "Unique Rectangles" to 17,
     "BUG" to 18, "Bivalue Universal Grave" to 18,
     "Y_WING" to 19, "XY-Wing" to 19, "XY_WING" to 19,
@@ -113,9 +113,9 @@ private val techniqueDescriptions = mapOf(
     "FRANKEN_SWORDFISH_FISH" to "A box/line swordfish variant enabling eliminations on the cover lines.",
     "FRANKEN_SWORDFISH" to "A box/line swordfish variant enabling eliminations on the cover lines.",
     "GROUPED_X_CYCLES" to "Grouped X-Cycles alternate strong and weak links on one digit to prove eliminations.",
-    // Coloring, uniqueness, wings
-    "SIMPLE_COLOURING" to "Color one digit into two sets of strong links; a contradiction color is eliminated.",
-    "SIMPLE_COLORING" to "Color one digit into two sets of strong links; a contradiction color is eliminated.",
+    // Colouring, uniqueness, wings
+    "SIMPLE_COLOURING" to "Colour one digit into two sets of strong links; a contradiction color is eliminated.",
+    "SIMPLE_COLORING" to "Colour one digit into two sets of strong links; a contradiction color is eliminated.",
     "MEDUSA_3D" to "3D Medusa colors multiple digits; contradictions eliminate candidates or place values.",
     "3D_MEDUSA" to "3D Medusa colors multiple digits; contradictions eliminate candidates or place values.",
     "THREE_D_MEDUSA" to "3D Medusa colors multiple digits; contradictions eliminate candidates or place values.",

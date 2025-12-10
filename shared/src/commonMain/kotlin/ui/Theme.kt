@@ -16,7 +16,7 @@ val SudokuOnSecondary = Color.Black
 val SudokuOnBackground = Color.Black
 val SudokuOnSurface = Color.Black
 
-val SudokuLightColorScheme = lightColorScheme(
+val SudokuLightColourScheme = lightColorScheme(
     primary = SudokuPrimary,
     secondary = SudokuSecondary,
     background = SudokuBackground,
@@ -27,7 +27,7 @@ val SudokuLightColorScheme = lightColorScheme(
     onSurface = SudokuOnSurface
 )
 
-val SudokuDarkColorScheme = darkColorScheme(
+val SudokuDarkColourScheme = darkColorScheme(
     primary = SudokuPrimary,
     secondary = SudokuSecondary,
     background = Color(0xFF121212),
@@ -43,10 +43,10 @@ fun SudokuTheme(
     darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) SudokuDarkColorScheme else SudokuLightColorScheme
+    val colourScheme = if (darkTheme) SudokuDarkColourScheme else SudokuLightColourScheme
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = colourScheme,
         content = content
     )
 }

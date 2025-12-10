@@ -37,7 +37,7 @@ val techniquePriority = mapOf(
     "FINNED_X_WING_FISH" to 14, "Finned X-Wing" to 14,   // X-Wing with extra candidate
     "SASHIMI_X_WING_FISH" to 15, "Sashimi X-Wing" to 15, // Finned X-Wing with missing candidate
 
-    // === HARD (16-22): Coloring, uniqueness, wings, swordfish ===
+    // === HARD (16-22): Colouring, uniqueness, wings, swordfish ===
     "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16,  // Single-digit coloring
     "UNIQUE_RECTANGLE" to 17, "Unique Rectangles" to 17, // Avoid deadly patterns
     "BUG" to 18,                                          // Bivalue Universal Grave
@@ -75,7 +75,7 @@ enum class DifficultyCategory(val minPriority: Int, val maxPriority: Int, val ta
     EASY(5, 7, 300, 100, 50000),        // Naked Pair/Triple, Hidden Pair
     MEDIUM(8, 10, 500, 250, 50000),     // Hidden Triple, Naked/Hidden Quad
     TOUGH(11, 15, 300, 250, 50000),     // Fish & single-digit patterns
-    HARD(16, 22, 300, 100, 50000),      // Coloring, uniqueness, wings, swordfish
+    HARD(16, 22, 300, 100, 50000),      // Colouring, uniqueness, wings, swordfish
     EXPERT(23, 28, 100, 50, 50000),     // Advanced wings, chains, 3D Medusa
     EXTREME(29, 34, 100, 25, 50000),     // Franken/mutant fish, grouped techniques
     DIABOLICAL(35, 50, 25, 10, 50000); // AIC, ALS, Sue-de-Coq, Forcing Chains

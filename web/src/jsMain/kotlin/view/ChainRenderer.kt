@@ -264,7 +264,7 @@ internal fun FlowContent.renderChainLinesSvg(app: SudokuApp,
 
             // Draw group highlights on top of lines
             groupsToDraw.forEach { group ->
-                val colorClass = when (group.groupType) {
+                val colourClass = when (group.groupType) {
                     "chain-on" -> "group-on"
                     "chain-off" -> "group-off"
                     "als" -> "group-als"
@@ -280,7 +280,7 @@ internal fun FlowContent.renderChainLinesSvg(app: SudokuApp,
                     val candRow = (loc.candidate - 1) / 3
                     val cx = cellX + 20 + candCol * 30
                     val cy = cellY + 20 + candRow * 30
-                    append("""<circle class="board-candidate-highlight $colorClass" cx="$cx" cy="$cy" r="12" />""")
+                    append("""<circle class="board-candidate-highlight $colourClass" cx="$cx" cy="$cy" r="12" />""")
                 }
             }
 

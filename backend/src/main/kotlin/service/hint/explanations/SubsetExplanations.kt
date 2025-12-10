@@ -62,19 +62,19 @@ import dto.*
 
         // Build regions for highlighting
         val regions = if (sectorIndex != null && sectorIndex >= 0) {
-            listOf(ColoredRegionDto(sectorType ?: "row", sectorIndex % 9, "primary"))
+            listOf(ColouredRegionDto(sectorType ?: "row", sectorIndex % 9, "primary"))
         } else {
             emptyList()
         }
 
-        // Build colored cells for the subset
-        val coloredSubsetCells = subsetCells.map { ColoredCellDto(it, "warning") }
+        // Build coloured cells for the subset
+        val colouredSubsetCells = subsetCells.map { ColouredCellDto(it, "warning") }
 
-        // Build colored candidates for the subset digits in subset cells
+        // Build coloured candidates for the subset digits in subset cells
         val subsetCandidates = subsetCells.flatMap { cell ->
             val r = cell / 9
             val c = cell % 9
-            subsetDigits.map { digit -> ColoredCandidateDto(r, c, digit, "target") }
+            subsetDigits.map { digit -> ColouredCandidateDto(r, c, digit, "target") }
         }
 
         // Get cells in the main sector to separate normal vs pointing eliminations
@@ -100,15 +100,15 @@ import dto.*
                 description = "Cells $cellNames in $houseName can only contain $digitNames. These digits are 'locked' to these cells.",
                 highlightCells = subsetCells,
                 regions = regions,
-                coloredCells = coloredSubsetCells,
-                coloredCandidates = subsetCandidates
+                colouredCells = colouredSubsetCells,
+                colouredCandidates = subsetCandidates
             ))
 
             if (normalEliminations.isNotEmpty()) {
                 // Step 2: Show eliminations within the same house
                 val normalEliminationCandidates = normalEliminations.flatMap { elim ->
                     elim.cells.map { c ->
-                        ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
+                        ColouredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                     }
                 }
 
@@ -127,8 +127,8 @@ import dto.*
                     description = normalDesc,
                     highlightCells = subsetCells + normalEliminations.flatMap { it.cells },
                     regions = regions,
-                    coloredCells = coloredSubsetCells,
-                    coloredCandidates = subsetCandidates + normalEliminationCandidates
+                    colouredCells = colouredSubsetCells,
+                    colouredCandidates = subsetCandidates + normalEliminationCandidates
                 ))
             }
 
@@ -136,7 +136,7 @@ import dto.*
                 // Step 3: Show pointing eliminations (locked candidates)
                 val pointingEliminationCandidates = pointingEliminations.flatMap { elim ->
                     elim.cells.map { c ->
-                        ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
+                        ColouredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                     }
                 }
 
@@ -155,8 +155,8 @@ import dto.*
                     description = pointingDesc,
                     highlightCells = subsetCells + pointingEliminations.flatMap { it.cells },
                     regions = regions,
-                    coloredCells = coloredSubsetCells,
-                    coloredCandidates = subsetCandidates + pointingEliminationCandidates
+                    colouredCells = colouredSubsetCells,
+                    colouredCandidates = subsetCandidates + pointingEliminationCandidates
                 ))
             }
         } else {
@@ -167,15 +167,15 @@ import dto.*
                 description = "In $houseName, $digitNames can only be placed in $cellNames. These cells are 'locked' to these digits.",
                 highlightCells = subsetCells,
                 regions = regions,
-                coloredCells = coloredSubsetCells,
-                coloredCandidates = subsetCandidates
+                colouredCells = colouredSubsetCells,
+                colouredCandidates = subsetCandidates
             ))
 
             if (normalEliminations.isNotEmpty()) {
                 // Step 2: Show eliminations within the same house
                 val normalEliminationCandidates = normalEliminations.flatMap { elim ->
                     elim.cells.map { c ->
-                        ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
+                        ColouredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                     }
                 }
 
@@ -194,8 +194,8 @@ import dto.*
                     description = normalDesc,
                     highlightCells = subsetCells + normalEliminations.flatMap { it.cells },
                     regions = regions,
-                    coloredCells = coloredSubsetCells,
-                    coloredCandidates = subsetCandidates + normalEliminationCandidates
+                    colouredCells = colouredSubsetCells,
+                    colouredCandidates = subsetCandidates + normalEliminationCandidates
                 ))
             }
 
@@ -203,7 +203,7 @@ import dto.*
                 // Step 3: Show pointing eliminations (hidden locked candidates)
                 val pointingEliminationCandidates = pointingEliminations.flatMap { elim ->
                     elim.cells.map { c ->
-                        ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
+                        ColouredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                     }
                 }
 
@@ -222,8 +222,8 @@ import dto.*
                     description = pointingDesc,
                     highlightCells = subsetCells + pointingEliminations.flatMap { it.cells },
                     regions = regions,
-                    coloredCells = coloredSubsetCells,
-                    coloredCandidates = subsetCandidates + pointingEliminationCandidates
+                    colouredCells = colouredSubsetCells,
+                    colouredCandidates = subsetCandidates + pointingEliminationCandidates
                 ))
             }
         }
@@ -278,15 +278,15 @@ import dto.*
                 title = "Identify the Naked Single",
                 description = "Cell R${row + 1}C${col + 1} has only one possible candidate: $digit",
                 highlightCells = listOf(cellIndex),
-                coloredCells = listOf(ColoredCellDto(cellIndex, "warning")),
-                coloredCandidates = listOf(ColoredCandidateDto(row, col, digit, "target"))
+                colouredCells = listOf(ColouredCellDto(cellIndex, "warning")),
+                colouredCandidates = listOf(ColouredCandidateDto(row, col, digit, "target"))
             ))
 
             // Step 2: Show eliminations from peers - highlight all three houses
             val peerEliminations = eliminations.filter { it.digit == digit }
             val eliminationCandidates = peerEliminations.flatMap { elim ->
                 elim.cells.map { c ->
-                    ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
+                    ColouredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                 }
             }
 
@@ -300,9 +300,9 @@ import dto.*
 
             // Highlight all three houses that see this cell
             val allRegions = listOf(
-                ColoredRegionDto("row", row, "primary"),
-                ColoredRegionDto("column", col, "primary"),
-                ColoredRegionDto("box", (row / 3) * 3 + (col / 3), "primary")
+                ColouredRegionDto("row", row, "primary"),
+                ColouredRegionDto("column", col, "primary"),
+                ColouredRegionDto("box", (row / 3) * 3 + (col / 3), "primary")
             )
 
             steps.add(ExplanationStepDto(
@@ -311,8 +311,8 @@ import dto.*
                 description = eliminationDesc,
                 highlightCells = listOf(cellIndex),
                 regions = allRegions,
-                coloredCells = listOf(ColoredCellDto(cellIndex, "target")),
-                coloredCandidates = listOf(ColoredCandidateDto(row, col, digit, "target")) + eliminationCandidates
+                colouredCells = listOf(ColouredCellDto(cellIndex, "target")),
+                colouredCandidates = listOf(ColouredCandidateDto(row, col, digit, "target")) + eliminationCandidates
             ))
         } else {
             // Hidden Single: digit can only go in one cell in a house
@@ -323,7 +323,7 @@ import dto.*
 
             // Step 1: Identify the hidden single in the house
             val regions = if (sectorIndex != null && sectorIndex >= 0) {
-                listOf(ColoredRegionDto(sectorType ?: "row", sectorIndex % 9, "primary"))
+                listOf(ColouredRegionDto(sectorType ?: "row", sectorIndex % 9, "primary"))
             } else {
                 emptyList()
             }
@@ -334,11 +334,11 @@ import dto.*
                 description = "In $houseName, only R${row + 1}C${col + 1} can be $digit. Thus, eliminate other candidates from this cell.",
                 highlightCells = listOf(cellIndex),
                 regions = regions,
-                coloredCells = listOf(ColoredCellDto(cellIndex, "warning")),
-                coloredCandidates = listOf(ColoredCandidateDto(row, col, digit, "target")) +
+                colouredCells = listOf(ColouredCellDto(cellIndex, "warning")),
+                colouredCandidates = listOf(ColouredCandidateDto(row, col, digit, "target")) +
                     cellEliminations.flatMap { elim ->
                         elim.cells.filter { it == cellIndex }.map { c ->
-                            ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
+                            ColouredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                         }
                     }
             ))
@@ -351,9 +351,9 @@ import dto.*
 
                 // Highlight all three houses that see this cell
                 val allRegions = listOf(
-                    ColoredRegionDto("row", row, "primary"),
-                    ColoredRegionDto("column", col, "primary"),
-                    ColoredRegionDto("box", (row / 3) * 3 + (col / 3), "primary")
+                    ColouredRegionDto("row", row, "primary"),
+                    ColouredRegionDto("column", col, "primary"),
+                    ColouredRegionDto("box", (row / 3) * 3 + (col / 3), "primary")
                 )
 
                 steps.add(ExplanationStepDto(
@@ -362,11 +362,11 @@ import dto.*
                     description = "In Row ${row + 1}, Column ${col + 1}, and Box $boxNum, $digit can only be in R${row + 1}C${col + 1}. Eliminate $digit from: ${peerCellNames.joinToString(", ")}",
                     highlightCells = peerCells,
                     regions = allRegions,
-                    coloredCells = listOf(ColoredCellDto(cellIndex, "target")),
-                    coloredCandidates = listOf(ColoredCandidateDto(row, col, digit, "target")) +
+                    colouredCells = listOf(ColouredCellDto(cellIndex, "target")),
+                    colouredCandidates = listOf(ColouredCandidateDto(row, col, digit, "target")) +
                         peerEliminations.flatMap { elim ->
                             elim.cells.filter { it != cellIndex }.map { c ->
-                                ColoredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
+                                ColouredCandidateDto(c / 9, c % 9, elim.digit, "elimination")
                             }
                         }
                 ))
