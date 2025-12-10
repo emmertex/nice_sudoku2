@@ -29,53 +29,15 @@ internal fun SudokuApp.renderHelpModal() {
                 
                 div("help-section") {
                     h2 { +"Welcome" }
-                    div("greeting-content") {
                         p {
                             +"Thank you for testing Nice Sudoku."
                         }
                         
-                        p {
-                            +"In short, I, Andrew, wanted a good Android Sudoku app."
-                        }
                         
                         p {
-                            +"I am not even good at Sudoku, I crap out after X Wings. So I wanted a way to genuinely learn."
+                            +"Andrew Frahn"
                         }
-                        
-                        p {
-                            +"Well, I tried almost all the apps, and they were all crap, Ad ridden nonsense, or alike."
-                        }
-                        
-                        p {
-                            +"I also wanted to learn godot, so wrote a sudoku app. I got all basic solvers working, but then StrmCkr seen my work, and things got hard and complex. After getting a few intermediate solvers working nice, and a world of UI issues, I threw it all away."
-                        }
-                        
-                        p {
-                            +"This is the second version, written in Kotlin, with the intent to be native on all platforms. Using not just the knowledge of StrmCkr, but his years of knowledge making solvers as a backend, and a new frontend, hooking into it as an API."
-                        }
-                        
-                        p {
-                            +"Currently this means it must be online, but over time I intend to make it all offline."
-                        }
-                        
-                        p {
-                            +"I am asking nothing more than community support for me and StrmCkr, and I will endeavour to make this app something I want to use."
-                        }
-                        
-                        p {
-                            +"This isn't a first version, it is way too early for that, it is a feedback gathering exercise."
-                        }
-                        
-                        p {
-                            +"If you try it, please, offer feedback. The earlier in the development process I get feedback, the better the chance I can make it happen."
-                        }
-                        
-                        p("greeting-signature") {
-                            +"Thanks for testing,"
-                            br
-                            +"Andrew"
-                        }
-                    }
+                    
                 }
                 
                 div("help-section") {

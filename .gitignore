@@ -55,3 +55,4 @@ hs_err_pid*.log
 *.swp
 *.swo
 *~
+backend/data/cache.db

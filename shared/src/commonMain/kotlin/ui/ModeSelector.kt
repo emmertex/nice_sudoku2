@@ -139,13 +139,13 @@ private fun HighlightModeChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = if (isSelected) {
+    val backgroundColour = if (isSelected) {
         Color(0xFFBBDEFB) // Light blue
     } else {
         Color(0xFFF5F5F5)
     }
 
-    val borderColor = if (isSelected) {
+    val borderColour = if (isSelected) {
         Color(0xFF1976D2) // Blue
     } else {
         Color.LightGray
@@ -154,10 +154,10 @@ private fun HighlightModeChip(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
+            .background(backgroundColour)
             .border(
                 width = if (isSelected) 2.dp else 1.dp,
-                color = borderColor,
+                color = borderColour,
                 shape = RoundedCornerShape(8.dp)
             )
             .clickable(onClick = onClick)
@@ -182,7 +182,7 @@ private fun PlayModeChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = if (isSelected) {
+    val backgroundColour = if (isSelected) {
         when (mode) {
             PlayMode.FAST -> Color(0xFFE8F5E9) // Light green
             PlayMode.CELL_FIRST -> Color(0xFFE3F2FD) // Light blue
@@ -192,7 +192,7 @@ private fun PlayModeChip(
         Color(0xFFF5F5F5)
     }
 
-    val borderColor = if (isSelected) {
+    val borderColour = if (isSelected) {
         when (mode) {
             PlayMode.FAST -> Color(0xFF4CAF50) // Green
             PlayMode.CELL_FIRST -> Color(0xFF1976D2) // Blue
@@ -202,7 +202,7 @@ private fun PlayModeChip(
         Color.LightGray
     }
 
-    val textColor = if (isSelected) {
+    val textColour = if (isSelected) {
         when (mode) {
             PlayMode.FAST -> Color(0xFF2E7D32) // Dark green
             PlayMode.CELL_FIRST -> Color(0xFF0D47A1) // Dark blue
@@ -215,10 +215,10 @@ private fun PlayModeChip(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
+            .background(backgroundColour)
             .border(
                 width = if (isSelected) 2.dp else 1.dp,
-                color = borderColor,
+                color = borderColour,
                 shape = RoundedCornerShape(8.dp)
             )
             .clickable(onClick = onClick)
@@ -229,7 +229,7 @@ private fun PlayModeChip(
             text = label,
             fontSize = 12.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-            color = textColor,
+            color = textColour,
             textAlign = TextAlign.Center
         )
     }
@@ -270,8 +270,8 @@ fun AdvancedModeActionBar(
             text = "Set (Enter)",
             onClick = onSetNumber,
             enabled = canSetNumber,
-            backgroundColor = Color(0xFFE3F2FD),
-            enabledBorderColor = Color(0xFF1976D2)
+            backgroundColour = Color(0xFFE3F2FD),
+            enabledBorderColour = Color(0xFF1976D2)
         )
 
         // Remove Pencil button
@@ -279,8 +279,8 @@ fun AdvancedModeActionBar(
             text = "Remove (Space)",
             onClick = onRemovePencil,
             enabled = canRemovePencil,
-            backgroundColor = Color(0xFFFFEBEE),
-            enabledBorderColor = Color(0xFFD32F2F)
+            backgroundColour = Color(0xFFFFEBEE),
+            enabledBorderColour = Color(0xFFD32F2F)
         )
     }
 }
@@ -290,19 +290,19 @@ private fun ActionChip(
     text: String,
     onClick: () -> Unit,
     enabled: Boolean,
-    backgroundColor: Color,
-    enabledBorderColor: Color,
+    backgroundColour: Color,
+    enabledBorderColour: Color,
     modifier: Modifier = Modifier
 ) {
-    val actualBackgroundColor = if (enabled) backgroundColor else Color(0xFFE0E0E0)
-    val actualBorderColor = if (enabled) enabledBorderColor else Color.LightGray
-    val textColor = if (enabled) enabledBorderColor else Color.Gray
+    val actualBackgroundColour = if (enabled) backgroundColour else Color(0xFFE0E0E0)
+    val actualBorderColour = if (enabled) enabledBorderColour else Color.LightGray
+    val textColour = if (enabled) enabledBorderColour else Color.Gray
 
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(actualBackgroundColor)
-            .border(1.dp, actualBorderColor, RoundedCornerShape(16.dp))
+            .background(actualBackgroundColour)
+            .border(1.dp, actualBorderColour, RoundedCornerShape(16.dp))
             .clickable(enabled = enabled, onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
@@ -311,7 +311,7 @@ private fun ActionChip(
             text = text,
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = textColor
+            color = textColour
         )
     }
 }

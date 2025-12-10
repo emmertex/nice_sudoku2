@@ -54,7 +54,7 @@ actual object Converters {
         return basicGrid
     }
     
-    actual fun techniqueMatchToDomainHighlight(match: Any): Pair<Set<Int>, HighlightColor> {
+    actual fun techniqueMatchToDomainHighlight(match: Any): Pair<Set<Int>, HighlightColour> {
         // For now, return a basic highlight
         // Full implementation would extract cells from TechniqueMatch
         val techniqueMatch = match as? sudoku.match.TechniqueMatch
@@ -70,8 +70,8 @@ actual object Converters {
             }
             // Add solved cells
             cells.addAll(techniqueMatch.solvedCells.keys)
-            return Pair(cells, HighlightColor.BLUE)
+            return Pair(cells, HighlightColour.BLUE)
         }
-        return Pair(emptySet(), HighlightColor.BLUE)
+        return Pair(emptySet(), HighlightColour.BLUE)
     }
 }

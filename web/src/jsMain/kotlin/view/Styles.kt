@@ -27,32 +27,34 @@ val CSS_STYLES = """
         --cell-size: calc(var(--grid-size) / 9.5);
         --font-scale: min(1, var(--grid-size) / 400);
 
-        /* Theme colors - these are set dynamically by JavaScript */
-        --color-bg-primary: 26, 26, 46;
-        --color-bg-secondary: 22, 33, 62;
-        --color-bg-tertiary: 15, 52, 96;
-        --color-accent-primary: 100, 181, 246;
-        --color-accent-primary-text: 255,255,255;
-        --color-accent-secondary: 255, 82, 82;
-        --color-accent-tertiary: 255, 193, 7;
-        --color-text-primary: 255, 255, 255;
-        --color-text-secondary: 204, 204, 204;
-        --color-text-tertiary: 136, 136, 136;
-        --color-grid-yes: 76, 175, 80;
-        --color-grid-neutral: 158, 158, 158;
-        --color-grid-no: 244, 67, 54;
-        /* Derived colors */
-        --color-accent-success: 76, 175, 80;
-        --color-accent-success-text: 255, 255, 255;
-        --color-accent-info: 100, 181, 246;
-        --color-accent-info-text: 255, 255, 255;
-        --color-accent-warning: 255, 193, 7;
-        --color-accent-warning-text: 255, 255, 255;
-        --color-accent-error: 244, 67, 54;
-        --color-accent-error-text: 255, 255, 255;
-        --color-border: 22, 33, 62;
-        --color-shadow: 0, 0, 0;
-        --color-accent-desat: 255, 255, 255;
+        /* Theme colours - these are set dynamically by JavaScript */
+        --colour-bg-primary: 26, 26, 46;
+        --colour-bg-secondary: 22, 33, 62;
+        --colour-bg-tertiary: 15, 52, 96;
+        --colour-accent-primary: 100, 181, 246;
+        --colour-accent-primary-text: 255,255,255;
+        --colour-accent-secondary: 255, 82, 82;
+        --colour-accent-tertiary: 255, 193, 7;
+        --colour-text-primary: 255, 255, 255;
+        --colour-text-secondary: 204, 204, 204;
+        --colour-text-tertiary: 136, 136, 136;
+        --colour-grid-yes: 76, 175, 80;
+        --colour-grid-neutral: 158, 158, 158;
+        --colour-grid-no: 244, 67, 54;
+        /* Derived colours */
+        --colour-accent-success: 76, 175, 80;
+        --colour-accent-success-text: 255, 255, 255;
+        --colour-accent-info: 100, 181, 246;
+        --colour-accent-info-text: 255, 255, 255;
+        --colour-accent-warning: 255, 193, 7;
+        --colour-accent-warning-text: 255, 255, 255;
+        --colour-accent-error: 244, 67, 54;
+        --colour-accent-error-text: 255, 255, 255;
+        --colour-border: 22, 33, 62;
+        --colour-shadow: 0, 0, 0;
+        --colour-shadow-opacity: 0.5;
+        --epaper-invert-selection: 0;
+        --colour-accent-desat: 255, 255, 255;
         --gradient-bg: linear-gradient(135deg, rgb(26,26,46) 0%, rgb(22,33,62) 50%, rgb(15,52,96) 100%);
     }
     
@@ -90,11 +92,11 @@ val CSS_STYLES = """
     }
     
     .sudoku-container {
-        background: rgba(var(--color-accent-desat), 0.05);
+        background: rgba(var(--colour-accent-desat), 0.05);
         backdrop-filter: blur(10px);
         border-radius: clamp(12px, 3vmin, 24px);
         padding: clamp(12px, 3vmin, 24px);
-        box-shadow: 0 25px 50px -12px rgba(var(--color-shadow), 0.5);
+        box-shadow: 0 25px 50px -12px rgba(var(--colour-shadow), var(--colour-shadow-opacity));
         width: min(100%, calc(var(--grid-size) + 48px));
         display: flex;
         flex-direction: column;
@@ -137,24 +139,24 @@ val CSS_STYLES = """
         font-size: clamp(0.65rem, calc(0.6rem + 0.5vmin), 0.9rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
-        color: rgba(var(--color-text-primary), 0.8);
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
+        color: rgba(var(--colour-text-primary), 0.8);
         transition: all 0.15s ease;
     }
 
     .nav-btn:hover, .back-btn:hover {
-        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
     }
     
     .header h1 {
         font-size: clamp(1rem, calc(1rem + 1.8vmin), 1.8rem);
         font-weight: 700;
-        color: rgb(var(--color-accent-primary));
+        color: rgb(var(--colour-accent-primary));
         letter-spacing: -0.02em;
     }
 
     .powered-by {
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
         display: block;
         font-size: small;
     }
@@ -176,8 +178,8 @@ val CSS_STYLES = """
         padding-top: 2px;
         padding-bottom: 2px;
         border-radius: 4px;
-        background: rgba(var(--color-bg-tertiary), 0.2);
-        color: rgba(var(--color-text-primary), 0.7);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
+        color: rgba(var(--colour-text-primary), 0.7);
     }
     
     .category {
@@ -203,10 +205,10 @@ val CSS_STYLES = """
     
     .pause-btn {
         padding: 2px 6px;
-        background: rgba(var(--color-accent), 0.2);
-        border: 1px solid rgba(var(--color-accent), 0.3);
+        background: rgba(var(--colour-accent), 0.2);
+        border: 1px solid rgba(var(--colour-accent), 0.3);
         border-radius: 4px;
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         cursor: pointer;
         font-size: clamp(0.7rem, calc(0.6rem + 0.5vmin), 0.9rem);
         transition: all 0.2s ease;
@@ -214,8 +216,8 @@ val CSS_STYLES = """
     }
     
     .pause-btn:hover {
-        background: rgba(var(--color-accent), 0.3);
-        border-color: rgba(var(--color-accent), 0.5);
+        background: rgba(var(--colour-accent), 0.3);
+        border-color: rgba(var(--colour-accent), 0.5);
         transform: scale(1.05);
     }
     
@@ -227,24 +229,24 @@ val CSS_STYLES = """
     .info-btn {
         padding: 4px 8px;
         background: transparent;
-        border: 1px solid rgba(var(--color-border), 0.3);
+        border: 1px solid rgba(var(--colour-border), 0.3);
         border-radius: 4px;
-        color: rgba(var(--color-text-primary), 0.7);
+        color: rgba(var(--colour-text-primary), 0.7);
         cursor: pointer;
         font-size: 0.9em;
         transition: all 0.2s ease;
     }
     
     .info-btn:hover {
-        background: rgba(var(--color-accent-info), 0.2);
-        border-color: rgb(var(--color-accent-info));
-        color: rgb(var(--color-accent-info));
+        background: rgba(var(--colour-accent-info), 0.2);
+        border-color: rgb(var(--colour-accent-info));
+        color: rgb(var(--colour-accent-info));
     }
     
     /* Puzzle title in list */
     .puzzle-title, .puzzle-title-link {
         font-weight: 500;
-        color: rgba(var(--color-text-primary), 0.9);
+        color: rgba(var(--colour-text-primary), 0.9);
         flex: 1;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -252,7 +254,7 @@ val CSS_STYLES = """
     }
     
     .puzzle-title-link {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         text-decoration: none;
     }
     
@@ -268,12 +270,12 @@ val CSS_STYLES = """
     .puzzle-info-modal h2 {
         text-align: center;
         margin-bottom: clamp(16px, 3vmin, 24px);
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
     }
     
     .puzzle-info-modal h3 {
         margin: clamp(12px, 2vmin, 16px) 0 clamp(8px, 1.5vmin, 12px);
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-size: 0.95em;
     }
     
@@ -288,7 +290,7 @@ val CSS_STYLES = """
         justify-content: space-between;
         align-items: center;
         padding: clamp(8px, 1.5vmin, 12px);
-        background: rgba(var(--color-bg-tertiary), 0.3);
+        background: rgba(var(--colour-bg-tertiary), 0.3);
         border-radius: 6px;
     }
     
@@ -299,12 +301,12 @@ val CSS_STYLES = """
     }
     
     .info-label {
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.9em;
     }
     
     .info-value {
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
         font-weight: 500;
     }
     
@@ -320,7 +322,7 @@ val CSS_STYLES = """
     }
     
     .info-value.link {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         text-decoration: none;
     }
     
@@ -336,7 +338,7 @@ val CSS_STYLES = """
         display: flex;
         flex-direction: column;
         gap: 4px;
-        background: rgba(var(--color-bg-tertiary), 0.2);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
         border-radius: 6px;
         padding: clamp(8px, 1.5vmin, 12px);
     }
@@ -349,12 +351,12 @@ val CSS_STYLES = """
     }
     
     .technique-name {
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-size: 0.9em;
     }
     
     .technique-count {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         font-weight: 600;
         font-size: 0.85em;
     }
@@ -365,7 +367,7 @@ val CSS_STYLES = """
         justify-content: center;
         margin-top: clamp(16px, 3vmin, 24px);
         padding-top: clamp(12px, 2vmin, 16px);
-        border-top: 1px solid rgba(var(--color-border), 0.2);
+        border-top: 1px solid rgba(var(--colour-border), 0.2);
     }
     
     .modal-actions button {
@@ -378,23 +380,23 @@ val CSS_STYLES = """
     }
     
     .modal-actions .close-btn {
-        background: rgba(var(--color-bg-tertiary), 0.5);
-        border: 1px solid rgba(var(--color-border), 0.3);
-        color: rgb(var(--color-text-primary));
+        background: rgba(var(--colour-bg-tertiary), 0.5);
+        border: 1px solid rgba(var(--colour-border), 0.3);
+        color: rgb(var(--colour-text-primary));
     }
     
     .modal-actions .close-btn:hover {
-        background: rgba(var(--color-bg-tertiary), 0.8);
+        background: rgba(var(--colour-bg-tertiary), 0.8);
     }
     
     .modal-actions .play-btn {
-        background: rgba(var(--color-accent-success), 0.4);
+        background: rgba(var(--colour-accent-success), 0.4);
         border: none;
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
     }
     
     .modal-actions .play-btn:hover {
-        background: rgb(var(--color-accent-success));
+        background: rgb(var(--colour-accent-success));
         transform: translateY(-2px);
     }
     
@@ -451,7 +453,7 @@ val CSS_STYLES = """
     
     .pause-message {
         text-align: center;
-        color: rgba(var(--color-text-primary), 0.95);
+        color: rgba(var(--colour-text-primary), 0.95);
         user-select: none;
     }
     
@@ -513,12 +515,12 @@ val CSS_STYLES = """
     }
     
     .board-chain-line.strong-link {
-        stroke: rgb(var(--color-accent-success));
+        stroke: rgb(var(--colour-accent-success));
         stroke-width: 10;
     }
     
     .board-chain-line.weak-link {
-        stroke: rgb(var(--color-accent-warning));
+        stroke: rgb(var(--colour-accent-warning));
         stroke-dasharray: 5 15;
     }
     
@@ -540,7 +542,7 @@ val CSS_STYLES = """
     }
     
     .board-candidate-highlight.group-default {
-        fill: rgba(var(--color-accent-info), 0.6);
+        fill: rgba(var(--colour-accent-info), 0.6);
     }
     
     /* SVG highlight states for interactive chain notation */
@@ -561,7 +563,7 @@ val CSS_STYLES = """
     }
     
     .chain-cell-ref {
-        background: rgba(var(--color-accent-info), 0.2);
+        background: rgba(var(--colour-accent-info), 0.2);
         padding: 2px 4px;
         border-radius: 4px;
         cursor: pointer;
@@ -571,8 +573,8 @@ val CSS_STYLES = """
     }
     
     .chain-cell-ref:hover {
-        background: rgba(var(--color-accent-info), 0.5);
-        box-shadow: 0 0 8px rgba(var(--color-accent-info), 0.5);
+        background: rgba(var(--colour-accent-info), 0.5);
+        box-shadow: 0 0 8px rgba(var(--colour-accent-info), 0.5);
     }
     
     .chain-link-ref {
@@ -585,23 +587,23 @@ val CSS_STYLES = """
     }
     
     .chain-link-strong {
-        background: rgba(var(--color-accent-success-text), 0.2);
-        color: rgb(var(--color-accent-success));
+        background: rgba(var(--colour-accent-success-text), 0.2);
+        color: rgb(var(--colour-accent-success));
     }
     
     .chain-link-strong:hover {
-        background: rgba(var(--color-accent-success-text), 0.5);
-        box-shadow: 0 0 8px rgba(var(--color-accent-success), 0.5);
+        background: rgba(var(--colour-accent-success-text), 0.5);
+        box-shadow: 0 0 8px rgba(var(--colour-accent-success), 0.5);
     }
     
     .chain-link-weak {
-        background: rgba(var(--color-accent-warning-text), 0.2);
-        color: rgb(var(--color-accent-warning));
+        background: rgba(var(--colour-accent-warning-text), 0.2);
+        color: rgb(var(--colour-accent-warning));
     }
     
     .chain-link-weak:hover {
-        background: rgba(var(--color-accent-warning-text), 0.5);
-        box-shadow: 0 0 8px rgba(var(--color-accent-warning), 0.5);
+        background: rgba(var(--colour-accent-warning-text), 0.5);
+        box-shadow: 0 0 8px rgba(var(--colour-accent-warning), 0.5);
     }
     
     .chain-text, .desc-text {
@@ -616,7 +618,7 @@ val CSS_STYLES = """
     
     /* Simple cell reference: R5C6 */
     .cell-ref {
-        background: rgba(var(--color-accent-info), 0.2);
+        background: rgba(var(--colour-accent-info), 0.2);
         padding: 1px 4px;
         border-radius: 4px;
         font-family: 'JetBrains Mono', 'Fira Code', monospace;
@@ -624,55 +626,55 @@ val CSS_STYLES = """
     }
     
     .cell-ref:hover, .cell-ref.ref-hovered {
-        background: rgba(var(--color-accent-info), 0.5);
-        box-shadow: 0 0 6px rgba(var(--color-accent-info), 0.4);
+        background: rgba(var(--colour-accent-info), 0.5);
+        box-shadow: 0 0 6px rgba(var(--colour-accent-info), 0.4);
     }
     
     /* Digit reference: {5, 7, 8} */
     .digit-ref {
-        background: rgba(var(--color-accent-secondary), 0.2);
+        background: rgba(var(--colour-accent-secondary), 0.2);
         padding: 1px 4px;
         border-radius: 4px;
         font-family: 'JetBrains Mono', 'Fira Code', monospace;
         font-size: 0.9em;
-        color: rgb(var(--color-accent-secondary));
+        color: rgb(var(--colour-accent-secondary));
     }
     
     .digit-ref:hover, .digit-ref.ref-hovered {
-        background: rgba(var(--color-accent-secondary), 0.5);
-        box-shadow: 0 0 6px rgba(var(--color-accent-secondary), 0.4);
+        background: rgba(var(--colour-accent-secondary), 0.5);
+        box-shadow: 0 0 6px rgba(var(--colour-accent-secondary), 0.4);
         color: white;
     }
     
     /* House reference: Row 5, Column 7, Box 3 */
     .house-ref {
-        background: rgba(var(--color-accent-warning), 0.15);
+        background: rgba(var(--colour-accent-warning), 0.15);
         padding: 1px 4px;
         border-radius: 4px;
         font-weight: 500;
     }
     
     .house-ref:hover, .house-ref.ref-hovered {
-        background: rgba(var(--color-accent-warning), 0.4);
-        box-shadow: 0 0 6px rgba(var(--color-accent-warning), 0.4);
+        background: rgba(var(--colour-accent-warning), 0.4);
+        box-shadow: 0 0 6px rgba(var(--colour-accent-warning), 0.4);
     }
     
     /* Hover highlights on grid */
     .cell.hover-highlight-cell {
-        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-info), 0.8) !important;
-        background: rgba(var(--color-accent-info), 0.15) !important;
+        box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-info), 0.8) !important;
+        background: rgba(var(--colour-accent-info), 0.15) !important;
     }
     
     .cell.hover-highlight-house {
-        background: rgba(var(--color-accent-warning), 0.2) !important;
+        background: rgba(var(--colour-accent-warning), 0.2) !important;
     }
     
     .cell.hover-highlight-digit-cell {
-        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-secondary), 0.8) !important;
+        box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-secondary), 0.8) !important;
     }
     
     .candidate.hover-highlight-digit {
-        background: rgba(var(--color-accent-secondary), 0.6) !important;
+        background: rgba(var(--colour-accent-secondary), 0.6) !important;
         color: white !important;
         border-radius: 50%;
         font-weight: bold;
@@ -680,18 +682,18 @@ val CSS_STYLES = """
     
     /* Cell highlight from chain interaction */
     .cell.chain-node-highlight {
-        box-shadow: inset 0 0 0 3px rgba(var(--color-accent-info), 0.8), 0 0 12px rgba(var(--color-accent-info), 0.6) !important;
+        box-shadow: inset 0 0 0 3px rgba(var(--colour-accent-info), 0.8), 0 0 12px rgba(var(--colour-accent-info), 0.6) !important;
     }
     
     .candidate.chain-candidate-highlight {
-        background: rgba(var(--color-accent-info), 0.7) !important;
+        background: rgba(var(--colour-accent-info), 0.7) !important;
         color: white !important;
         border-radius: 50%;
         font-weight: bold;
     }
     
     .sudoku-grid {
-        background: rgba(var(--color-bg-primary), 0.3);
+        background: rgba(var(--colour-bg-primary), 0.3);
         border-radius: clamp(6px, 1.5vmin, 12px);
         padding: clamp(3px, 0.75vmin, 6px);
         display: flex;
@@ -714,7 +716,7 @@ val CSS_STYLES = """
     .cell {
         aspect-ratio: 1;
         flex: 1;
-        background: rgba(var(--color-bg-tertiary), 0.15);
+        background: rgba(var(--colour-bg-tertiary), 0.15);
         border-radius: clamp(2px, 0.5vmin, 4px);
         display: flex;
         justify-content: center;
@@ -724,24 +726,28 @@ val CSS_STYLES = """
         position: relative;
     }
 
-    .cell:hover { background: rgba(var(--color-bg-tertiary), 0.3); }
-    .cell.selected { background: rgba(var(--color-text-primary), 0.1); box-shadow: inset 0 0 0 2px rgba(var(--color-text-primary), 0.7); }
-    .cell.given { background: rgba(var(--color-bg-tertiary), 0.25); }
-    .cell.solved { background: rgba(var(--color-bg-tertiary), 0.15); }
-    .cell.mistake { background: rgba(var(--color-accent-error), 0.5); }
+    .theme-epaper .cell {
+        border: 1px solid rgb(var(--colour-border));
+    }
+
+    .cell:hover { background: rgba(var(--colour-bg-tertiary), 0.3); }
+    .cell.selected { background: rgba(var(--colour-text-primary), 0.1); box-shadow: inset 0 0 0 2px rgba(var(--colour-text-primary), 0.7); }
+    .cell.given { background: rgba(var(--colour-bg-tertiary), 0.25); }
+    .cell.solved { background: rgba(var(--colour-bg-tertiary), 0.15); }
+    .cell.mistake { background: rgba(var(--colour-accent-error), 0.5); }
     .cell.box-left { margin-left: clamp(2px, 0.5vmin, 4px); }
     .cell.box-top { margin-top: clamp(2px, 0.5vmin, 4px); }
     
     .cell-value {
         font-size: clamp(0.9rem, calc(var(--grid-size) / 18), 2rem);
         font-weight: 600;
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
     }
 
-    .cell.given .cell-value { color: rgba(var(--color-text-primary), 0.95); }
-    .cell.solved .cell-value { color: rgba(var(--color-text-primary), 0.8); }
-    .cell:not(.given):not(.solved) .cell-value { color: rgb(var(--color-accent-secondary)); }
-    .cell.mistake .cell-value { color: rgb(var(--color-accent-error)); }
+    .cell.given .cell-value { color: rgba(var(--colour-text-primary), 0.95); }
+    .cell.solved .cell-value { color: rgba(var(--colour-text-primary), 0.8); }
+    .cell:not(.given):not(.solved) .cell-value { color: rgb(var(--colour-accent-secondary)); }
+    .cell.mistake .cell-value { color: rgb(var(--colour-accent-error)); }
     
     .candidates {
         display: grid;
@@ -753,7 +759,7 @@ val CSS_STYLES = """
     
     .candidate {
         font-size: clamp(0.85rem, calc(var(--grid-size) / 60), 1.2rem);
-        color: rgba(var(--color-text-primary), 0.85);
+        color: rgba(var(--colour-text-primary), 0.85);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -765,83 +771,83 @@ val CSS_STYLES = """
     
     /* Hint highlighting for cells */
     .cell.hint-cover-area {
-        background: rgba(var(--color-accent-info), 0.2);
+        background: rgba(var(--colour-accent-info), 0.2);
     }
     
     .cell.hint-solved-cell {
-        background: rgba(var(--color-accent-success), 0.3);
+        background: rgba(var(--colour-accent-success), 0.3);
     }
     
     .cell.hint-step-highlight {
-        background: rgba(var(--color-accent-warning), 0.3);
-        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-warning), 0.6);
+        background: rgba(var(--colour-accent-warning), 0.3);
+        box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-warning), 0.6);
     }
     
     /* Hint highlighting for candidates */
     .candidate.hint-elimination {
-        color: rgb(var(--color-accent-error));
+        color: rgb(var(--colour-accent-error));
         font-weight: bold;
         text-decoration: line-through;
     }
     
     .candidate.hint-matching-not-eliminated {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         font-weight: bold;
     }
     
     .candidate.hint-solved {
-        color: rgb(var(--color-accent-success-text));
+        color: rgb(var(--colour-accent-success-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-success), 0.3);
+        background: rgba(var(--colour-accent-success), 0.3);
         border-radius: 2px;
     }
     
     /* New explanation step highlighting */
     .cell.hint-region-highlight {
-        background: rgba(var(--color-accent-info), 0.15);
+        background: rgba(var(--colour-accent-info), 0.15);
     }
     
     .cell.hint-cell-warning {
-        background: rgba(var(--color-accent-warning), 0.35);
-        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-warning), 0.7);
+        background: rgba(var(--colour-accent-warning), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-warning), 0.7);
     }
     
     .cell.hint-cell-target {
-        background: rgba(var(--color-accent-success), 0.35);
-        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-success), 0.7);
+        background: rgba(var(--colour-accent-success), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-success), 0.7);
     }
     
     .cell.hint-cell-primary {
-        background: rgba(var(--color-accent-info), 0.35);
-        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-info), 0.7);
+        background: rgba(var(--colour-accent-info), 0.35);
+        box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-info), 0.7);
     }
     
     .candidate.hint-candidate-target {
-        color: rgb(var(--color-accent-success-text));
+        color: rgb(var(--colour-accent-success-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-success), 1.0);
+        background: rgba(var(--colour-accent-success), 1.0);
         border-radius: 2px;
     }
     
     .candidate.hint-candidate-elimination {
-        color: rgb(var(--color-accent-error-text));
+        color: rgb(var(--colour-accent-error-text));
         font-weight: bold;
         text-decoration: line-through;
-        background: rgba(var(--color-accent-error), 1.0);
+        background: rgba(var(--colour-accent-error), 1.0);
         border-radius: 2px;
     }
     
     .candidate.hint-candidate-highlight {
-        color: rgb(var(--color-accent-warning-text));
+        color: rgb(var(--colour-accent-warning-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-warning), 1.0);
+        background: rgba(var(--colour-accent-warning), 1.0);
         border-radius: 2px;
     }
     
     .candidate.hint-candidate-info {
-        color: rgb(var(--color-accent-info-text));
+        color: rgb(var(--colour-accent-info-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-info), 1.0);
+        background: rgba(var(--colour-accent-info), 1.0);
         border-radius: 2px;
     }
     
@@ -861,27 +867,27 @@ val CSS_STYLES = """
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
-        background: rgba(var(--color-accent-desat), 0.2);
-        color: rgba(var(--color-text-primary), 0.8);
+        background: rgba(var(--colour-accent-desat), 0.2);
+        color: rgba(var(--colour-text-primary), 0.8);
     }
 
     .toggle-btn:hover, .undo-btn:hover, .hint-btn:hover, .solve-btn:hover {
-        background: rgba(var(--color-accent-desat), 0.3);
+        background: rgba(var(--colour-accent-desat), 0.3);
         transform: translateY(-1px);
     }
 
-    .toggle-btn.active { background: rgb(var(--color-accent-secondary)); color: rgb(var(--color-text-primary)); }
-    .undo-btn { background: rgba(var(--color-accent-desat), 0.4); color: rgba(var(--color-text-primary), 0.8); }
+    .toggle-btn.active { background: rgb(var(--colour-accent-secondary)); color: rgb(var(--colour-text-primary)); }
+    .undo-btn { background: rgba(var(--colour-accent-desat), 0.4); color: rgba(var(--colour-text-primary), 0.8); }
     .undo-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-    .hint-btn { background: rgba(var(--color-accent-warning), 0.4); color: rgb(var(--color-accent-warning-text)); }
-    .hint-btn.active { background: rgb(var(--color-accent-warning)); color: rgb(var(--color-bg-primary)); }
+    .hint-btn { background: rgba(var(--colour-accent-warning), 0.4); color: rgb(var(--colour-accent-warning-text)); }
+    .hint-btn.active { background: rgb(var(--colour-accent-warning)); color: rgb(var(--colour-bg-primary)); }
     .hint-btn.disabled {
         opacity: 0.4;
         cursor: not-allowed;
         pointer-events: none;
     }
     .hint-btn.loading {
-        background: rgba(var(--color-accent-info), 0.4);
+        background: rgba(var(--colour-accent-info), 0.4);
         animation: pulse 1.5s ease-in-out infinite;
     }
     
@@ -917,7 +923,7 @@ val CSS_STYLES = """
         min-width: 200px;
         max-width: 320px;
         align-self: stretch;
-        background: rgba(var(--color-bg-tertiary), 0.1);
+        background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
         display: flex;
@@ -936,11 +942,11 @@ val CSS_STYLES = """
     .hint-sidebar-header h3 {
         margin: 0;
         font-size: clamp(0.9rem, calc(0.8rem + 0.5vmin), 1.1rem);
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--colour-accent-warning));
     }
     
     .hint-count {
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.9rem);
     }
     
@@ -953,7 +959,7 @@ val CSS_STYLES = """
     }
     
     .hint-item {
-        background: rgba(var(--color-bg-tertiary), 0.15);
+        background: rgba(var(--colour-bg-tertiary), 0.15);
         border-radius: clamp(6px, 1vmin, 10px);
         padding: 0;
         cursor: pointer;
@@ -962,18 +968,18 @@ val CSS_STYLES = """
     }
 
     .hint-item:hover {
-        background: rgba(var(--color-bg-tertiary), 0.25);
+        background: rgba(var(--colour-bg-tertiary), 0.25);
     }
 
     .hint-item.selected {
-        background: rgba(var(--color-accent-primary), 0.3);
-        border-color: rgb(var(--color-accent-primary));
+        background: rgba(var(--colour-accent-primary), 0.3);
+        border-color: rgb(var(--colour-accent-primary));
         overflow: visible;
     }
     
     .hint-item.expanded {
-        background: rgba(var(--color-accent-primary), 0.3);
-        border-color: rgb(var(--color-accent-primary));
+        background: rgba(var(--colour-accent-primary), 0.3);
+        border-color: rgb(var(--colour-accent-primary));
         overflow: visible;
     }
     
@@ -990,13 +996,13 @@ val CSS_STYLES = """
 
     .hint-technique {
         font-weight: 600;
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
         font-size: clamp(0.75rem, calc(0.7rem + 0.4vmin), 0.95rem);
         margin-bottom: 4px;
     }
 
     .hint-description {
-        color: rgba(var(--color-text-primary), 0.7);
+        color: rgba(var(--colour-text-primary), 0.7);
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
         line-height: 1.3;
         word-break: break-word;
@@ -1005,7 +1011,7 @@ val CSS_STYLES = """
     .hint-item-expanded {
         padding: clamp(8px, 1.5vmin, 14px);
         padding-top: 0;
-        border-top: 1px solid rgba(var(--color-text-primary), 0.1);
+        border-top: 1px solid rgba(var(--colour-text-primary), 0.1);
         margin-top: clamp(4px, 0.8vmin, 8px);
         display: flex;
         flex-direction: column;
@@ -1016,7 +1022,7 @@ val CSS_STYLES = """
     .inline-explanation {
         padding: clamp(8px, 1.5vmin, 14px);
         padding-top: 0;
-        border-top: 1px solid rgba(var(--color-text-primary), 0.1);
+        border-top: 1px solid rgba(var(--colour-text-primary), 0.1);
         margin-top: clamp(4px, 0.8vmin, 8px);
     }
     
@@ -1030,8 +1036,8 @@ val CSS_STYLES = """
         padding: clamp(4px, 0.6vmin, 6px) clamp(8px, 1.2vmin, 12px);
         border: none;
         border-radius: clamp(4px, 0.6vmin, 6px);
-        background: rgba(var(--color-accent-warning), 0.2);
-        color: rgb(var(--color-accent-warning-text));
+        background: rgba(var(--colour-accent-warning), 0.2);
+        color: rgb(var(--colour-accent-warning-text));
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
         font-weight: 600;
         cursor: pointer;
@@ -1039,11 +1045,11 @@ val CSS_STYLES = """
     }
     
     .explanation-collapse-btn:hover {
-        background: rgba(var(--color-accent-warning), 0.3);
+        background: rgba(var(--colour-accent-warning), 0.3);
     }
     
     .inline-eureka {
-        background: rgba(var(--color-bg-tertiary), 0.15);
+        background: rgba(var(--colour-bg-tertiary), 0.15);
         border-radius: clamp(4px, 0.6vmin, 6px);
         padding: clamp(6px, 1vmin, 10px);
         margin-bottom: clamp(8px, 1.2vmin, 12px);
@@ -1053,15 +1059,15 @@ val CSS_STYLES = """
     }
     
     .eureka-label {
-        color: rgba(var(--color-text-primary), 1.0);
+        color: rgba(var(--colour-text-primary), 1.0);
     }
     
     .eureka-notation {
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--colour-accent-warning));
     }
     
     .inline-step {
-        background: rgba(var(--color-bg-tertiary), 0.2);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
         border-radius: clamp(6px, 1vmin, 10px);
         padding: clamp(8px, 1.2vmin, 12px);
         margin-bottom: clamp(8px, 1.2vmin, 12px);
@@ -1075,8 +1081,8 @@ val CSS_STYLES = """
     }
     
     .step-number {
-        background: rgba(var(--color-accent-info), 0.3);
-        color: rgb(var(--color-accent-info));
+        background: rgba(var(--colour-accent-info), 0.3);
+        color: rgb(var(--colour-accent-info));
         padding: clamp(2px, 0.4vmin, 4px) clamp(6px, 0.8vmin, 10px);
         border-radius: clamp(3px, 0.5vmin, 5px);
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
@@ -1086,11 +1092,11 @@ val CSS_STYLES = """
     .step-title {
         font-size: clamp(0.7rem, calc(0.65rem + 0.35vmin), 0.9rem);
         font-weight: 600;
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
     }
     
     .step-description {
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.8rem);
         line-height: 1.4;
     }
@@ -1106,8 +1112,8 @@ val CSS_STYLES = """
         padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
         border-radius: clamp(4px, 0.6vmin, 6px);
-        background: rgba(var(--color-accent-info), 0.2);
-        color: rgb(var(--color-accent-info));
+        background: rgba(var(--colour-accent-info), 0.2);
+        color: rgb(var(--colour-accent-info));
         font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
         font-weight: 600;
         cursor: pointer;
@@ -1115,7 +1121,7 @@ val CSS_STYLES = """
     }
     
     .inline-nav-btn:hover:not(.disabled) {
-        background: rgba(var(--color-accent-info), 0.3);
+        background: rgba(var(--colour-accent-info), 0.3);
     }
     
     .inline-nav-btn.disabled {
@@ -1124,7 +1130,7 @@ val CSS_STYLES = """
     }
     
     .step-indicator {
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
     }
     
@@ -1148,8 +1154,8 @@ val CSS_STYLES = """
         padding: clamp(6px, 1vmin, 10px) clamp(10px, 1.5vmin, 14px);
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
-        background: rgba(var(--color-text-primary), 0.1);
-        color: rgb(var(--color-text-primary));
+        background: rgba(var(--colour-text-primary), 0.1);
+        color: rgb(var(--colour-text-primary));
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
         font-weight: 600;
         cursor: pointer;
@@ -1157,12 +1163,12 @@ val CSS_STYLES = """
     }
     
     .explanation-back-btn:hover {
-        background: rgba(var(--color-text-primary), 0.2);
+        background: rgba(var(--colour-text-primary), 0.2);
     }
     
     .hint-position-badge {
-        background: rgba(var(--color-accent-warning), 0.2);
-        color: rgb(var(--color-accent-warning));
+        background: rgba(var(--colour-accent-warning), 0.2);
+        color: rgb(var(--colour-accent-warning));
         padding: clamp(4px, 0.6vmin, 6px) clamp(8px, 1vmin, 12px);
         border-radius: clamp(4px, 0.6vmin, 6px);
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
@@ -1170,28 +1176,28 @@ val CSS_STYLES = """
     }
     
     .explanation-technique-info {
-        background: rgba(var(--color-accent-warning), 0.15);
+        background: rgba(var(--colour-accent-warning), 0.15);
         border-radius: clamp(6px, 1vmin, 10px);
         padding: clamp(10px, 1.5vmin, 16px);
-        border-left: 3px solid rgb(var(--color-accent-warning));
+        border-left: 3px solid rgb(var(--colour-accent-warning));
         flex-shrink: 0;
     }
     
     .explanation-technique-name {
         font-size: clamp(0.8rem, calc(0.75rem + 0.4vmin), 1rem);
         font-weight: 700;
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--colour-accent-warning));
         margin-bottom: clamp(4px, 0.6vmin, 8px);
     }
     
     .explanation-technique-desc {
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         line-height: 1.4;
     }
     
     .explanation-eureka {
-        background: rgba(var(--color-bg-tertiary), 0.3);
+        background: rgba(var(--colour-bg-tertiary), 0.3);
         border-radius: clamp(4px, 0.6vmin, 6px);
         padding: clamp(8px, 1.2vmin, 12px);
         font-family: 'JetBrains Mono', 'Fira Code', monospace;
@@ -1202,7 +1208,7 @@ val CSS_STYLES = """
     
     .explanation-step-content {
         flex: 1;
-        background: rgba(var(--color-bg-tertiary), 0.2);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
         border-radius: clamp(6px, 1vmin, 10px);
         padding: clamp(10px, 1.5vmin, 16px);
         overflow-y: auto;
@@ -1216,7 +1222,7 @@ val CSS_STYLES = """
     }
     
     .explanation-step-content .step-description {
-        color: rgba(var(--color-text-primary), 0.85);
+        color: rgba(var(--colour-text-primary), 0.85);
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
         line-height: 1.5;
     }
@@ -1233,8 +1239,8 @@ val CSS_STYLES = """
         padding: clamp(6px, 1vmin, 10px) clamp(12px, 1.8vmin, 18px);
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
-        background: rgba(var(--color-accent-info), 0.2);
-        color: rgb(var(--color-accent-info));
+        background: rgba(var(--colour-accent-info), 0.2);
+        color: rgb(var(--colour-accent-info));
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.8rem);
         font-weight: 600;
         cursor: pointer;
@@ -1242,7 +1248,7 @@ val CSS_STYLES = """
     }
     
     .explanation-nav-btn:hover:not(.disabled) {
-        background: rgba(var(--color-accent-info), 0.3);
+        background: rgba(var(--colour-accent-info), 0.3);
     }
     
     .explanation-nav-btn.disabled {
@@ -1252,7 +1258,7 @@ val CSS_STYLES = """
     
     .hint-empty {
         text-align: center;
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
         padding: clamp(16px, 3vmin, 32px);
     }
     
@@ -1267,8 +1273,8 @@ val CSS_STYLES = """
         padding: clamp(8px, 1.5vmin, 14px);
         border: none;
         border-radius: clamp(6px, 1vmin, 10px);
-        background: rgba(var(--color-accent-error), 0.3);
-        color: rgb(var(--color-accent-error));
+        background: rgba(var(--colour-accent-error), 0.3);
+        color: rgb(var(--colour-accent-error));
         font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
         font-weight: 600;
         cursor: pointer;
@@ -1277,12 +1283,12 @@ val CSS_STYLES = """
     }
 
     .hint-close-btn:hover {
-        background: rgba(var(--color-accent-error), 0.4);
+        background: rgba(var(--colour-accent-error), 0.4);
     }
     
     /* Portrait Hint Card */
     .hint-card {
-        background: rgba(var(--color-bg-tertiary), 0.1);
+        background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
     }
@@ -1299,8 +1305,8 @@ val CSS_STYLES = """
         padding: clamp(6px, 1vmin, 10px) clamp(10px, 2vmin, 16px);
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
-        background: rgba(var(--color-accent-warning), 0.2);
-        color: rgb(var(--color-accent-warning));
+        background: rgba(var(--colour-accent-warning), 0.2);
+        color: rgb(var(--colour-accent-warning));
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
         font-weight: 600;
         cursor: pointer;
@@ -1308,7 +1314,7 @@ val CSS_STYLES = """
     }
     
     .hint-nav-btn:hover:not(.disabled) {
-        background: rgba(var(--color-accent-warning), 0.3);
+        background: rgba(var(--colour-accent-warning), 0.3);
     }
     
     .hint-nav-btn.disabled {
@@ -1317,7 +1323,7 @@ val CSS_STYLES = """
     }
     
     .hint-position {
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.9rem);
     }
     
@@ -1325,8 +1331,8 @@ val CSS_STYLES = """
         padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
-        background: rgba(var(--color-accent-error), 0.2);
-        color: rgb(var(--color-accent-error));
+        background: rgba(var(--colour-accent-error), 0.2);
+        color: rgb(var(--colour-accent-error));
         font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
         font-weight: bold;
         cursor: pointer;
@@ -1334,12 +1340,12 @@ val CSS_STYLES = """
     }
     
     .hint-close-btn-small:hover {
-        background: rgba(var(--color-accent-error), 0.3);
+        background: rgba(var(--colour-accent-error), 0.3);
     }
     
     .hint-content {
         padding: clamp(8px, 1.5vmin, 16px);
-        background: rgba(var(--color-bg-tertiary), 0.05);
+        background: rgba(var(--colour-bg-tertiary), 0.05);
         border-radius: clamp(6px, 1vmin, 10px);
     }
     
@@ -1349,7 +1355,7 @@ val CSS_STYLES = """
     
     .hint-content.hint-empty {
         text-align: center;
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
     }
     
     /* Hint item with explain button */
@@ -1362,8 +1368,8 @@ val CSS_STYLES = """
         padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 14px);
         border: none;
         border-radius: clamp(4px, 0.8vmin, 8px);
-        background: rgba(var(--color-accent-info), 0.3);
-        color: rgb(var(--color-text-primary));
+        background: rgba(var(--colour-accent-info), 0.3);
+        color: rgb(var(--colour-text-primary));
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.8rem);
         font-weight: 600;
         cursor: pointer;
@@ -1373,7 +1379,7 @@ val CSS_STYLES = """
     }
     
     .hint-explain-btn:hover {
-        background: rgba(var(--color-accent-info), 0.4);
+        background: rgba(var(--colour-accent-info), 0.4);
         transform: translateY(-1px);
     }
     
@@ -1383,7 +1389,7 @@ val CSS_STYLES = """
         align-items: center;
         gap: clamp(4px, 0.8vmin, 8px);
         padding-bottom: clamp(6px, 1vmin, 10px);
-        border-bottom: 1px solid rgba(var(--color-text-primary), 0.1);
+        border-bottom: 1px solid rgba(var(--colour-text-primary), 0.1);
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
     
@@ -1397,7 +1403,7 @@ val CSS_STYLES = """
     }
     
     .hint-technique-compact {
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--colour-accent-warning));
         font-weight: 600;
         font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
         white-space: nowrap;
@@ -1406,7 +1412,7 @@ val CSS_STYLES = """
     }
     
     .hint-position-small {
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
         white-space: nowrap;
     }
@@ -1415,8 +1421,8 @@ val CSS_STYLES = """
         padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
         border-radius: clamp(3px, 0.6vmin, 6px);
-        background: rgba(var(--color-accent-warning), 0.2);
-        color: rgb(var(--color-accent-warning));
+        background: rgba(var(--colour-accent-warning), 0.2);
+        color: rgb(var(--colour-accent-warning));
         font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
         font-weight: 600;
         cursor: pointer;
@@ -1425,7 +1431,7 @@ val CSS_STYLES = """
     }
     
     .hint-nav-btn-small:hover:not(.disabled) {
-        background: rgba(var(--color-accent-warning), 0.3);
+        background: rgba(var(--colour-accent-warning), 0.3);
     }
     
     .hint-nav-btn-small.disabled {
@@ -1437,8 +1443,8 @@ val CSS_STYLES = """
         padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
         border-radius: clamp(3px, 0.6vmin, 6px);
-        background: rgba(var(--color-accent-info), 0.2);
-        color: rgb(var(--color-accent-info));
+        background: rgba(var(--colour-accent-info), 0.2);
+        color: rgb(var(--colour-accent-info));
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
         font-weight: bold;
         cursor: pointer;
@@ -1446,7 +1452,7 @@ val CSS_STYLES = """
     }
     
     .hint-collapse-btn-small:hover {
-        background: rgba(var(--color-accent-info), 0.3);
+        background: rgba(var(--colour-accent-info), 0.3);
     }
     
     .hint-content-compact {
@@ -1455,7 +1461,7 @@ val CSS_STYLES = """
     
     .hint-content-compact .hint-description {
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         line-height: 1.4;
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
@@ -1469,7 +1475,7 @@ val CSS_STYLES = """
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
         margin-bottom: clamp(4px, 0.8vmin, 8px);
         padding: clamp(3px, 0.5vmin, 6px);
-        background: rgba(var(--color-bg-tertiary), 0.1);
+        background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(3px, 0.5vmin, 6px);
     }
     
@@ -1484,8 +1490,8 @@ val CSS_STYLES = """
         padding: clamp(2px, 0.4vmin, 4px) clamp(4px, 0.8vmin, 8px);
         border: none;
         border-radius: clamp(3px, 0.5vmin, 6px);
-        background: rgba(var(--color-accent-info), 0.2);
-        color: rgb(var(--color-accent-info));
+        background: rgba(var(--colour-accent-info), 0.2);
+        color: rgb(var(--colour-accent-info));
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
         font-weight: 600;
         cursor: pointer;
@@ -1495,7 +1501,7 @@ val CSS_STYLES = """
     }
     
     .step-nav-btn-small:hover:not(.disabled) {
-        background: rgba(var(--color-accent-info), 0.3);
+        background: rgba(var(--colour-accent-info), 0.3);
     }
     
     .step-nav-btn-small.disabled {
@@ -1504,8 +1510,8 @@ val CSS_STYLES = """
     }
     
     .step-badge {
-        background: rgba(var(--color-accent-info), 0.3);
-        color: rgb(var(--color-accent-info));
+        background: rgba(var(--colour-accent-info), 0.3);
+        color: rgb(var(--colour-accent-info));
         padding: clamp(2px, 0.4vmin, 4px) clamp(6px, 1vmin, 10px);
         border-radius: clamp(3px, 0.5vmin, 6px);
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
@@ -1516,7 +1522,7 @@ val CSS_STYLES = """
     .step-header-compact .step-title {
         font-weight: 600;
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
-        color: rgba(var(--color-text-primary), 0.9);
+        color: rgba(var(--colour-text-primary), 0.9);
         flex: 1;
         min-width: 0;
     }
@@ -1524,7 +1530,7 @@ val CSS_STYLES = """
     .inline-explanation-compact .step-description {
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
         line-height: 1.5;
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
     }
     
     .inline-explanation-compact .inline-nav {
@@ -1534,7 +1540,7 @@ val CSS_STYLES = """
         gap: clamp(8px, 1.5vmin, 14px);
         margin-top: clamp(8px, 1.5vmin, 14px);
         padding-top: clamp(6px, 1vmin, 10px);
-        border-top: 1px solid rgba(var(--color-text-primary), 0.1);
+        border-top: 1px solid rgba(var(--colour-text-primary), 0.1);
     }
     
     .number-pad {
@@ -1552,17 +1558,17 @@ val CSS_STYLES = """
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
-        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
-        color: rgb(var(--color-text-primary));
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
+        color: rgb(var(--colour-text-primary));
     }
     
-    .num-btn:hover { background: rgba(var(--color-accent-desat), 0.25); transform: scale(1.05); }
+    .num-btn:hover { background: rgba(var(--colour-accent-desat), 0.25); transform: scale(1.05); }
     .num-btn:active { transform: scale(0.95); }
     
     .status {
         text-align: center;
         padding: clamp(6px, 1.5vmin, 12px);
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
         flex-shrink: 0;
     }
@@ -1572,8 +1578,8 @@ val CSS_STYLES = """
         bottom: clamp(60px, 15vh, 120px);
         left: 50%;
         transform: translateX(-50%);
-        background: rgba(var(--color-bg-primary), 0.9);
-        color: rgb(var(--color-text-primary));
+        background: rgba(var(--colour-bg-primary), 0.9);
+        color: rgb(var(--colour-text-primary));
         padding: clamp(8px, 2vmin, 16px) clamp(16px, 4vmin, 32px);
         border-radius: clamp(4px, 1vmin, 8px);
         font-size: clamp(0.75rem, calc(0.7rem + 0.5vmin), 1rem);
@@ -1593,14 +1599,14 @@ val CSS_STYLES = """
     }
     
     .browser .section, .import-export .section {
-        background: rgba(var(--color-bg-tertiary), 0.1);
+        background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(6px, 1.5vmin, 12px);
         padding: clamp(10px, 2.5vmin, 20px);
         margin-bottom: clamp(10px, 2.5vmin, 20px);
     }
     
     .section h2 {
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
         font-size: clamp(0.85rem, calc(0.8rem + 0.5vmin), 1.1rem);
         margin-bottom: clamp(8px, 2vmin, 16px);
     }
@@ -1619,15 +1625,15 @@ val CSS_STYLES = """
         font-size: clamp(0.65rem, calc(0.6rem + 0.5vmin), 0.9rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(var(--color-bg-tertiary), 0.2);
-        color: rgba(var(--color-text-primary), 0.7);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
+        color: rgba(var(--colour-text-primary), 0.7);
         transition: all 0.15s ease;
     }
 
-    .tab-btn:hover { background: rgba(var(--color-bg-tertiary), 0.4); }
+    .tab-btn:hover { background: rgba(var(--colour-bg-tertiary), 0.4); }
     .tab-btn.active {
-        background: rgba(var(--color-accent-primary), 0.4);
-        color: rgb(var(--color-text-primary));
+        background: rgba(var(--colour-accent-primary), 0.4);
+        color: rgb(var(--colour-text-primary));
     }
     
     .puzzle-list, .game-list {
@@ -1643,25 +1649,25 @@ val CSS_STYLES = """
         align-items: center;
         gap: 12px;
         padding: 10px 12px;
-        background: rgba(var(--color-bg-tertiary), 0.5);
+        background: rgba(var(--colour-bg-tertiary), 0.5);
         border-radius: 8px;
         transition: all 0.15s ease;
     }
 
     .puzzle-item:hover, .game-item:hover {
-        background: rgba(var(--color-bg-tertiary), 0.2);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
     }
     
     .puzzle-item.completed { opacity: 0.6; }
     
     .puzzle-num {
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
         font-size: 0.8rem;
         width: 30px;
     }
     
     .difficulty {
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--colour-accent-warning));
         font-size: 0.8rem;
     }
     
@@ -1671,32 +1677,32 @@ val CSS_STYLES = """
         border-radius: 4px;
     }
     
-    .status.completed { background: rgba(var(--color-accent-success), 1.0); color: rgb(var(--color-accent-success-text)); }
-    .status.progress { background: rgba(var(--color-accent-warning), 1.0); color: rgb(var(--color-accent-warning-text)); }
+    .status.completed { background: rgba(var(--colour-accent-success), 1.0); color: rgb(var(--colour-accent-success-text)); }
+    .status.progress { background: rgba(var(--colour-accent-warning), 1.0); color: rgb(var(--colour-accent-warning-text)); }
     
     /* Game item text elements */
     .game-item .progress {
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-size: 0.8rem;
     }
 
     .game-item .time {
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.75rem;
     }
 
     .game-item .mistakes {
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.75rem;
     }
     
     .game-item .hints {
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.75rem;
     }
     
     .game-title {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         font-weight: 600;
         font-size: 0.85rem;
         cursor: pointer;
@@ -1707,13 +1713,13 @@ val CSS_STYLES = """
     }
     
     .puzzle-title {
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
         font-weight: 600;
         font-size: 0.85rem;
     }
     
     .puzzle-title-link {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         font-weight: 600;
         font-size: 0.85rem;
         text-decoration: none;
@@ -1729,13 +1735,13 @@ val CSS_STYLES = """
         border-radius: 4px;
         font-size: 0.85rem;
         cursor: pointer;
-        background: rgba(var(--color-accent-info), 0.2);
-        color: rgb(var(--color-accent-info));
+        background: rgba(var(--colour-accent-info), 0.2);
+        color: rgb(var(--colour-accent-info));
         transition: all 0.15s ease;
     }
     
     .info-btn:hover {
-        background: rgba(var(--color-accent-info), 0.3);
+        background: rgba(var(--colour-accent-info), 0.3);
         transform: scale(1.05);
     }
     
@@ -1747,13 +1753,13 @@ val CSS_STYLES = """
         font-size: 0.75rem;
         font-weight: 600;
         cursor: pointer;
-        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
-        color: rgba(var(--color-text-primary), 0.8);
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
+        color: rgba(var(--colour-text-primary), 0.8);
         transition: all 0.15s ease;
     }
 
     .play-btn:hover, .resume-btn:hover {
-        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
         transform: translateY(-1px);
     }
     
@@ -1764,7 +1770,7 @@ val CSS_STYLES = """
     
     .export-option label {
         display: block;
-        color: rgba(var(--color-text-primary), 0.7);
+        color: rgba(var(--colour-text-primary), 0.7);
         font-size: 0.8rem;
         margin-bottom: 4px;
     }
@@ -1777,17 +1783,17 @@ val CSS_STYLES = """
     .export-field {
         flex: 1;
         padding: 8px 12px;
-        border: 1px solid rgba(var(--color-border), 0.3);
+        border: 1px solid rgba(var(--colour-border), 0.3);
         border-radius: 6px;
-        background: rgba(var(--color-bg-primary), 0.4);
-        color: rgba(var(--color-text-primary), 0.8);
+        background: rgba(var(--colour-bg-primary), 0.4);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-family: monospace;
         font-size: 0.75rem;
     }
     
     .copy-btn, .paste-btn, .load-btn {
-        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
-        color: rgba(var(--color-text-primary), 0.8);
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
+        color: rgba(var(--colour-text-primary), 0.8);
         padding: 8px 12px;
         border: none;
         border-radius: 6px;
@@ -1799,11 +1805,11 @@ val CSS_STYLES = """
 
     .copy-btn:hover, .paste-btn:hover, .load-btn:hover
     {         
-        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
     }
     
     .hint {
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
         font-size: 0.75rem;
         margin-bottom: 8px;
     }
@@ -1812,7 +1818,7 @@ val CSS_STYLES = """
     .hint a:visited,
     .hint a:hover,
     .hint a:active {
-        color: rgb(var(--color-accent-primary));
+        color: rgb(var(--colour-accent-primary));
         text-decoration: none;
         transition: opacity 0.15s ease;
     }
@@ -1826,10 +1832,10 @@ val CSS_STYLES = """
         width: 100%;
         height: 80px;
         padding: 12px;
-        border: 1px solid rgba(var(--color-border), 0.3);
+        border: 1px solid rgba(var(--colour-border), 0.3);
         border-radius: 8px;
-        background: rgba(var(--color-bg-primary), 0.4);
-        color: rgba(var(--color-text-primary), 0.8);
+        background: rgba(var(--colour-bg-primary), 0.4);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-family: monospace;
         font-size: 0.8rem;
         resize: none;
@@ -1843,17 +1849,23 @@ val CSS_STYLES = """
     
     
     /* Highlight styles */
-    .cell.highlight-primary { background: rgba(var(--color-accent-primary), 0.3); } /* Light blue */
-    .cell.highlight-secondary { background: rgba(var(--color-accent-secondary), 0.3); } /* Light red */
-    .cell.highlight-both { background: rgba(var(--color-accent-tertiary), 0.3); } /* Light purple */
+    .cell.highlight-primary { background: rgba(var(--colour-accent-primary), 0.3); } /* Light blue */
+    .theme-epaper .cell.highlight-primary { 
+        background-image: repeating-linear-gradient( var(--stripe-angle), var(--stripe-color), var(--stripe-color) 3px, transparent 3px, transparent var(--stripe-size) );
+        --stripe-color: rgba(var(--colour-bg-primary), 0.25);
+        --stripe-size: 6px;
+        --stripe-angle: 225deg;
+    }
+    .cell.highlight-secondary { background: rgba(var(--colour-accent-secondary), 0.3); } /* Light red */
+    .cell.highlight-both { background: rgba(var(--colour-accent-tertiary), 0.3); } /* Light purple */
 
-    .cell.highlight-primary:hover { background: rgba(var(--color-accent-primary), 0.4); }
-    .cell.highlight-secondary:hover { background: rgba(var(--color-accent-secondary), 0.4); }
-    .cell.highlight-both:hover { background: rgba(var(--color-accent-tertiary), 0.4); }
+    .cell.highlight-primary:hover { background: rgba(var(--colour-accent-primary), 0.4); }
+    .cell.highlight-secondary:hover { background: rgba(var(--colour-accent-secondary), 0.4); }
+    .cell.highlight-both:hover { background: rgba(var(--colour-accent-tertiary), 0.4); }
     
     /* All candidates covered - striped/hashed pattern (easy to customize) */
     .cell.all-candidates-covered {
-        --stripe-color: rgba(var(--color-accent-warning), 0.25);
+        --stripe-color: rgba(var(--colour-accent-warning), 0.25);
         --stripe-size: 6px;
         --stripe-angle: 45deg;
         background-image: repeating-linear-gradient(
@@ -1868,48 +1880,48 @@ val CSS_STYLES = """
     .cell.all-candidates-covered.highlight-primary {
         background: 
             repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
-            rgba(var(--color-accent-primary), 0.3);
+            rgba(var(--colour-accent-primary), 0.3);
     }
     .cell.all-candidates-covered.highlight-secondary {
         background: 
             repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
-            rgba(var(--color-accent-secondary), 0.3);
+            rgba(var(--colour-accent-secondary), 0.3);
     }
     .cell.all-candidates-covered.highlight-both {
         background: 
             repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
-            rgba(var(--color-accent-tertiary), 0.3);
+            rgba(var(--colour-accent-tertiary), 0.3);
     }
     
     /* Hint cell highlighting - new system */
     .cell.hint-cover-area { 
-        background: rgba(var(--color-accent-primary), 0.3); /* Light blue for cover area */
+        background: rgba(var(--colour-accent-primary), 0.3); /* Light blue for cover area */
     }
     .cell.hint-cover-area:hover { 
-        background: rgba(var(--color-accent-primary), 0.4); 
+        background: rgba(var(--colour-accent-primary), 0.4); 
     }
     .cell.hint-solved-cell { 
-        background: rgba(var(--color-accent-success), 0.45); /* Stronger green for solution cell */
-        box-shadow: inset 0 0 0 2px rgba(var(--color-accent-success), 0.8);
+        background: rgba(var(--colour-accent-success), 0.45); /* Stronger green for solution cell */
+        box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-success), 0.8);
     }
     .cell.hint-solved-cell:hover { 
-        background: rgba(var(--color-accent-success), 0.55); 
+        background: rgba(var(--colour-accent-success), 0.55); 
     }
     
     /* Number button selection states */
     .num-btn.primary {
-        background: rgba(var(--color-accent-primary), 0.5);
-        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-primary));
+        background: rgba(var(--colour-accent-primary), 0.5);
+        box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-primary));
     }
     .num-btn.primary:hover {
-        background: rgba(var(--color-accent-primary), 0.6);
+        background: rgba(var(--colour-accent-primary), 0.6);
     }
     .num-btn.secondary {
-        background: rgba(var(--color-accent-secondary), 0.5);
-        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-secondary));
+        background: rgba(var(--colour-accent-secondary), 0.5);
+        box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-secondary));
     }
     .num-btn.secondary:hover {
-        background: rgba(var(--color-accent-secondary), 0.6);
+        background: rgba(var(--colour-accent-secondary), 0.6);
     }
     .num-btn.both {
         background: rgba(206, 147, 216, 0.5);
@@ -1921,46 +1933,46 @@ val CSS_STYLES = """
     
     /* Pencil mark highlighting - color coded */
     .candidate.pencil-highlight-primary {
-        color: rgb(var(--color-accent-primary-text));
+        color: rgb(var(--colour-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-primary), 0.6);
+        background: rgba(var(--colour-accent-primary), 0.6);
         border-radius: 2px;
     }
     .candidate.pencil-highlight-secondary {
-        color: rgb(var(--color-accent-primary-text));
+        color: rgb(var(--colour-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-secondary), 0.6);
+        background: rgba(var(--colour-accent-secondary), 0.6);
         border-radius: 2px;
     }
     .candidate.pencil-highlight-both {
-        color: rgb(var(--color-accent-primary-text));
+        color: rgb(var(--colour-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-warning), 0.8);
+        background: rgba(var(--colour-accent-warning), 0.8);
         border-radius: 2px;
     }
     
     /* Hint candidate highlighting */
     .candidate.hint-elimination {
-        color: rgb(var(--color-accent-error)); /* Red number */
+        color: rgb(var(--colour-accent-error)); /* Red number */
         text-decoration: line-through;
         font-weight: bold;
-        background: rgba(var(--color-grid-neutral), 1); /* Grey background */
+        background: rgba(var(--colour-grid-neutral), 1); /* Grey background */
         border-radius: 2px;
     }
 
     .candidate.hint-matching-not-eliminated {
-        color: rgb(var(--color-accent-primary-text)); /* Green number */
+        color: rgb(var(--colour-accent-primary-text)); /* Green number */
         font-weight: bold;
-        background: rgba(var(--color-accent-success), 1); /* Light green background */
+        background: rgba(var(--colour-accent-success), 1); /* Light green background */
         border-radius: 2px;
     }
 
     .candidate.hint-solved {
-        color: rgb(var(--color-accent-primary-text));
+        color: rgb(var(--colour-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--color-accent-success), 1);
+        background: rgba(var(--colour-accent-success), 1);
         border-radius: 2px;
-        box-shadow: 0 0 0 1px rgba(var(--color-accent-success), 0.5);
+        box-shadow: 0 0 0 1px rgba(var(--colour-accent-success), 0.5);
     }
     
     /* Mode indicators in header */
@@ -1973,14 +1985,14 @@ val CSS_STYLES = """
         font-size: clamp(0.55rem, calc(0.5rem + 0.4vmin), 0.7rem);
         padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 8px);
         border-radius: clamp(2px, 0.5vmin, 4px);
-        background: rgba(var(--color-bg-tertiary), 0.15);
-        color: rgba(var(--color-text-primary), 0.7);
+        background: rgba(var(--colour-bg-tertiary), 0.15);
+        color: rgba(var(--colour-text-primary), 0.7);
         font-weight: 600;
     }
     
-    .mode-badge.highlight-mode { background: rgba(var(--color-accent-primary), 0.3); color: rgb(var(--color-accent-primary)); }
-    .mode-badge.play-mode.fast { background: rgba(var(--color-accent-success), 0.3); color: rgb(var(--color-accent-success)); }
-    .mode-badge.play-mode.advanced { background: rgba(var(--color-accent-warning), 0.3); color: rgb(var(--color-accent-warning)); }
+    .mode-badge.highlight-mode { background: rgba(var(--colour-accent-primary), 0.3); color: rgb(var(--colour-accent-primary)); }
+    .mode-badge.play-mode.fast { background: rgba(var(--colour-accent-success), 0.3); color: rgb(var(--colour-accent-success)); }
+    .mode-badge.play-mode.advanced { background: rgba(var(--colour-accent-warning), 0.3); color: rgb(var(--colour-accent-warning)); }
     .mode-badge.clickable { cursor: pointer; transition: all 0.15s ease; }
     .mode-badge.clickable:hover { transform: scale(1.05); filter: brightness(1.1); }
     
@@ -1993,8 +2005,8 @@ val CSS_STYLES = """
         line-height: 1.2;
     }
     
-    .selected-num.primary { background: rgba(var(--color-accent-primary), 0.4); color: rgb(var(--color-accent-primary)); }
-    .selected-num.secondary { background: rgba(var(--color-accent-secondary), 0.4); color: rgb(var(--color-accent-secondary)); }
+    .selected-num.primary { background: rgba(var(--colour-accent-primary), 0.4); color: rgb(var(--colour-accent-primary)); }
+    .selected-num.secondary { background: rgba(var(--colour-accent-secondary), 0.4); color: rgb(var(--colour-accent-secondary)); }
     
     /* Advanced mode action buttons - compact */
     .advanced-actions {
@@ -2016,73 +2028,73 @@ val CSS_STYLES = """
     
     /* Set buttons - primary (blue) and secondary (red) */
     .action-btn.set-btn.primary {
-        background: rgba(var(--color-accent-primary), 0.3);
-        color: rgb(var(--color-accent-primary));
+        background: rgba(var(--colour-accent-primary), 0.3);
+        color: rgb(var(--colour-accent-primary));
     }
     .action-btn.set-btn.primary:hover {
-        background: rgba(var(--color-accent-primary), 0.5);
+        background: rgba(var(--colour-accent-primary), 0.5);
     }
 
     .action-btn.set-btn.secondary {
-        background: rgba(var(--color-accent-secondary), 0.3);
-        color: rgb(var(--color-accent-secondary));
+        background: rgba(var(--colour-accent-secondary), 0.3);
+        color: rgb(var(--colour-accent-secondary));
     }
     .action-btn.set-btn.secondary:hover {
-        background: rgba(var(--color-accent-secondary), 0.5);
+        background: rgba(var(--colour-accent-secondary), 0.5);
     }
 
     .action-btn.set-btn.both {
-        background: rgba(var(--color-accent-warning), 0.3);
-        color: rgb(var(--color-accent-warning));
+        background: rgba(var(--colour-accent-warning), 0.3);
+        color: rgb(var(--colour-accent-warning));
     }
     .action-btn.set-btn.both:hover {
-        background: rgba(var(--color-accent-warning), 0.5);
+        background: rgba(var(--colour-accent-warning), 0.5);
     }
 
     /* Clear pencil mark buttons - primary (blue) and secondary (red) */
     .action-btn.clr-btn.primary {
-        background: rgba(var(--color-accent-primary), var(--color-btn-opacity));
-        color: rgb(var(--color-accent-primary));
-        border: 1px solid rgba(var(--color-accent-primary), 0.3);
+        background: rgba(var(--colour-accent-primary), var(--colour-btn-opacity));
+        color: rgb(var(--colour-accent-primary));
+        border: 1px solid rgba(var(--colour-accent-primary), 0.3);
     }
     .action-btn.clr-btn.primary:hover {
-        background: rgba(var(--color-accent-primary), 0.3);
+        background: rgba(var(--colour-accent-primary), 0.3);
     }
 
     .action-btn.clr-btn.secondary {
-        background: rgba(var(--color-accent-secondary), 0.15);
-        color: rgb(var(--color-accent-secondary));
-        border: 1px solid rgba(var(--color-accent-secondary), 0.3);
+        background: rgba(var(--colour-accent-secondary), 0.15);
+        color: rgb(var(--colour-accent-secondary));
+        border: 1px solid rgba(var(--colour-accent-secondary), 0.3);
     }
     .action-btn.clr-btn.secondary:hover {
-        background: rgba(var(--color-accent-secondary), 0.3);
+        background: rgba(var(--colour-accent-secondary), 0.3);
     }
 
     .action-btn.clr-btn.other {
-        background: rgba(var(--color-accent-warning), 0.15);
-        color: rgb(var(--color-accent-warning));
-        border: 1px solid rgba(var(--color-accent-warning), 0.3);
+        background: rgba(var(--colour-accent-warning), 0.15);
+        color: rgb(var(--colour-accent-warning));
+        border: 1px solid rgba(var(--colour-accent-warning), 0.3);
     }
     .action-btn.clr-btn.other:hover {
-        background: rgba(var(--color-accent-warning), 0.3);
+        background: rgba(var(--colour-accent-warning), 0.3);
     }
 
     /* Clear selection button (X) */
     .action-btn.clear-btn {
-        background: rgba(var(--color-bg-tertiary), 0.2);
-        color: rgba(var(--color-text-primary), 0.7);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
+        color: rgba(var(--colour-text-primary), 0.7);
     }
     .action-btn.clear-btn:hover {
-        background: rgba(var(--color-bg-tertiary), 0.3);
+        background: rgba(var(--colour-bg-tertiary), 0.3);
     }
     
     /* Deselect cell button */
     .action-btn.deselect-btn {
-        background: rgba(var(--color-accent-tertiary), 0.2);
-        color: rgb(var(--color-accent-tertiary));
+        background: rgba(var(--colour-accent-tertiary), 0.2);
+        color: rgb(var(--colour-accent-tertiary));
     }
     .action-btn.deselect-btn:hover {
-        background: rgba(var(--color-accent-tertiary), 0.35);
+        background: rgba(var(--colour-accent-tertiary), 0.35);
     }
     
     /* Dual number pads in advanced mode */
@@ -2095,20 +2107,20 @@ val CSS_STYLES = """
     
     /* Settings screen styles */
     .settings .section {
-        background: rgba(var(--color-bg-tertiary), 0.1);
+        background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: 12px;
         padding: 16px;
         margin-bottom: 16px;
     }
 
     .settings .section h2 {
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
         font-size: 1rem;
         margin-bottom: 8px;
     }
     
     .setting-desc {
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
         font-size: 0.75rem;
         margin-bottom: 12px;
     }
@@ -2126,13 +2138,13 @@ val CSS_STYLES = """
         font-size: clamp(0.75rem, calc(0.7rem + 0.5vmin), 1rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
-        color: rgba(var(--color-text-primary), 0.8);
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
+        color: rgba(var(--colour-text-primary), 0.8);
         transition: all 0.15s ease;
     }
 
     .settings-nav-btn:hover {
-        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
         transform: translateY(-2px);
     }
     
@@ -2150,31 +2162,31 @@ val CSS_STYLES = """
         font-size: 0.8rem;
         font-weight: 600;
         cursor: pointer;
-        background: rgba(var(--color-accent-desat), var(--color-btn-opacity));
-        color: rgba(var(--color-text-primary), 0.7);
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
+        color: rgba(var(--colour-text-primary), 0.7);
         transition: all 0.15s ease;
     }
 
     .mode-btn:hover {
-        background: rgba(var(--color-accent-desat), var(--color-btn-hover-opacity));
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
     }
     
     .mode-btn.active {
-        background: rgba(var(--color-accent-primary), 0.4);
-        color: rgb(var(--color-text-primary));
-        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-primary));
+        background: rgba(var(--colour-accent-primary), 0.4);
+        color: rgb(var(--colour-text-primary));
+        box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-primary));
     }
     
     .play-modes .mode-btn.fast.active {
-        background: rgba(var(--color-accent-success), 0.4);
-        color: rgb(var(--color-text-primary));
-        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-success));
+        background: rgba(var(--colour-accent-success), 0.4);
+        color: rgb(var(--colour-text-primary));
+        box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-success));
     }
     
     .play-modes .mode-btn.advanced.active {
-        background: rgba(var(--color-accent-warning), 0.4);
-        color: rgb(var(--color-text-primary));
-        box-shadow: inset 0 0 0 2px rgb(var(--color-accent-warning));
+        background: rgba(var(--colour-accent-warning), 0.4);
+        color: rgb(var(--colour-text-primary));
+        box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-warning));
     }
 
     /* Theme options */
@@ -2210,11 +2222,11 @@ val CSS_STYLES = """
     }
     
     .mode-explanation {
-        background: rgba(var(--color-bg-primary), 0.2);
+        background: rgba(var(--colour-bg-primary), 0.2);
         border-radius: 6px;
         padding: 10px 12px;
         font-size: 0.75rem;
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         line-height: 1.4;
     }
     
@@ -2230,7 +2242,7 @@ val CSS_STYLES = """
         align-items: center;
         gap: 10px;
         font-size: 0.8rem;
-        color: rgba(var(--color-text-primary), 0.7);
+        color: rgba(var(--colour-text-primary), 0.7);
     }
     
     .color-box {
@@ -2239,8 +2251,8 @@ val CSS_STYLES = """
         border-radius: 4px;
     }
     
-    .color-box.primary { background: rgba(var(--color-accent-primary), 0.5); }
-    .color-box.secondary { background: rgba(var(--color-accent-secondary), 0.5); }
+    .color-box.primary { background: rgba(var(--colour-accent-primary), 0.5); }
+    .color-box.secondary { background: rgba(var(--colour-accent-secondary), 0.5); }
     .color-box.both { background: rgba(206, 147, 216, 0.5); }
     
     /* Responsive adjustments - with clamp() above, these are mostly for edge cases */
@@ -2290,7 +2302,7 @@ val CSS_STYLES = """
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(var(--color-shadow), 0.85);
+        background: rgba(var(--colour-shadow), calc(var(--colour-shadow-opacity) * 1.7));
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2313,8 +2325,8 @@ val CSS_STYLES = """
         max-height: 85vh;
         overflow-y: auto;
         position: relative;
-        box-shadow: 0 20px 60px rgba(var(--color-shadow), 0.5);
-        border: 1px solid rgba(var(--color-border), 0.1);
+        box-shadow: 0 20px 60px rgba(var(--colour-shadow), var(--colour-shadow-opacity));
+        border: 1px solid rgba(var(--colour-border), 0.1);
         animation: slideUp 0.3s ease;
     }
     
@@ -2327,9 +2339,9 @@ val CSS_STYLES = """
         position: absolute;
         top: clamp(12px, 2vmin, 20px);
         right: clamp(12px, 2vmin, 20px);
-        background: rgba(var(--color-accent-error), 0.2);
+        background: rgba(var(--colour-accent-error), 0.2);
         border: none;
-        color: rgb(var(--color-accent-error));
+        color: rgb(var(--colour-accent-error));
         font-size: clamp(1rem, calc(0.9rem + 0.5vmin), 1.3rem);
         width: clamp(32px, 6vmin, 40px);
         height: clamp(32px, 6vmin, 40px);
@@ -2342,19 +2354,19 @@ val CSS_STYLES = """
     }
 
     .modal-close:hover {
-        background: rgba(var(--color-accent-error), 0.4);
+        background: rgba(var(--colour-accent-error), 0.4);
         transform: scale(1.1);
     }
     
     .about-modal h1 {
-        color: rgb(var(--color-accent-primary));
+        color: rgb(var(--colour-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
 
     .about-tagline {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         font-size: clamp(0.95rem, calc(0.85rem + 0.5vmin), 1.15rem);
         text-align: center;
         margin-bottom: clamp(8px, 1.5vmin, 16px);
@@ -2362,13 +2374,13 @@ val CSS_STYLES = """
     }
 
     .about-description {
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
         text-align: center;
         line-height: 1.5;
         margin-bottom: clamp(20px, 4vmin, 32px);
         padding-bottom: clamp(16px, 3vmin, 24px);
-        border-bottom: 1px solid rgba(var(--color-border), 0.2);
+        border-bottom: 1px solid rgba(var(--colour-border), 0.2);
     }
     
     .about-section {
@@ -2376,48 +2388,48 @@ val CSS_STYLES = """
     }
     
     .about-section h3 {
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--colour-accent-warning));
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
     
     .about-section p {
-        color: rgba(var(--color-text-primary), 0.7);
+        color: rgba(var(--colour-text-primary), 0.7);
         font-size: clamp(0.8rem, calc(0.7rem + 0.35vmin), 0.95rem);
         line-height: 1.5;
         margin-bottom: clamp(4px, 0.8vmin, 8px);
     }
     
     .about-section a {
-        color: rgb(var(--color-accent-primary));
+        color: rgb(var(--colour-accent-primary));
         text-decoration: none;
         transition: color 0.15s ease;
     }
     
     .about-section a:hover {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         text-decoration: underline;
     }
     
     .about-section strong {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
     }
     
     .help-modal h1 {
-        color: rgb(var(--color-accent-primary));
+        color: rgb(var(--colour-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
     
     .help-intro {
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
         text-align: center;
         line-height: 1.5;
         margin-bottom: clamp(20px, 4vmin, 32px);
         padding-bottom: clamp(16px, 3vmin, 24px);
-        border-bottom: 1px solid rgba(var(--color-border), 0.2);
+        border-bottom: 1px solid rgba(var(--colour-border), 0.2);
     }
     
     .help-section {
@@ -2425,11 +2437,11 @@ val CSS_STYLES = """
     }
     
     .help-section h2 {
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--colour-accent-warning));
         font-size: clamp(1.1rem, calc(1rem + 0.5vmin), 1.4rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         margin-top: clamp(16px, 3vmin, 24px);
-        border-bottom: 1px solid rgba(var(--color-border), 0.2);
+        border-bottom: 1px solid rgba(var(--colour-border), 0.2);
         padding-bottom: clamp(8px, 1.5vmin, 12px);
     }
     
@@ -2438,15 +2450,16 @@ val CSS_STYLES = """
     }
     
     .help-section h3 {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         font-size: clamp(0.95rem, calc(0.85rem + 0.4vmin), 1.15rem);
         margin-bottom: clamp(8px, 1.5vmin, 12px);
         margin-top: clamp(12px, 2vmin, 16px);
     }
     
     .help-section ul,
-    .help-section ol {
-        color: rgba(var(--color-text-primary), 0.7);
+    .help-section ol,
+    .help-section p {
+        color: rgba(var(--colour-text-primary), 0.7);
         font-size: clamp(0.8rem, calc(0.7rem + 0.35vmin), 0.95rem);
         line-height: 1.6;
         margin-bottom: clamp(12px, 2vmin, 16px);
@@ -2466,40 +2479,10 @@ val CSS_STYLES = """
     }
     
     .help-section strong {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         font-weight: 600;
     }
     
-    .greeting-modal {
-        max-width: 600px;
-    }
-    
-    .greeting-modal h1 {
-        color: rgb(var(--color-accent-primary));
-        font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
-        margin-bottom: clamp(12px, 2vmin, 20px);
-        text-align: center;
-    }
-    
-    .greeting-content {
-        color: rgba(var(--color-text-primary), 0.8);
-        font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
-        line-height: 1.6;
-    }
-    
-    .greeting-content p {
-        margin-bottom: clamp(12px, 2vmin, 16px);
-    }
-    
-    .greeting-signature {
-        margin-top: clamp(20px, 4vmin, 32px);
-        font-style: italic;
-        color: rgba(var(--color-text-primary), 0.9);
-    }
-    
-    .help-section .greeting-content {
-        margin-top: clamp(8px, 1.5vmin, 12px);
-    }
     
     /* Completion modal styles */
     .completion-modal {
@@ -2513,13 +2496,13 @@ val CSS_STYLES = """
     }
     
     .completion-modal h1 {
-        color: rgb(var(--color-accent-success));
+        color: rgb(var(--colour-accent-success));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
     }
     
     .completion-content p {
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
         margin-bottom: clamp(16px, 3vmin, 24px);
     }
@@ -2544,14 +2527,14 @@ val CSS_STYLES = """
     
     .completion-stats .stat-label {
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.8rem);
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
         text-transform: uppercase;
     }
 
     .completion-stats .stat-value {
         font-size: clamp(1rem, calc(0.9rem + 0.5vmin), 1.3rem);
         font-weight: 700;
-        color: rgb(var(--color-text-primary));
+        color: rgb(var(--colour-text-primary));
     }
     
     .completion-actions {
@@ -2571,21 +2554,21 @@ val CSS_STYLES = """
     }
     
     .completion-actions .close-btn {
-        background: rgba(var(--color-bg-tertiary), 0.2);
-        color: rgba(var(--color-text-primary), 0.8);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
+        color: rgba(var(--colour-text-primary), 0.8);
     }
 
     .completion-actions .close-btn:hover {
-        background: rgba(var(--color-bg-tertiary), 0.3);
+        background: rgba(var(--colour-bg-tertiary), 0.3);
     }
     
     .completion-actions .next-btn {
-        background: rgba(var(--color-accent-success), 0.8);
-        color: rgb(var(--color-text-primary));
+        background: rgba(var(--colour-accent-success), 0.8);
+        color: rgb(var(--colour-text-primary));
     }
     
     .completion-actions .next-btn:hover {
-        background: rgb(var(--color-accent-success));
+        background: rgb(var(--colour-accent-success));
         transform: translateY(-2px);
     }
     
@@ -2612,7 +2595,7 @@ val CSS_STYLES = """
         align-items: center;
         gap: 8px;
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.85rem);
-        color: rgba(var(--color-text-primary), 0.7);
+        color: rgba(var(--colour-text-primary), 0.7);
         cursor: pointer;
         white-space: nowrap;
     }
@@ -2621,13 +2604,13 @@ val CSS_STYLES = """
         width: 16px;
         height: 16px;
         cursor: pointer;
-        accent-color: rgb(var(--color-accent-primary));
+        accent-color: rgb(var(--colour-accent-primary));
     }
     
     /* Completion stats in puzzle list */
     .completion-stats {
         font-size: clamp(0.65rem, calc(0.6rem + 0.25vmin), 0.75rem);
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
     }
     
     /* Delete button for saved games */
@@ -2637,20 +2620,20 @@ val CSS_STYLES = """
         border-radius: clamp(4px, 1vmin, 6px);
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.85rem);
         cursor: pointer;
-        background: rgba(var(--color-accent-error), 0.2);
-        color: rgb(var(--color-accent-error));
+        background: rgba(var(--colour-accent-error), 0.2);
+        color: rgb(var(--colour-accent-error));
         transition: all 0.15s ease;
     }
     
     .delete-btn:hover {
-        background: rgba(var(--color-accent-error), 0.4);
+        background: rgba(var(--colour-accent-error), 0.4);
     }
     
     /* Empty message for custom puzzles */
     .empty-message {
         padding: clamp(16px, 3vmin, 24px);
         text-align: center;
-        color: rgba(var(--color-text-primary), 0.5);
+        color: rgba(var(--colour-text-primary), 0.5);
         font-size: clamp(0.8rem, calc(0.75rem + 0.3vmin), 0.95rem);
         line-height: 1.5;
     }
@@ -2661,7 +2644,7 @@ val CSS_STYLES = """
         bottom: 12px;
         left: 12px;
         font-size: clamp(0.65rem, calc(0.6rem + 0.25vmin), 0.75rem);
-        color: rgba(var(--color-text-primary), 0.35);
+        color: rgba(var(--colour-text-primary), 0.35);
         cursor: pointer;
         padding: 4px 8px;
         border-radius: 4px;
@@ -2671,8 +2654,8 @@ val CSS_STYLES = """
     }
 
     .version-indicator:hover {
-        color: rgba(var(--color-text-primary), 0.7);
-        background: rgba(var(--color-bg-tertiary), 0.2);
+        color: rgba(var(--colour-text-primary), 0.7);
+        background: rgba(var(--colour-bg-tertiary), 0.2);
     }
     
     /* Version modal styles */
@@ -2681,14 +2664,14 @@ val CSS_STYLES = """
     }
     
     .version-modal h1 {
-        color: rgb(var(--color-accent-primary));
+        color: rgb(var(--colour-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
     
     .changelog-content {
-        color: rgba(var(--color-text-primary), 0.85);
+        color: rgba(var(--colour-text-primary), 0.85);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
         line-height: 1.6;
         max-height: 60vh;
@@ -2697,12 +2680,12 @@ val CSS_STYLES = """
     }
     
     .changelog-content h2.changelog-version {
-        color: rgb(var(--color-accent-info));
+        color: rgb(var(--colour-accent-info));
         font-size: clamp(1.1rem, calc(1rem + 0.5vmin), 1.3rem);
         margin-top: clamp(16px, 3vmin, 24px);
         margin-bottom: clamp(8px, 1.5vmin, 12px);
         padding-bottom: clamp(6px, 1vmin, 10px);
-        border-bottom: 1px solid rgba(var(--color-border), 0.2);
+        border-bottom: 1px solid rgba(var(--colour-border), 0.2);
     }
     
     .changelog-content h2.changelog-version:first-child {
@@ -2710,7 +2693,7 @@ val CSS_STYLES = """
     }
     
     .changelog-content h3.changelog-section {
-        color: rgb(var(--color-accent-warning));
+        color: rgb(var(--colour-accent-warning));
         font-size: clamp(0.95rem, calc(0.85rem + 0.4vmin), 1.1rem);
         margin-top: clamp(12px, 2vmin, 16px);
         margin-bottom: clamp(6px, 1vmin, 10px);
@@ -2723,26 +2706,26 @@ val CSS_STYLES = """
     
     .changelog-content li {
         margin-bottom: clamp(4px, 0.8vmin, 8px);
-        color: rgba(var(--color-text-primary), 0.8);
+        color: rgba(var(--colour-text-primary), 0.8);
     }
     
     .changelog-content li.changelog-subitem {
-        color: rgba(var(--color-text-primary), 0.6);
+        color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.95em;
         margin-left: 16px;
     }
     
     .changelog-content strong {
-        color: rgb(var(--color-accent-error));
+        color: rgb(var(--colour-accent-error));
     }
     
     .changelog-content del {
-        color: rgba(var(--color-text-primary), 0.4);
+        color: rgba(var(--colour-text-primary), 0.4);
         text-decoration: line-through;
     }
     
     .changelog-content code {
-        background: rgba(var(--color-bg-primary), 0.5);
+        background: rgba(var(--colour-bg-primary), 0.5);
         padding: 2px 6px;
         border-radius: 4px;
         font-family: 'Monaco', 'Consolas', monospace;
@@ -2758,7 +2741,7 @@ val CSS_STYLES = """
         justify-content: center;
         margin-top: clamp(16px, 3vmin, 24px);
         padding-top: clamp(12px, 2vmin, 16px);
-        border-top: 1px solid rgba(var(--color-border), 0.2);
+        border-top: 1px solid rgba(var(--colour-border), 0.2);
     }
     
     .version-actions .close-btn {
@@ -2768,13 +2751,13 @@ val CSS_STYLES = """
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.05rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(var(--color-accent-info), 0.8);
-        color: rgb(var(--color-text-primary));
+        background: rgba(var(--colour-accent-info), 0.8);
+        color: rgb(var(--colour-text-primary));
         transition: all 0.2s ease;
     }
     
     .version-actions .close-btn:hover {
-        background: rgb(var(--color-accent-info));
+        background: rgb(var(--colour-accent-info));
         transform: translateY(-2px);
     }
 """.trimIndent()

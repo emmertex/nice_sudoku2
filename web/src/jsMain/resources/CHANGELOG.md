@@ -1,3 +1,11 @@
+# v0.6.1 - 2025-12
+
+### Features
+- Backend caches responses and processing, for much faster response times, and reduce server load and memory usage.
+- ePaper Theme Tweaks - still needs much more work
+- Code Cleanup
+
+
 # v0.6.0 - 2025-12-10
 
 ### Anouncement
@@ -36,7 +44,7 @@ Roadmap for now includes these milestones, intended to be, but not necessarily t
 - **New Candidate Mode setting**:
 - - **Auto Mode**: (default): Auto-calculate pencil marks, hints and error detection enabled
 - - **Manual Mode**: Start with blank pencil marks, fill them yourself, hints and pencil mark error detection disabled
-- - Switching modes resets current puzzle's pencil marks with confirmation dialog
+- - Switching modes resets current puzzle's pencil marks with confirmation dialogue
 - **Highlight Modes** are now fully implemented.
 - - **Pencil Mode**: Highlighting of cells with that numbers pencil mark present (Fast and Advanced Mode Only)
 - - **Placed**: Highlighting of cells with that number, placed and given.

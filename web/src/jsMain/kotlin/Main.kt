@@ -57,7 +57,6 @@ class SudokuApp {
     // Modal state
     internal var showAboutModal = false
     internal var showHelpModal = false
-    internal var showGreetingModal = false
     internal var showCompletionModal = false
     internal var completionShownForPuzzle: String? = null  // Track which puzzle we've shown completion for
     internal var showVersionModal = false
@@ -233,11 +232,6 @@ class SudokuApp {
         // Help modal (can appear over any screen)
         if (showHelpModal) {
             renderHelpModal()
-        }
-        
-        // Greeting modal (can appear over any screen, shown on first load)
-        if (showGreetingModal) {
-            renderGreetingModal()
         }
         
         // Completion modal (shown when puzzle is solved)

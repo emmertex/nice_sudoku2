@@ -27,7 +27,7 @@ import dto.*
                     title = "Eliminate or place to break uniqueness",
                     description = eliminationDesc ?: "Use the marked cell(s) to prevent the deadly rectangle.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }
@@ -59,7 +59,7 @@ import dto.*
                     title = "Use the conjugate to eliminate",
                     description = eliminationDesc ?: "Remove the digit from peers of the conjugate pair.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }

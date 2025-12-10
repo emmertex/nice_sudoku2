@@ -27,7 +27,7 @@ import dto.*
                     title = "Apply eliminations",
                     description = eliminationDesc ?: "Remove the digit from the highlighted cells reached by the weak links.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }
@@ -35,7 +35,7 @@ import dto.*
         return steps
     }
 
-    fun generateColoringSteps(
+    fun generateColouringSteps(
         techniqueName: String,
         eliminations: List<EliminationDto>
     ): List<ExplanationStepDto> {
@@ -45,7 +45,7 @@ import dto.*
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Color the candidate",
+                title = "Colour the candidate",
                 description = "$techniqueName splits the candidate into two color sets along strong links; any cell seeing both colors is invalid.",
                 highlightCells = eliminationCells
             )
@@ -59,7 +59,7 @@ import dto.*
                     title = "Remove the conflict color",
                     description = eliminationDesc ?: "Cells seeing both colors cannot keep the candidate; remove it.",
                     highlightCells = eliminationCells,
-                    coloredCandidates = eliminationCandidates(eliminations)
+                    colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
         }

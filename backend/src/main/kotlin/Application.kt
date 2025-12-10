@@ -9,9 +9,12 @@ import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.utils.io.*
 import kotlinx.serialization.json.Json
 import dto.*
 import service.SudokuService
+import service.CacheService
+import database.CacheDatabase
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8181
@@ -19,14 +22,19 @@ fun main() {
 }
 
 fun Application.module() {
+    // Initialize database
+    CacheDatabase.initialize()
+    
     val sudokuService = SudokuService()
+    val cacheService = CacheService()
+    val json = Json {
+        prettyPrint = true
+        isLenient = true
+        ignoreUnknownKeys = true
+    }
     
     install(ContentNegotiation) {
-        json(Json {
-            prettyPrint = true
-            isLenient = true
-            ignoreUnknownKeys = true
-        })
+        json(json)
     }
     
     install(CORS) {
@@ -55,6 +63,18 @@ fun Application.module() {
         }
         
         route("/api") {
+            // Cache info endpoint
+            route("/cache") {
+                get("/info") {
+                    val dbSize = cacheService.getDatabaseFileSize()
+                    call.respond(mapOf(
+                        "databaseFileSizeBytes" to dbSize,
+                        "databaseFileSizeMB" to (dbSize / (1024.0 * 1024.0)),
+                        "note" to "Use SQLite tools to query cache statistics directly"
+                    ))
+                }
+            }
+            
             route("/puzzle") {
                 // Load a puzzle from string
                 post("/load") {
@@ -72,8 +92,31 @@ fun Application.module() {
                 
                 // Brute-force solve from puzzle string (recommended)
                 post("/solve-from-puzzle") {
-                    val request = call.receive<SolveFromPuzzleRequest>()
+                    val endpoint = "/api/puzzle/solve-from-puzzle"
+                    println("[CACHE] ${endpoint}: Request received")
+                    
+                    // Read raw request body as string for cache key (bypass ContentNegotiation)
+                    val channel = call.receive<ByteReadChannel>()
+                    val requestJson = channel.readRemaining().readText().trim()
+                    println("[CACHE] ${endpoint}: Request body read, checking cache...")
+                    
+                    // Check cache FIRST - if hit, return immediately without any processing
+                    val cachedResponse = cacheService.getCachedResponse(endpoint, requestJson)
+                    if (cachedResponse != null) {
+                        println("[CACHE] ${endpoint}: CACHE HIT - returning cached response, skipping processing")
+                        val response = json.decodeFromString<SolveFromPuzzleResponse>(cachedResponse)
+                        call.respond(response)
+                        return@post  // Explicit early return - no further processing
+                    }
+                    
+                    // Only reach here on cache miss - deserialize and process
+                    println("[CACHE] ${endpoint}: CACHE MISS - processing request...")
+                    val request = json.decodeFromString<SolveFromPuzzleRequest>(requestJson)
                     val response = sudokuService.solveFromPuzzle(request.puzzle)
+                    println("[CACHE] ${endpoint}: Processing complete, storing in cache")
+                    // Cache the response for next time
+                    val responseJson = json.encodeToString(SolveFromPuzzleResponse.serializer(), response)
+                    cacheService.storeCachedResponse(endpoint, requestJson, responseJson)
                     call.respond(response)
                 }
             }
@@ -90,15 +133,61 @@ fun Application.module() {
             route("/techniques") {
                 // Find all applicable techniques (from grid DTO)
                 post("/find") {
-                    val request = call.receive<FindTechniquesRequest>()
+                    val endpoint = "/api/techniques/find"
+                    println("[CACHE] ${endpoint}: Request received")
+                    
+                    // Read raw request body as string for cache key (bypass ContentNegotiation)
+                    val channel = call.receive<ByteReadChannel>()
+                    val requestJson = channel.readRemaining().readText().trim()
+                    println("[CACHE] ${endpoint}: Request body read, checking cache...")
+                    
+                    // Check cache FIRST - if hit, return immediately without any processing
+                    val cachedResponse = cacheService.getCachedResponse(endpoint, requestJson)
+                    if (cachedResponse != null) {
+                        println("[CACHE] ${endpoint}: CACHE HIT - returning cached response, skipping processing")
+                        val response = json.decodeFromString<FindTechniquesResponse>(cachedResponse)
+                        call.respond(response)
+                        return@post  // Explicit early return - no further processing
+                    }
+                    
+                    // Only reach here on cache miss - deserialize and process
+                    println("[CACHE] ${endpoint}: CACHE MISS - processing request...")
+                    val request = json.decodeFromString<FindTechniquesRequest>(requestJson)
                     val response = sudokuService.findTechniques(request)
+                    println("[CACHE] ${endpoint}: Processing complete, storing in cache")
+                    // Cache the response for next time
+                    val responseJson = json.encodeToString(FindTechniquesResponse.serializer(), response)
+                    cacheService.storeCachedResponse(endpoint, requestJson, responseJson)
                     call.respond(response)
                 }
                 
                 // Find all applicable techniques (from puzzle string - simpler)
                 post("/find-from-puzzle") {
-                    val request = call.receive<FindTechniquesFromPuzzleRequest>()
+                    val endpoint = "/api/techniques/find-from-puzzle"
+                    println("[CACHE] ${endpoint}: Request received")
+                    
+                    // Read raw request body as string for cache key (bypass ContentNegotiation)
+                    val channel = call.receive<ByteReadChannel>()
+                    val requestJson = channel.readRemaining().readText().trim()
+                    println("[CACHE] ${endpoint}: Request body read, checking cache...")
+                    
+                    // Check cache FIRST - if hit, return immediately without any processing
+                    val cachedResponse = cacheService.getCachedResponse(endpoint, requestJson)
+                    if (cachedResponse != null) {
+                        println("[CACHE] ${endpoint}: CACHE HIT - returning cached response, skipping processing")
+                        val response = json.decodeFromString<FindTechniquesResponse>(cachedResponse)
+                        call.respond(response)
+                        return@post  // Explicit early return - no further processing
+                    }
+                    
+                    // Only reach here on cache miss - deserialize and process
+                    println("[CACHE] ${endpoint}: CACHE MISS - processing request...")
+                    val request = json.decodeFromString<FindTechniquesFromPuzzleRequest>(requestJson)
                     val response = sudokuService.findTechniquesFromPuzzle(request.puzzle, request.basicOnly)
+                    println("[CACHE] ${endpoint}: Processing complete, storing in cache")
+                    // Cache the response for next time
+                    val responseJson = json.encodeToString(FindTechniquesResponse.serializer(), response)
+                    cacheService.storeCachedResponse(endpoint, requestJson, responseJson)
                     call.respond(response)
                 }
                 
@@ -111,15 +200,61 @@ fun Application.module() {
                 
                 // OPTIMIZED: Get single easiest hint (tiered search)
                 post("/hint") {
-                    val request = call.receive<HintRequest>()
+                    val endpoint = "/api/techniques/hint"
+                    println("[CACHE] ${endpoint}: Request received")
+                    
+                    // Read raw request body as string for cache key (bypass ContentNegotiation)
+                    val channel = call.receive<ByteReadChannel>()
+                    val requestJson = channel.readRemaining().readText().trim()
+                    println("[CACHE] ${endpoint}: Request body read, checking cache...")
+                    
+                    // Check cache FIRST - if hit, return immediately without any processing
+                    val cachedResponse = cacheService.getCachedResponse(endpoint, requestJson)
+                    if (cachedResponse != null) {
+                        println("[CACHE] ${endpoint}: CACHE HIT - returning cached response, skipping processing")
+                        val response = json.decodeFromString<HintResponse>(cachedResponse)
+                        call.respond(response)
+                        return@post  // Explicit early return - no further processing
+                    }
+                    
+                    // Only reach here on cache miss - deserialize and process
+                    println("[CACHE] ${endpoint}: CACHE MISS - processing request...")
+                    val request = json.decodeFromString<HintRequest>(requestJson)
                     val response = sudokuService.findHint(request.puzzle)
+                    println("[CACHE] ${endpoint}: Processing complete, storing in cache")
+                    // Cache the response for next time
+                    val responseJson = json.encodeToString(HintResponse.serializer(), response)
+                    cacheService.storeCachedResponse(endpoint, requestJson, responseJson)
                     call.respond(response)
                 }
                 
                 // Grade puzzle - solve and return technique counts
                 post("/grade") {
-                    val request = call.receive<GradePuzzleRequest>()
+                    val endpoint = "/api/techniques/grade"
+                    println("[CACHE] ${endpoint}: Request received")
+                    
+                    // Read raw request body as string for cache key (bypass ContentNegotiation)
+                    val channel = call.receive<ByteReadChannel>()
+                    val requestJson = channel.readRemaining().readText().trim()
+                    println("[CACHE] ${endpoint}: Request body read, checking cache...")
+                    
+                    // Check cache FIRST - if hit, return immediately without any processing
+                    val cachedResponse = cacheService.getCachedResponse(endpoint, requestJson)
+                    if (cachedResponse != null) {
+                        println("[CACHE] ${endpoint}: CACHE HIT - returning cached response, skipping processing")
+                        val response = json.decodeFromString<GradePuzzleResponse>(cachedResponse)
+                        call.respond(response)
+                        return@post  // Explicit early return - no further processing
+                    }
+                    
+                    // Only reach here on cache miss - deserialize and process
+                    println("[CACHE] ${endpoint}: CACHE MISS - processing request...")
+                    val request = json.decodeFromString<GradePuzzleRequest>(requestJson)
                     val response = sudokuService.gradePuzzle(request.puzzle)
+                    println("[CACHE] ${endpoint}: Processing complete, storing in cache")
+                    // Cache the response for next time
+                    val responseJson = json.encodeToString(GradePuzzleResponse.serializer(), response)
+                    cacheService.storeCachedResponse(endpoint, requestJson, responseJson)
                     call.respond(response)
                 }
             }

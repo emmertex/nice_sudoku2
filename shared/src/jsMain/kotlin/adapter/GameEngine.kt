@@ -185,8 +185,8 @@ actual class GameEngine actual constructor() {
     "FINNED_X_WING_FISH" to 14, "Finned X-Wing" to 14,   // X-Wing with extra candidate
     "SASHIMI_X_WING_FISH" to 15, "Sashimi X-Wing" to 15, // Finned X-Wing with missing candidate
 
-    // === HARD (16-22): Coloring, uniqueness, wings, swordfish ===
-    "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16,  // Single-digit coloring
+    // === HARD (16-22): colouring, uniqueness, wings, swordfish ===
+    "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16,  // Single-digit colouring
     "UNIQUE_RECTANGLE" to 17, "Unique Rectangles" to 17, // Avoid deadly patterns
     "BUG" to 18,                                          // Bivalue Universal Grave
     "Y_WING" to 19, "XY-Wing" to 19,                     // Three bivalue cells forming wing
@@ -200,7 +200,7 @@ actual class GameEngine actual constructor() {
     "XY_CHAIN" to 25, "XY-Chain" to 25,                  // Chain of bivalue cells
     "WXYZ_WING" to 26, "WXYZ Wing" to 26,                // Four-cell wing pattern
     "JELLYFISH_FISH" to 27, "Jellyfish" to 27,           // 4x4 fish
-    "MEDUSA_3D" to 28, "3D Medusa" to 28,                // Multi-digit coloring
+    "MEDUSA_3D" to 28, "3D Medusa" to 28,                // Multi-digit colouring
 
     // === EXTREME (29-34): Franken/mutant fish, grouped techniques ===
     "GROUPED_X_CYCLES" to 29, "Grouped X-Cycles" to 29,  // X-Cycles with grouped links
@@ -1090,37 +1090,37 @@ data class LineDto(
 data class GroupDto(
     val candidates: List<CandidateLocationDto>,
     val groupType: String? = null,
-    val colorIndex: Int = 0
+    val colourIndex: Int = 0
 )
 
 /**
  * Represents a region (row, column, or box) to highlight
  */
 @Serializable
-data class ColoredRegionDto(
+data class ColouredRegionDto(
     val type: String,  // "row", "column", "box"
     val index: Int,    // 0-8 for row/column, 0-8 for box
-    val colorType: String  // "primary", "secondary", "warning", etc.
+    val colourType: String  // "primary", "secondary", "warning", etc.
 )
 
 /**
- * Represents a cell to highlight with a specific color
+ * Represents a cell to highlight with a specific colour
  */
 @Serializable
-data class ColoredCellDto(
+data class ColouredCellDto(
     val cellIndex: Int,
-    val colorType: String  // "primary", "secondary", "warning", "target", etc.
+    val colourType: String  // "primary", "secondary", "warning", "target", etc.
 )
 
 /**
- * Represents a candidate to highlight with a specific color
+ * Represents a candidate to highlight with a specific colour
  */
 @Serializable
-data class ColoredCandidateDto(
+data class ColouredCandidateDto(
     val row: Int,
     val col: Int,
     val candidate: Int,  // 1-9
-    val colorType: String  // "target" (green), "elimination" (red/strikethrough), etc.
+    val colourType: String  // "target" (green), "elimination" (red/strikethrough), etc.
 )
 
 /**
@@ -1136,9 +1136,9 @@ data class ExplanationStepDto(
     val lines: List<LineDto> = emptyList(),
     val groups: List<GroupDto> = emptyList(),
     // New rich highlighting fields
-    val regions: List<ColoredRegionDto> = emptyList(),
-    val coloredCells: List<ColoredCellDto> = emptyList(),
-    val coloredCandidates: List<ColoredCandidateDto> = emptyList()
+    val regions: List<ColouredRegionDto> = emptyList(),
+    val colouredCells: List<ColouredCellDto> = emptyList(),
+    val colouredCandidates: List<ColouredCandidateDto> = emptyList()
 )
 
 @Serializable

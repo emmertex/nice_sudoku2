@@ -17,14 +17,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import domain.CellHighlightType
-import domain.HighlightColor
+import domain.HighlightColour
 import domain.SudokuCell
 
-// Highlight colors for number selection
-private val PrimaryHighlightColor = Color(0xFFBBDEFB)      // Light blue
-private val SecondaryHighlightColor = Color(0xFFFFCDD2)    // Light red
-private val IntersectionHighlightColor = Color(0xFFE1BEE7) // Light purple
-private val SelectedCellColor = Color(0xFF90CAF9)          // Slightly darker blue for selected cell
+// Highlight colours for number selection
+private val PrimaryHighlightColour = Color(0xFFBBDEFB)      // Light blue
+private val SecondaryHighlightColour = Color(0xFFFFCDD2)    // Light red
+private val IntersectionHighlightColour = Color(0xFFE1BEE7) // Light purple
+private val SelectedCellColour = Color(0xFF90CAF9)          // Slightly darker blue for selected cell
 
 @Composable
 fun CellView(
@@ -35,20 +35,20 @@ fun CellView(
     highlightedCandidates: Set<Int> = emptySet() // Candidates to highlight (for pencil mode)
 ) {
     // Determine background color based on selection and highlight state
-    val backgroundColor = when {
-        isSelected -> SelectedCellColor
+    val backgroundColour = when {
+        isSelected -> SelectedCellColour
         // Technique highlighting takes precedence
-        cell.isHighlighted -> cell.highlightColor?.let { getTechniqueHighlightColor(it) } ?: Color.White
+        cell.isHighlighted -> cell.highlightColour?.let { getTechniqueHighlightColour(it) } ?: Color.White
         // Number selection highlighting
-        cell.highlightType != CellHighlightType.NONE -> getSelectionHighlightColor(cell.highlightType)
+        cell.highlightType != CellHighlightType.NONE -> getSelectionHighlightColour(cell.highlightType)
         cell.isGiven -> Color(0xFFF5F5F5) // Light gray for given cells
         else -> Color.White
     }
 
-    val borderColor = when {
+    val borderColour = when {
         isSelected -> Color(0xFF1976D2) // Blue border for selected
-        cell.isHighlighted -> cell.highlightColor?.let { getTechniqueHighlightColor(it)?.copy(alpha = 0.7f) } ?: Color.Gray
-        cell.highlightType != CellHighlightType.NONE -> getSelectionHighlightColor(cell.highlightType).copy(alpha = 0.7f)
+        cell.isHighlighted -> cell.highlightColour?.let { getTechniqueHighlightColour(it)?.copy(alpha = 0.7f) } ?: Color.Gray
+        cell.highlightType != CellHighlightType.NONE -> getSelectionHighlightColour(cell.highlightType).copy(alpha = 0.7f)
         else -> Color.LightGray
     }
 
@@ -58,8 +58,8 @@ fun CellView(
         modifier = modifier
             .aspectRatio(1f)
             .clip(RoundedCornerShape(4.dp))
-            .background(backgroundColor)
-            .border(borderWidth, borderColor ?: Color.LightGray, RoundedCornerShape(4.dp))
+            .background(backgroundColour)
+            .border(borderWidth, borderColour ?: Color.LightGray, RoundedCornerShape(4.dp))
             .clickable(onClick = onCellClick),
         contentAlignment = Alignment.Center
     ) {
@@ -103,7 +103,7 @@ private fun CandidatesGrid(
                             .then(
                                 if (isHighlighted && isPresent) {
                                     Modifier.background(
-                                        PrimaryHighlightColor.copy(alpha = 0.5f),
+                                        PrimaryHighlightColour.copy(alpha = 0.5f),
                                         RoundedCornerShape(2.dp)
                                     )
                                 } else Modifier
@@ -129,28 +129,28 @@ private fun CandidatesGrid(
 /**
  * Get the background color for number selection highlighting.
  */
-private fun getSelectionHighlightColor(type: CellHighlightType): Color {
+private fun getSelectionHighlightColour(type: CellHighlightType): Color {
     return when (type) {
         CellHighlightType.NONE -> Color.White
-        CellHighlightType.PRIMARY -> PrimaryHighlightColor
-        CellHighlightType.SECONDARY -> SecondaryHighlightColor
-        CellHighlightType.INTERSECTION -> IntersectionHighlightColor
+        CellHighlightType.PRIMARY -> PrimaryHighlightColour
+        CellHighlightType.SECONDARY -> SecondaryHighlightColour
+        CellHighlightType.INTERSECTION -> IntersectionHighlightColour
     }
 }
 
 /**
  * Get the background color for technique highlighting.
  */
-private fun getTechniqueHighlightColor(color: HighlightColor?): Color? {
+private fun getTechniqueHighlightColour(color: HighlightColour?): Color? {
     return when (color) {
-        HighlightColor.RED -> Color(0xFFFFEBEE)
-        HighlightColor.BLUE -> Color(0xFFE3F2FD)
-        HighlightColor.GREEN -> Color(0xFFE8F5E8)
-        HighlightColor.YELLOW -> Color(0xFFFFF9C4)
-        HighlightColor.PURPLE -> Color(0xFFF3E5F5)
-        HighlightColor.ORANGE -> Color(0xFFFFF3E0)
-        HighlightColor.PINK -> Color(0xFFFCE4EC)
-        HighlightColor.CYAN -> Color(0xFFE0F2F1)
+        HighlightColour.RED -> Color(0xFFFFEBEE)
+        HighlightColour.BLUE -> Color(0xFFE3F2FD)
+        HighlightColour.GREEN -> Color(0xFFE8F5E8)
+        HighlightColour.YELLOW -> Color(0xFFFFF9C4)
+        HighlightColour.PURPLE -> Color(0xFFF3E5F5)
+        HighlightColour.ORANGE -> Color(0xFFFFF3E0)
+        HighlightColour.PINK -> Color(0xFFFCE4EC)
+        HighlightColour.CYAN -> Color(0xFFE0F2F1)
         null -> null
     }
 }

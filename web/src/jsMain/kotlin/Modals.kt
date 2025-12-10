@@ -7,7 +7,7 @@ import domain.PuzzleDefinition
 import domain.SavedGameState
 
 /**
- * Extension functions for rendering modal dialogs in SudokuApp.
+ * Extension functions for rendering modal dialogues in SudokuApp.
  * Note: Help modal is in HelpModal.kt due to its size.
  */
 
@@ -92,41 +92,6 @@ internal fun SudokuApp.renderAboutModal() {
                         a(href = "https://github.com/stephenostermiller/qqwing", target = "_blank") {
                             +"qqwing"
                         }
-                    }
-                }
-            }
-        }
-    }
-}
-
-internal fun SudokuApp.renderGreetingModal() {
-    appRoot.append {
-        div("modal-overlay") {
-            onClickFunction = { event ->
-                // Close when clicking overlay (not the modal content)
-                if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
-                    showGreetingModal = false
-                    render()
-                }
-            }
-            div("modal-content greeting-modal") {
-                button(classes = "modal-close") {
-                    +"✕"
-                    onClickFunction = {
-                        showGreetingModal = false
-                        render()
-                    }
-                }
-                
-                h1 { +"Welcome to Nice Sudoku" }
-                
-                div("greeting-content") {
-                    p {
-                        +"Thank you for testing Nice Sudoku."
-                    }
-                    
-                    p("greeting-signature") {
-                        +"Andrew"
                     }
                 }
             }

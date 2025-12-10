@@ -199,7 +199,7 @@ internal fun SudokuApp.renderSettings() {
                     +when (playMode) {
                         PlayMode.FAST -> "Click number, then click cell to fill. Quick and simple."
                         PlayMode.CELL_FIRST -> "Click cell first, then click number to fill. Highlights based on selected cell."
-                        PlayMode.ADVANCED -> "Two number rows for highlighting. Select multiple numbers per color. Cells with ALL selected numbers highlight. Click cell for action buttons."
+                        PlayMode.ADVANCED -> "Two number rows for highlighting. Select multiple numbers per colour. Cells with ALL selected numbers highlight. Click cell for action buttons."
                     }
                 }
             }
@@ -321,28 +321,6 @@ internal fun SudokuApp.renderSettings() {
                         MistakeDetectionMode.PLACEMENT -> "Alert when placing a wrong number in a cell"
                         MistakeDetectionMode.CANDIDATE -> "Alert for wrong placements AND removing correct candidates"
                     }
-                }
-            }
-            
-            // Two-number highlight info
-            div("section highlight-info") {
-                h2 { +"🔵🔴 Multi-Number Highlighting" }
-                div("color-legend") {
-                    div("legend-item") {
-                        span("color-box primary") {}
-                        span { +"Primary row (blue)" }
-                    }
-                    div("legend-item") {
-                        span("color-box secondary") {}
-                        span { +"Secondary row (red)" }
-                    }
-                    div("legend-item") {
-                        span("color-box both") {}
-                        span { +"Intersection (both colors)" }
-                    }
-                }
-                p("setting-desc") {
-                    +"In Advanced mode, toggle numbers in each row. Only cells containing ALL selected numbers in a row will highlight in that color."
                 }
             }
         }

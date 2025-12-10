@@ -58,7 +58,7 @@ private fun TechniqueItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) {
+    val backgroundColour = if (isSelected) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
         Color.Transparent
@@ -67,7 +67,7 @@ private fun TechniqueItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor)
+            .background(backgroundColour)
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

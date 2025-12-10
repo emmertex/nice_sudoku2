@@ -18,7 +18,6 @@ object GameStateManager {
     private const val CURRENT_GAME_KEY = "nice_sudoku_current_game"
     private const val HIGHLIGHT_MODE_KEY = "nice_sudoku_highlight_mode"
     private const val PLAY_MODE_KEY = "nice_sudoku_play_mode"
-    private const val GREETING_SHOWN_KEY = "nice_sudoku_greeting_shown"
     private const val CUSTOM_PUZZLES_KEY = "nice_sudoku_custom_puzzles"
     private const val HIDE_COMPLETED_KEY = "nice_sudoku_hide_completed"
     private const val LAST_SEEN_VERSION_KEY = "nice_sudoku_last_seen_version"
@@ -188,27 +187,6 @@ object GameStateManager {
         }
     }
     
-    /**
-     * Check if greeting has been shown
-     */
-    fun hasGreetingBeenShown(): Boolean {
-        return try {
-            localStorage[GREETING_SHOWN_KEY] == "true"
-        } catch (e: Exception) {
-            false
-        }
-    }
-    
-    /**
-     * Mark greeting as shown
-     */
-    fun markGreetingAsShown() {
-        try {
-            localStorage[GREETING_SHOWN_KEY] = "true"
-        } catch (e: Exception) {
-            console.log("Error marking greeting as shown: ${e.message}")
-        }
-    }
     
     /**
      * Save hide completed preference
@@ -255,14 +233,14 @@ object GameStateManager {
     }
 
     /**
-     * Get theme preference (default: BLUE)
+     * Get theme preference (default: DARK)
      */
     fun getTheme(): Theme {
         return try {
             val name = localStorage[THEME_KEY]
-            if (name != null) Theme.valueOf(name) else Theme.BLUE
+            if (name != null) Theme.valueOf(name) else Theme.DARK
         } catch (e: Exception) {
-            Theme.BLUE
+            Theme.DARK
         }
     }
 

@@ -12,7 +12,7 @@ import service.hint.techniques.generateKiteSteps
 import service.hint.techniques.generateFishSteps
 import service.hint.techniques.generateWingSteps
 import service.hint.explanations.generateCycleSteps
-import service.hint.explanations.generateColoringSteps
+import service.hint.explanations.generateColouringSteps
 import service.hint.explanations.generateUniqueRectangleSteps
 import service.hint.explanations.generateBugSteps
 import service.hint.explanations.generateEmptyRectangleSteps
@@ -69,9 +69,9 @@ fun generateExplanationSteps(
             steps.addAll(generateCycleSteps(techniqueName, eliminations))
         }
         techniqueName.contains("Colour", ignoreCase = true) ||
-        techniqueName.contains("Color", ignoreCase = true) ||
+        techniqueName.contains("Colour", ignoreCase = true) ||
         techniqueName.contains("Medusa", ignoreCase = true) -> {
-            steps.addAll(generateColoringSteps(techniqueName, eliminations))
+            steps.addAll(generateColouringSteps(techniqueName, eliminations))
         }
         techniqueName.contains("Unique Rectangle", ignoreCase = true) -> {
             steps.addAll(generateUniqueRectangleSteps(techniqueName, eliminations))

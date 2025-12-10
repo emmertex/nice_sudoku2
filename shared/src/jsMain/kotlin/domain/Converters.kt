@@ -15,9 +15,9 @@ actual object Converters {
         return "BasicGrid placeholder"
     }
 
-    actual fun techniqueMatchToDomainHighlight(match: Any): Pair<Set<Int>, HighlightColor> {
+    actual fun techniqueMatchToDomainHighlight(match: Any): Pair<Set<Int>, HighlightColour> {
         // TODO: Implement proper conversion
-        return Pair(emptySet(), HighlightColor.BLUE)
+        return Pair(emptySet(), HighlightColour.BLUE)
     }
 }
 

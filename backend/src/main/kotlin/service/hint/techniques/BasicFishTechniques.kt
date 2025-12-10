@@ -201,10 +201,10 @@ import dto.*
 
         // Build region highlighting: base = primary (blue), cover = primary (blue)
         val baseRegions = baseIndices.map { idx ->
-            ColoredRegionDto(baseType ?: "row", idx % 9, "primary")
+            ColouredRegionDto(baseType ?: "row", idx % 9, "primary")
         }
         val coverRegions = coverIndices.map { idx ->
-            ColoredRegionDto(coverType ?: "row", idx % 9, "primary")
+            ColouredRegionDto(coverType ?: "row", idx % 9, "primary")
         }
         val allRegions = baseRegions + coverRegions
 
@@ -226,9 +226,9 @@ import dto.*
         // Pattern cells are the intersection cells
         val patternCells = intersectionCells
 
-        // Colored candidates: pattern cells get "target", elimination cells get "elimination"
+        // Coloured candidates: pattern cells get "target", elimination cells get "elimination"
         val patternCandidates = patternCells.map { cell ->
-            ColoredCandidateDto(cell / 9, cell % 9, digit, "target")
+            ColouredCandidateDto(cell / 9, cell % 9, digit, "target")
         }
 
         val eliminationCandidates = eliminationCandidates(eliminations)
@@ -274,8 +274,8 @@ import dto.*
                 "Digit $digit candidates align on base $baseTypeText ($baseNames) and cover $coverTypeText ($coverNames) to form a $techniqueName pattern."
         }
 
-        // Colored cells for the intersection points (yellow border)
-        val intersectionColoredCells = intersectionCells.map { ColoredCellDto(it, "warning") }
+        // Coloured cells for the intersection points (yellow border)
+        val intersectionColouredCells = intersectionCells.map { ColouredCellDto(it, "warning") }
 
         steps.add(
             ExplanationStepDto(
@@ -284,8 +284,8 @@ import dto.*
                 description = patternDescription,
                 highlightCells = patternCells,
                 regions = baseRegions,
-                coloredCells = intersectionColoredCells,
-                coloredCandidates = patternCandidates
+                colouredCells = intersectionColouredCells,
+                colouredCandidates = patternCandidates
             )
         )
 
@@ -303,13 +303,13 @@ import dto.*
                     description = eliminationExplanation,
                     highlightCells = eliminationCells,
                     regions = coverRegions,
-                    coloredCandidates = patternCandidates + eliminationCandidates
+                    colouredCandidates = patternCandidates + eliminationCandidates
                 )
             )
 
             // Step 3: Show specific eliminations with pattern cells highlighted in green
             val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
-            val eliminationColoredCells = eliminationCells.map { ColoredCellDto(it, "warning") }
+            val eliminationColouredCells = eliminationCells.map { ColouredCellDto(it, "warning") }
 
             steps.add(
                 ExplanationStepDto(
@@ -318,8 +318,8 @@ import dto.*
                     description = "Remove $digit from: $eliminationNames. These cells see the fish pattern and cannot contain $digit.",
                     highlightCells = eliminationCells,
                     regions = allRegions,
-                    coloredCells = intersectionColoredCells + eliminationColoredCells,
-                    coloredCandidates = patternCandidates + eliminationCandidates
+                    colouredCells = intersectionColouredCells + eliminationColouredCells,
+                    colouredCandidates = patternCandidates + eliminationCandidates
                 )
             )
         }
