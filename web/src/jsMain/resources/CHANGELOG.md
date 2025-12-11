@@ -1,4 +1,9 @@
-# v0.6.1 - 2025-12
+# v0.6.2 - 2025-12-
+
+### Features
+- Support Multiple Languages
+
+# v0.6.1 - 2025-12-10
 
 ### Features
 - Backend caches responses and processing, for much faster response times, and reduce server load and memory usage.

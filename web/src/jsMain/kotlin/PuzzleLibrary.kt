@@ -1,10 +1,12 @@
 import domain.DifficultyCategory
 import domain.PuzzleDefinition
+import domain.getLocalizedDisplayName
 import kotlinx.browser.window
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.w3c.fetch.Response
 import kotlin.js.Promise
+import i18n.LanguageConfig
 
 /**
  * JSON format for puzzle files
@@ -140,7 +142,7 @@ object PuzzleLibrary {
                         
                         puzzleCache[category] = puzzles
                         loadingState[category] = false
-                        println("Loaded ${puzzles.size} ${category.displayName} puzzles")
+                        println("Loaded ${puzzles.size} ${category.getLocalizedDisplayName()} puzzles")
                         
                         // Notify all waiting callbacks
                         loadCallbacks[category]?.forEach { callback ->

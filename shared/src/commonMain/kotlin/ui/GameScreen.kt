@@ -10,6 +10,7 @@ import domain.GameState
 import domain.HighlightMode
 import domain.PlayMode
 import domain.SudokuGrid
+import i18n.LanguageConfig
 
 @Composable
 fun GameScreen(
@@ -127,10 +128,10 @@ private fun GameStatusBar(gameState: GameState) {
     ) {
         Text(
             text = when {
-                gameState.isSolved -> "🎉 Solved!"
-                gameState.isLoading -> "Thinking..."
-                gameState.error != null -> "Error: ${gameState.error}"
-                else -> "Good Sudoku"
+                gameState.isSolved -> LanguageConfig.getString("ui.game.solved")
+                gameState.isLoading -> LanguageConfig.getString("ui.game.thinking")
+                gameState.error != null -> "${LanguageConfig.getString("ui.game.error")} ${gameState.error}"
+                else -> LanguageConfig.getString("ui.game.goodSudoku")
             },
             style = MaterialTheme.typography.titleMedium
         )
@@ -142,14 +143,14 @@ private fun GameStatusBar(gameState: GameState) {
             // Show pencil mode indicator
             if (gameState.isPencilMode) {
                 Text(
-                    text = "✏️ Pencil",
+                    text = LanguageConfig.getString("ui.game.pencil"),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
 
             Text(
-                text = "Difficulty: ${gameState.difficulty.name.lowercase().replaceFirstChar { it.uppercase() }}",
+                text = "${LanguageConfig.getString("ui.game.difficulty")} ${gameState.difficulty.name.lowercase().replaceFirstChar { it.uppercase() }}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -169,7 +170,7 @@ private fun SelectionInfo(gameState: GameState) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = "Selection",
+                text = LanguageConfig.getString("ui.game.selection"),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -180,7 +181,7 @@ private fun SelectionInfo(gameState: GameState) {
                 // Primary number
                 Column {
                     Text(
-                        text = "Primary",
+                        text = LanguageConfig.getString("ui.game.primary"),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -193,7 +194,7 @@ private fun SelectionInfo(gameState: GameState) {
                 // Secondary number
                 Column {
                     Text(
-                        text = "Secondary",
+                        text = LanguageConfig.getString("ui.game.secondary"),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -206,7 +207,7 @@ private fun SelectionInfo(gameState: GameState) {
                 // Selected cell
                 Column {
                     Text(
-                        text = "Cell",
+                        text = LanguageConfig.getString("ui.game.cell"),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.tertiary
                     )
@@ -233,22 +234,22 @@ private fun GameControls(
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
     ) {
         OutlinedButton(onClick = { /* TODO: Implement undo */ }) {
-            Text("Undo")
+            Text(LanguageConfig.getString("ui.game.undo"))
         }
 
         OutlinedButton(onClick = onFindTechniques) {
-            Text("Find Techniques")
+            Text(LanguageConfig.getString("ui.game.findTechniques"))
         }
 
         OutlinedButton(
             onClick = onApplyTechnique,
             enabled = gameState.selectedMatch != null
         ) {
-            Text("Apply")
+            Text(LanguageConfig.getString("ui.game.apply"))
         }
 
         OutlinedButton(onClick = { /* TODO: Implement solve */ }) {
-            Text("Solve")
+            Text(LanguageConfig.getString("ui.game.solve"))
         }
     }
 }

@@ -1,5 +1,7 @@
 import adapter.GameEngine
 import domain.*
+import domain.getLocalizedDisplayName
+import i18n.LanguageConfig
 
 /**
  * Extension functions for game lifecycle management in SudokuApp.
@@ -258,8 +260,8 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
                         solution = solutionStr
                     }
                     
-                    println("Imported puzzle graded: difficulty=$difficulty, category=${category.displayName}")
-                    showToast("✓ Graded as ${category.displayName} (difficulty: $difficulty)")
+                    println("Imported puzzle graded: difficulty=$difficulty, category=${category.getLocalizedDisplayName()}")
+                    showToast("✓ Graded as ${category.getLocalizedDisplayName()} (difficulty: $difficulty)")
                 }
             }
         )
@@ -311,7 +313,7 @@ internal fun SudokuApp.loadNextUncompletedGame(category: DifficultyCategory) {
         startNewGame(nextPuzzle)
     } else {
         // All puzzles in this category have been started
-        showToast("All ${category.displayName} puzzles started! 🎉")
+        showToast("All ${category.getLocalizedDisplayName()} puzzles started! 🎉")
         render()
     }
 }
