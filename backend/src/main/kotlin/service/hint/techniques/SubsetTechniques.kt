@@ -49,7 +49,7 @@ import dto.*
                     groups.add(GroupDto(
                         candidates = candidates,
                         groupType = "naked-subset",
-                        colorIndex = 0
+                        colourIndex = 0
                     ))
                 }
             } else {
@@ -68,7 +68,7 @@ import dto.*
                     groups.add(GroupDto(
                         candidates = subsetCandidates,
                         groupType = "hidden-subset-cells",
-                        colorIndex = 0
+                        colourIndex = 0
                     ))
                 }
 
@@ -93,7 +93,7 @@ import dto.*
                     groups.add(GroupDto(
                         candidates = eliminationCandidates,
                         groupType = "hidden-subset-eliminations",
-                        colorIndex = 1
+                        colourIndex = 1
                     ))
                 }
             }

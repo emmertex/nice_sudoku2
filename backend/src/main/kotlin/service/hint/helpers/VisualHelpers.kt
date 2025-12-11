@@ -23,7 +23,7 @@ import service.hint.helpers.eliminationCandidates
                     GroupDto(
                         candidates = candidates,
                         groupType = "elimination",
-                        colorIndex = groups.size % 2
+                        colourIndex = groups.size % 2
                     )
                 )
             }

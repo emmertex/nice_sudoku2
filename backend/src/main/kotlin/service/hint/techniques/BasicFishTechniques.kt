@@ -65,7 +65,7 @@ import dto.*
                         groups.add(GroupDto(
                             candidates = boxCandidates,
                             groupType = "pointing-box",
-                            colorIndex = 0
+                            colourIndex = 0
                         ))
                     }
 
@@ -83,7 +83,7 @@ import dto.*
                         groups.add(GroupDto(
                             candidates = lineEliminations,
                             groupType = "pointing-eliminations",
-                            colorIndex = 1
+                            colourIndex = 1
                         ))
                     }
 
@@ -105,7 +105,7 @@ import dto.*
                         groups.add(GroupDto(
                             candidates = lineCandidates,
                             groupType = "claiming-line",
-                            colorIndex = 0
+                            colourIndex = 0
                         ))
                     }
 
@@ -123,7 +123,7 @@ import dto.*
                         groups.add(GroupDto(
                             candidates = boxEliminations,
                             groupType = "claiming-eliminations",
-                            colorIndex = 1
+                            colourIndex = 1
                         ))
                     }
                 }
