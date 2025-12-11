@@ -140,6 +140,7 @@ internal fun SudokuApp.renderSettings() {
                     }
                 }
             }
+            
 
             // Play Mode section
             div("section") {
@@ -324,6 +325,31 @@ internal fun SudokuApp.renderSettings() {
                     }
                 }
             }
+
+            // Language section
+            div("section") {
+                h2 { +LanguageConfig.getString("ui.settings.language") }
+                p("setting-desc") { +LanguageConfig.getString("ui.settings.languageDesc") }
+
+                div("mode-options language-options") {
+                    val availableLanguages = LanguageConfig.getAvailableLanguages()
+                    val currentLang = LanguageConfig.currentLanguage
+                    
+                    for (lang in availableLanguages) {
+                        val isActive = currentLang == lang.code
+                        button(classes = "mode-btn ${if (isActive) "active" else ""}") {
+                            +lang.name
+                            onClickFunction = {
+                                if (lang.code != currentLang) {
+                                    setLanguageWithUrl(lang.code)
+                                    render()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
         }
     }
 }

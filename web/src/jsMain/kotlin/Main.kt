@@ -7,6 +7,7 @@ import adapter.TechniqueMatchInfo
 import view.*
 import domain.*
 import helpers.importExport.*
+import i18n.LanguageConfig
 
 
 class SudokuApp {
@@ -349,8 +350,76 @@ fun main() {
         style.textContent = CSS_STYLES
         document.head?.appendChild(style)
         
+        // Detect language from URL path (e.g., /en/, /zh/, /de/, /es/)
+        detectAndApplyLanguageFromUrl()
+        
         // Start the app
         val app = SudokuApp()
         app.start()
+    }
+}
+
+/**
+ * Detect language from URL path and apply it
+ * Supports paths like /en/, /zh/, /de/, /es/ or /en, /zh, etc.
+ */
+private fun detectAndApplyLanguageFromUrl() {
+    val pathname = window.location.pathname
+    val supportedLanguages = setOf("en", "zh", "de", "es", "hi", "fr", "ar", "bn", "ru", "pt", "ur")
+    
+    // Match language code at the start of the path: /en/, /en, /zh/, etc.
+    val langMatch = Regex("^/([a-z]{2})(?:/|$)").find(pathname)
+    val urlLang = langMatch?.groupValues?.getOrNull(1)
+    
+    if (urlLang != null && urlLang in supportedLanguages) {
+        LanguageConfig.setLanguage(urlLang)
+    } else {
+        // Try to get language from localStorage or browser preference
+        val savedLang = try {
+            window.localStorage.getItem("sudoku_language")
+        } catch (e: Throwable) {
+            null
+        }
+        
+        if (savedLang != null && savedLang in supportedLanguages) {
+            LanguageConfig.setLanguage(savedLang)
+        } else {
+            // Default to browser language if supported
+            val browserLang = window.navigator.language.take(2).lowercase()
+            if (browserLang in supportedLanguages) {
+                LanguageConfig.setLanguage(browserLang)
+            }
+            // Otherwise stays as "en" (default)
+        }
+    }
+}
+
+/**
+ * Update URL to include language code and save preference
+ */
+fun setLanguageWithUrl(languageCode: String) {
+    val success = LanguageConfig.setLanguage(languageCode)
+    if (success) {
+        // Save to localStorage
+        try {
+            window.localStorage.setItem("sudoku_language", languageCode)
+        } catch (e: Throwable) {
+            // Ignore localStorage errors
+        }
+        
+        // Update URL path to include language
+        val currentPath = window.location.pathname
+        val hash = window.location.hash
+        val search = window.location.search
+        
+        // Remove existing language prefix if present
+        val pathWithoutLang = currentPath.replace(Regex("^/[a-z]{2}(?=/|$)"), "")
+        val cleanPath = if (pathWithoutLang.isEmpty() || pathWithoutLang == "/") "/" else pathWithoutLang
+        
+        // Build new path with language prefix
+        val newPath = "/$languageCode$cleanPath"
+        
+        // Use replaceState to update URL without navigation
+        window.history.replaceState(null, "", "$newPath$search$hash")
     }
 }

@@ -5,7 +5,7 @@ package i18n
  */
 object LanguageConfig {
     /**
-     * Current language code (hardcoded to English for now)
+     * Current language code
      */
     var currentLanguage: String = "en"
         private set
@@ -24,7 +24,8 @@ object LanguageConfig {
     }
 
     /**
-     * Switch to a different language (for future use)
+     * Switch to a different language
+     * Returns true if successful
      */
     fun setLanguage(language: String): Boolean {
         val success = LanguageManager.loadLanguage(language)
@@ -32,6 +33,20 @@ object LanguageConfig {
             currentLanguage = language
         }
         return success
+    }
+    
+    /**
+     * Get the native name of the current language
+     */
+    fun getCurrentLanguageName(): String {
+        return LanguageManager.getCurrentLanguageName()
+    }
+    
+    /**
+     * Get list of available languages with their native names
+     */
+    fun getAvailableLanguages(): List<LanguageInfo> {
+        return LanguageManager.getAvailableLanguages()
     }
 }
 

@@ -1,7 +1,9 @@
-# v0.6.2 - 2025-12-
+# v0.7.0 - 2025-12-12
 
 ### Features
-- Support Multiple Languages
+- Support Multiple Languages ( Machine Translated )
+- - ar, bn, de, en, es, fr, hi, pt, ru, ur, zh
+
 
 # v0.6.1 - 2025-12-10
 
