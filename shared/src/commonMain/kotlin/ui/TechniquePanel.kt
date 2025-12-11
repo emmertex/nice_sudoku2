@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import i18n.LanguageConfig
 
 @Composable
 fun TechniquePanel(
@@ -27,7 +28,7 @@ fun TechniquePanel(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Techniques",
+                text = LanguageConfig.getString("ui.techniques.title"),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )

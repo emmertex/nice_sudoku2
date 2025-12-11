@@ -1,4 +1,11 @@
-# v0.6.1 - 2025-12
+# v0.7.0 - 2025-12-12
+
+### Features
+- Support Multiple Languages ( Machine Translated )
+- - ar, bn, de, en, es, fr, hi, pt, ru, ur, zh
+
+
+# v0.6.1 - 2025-12-10
 
 ### Features
 - Backend caches responses and processing, for much faster response times, and reduce server load and memory usage.

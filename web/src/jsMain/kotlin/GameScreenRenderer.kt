@@ -4,6 +4,8 @@ import adapter.GroupDto
 import adapter.LineDto
 import adapter.TechniqueMatchInfo
 import domain.*
+import domain.getLocalizedDisplayName
+import i18n.LanguageConfig
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.html.*
@@ -116,7 +118,7 @@ internal fun SudokuApp.renderGameScreen() {
                 if (game != null) {
                     div("game-info") {
                         span("category ${game.category.name.lowercase()}") { 
-                            +game.category.displayName 
+                            +game.category.getLocalizedDisplayName() 
                         }
                         span("difficulty") { +"★ ${game.difficulty}" }
                         span("timer-container") {

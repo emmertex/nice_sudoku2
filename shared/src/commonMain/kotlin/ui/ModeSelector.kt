@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import domain.HighlightMode
 import domain.PlayMode
+import i18n.LanguageConfig
 
 @Composable
 fun ModeSelector(
@@ -33,7 +34,7 @@ fun ModeSelector(
     ) {
         // Highlight Mode Section
         Text(
-            text = "Highlight Mode",
+            text = LanguageConfig.getString("ui.modes.highlightMode"),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -63,10 +64,10 @@ fun ModeSelector(
                     HighlightModeChip(
                         mode = mode,
                         label = when (mode) {
-                            HighlightMode.PLACED -> "Placed"
-                            HighlightMode.RCB_SELECTED -> "RCB Sel"
-                            HighlightMode.RCB_ALL -> "RCB All"
-                            HighlightMode.PENCIL -> "Pencil"
+                            HighlightMode.PLACED -> LanguageConfig.getString("ui.modes.placed")
+                            HighlightMode.RCB_SELECTED -> LanguageConfig.getString("ui.modes.rcbSel")
+                            HighlightMode.RCB_ALL -> LanguageConfig.getString("ui.modes.rcbAll")
+                            HighlightMode.PENCIL -> LanguageConfig.getString("ui.modes.pencil")
                         },
                         isSelected = highlightMode == mode,
                         onClick = { onHighlightModeChange(mode) },
@@ -84,7 +85,7 @@ fun ModeSelector(
 
         // Play Mode Section
         Text(
-            text = "Play Mode",
+            text = LanguageConfig.getString("ui.modes.playMode"),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
@@ -96,21 +97,21 @@ fun ModeSelector(
         ) {
             PlayModeChip(
                 mode = PlayMode.FAST,
-                label = "Fast",
+                label = LanguageConfig.getString("ui.modes.fast"),
                 isSelected = playMode == PlayMode.FAST,
                 onClick = { onPlayModeChange(PlayMode.FAST) },
                 modifier = Modifier.weight(1f)
             )
             PlayModeChip(
                 mode = PlayMode.CELL_FIRST,
-                label = "Cell First",
+                label = LanguageConfig.getString("ui.modes.cellFirst"),
                 isSelected = playMode == PlayMode.CELL_FIRST,
                 onClick = { onPlayModeChange(PlayMode.CELL_FIRST) },
                 modifier = Modifier.weight(1f)
             )
             PlayModeChip(
                 mode = PlayMode.ADVANCED,
-                label = "Advanced",
+                label = LanguageConfig.getString("ui.modes.advanced"),
                 isSelected = playMode == PlayMode.ADVANCED,
                 onClick = { onPlayModeChange(PlayMode.ADVANCED) },
                 modifier = Modifier.weight(1f)
@@ -120,9 +121,9 @@ fun ModeSelector(
         // Mode description
         Text(
             text = when (playMode) {
-                PlayMode.FAST -> "Click number → Click cell to fill"
-                PlayMode.CELL_FIRST -> "Click cell → Click number to fill"
-                PlayMode.ADVANCED -> "Click number → Select action"
+                PlayMode.FAST -> LanguageConfig.getString("ui.modes.fastDescription")
+                PlayMode.CELL_FIRST -> LanguageConfig.getString("ui.modes.cellFirstDescription")
+                PlayMode.ADVANCED -> LanguageConfig.getString("ui.modes.advancedDescription")
             },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -258,7 +259,7 @@ fun AdvancedModeActionBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Selected: $selectedNumber",
+            text = "${LanguageConfig.getString("ui.game.selected")} $selectedNumber",
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp
         )
@@ -267,7 +268,7 @@ fun AdvancedModeActionBar(
 
         // Set Number button
         ActionChip(
-            text = "Set (Enter)",
+            text = LanguageConfig.getString("ui.game.set"),
             onClick = onSetNumber,
             enabled = canSetNumber,
             backgroundColour = Color(0xFFE3F2FD),
@@ -276,7 +277,7 @@ fun AdvancedModeActionBar(
 
         // Remove Pencil button
         ActionChip(
-            text = "Remove (Space)",
+            text = LanguageConfig.getString("ui.game.remove"),
             onClick = onRemovePencil,
             enabled = canRemovePencil,
             backgroundColour = Color(0xFFFFEBEE),

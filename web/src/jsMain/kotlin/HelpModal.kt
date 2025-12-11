@@ -2,6 +2,7 @@ import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.Element
+import i18n.LanguageConfig
 
 /**
  * Extension function for rendering the Help modal in SudokuApp.
@@ -25,147 +26,147 @@ internal fun SudokuApp.renderHelpModal() {
                     }
                 }
                 
-                h1 { +"Help" }
+                h1 { +LanguageConfig.getString("ui.help.title") }
                 
                 div("help-section") {
-                    h2 { +"Welcome" }
+                    h2 { +LanguageConfig.getString("ui.help.welcome") }
                         p {
-                            +"Thank you for testing Nice Sudoku."
+                            +LanguageConfig.getString("ui.help.welcomeText")
                         }
                         
                         
                         p {
-                            +"Andrew Frahn"
+                            +LanguageConfig.getString("ui.help.author")
                         }
                     
                 }
                 
                 div("help-section") {
-                    h2 { +"Keyboard Shortcuts" }
+                    h2 { +LanguageConfig.getString("ui.help.keyboardShortcuts") }
                 }
                 
                 div("help-section") {
-                    h2 { +"Navigation" }
+                    h2 { +LanguageConfig.getString("ui.help.navigation") }
                     
-                    h3 { +"Cell Selection" }
+                    h3 { +LanguageConfig.getString("ui.help.cellSelection") }
                     ul {
                         li {
-                            strong { +"Arrow Keys (↑ ← ↓ →)" }
-                            +": Move the cursor between cells"
+                            strong { +LanguageConfig.getString("ui.help.arrowKeys") }
+                            +LanguageConfig.getString("ui.help.arrowKeysDesc")
                         }
                         li {
-                            strong { +"Ctrl + Arrow Keys" }
-                            +": Jump to the next unsolved cell in that direction"
+                            strong { +LanguageConfig.getString("ui.help.ctrlArrowKeys") }
+                            +LanguageConfig.getString("ui.help.ctrlArrowKeysDesc")
                         }
                         li {
-                            strong { +"Home" }
-                            +": Move to the first column of the current row"
+                            strong { +LanguageConfig.getString("ui.help.home") }
+                            +LanguageConfig.getString("ui.help.homeDesc")
                         }
                         li {
-                            strong { +"End" }
-                            +": Move to the last column of the current row"
+                            strong { +LanguageConfig.getString("ui.help.end") }
+                            +LanguageConfig.getString("ui.help.endDesc")
                         }
                         li {
-                            strong { +"Ctrl + Home" }
-                            +": Move to the top-left cell (cell 0)"
+                            strong { +LanguageConfig.getString("ui.help.ctrlHome") }
+                            +LanguageConfig.getString("ui.help.ctrlHomeDesc")
                         }
                         li {
-                            strong { +"Ctrl + End" }
-                            +": Move to the bottom-right cell (cell 80)"
+                            strong { +LanguageConfig.getString("ui.help.ctrlEnd") }
+                            +LanguageConfig.getString("ui.help.ctrlEndDesc")
                         }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Number Entry" }
+                    h2 { +LanguageConfig.getString("ui.help.numberEntry") }
                     
-                    h3 { +"Basic Entry" }
+                    h3 { +LanguageConfig.getString("ui.help.basicEntry") }
                     ul {
                         li {
-                            strong { +"1-9" }
-                            +": Enter numbers based on play mode:"
+                            strong { +LanguageConfig.getString("ui.help.numberKeys") }
+                            +LanguageConfig.getString("ui.help.numberKeysDesc")
                             ul {
                                 li {
-                                    strong { +"Fast Mode" }
-                                    +": Selects the number for highlighting. If a cell is selected, applies the number to that cell"
+                                    strong { +LanguageConfig.getString("ui.help.fastMode") }
+                                    +LanguageConfig.getString("ui.help.fastModeDesc")
                                 }
                                 li {
-                                    strong { +"Advanced Mode" }
-                                    +": Toggles the number in the primary selection. Use the two number bars for clicking (primary=blue, secondary=red)"
+                                    strong { +LanguageConfig.getString("ui.help.advancedMode") }
+                                    +LanguageConfig.getString("ui.help.advancedModeDesc")
                                 }
                             }
                         }
                     }
                     
-                    h3 { +"Candidate Entry (Pencil Marks)" }
+                    h3 { +LanguageConfig.getString("ui.help.candidateEntry") }
                     ul {
                         li {
-                            strong { +"Ctrl + 1-9" }
-                            +": Toggle pencil mark candidate in the selected cell"
+                            strong { +LanguageConfig.getString("ui.help.ctrlNumberKeys") }
+                            +LanguageConfig.getString("ui.help.ctrlNumberKeysDesc")
                         }
                         li {
-                            strong { +"Space" }
-                            +": If a number is selected (filter), toggle its candidate in the selected cell"
+                            strong { +LanguageConfig.getString("ui.help.space") }
+                            +LanguageConfig.getString("ui.help.spaceDesc")
                         }
                         li {
-                            strong { +"N" }
-                            +": Toggle notes/pencil mode on/off"
+                            strong { +LanguageConfig.getString("ui.help.n") }
+                            +LanguageConfig.getString("ui.help.nDesc")
                         }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Editing" }
+                    h2 { +LanguageConfig.getString("ui.help.editing") }
                     ul {
                         li {
-                            strong { +"Undo button (↩)" }
-                            +": Undo your last action (placements and candidate eliminations)"
+                            strong { +LanguageConfig.getString("ui.help.undoButton") }
+                            +LanguageConfig.getString("ui.help.undoButtonDesc")
                         }
                         li {
-                            strong { +"Escape" }
-                            +": Clear all selections (selected numbers and cell)"
+                            strong { +LanguageConfig.getString("ui.help.escape") }
+                            +LanguageConfig.getString("ui.help.escapeDesc")
                         }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Filters and Highlighting" }
+                    h2 { +LanguageConfig.getString("ui.help.filters") }
                     ul {
                         li {
-                            strong { +"F1-F9" }
-                            +": Set/change the filtered (selected) digit for highlighting"
+                            strong { +LanguageConfig.getString("ui.help.f1f9") }
+                            +LanguageConfig.getString("ui.help.f1f9Desc")
                         }
                         li {
-                            strong { +"Shift + F1-F9" }
-                            +": Set/change the filtered digit (future: toggle filter mode)"
+                            strong { +LanguageConfig.getString("ui.help.shiftF1f9") }
+                            +LanguageConfig.getString("ui.help.shiftF1f9Desc")
                         }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Game Actions" }
+                    h2 { +LanguageConfig.getString("ui.help.gameActions") }
                     
-                    h3 { +"Hint System" }
+                    h3 { +LanguageConfig.getString("ui.help.hintSystem") }
                     ul {
                         li {
-                            strong { +"H" }
-                            +": Toggle hint panel (show/hide available solving techniques)"
+                            strong { +LanguageConfig.getString("ui.help.h") }
+                            +LanguageConfig.getString("ui.help.hDesc")
                             ul {
-                                li { +"Requires backend connection to be available" }
+                                li { +LanguageConfig.getString("ui.help.requiresBackend") }
                                 li {
-                                    +"When hints are visible:"
+                                    +LanguageConfig.getString("ui.help.whenHintsVisible")
                                     ul {
                                         li {
-                                            strong { +"Arrow Up/Down" }
-                                            +": Navigate through available hints"
+                                            strong { +LanguageConfig.getString("ui.help.arrowUpDown") }
+                                            +LanguageConfig.getString("ui.help.arrowUpDownDesc")
                                         }
                                         li {
-                                            strong { +"Page Up" }
-                                            +": Jump to first hint"
+                                            strong { +LanguageConfig.getString("ui.help.pageUp") }
+                                            +LanguageConfig.getString("ui.help.pageUpDesc")
                                         }
                                         li {
-                                            strong { +"Page Down" }
-                                            +": Jump to last hint"
+                                            strong { +LanguageConfig.getString("ui.help.pageDown") }
+                                            +LanguageConfig.getString("ui.help.pageDownDesc")
                                         }
                                     }
                                 }
@@ -173,127 +174,127 @@ internal fun SudokuApp.renderHelpModal() {
                         }
                     }
                     
-                    h3 { +"Advanced Mode Actions" }
+                    h3 { +LanguageConfig.getString("ui.help.advancedModeActions") }
                     ul {
                         li {
-                            strong { +"Enter" }
-                            +" or "
-                            strong { +"S" }
-                            +": Set the value in the selected cell (only works when exactly one number is selected in primary)"
+                            strong { +LanguageConfig.getString("ui.help.enter") }
+                            +LanguageConfig.getString("ui.help.or")
+                            strong { +LanguageConfig.getString("ui.help.s") }
+                            +LanguageConfig.getString("ui.help.enterDesc")
                         }
                         li {
-                            strong { +"Deselect button" }
-                            +": Click to deselect the cell and show number bars again"
+                            strong { +LanguageConfig.getString("ui.help.deselectButton") }
+                            +LanguageConfig.getString("ui.help.deselectButtonDesc")
                         }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Screen Navigation" }
+                    h2 { +LanguageConfig.getString("ui.help.screenNavigation") }
                     ul {
                         li {
-                            strong { +"M" }
-                            +": Open Menu/Settings screen"
+                            strong { +LanguageConfig.getString("ui.help.m") }
+                            +LanguageConfig.getString("ui.help.mDesc")
                         }
                         li {
-                            strong { +"B" }
-                            +": Open Puzzle Browser screen"
+                            strong { +LanguageConfig.getString("ui.help.b") }
+                            +LanguageConfig.getString("ui.help.bDesc")
                         }
                         li {
-                            strong { +"I" }
-                            +": Open Import/Export screen"
+                            strong { +LanguageConfig.getString("ui.help.i") }
+                            +LanguageConfig.getString("ui.help.iDesc")
                         }
                         li {
-                            strong { +"Escape" }
-                            +":"
+                            strong { +LanguageConfig.getString("ui.help.escapeScreen") }
+                            +LanguageConfig.getString("ui.help.escapeScreenDesc")
                             ul {
-                                li { +"Close modals (About, etc.)" }
-                                li { +"Close hint panel" }
-                                li { +"Return to Game screen from any other screen" }
-                                li { +"Clear selections in Game screen" }
+                                li { +LanguageConfig.getString("ui.help.closeModals") }
+                                li { +LanguageConfig.getString("ui.help.closeHintPanel") }
+                                li { +LanguageConfig.getString("ui.help.returnToGame") }
+                                li { +LanguageConfig.getString("ui.help.clearSelections") }
                             }
                         }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Mode Switching" }
+                    h2 { +LanguageConfig.getString("ui.help.modeSwitching") }
                     ul {
                         li {
-                            strong { +"N" }
-                            +": Toggle Notes/Pencil mode"
+                            strong { +LanguageConfig.getString("ui.help.nMode") }
+                            +LanguageConfig.getString("ui.help.nModeDesc")
                             ul {
-                                li { +"When enabled, number entry adds/removes pencil marks instead of values" }
+                                li { +LanguageConfig.getString("ui.help.whenEnabled") }
                             }
                         }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Notes" }
+                    h2 { +LanguageConfig.getString("ui.help.notes") }
                     ol {
-                        li { +"All shortcuts are disabled when typing in input fields or text areas to prevent conflicts" }
-                        li { +"Keyboard shortcuts follow HoDoKu conventions for consistency with standard Sudoku software" }
-                        li { +"The game is fully playable using only keyboard input" }
-                        li { +"Some shortcuts may vary slightly in behavior between Fast, Cell First, and Advanced play modes" }
+                        li { +LanguageConfig.getString("ui.help.shortcutsDisabled") }
+                        li { +LanguageConfig.getString("ui.help.hodokuConventions") }
+                        li { +LanguageConfig.getString("ui.help.fullyPlayable") }
+                        li { +LanguageConfig.getString("ui.help.shortcutsVary") }
                         li {
-                            +"F1-F9 keys: Some browsers use F-keys for developer tools (e.g., F12) or other functions. If a browser shortcut conflicts, you may need to disable the browser's shortcut or use number keys 1-9 instead for filtering"
+                            +LanguageConfig.getString("ui.help.f1f9Note")
                         }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Play Mode Differences" }
+                    h2 { +LanguageConfig.getString("ui.help.playModeDifferences") }
                     
-                    h3 { +"Fast Mode" }
+                    h3 { +LanguageConfig.getString("ui.help.fastModeDetails") }
                     ul {
-                        li { +"Number keys select numbers for highlighting first" }
-                        li { +"If a cell is selected, the number is immediately applied" }
-                        li { +"Quick, streamlined input for faster solving" }
-                        li { +"Single number selection for highlighting" }
+                        li { +LanguageConfig.getString("ui.help.fastModeDetail1") }
+                        li { +LanguageConfig.getString("ui.help.fastModeDetail2") }
+                        li { +LanguageConfig.getString("ui.help.fastModeDetail3") }
+                        li { +LanguageConfig.getString("ui.help.fastModeDetail4") }
                     }
                     
-                    h3 { +"Cell First Mode" }
+                    h3 { +LanguageConfig.getString("ui.help.cellFirstMode") }
                     ul {
-                        li { +"Click a cell first to select it" }
-                        li { +"Then click a number to fill that cell" }
-                        li { +"Highlighting is based on the selected cell's value" }
-                        li { +"Ideal for methodical cell-by-cell solving" }
+                        li { +LanguageConfig.getString("ui.help.cellFirstDetail1") }
+                        li { +LanguageConfig.getString("ui.help.cellFirstDetail2") }
+                        li { +LanguageConfig.getString("ui.help.cellFirstDetail3") }
+                        li { +LanguageConfig.getString("ui.help.cellFirstDetail4") }
                     }
                     
-                    h3 { +"Advanced Mode" }
+                    h3 { +LanguageConfig.getString("ui.help.advancedModeDetails") }
                     ul {
-                        li { +"Two number bars: primary (blue) and secondary (red)" }
-                        li { +"Toggle multiple numbers in each bar - cells must contain ALL selected numbers to highlight" }
-                        li { +"When a cell is selected, number bars hide and action buttons appear" }
-                        li { +"Use Deselect button to show number bars again" }
-                        li { +"Use Set/Clr buttons to modify cells, or Enter/S for single-number selections" }
-                        li { +"Click Fast/Cell/Adv badge in header to quickly cycle modes" }
-                        li { +"Supports two-number highlighting for complex solving techniques" }
+                        li { +LanguageConfig.getString("ui.help.advancedDetail1") }
+                        li { +LanguageConfig.getString("ui.help.advancedDetail2") }
+                        li { +LanguageConfig.getString("ui.help.advancedDetail3") }
+                        li { +LanguageConfig.getString("ui.help.advancedDetail4") }
+                        li { +LanguageConfig.getString("ui.help.advancedDetail5") }
+                        li { +LanguageConfig.getString("ui.help.advancedDetail6") }
+                        li { +LanguageConfig.getString("ui.help.advancedDetail7") }
                     }
                 }
                 
                 div("help-section") {
-                    h2 { +"Tips" }
+                    h2 { +LanguageConfig.getString("ui.help.tips") }
                     ul {
                         li {
-                            +"Use "
-                            strong { +"Ctrl + Arrow Keys" }
-                            +" to quickly jump between unsolved cells"
+                            +(LanguageConfig.getString("ui.help.tip1") + " ")
+                            strong { +LanguageConfig.getString("ui.help.tip1CtrlArrow") }
+                            +(" " + LanguageConfig.getString("ui.help.tip1Desc"))
                         }
                         li {
-                            +"Use "
-                            strong { +"F1-F9" }
-                            +" for quick number filtering and highlighting"
+                            +(LanguageConfig.getString("ui.help.tip2") + " ")
+                            strong { +LanguageConfig.getString("ui.help.tip2F1f9") }
+                            +(" " + LanguageConfig.getString("ui.help.tip2Desc"))
                         }
                         li {
-                            +"Use "
-                            strong { +"H" }
-                            +" to access hints and learn new solving techniques"
+                            +(LanguageConfig.getString("ui.help.tip3") + " ")
+                            strong { +LanguageConfig.getString("ui.help.tip3H") }
+                            +(" " + LanguageConfig.getString("ui.help.tip3Desc"))
                         }
                         li {
-                            strong { +"Escape" }
-                            +" is your universal \"go back\" key - use it to return to the game from any screen or modal"
+                            strong { +LanguageConfig.getString("ui.help.tip4") }
+                            +(" " + LanguageConfig.getString("ui.help.tip4Desc"))
                         }
                     }
                 }

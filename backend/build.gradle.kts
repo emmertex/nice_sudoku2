@@ -15,6 +15,15 @@ repositories {
 val ktorVersion = "2.3.12"
 
 dependencies {
+    // Shared module for i18n support (exclude Compose dependencies)
+    implementation(project(":shared")) {
+        exclude(group = "org.jetbrains.compose.runtime", module = "runtime")
+        exclude(group = "org.jetbrains.compose.foundation", module = "foundation")
+        exclude(group = "org.jetbrains.compose.material3", module = "material3")
+        exclude(group = "org.jetbrains.compose.ui", module = "ui")
+        exclude(group = "org.jetbrains.compose.components", module = "components-resources")
+    }
+    
     // Ktor server
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")

@@ -51,6 +51,22 @@ enum class DifficultyCategory(val displayName: String) {
 }
 
 /**
+ * Get localized display name for this category
+ */
+fun DifficultyCategory.getLocalizedDisplayName(): String {
+    return when (this) {
+        DifficultyCategory.BEGINNER -> i18n.LanguageConfig.getString("domain.difficulty.beginner")
+        DifficultyCategory.EASY -> i18n.LanguageConfig.getString("domain.difficulty.easy")
+        DifficultyCategory.MEDIUM -> i18n.LanguageConfig.getString("domain.difficulty.medium")
+        DifficultyCategory.TOUGH -> i18n.LanguageConfig.getString("domain.difficulty.tough")
+        DifficultyCategory.HARD -> i18n.LanguageConfig.getString("domain.difficulty.hard")
+        DifficultyCategory.EXPERT -> i18n.LanguageConfig.getString("domain.difficulty.expert")
+        DifficultyCategory.DIABOLICAL -> i18n.LanguageConfig.getString("domain.difficulty.diabolical")
+        DifficultyCategory.CUSTOM -> i18n.LanguageConfig.getString("domain.difficulty.custom")
+    }
+}
+
+/**
  * Represents a saved game state
  * 
  * The storage format uses USER ELIMINATIONS rather than shown notes.

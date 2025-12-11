@@ -5,6 +5,7 @@ import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLTextAreaElement
 import domain.*
 import helpers.importExport.buildShareUrl
+import i18n.LanguageConfig
 
 /**
  * Extension function for rendering the Import/Export screen in SudokuApp.
@@ -38,42 +39,42 @@ internal fun SudokuApp.renderImportExport() {
         div("sudoku-container import-export") {
             div("header") {
                 button(classes = "back-btn") {
-                    +"← Back"
+                    +LanguageConfig.getString("ui.importExport.back")
                     onClickFunction = {
                         currentScreen = AppScreen.GAME
                         render()
                     }
                 }
-                h1 { +"Import / Export" }
+                h1 { +LanguageConfig.getString("ui.importExport.title") }
             }
             
             // Export section
             div("section") {
-                h2 { +"📤 Export" }
+                h2 { +LanguageConfig.getString("ui.importExport.export") }
                 
                 div("export-option") {
-                    label { +"Original Puzzle (81 chars)" }
+                    label { +LanguageConfig.getString("ui.importExport.originalPuzzle") }
                     div("export-row") {
                         input(InputType.text, classes = "export-field") {
                             value = puzzleString
                             readonly = true
                         }
                         button(classes = "copy-btn") {
-                            +"Copy"
+                            +LanguageConfig.getString("ui.importExport.copy")
                             onClickFunction = {
                                 ClipboardUtils.copyToClipboard(puzzleString,
-                                    onSuccess = { showToast("✓ Copied puzzle!") },
-                                    onError = { showToast("Failed to copy") }
+                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedPuzzle")) },
+                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
                                 )
                             }
                         }
                         button(classes = "copy-btn") {
-                            +"Copy URL"
+                            +LanguageConfig.getString("ui.importExport.copyUrl")
                             onClickFunction = {
                                 val shareUrl = buildShareUrl(puzzleString)
                                 ClipboardUtils.copyToClipboard(shareUrl,
-                                    onSuccess = { showToast("✓ Copied puzzle URL!") },
-                                    onError = { showToast("Failed to copy URL") }
+                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedPuzzleUrl")) },
+                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
                                 )
                             }
                         }
@@ -81,28 +82,28 @@ internal fun SudokuApp.renderImportExport() {
                 }
                 
                 div("export-option") {
-                    label { +"Current State (81 chars)" }
+                    label { +LanguageConfig.getString("ui.importExport.currentState") }
                     div("export-row") {
                         input(InputType.text, classes = "export-field") {
                             value = currentValues
                             readonly = true
                         }
                         button(classes = "copy-btn") {
-                            +"Copy"
+                            +LanguageConfig.getString("ui.importExport.copy")
                             onClickFunction = {
                                 ClipboardUtils.copyToClipboard(currentValues,
-                                    onSuccess = { showToast("✓ Copied state!") },
-                                    onError = { showToast("Failed to copy") }
+                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedState")) },
+                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
                                 )
                             }
                         }
                         button(classes = "copy-btn") {
-                            +"Copy URL"
+                            +LanguageConfig.getString("ui.importExport.copyUrl")
                             onClickFunction = {
                                 val shareUrl = buildShareUrl(currentValues)
                                 ClipboardUtils.copyToClipboard(shareUrl,
-                                    onSuccess = { showToast("✓ Copied state URL!") },
-                                    onError = { showToast("Failed to copy URL") }
+                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedStateUrl")) },
+                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
                                 )
                             }
                         }
@@ -110,28 +111,28 @@ internal fun SudokuApp.renderImportExport() {
                 }
                 
                 div("export-option") {
-                    label { +"State, Givens and Eliminations (891 chars)" }
+                    label { +LanguageConfig.getString("ui.importExport.fullState") }
                     div("export-row") {
                         input(InputType.text, classes = "export-field") {
                             value = stateString891
                             readonly = true
                         }
                         button(classes = "copy-btn") {
-                            +"Copy"
+                            +LanguageConfig.getString("ui.importExport.copy")
                             onClickFunction = {
                                 ClipboardUtils.copyToClipboard(stateString891,
-                                    onSuccess = { showToast("✓ Copied full state!") },
-                                    onError = { showToast("Failed to copy") }
+                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedFullState")) },
+                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
                                 )
                             }
                         }
                         button(classes = "copy-btn") {
-                            +"Copy URL"
+                            +LanguageConfig.getString("ui.importExport.copyUrl")
                             onClickFunction = {
                                 val shareUrl = buildShareUrl(stateString891)
                                 ClipboardUtils.copyToClipboard(shareUrl,
-                                    onSuccess = { showToast("✓ Copied full state URL!") },
-                                    onError = { showToast("Failed to copy URL") }
+                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedFullStateUrl")) },
+                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
                                 )
                             }
                         }
@@ -140,28 +141,28 @@ internal fun SudokuApp.renderImportExport() {
                 
                 if (sudokuCoachString != null) {
                     div("export-option") {
-                        label { +"Sudoku Coach Format" }
+                        label { +LanguageConfig.getString("ui.importExport.sudokuCoachFormat") }
                         div("export-row") {
                             input(InputType.text, classes = "export-field") {
                                 value = sudokuCoachString
                                 readonly = true
                             }
                             button(classes = "copy-btn") {
-                                +"Copy"
+                                +LanguageConfig.getString("ui.importExport.copy")
                                 onClickFunction = {
                                     ClipboardUtils.copyToClipboard(sudokuCoachString,
-                                        onSuccess = { showToast("✓ Copied Sudoku Coach format!") },
-                                        onError = { showToast("Failed to copy") }
+                                        onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedSudokuCoach")) },
+                                        onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
                                     )
                                 }
                             }
                             button(classes = "copy-btn") {
-                                +"Copy URL"
+                                +LanguageConfig.getString("ui.importExport.copyUrl")
                                 onClickFunction = {
                                     val shareUrl = buildShareUrl(sudokuCoachString)
                                     ClipboardUtils.copyToClipboard(shareUrl,
-                                        onSuccess = { showToast("✓ Copied Sudoku Coach URL!") },
-                                        onError = { showToast("Failed to copy URL") }
+                                        onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedSudokuCoachUrl")) },
+                                        onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
                                     )
                                 }
                             }
@@ -172,9 +173,9 @@ internal fun SudokuApp.renderImportExport() {
             
             // Import section
             div("section") {
-                h2 { +"📥 Import" }
+                h2 { +LanguageConfig.getString("ui.importExport.import") }
                 p("hint") {
-                    +"Paste an 81-char puzzle, 810-char state, 891-char full state, or "
+                    +(LanguageConfig.getString("ui.importExport.importHint") + " ")
                     a(href = "https://sudoku.coach", target = "_blank") {
                         +"Sudoku Coach"
                     }
@@ -183,12 +184,12 @@ internal fun SudokuApp.renderImportExport() {
                 
                 textArea(classes = "import-field") {
                     id = "import-input"
-                    placeholder = "Paste puzzle string here..."
+                    placeholder = LanguageConfig.getString("ui.importExport.placeholder")
                 }
                 
                 div("import-actions") {
                     button(classes = "paste-btn") {
-                        +"📋 Paste from Clipboard"
+                        +LanguageConfig.getString("ui.importExport.pasteFromClipboard")
                         onClickFunction = {
                             ClipboardUtils.readFromClipboard(
                                 onSuccess = { text ->
@@ -198,13 +199,13 @@ internal fun SudokuApp.renderImportExport() {
                                     }
                                     render()
                                 },
-                                onError = { showToast("Failed to read clipboard") }
+                                onError = { showToast(LanguageConfig.getString("ui.importExport.failedToReadClipboard")) }
                             )
                         }
                     }
                     
                     button(classes = "load-btn") {
-                        +"Load Puzzle"
+                        +LanguageConfig.getString("ui.importExport.loadPuzzle")
                         onClickFunction = {
                             val input = document.getElementById("import-input") as? HTMLTextAreaElement
                             val text = input?.value?.trim() ?: ""
