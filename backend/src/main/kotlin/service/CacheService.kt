@@ -174,7 +174,7 @@ class CacheService {
      */
     fun getDatabaseFileSize(): Long {
         return try {
-            val dbFile = File("./data/cache.db")
+            val dbFile = File(CacheDatabase.DEFAULT_DB_PATH)
             if (dbFile.exists()) dbFile.length() else 0L
         } catch (e: Exception) {
             println("[CACHE-SERVICE] ERROR getting database file size: ${e.message}")

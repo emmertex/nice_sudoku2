@@ -17,7 +17,10 @@ object CacheTable : LongIdTable("cache_entries") {
 object CacheDatabase {
     private var database: Database? = null
     
-    fun initialize(dbPath: String = "./data/cache.db") {
+    // Bump this filename when cached-response JSON schemas change, to avoid replaying old cached JSON.
+    const val DEFAULT_DB_PATH: String = "./data/cache-v2.db"
+    
+    fun initialize(dbPath: String = DEFAULT_DB_PATH) {
         // Ensure data directory exists
         val dbFile = File(dbPath)
         dbFile.parentFile?.mkdirs()

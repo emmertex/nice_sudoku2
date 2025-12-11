@@ -20,7 +20,7 @@ import dto.*
         val eurekaNotation = eurekaBuilder.toString()
         
         // Process each collective (node) in the ALS chain
-        var colorIndex = 0
+        var colourIndex = 0
         for (collective in nodes) {
             // Add ALS groups
             val alsList = collective.alsList()
@@ -42,9 +42,9 @@ import dto.*
                     groups.add(GroupDto(
                         candidates = candidates,
                         groupType = "als",
-                        colorIndex = colorIndex
+                        colourIndex = colourIndex
                     ))
-                    colorIndex++
+                    colourIndex++
                 }
             }
             

@@ -263,14 +263,14 @@ import dto.*
                     GroupDto(
                         candidates = listOf(CandidateLocationDto(r1, c1c, digit)),
                         groupType = "kite-end",
-                        colorIndex = 0
+                        colourIndex = 0
                     )
                 )
                 groups.add(
                     GroupDto(
                         candidates = listOf(CandidateLocationDto(r2, c2c, digit)),
                         groupType = "kite-end",
-                        colorIndex = 1
+                        colourIndex = 1
                     )
                 )
             }
@@ -486,11 +486,11 @@ import dto.*
 
         // Coloured candidates: highlight all 4 cells in the kite pattern
         val patternCandidates = allPatternCells.map { cell ->
-            val colorType = when (cell) {
+            val colourType = when (cell) {
                 in kiteCells -> "target"  // Kite endpoints in green
                 else -> "highlight"  // Box cells in yellow
             }
-            ColouredCandidateDto(cell / 9, cell % 9, digit, colorType)
+            ColouredCandidateDto(cell / 9, cell % 9, digit, colourType)
         }
 
         val eliminationCandidates = eliminationCandidates(eliminations)
@@ -607,14 +607,14 @@ import dto.*
                     GroupDto(
                         candidates = listOf(CandidateLocationDto(rowFinRow, rowFinCol, digit)),
                         groupType = "kite-end",
-                        colorIndex = 0
+                        colourIndex = 0
                     )
                 )
                 step2Groups.add(
                     GroupDto(
                         candidates = listOf(CandidateLocationDto(colFinRow, colFinCol, digit)),
                         groupType = "kite-end",
-                        colorIndex = 1
+                        colourIndex = 1
                     )
                 )
             }

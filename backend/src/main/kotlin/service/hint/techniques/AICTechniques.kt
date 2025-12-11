@@ -36,7 +36,7 @@ import dto.*
                 groups.add(GroupDto(
                     candidates = candidates,
                     groupType = groupType,
-                    colorIndex = index % 2
+                    colourIndex = index % 2
                 ))
             }
             
@@ -61,7 +61,7 @@ import dto.*
                     groups.add(GroupDto(
                         candidates = alsCandidates,
                         groupType = "als",
-                        colorIndex = groups.size
+                        colourIndex = groups.size
                     ))
                 }
             }

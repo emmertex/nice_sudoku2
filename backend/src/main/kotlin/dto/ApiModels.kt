@@ -103,7 +103,7 @@ data class LineDto(
 data class GroupDto(
     val candidates: List<CandidateLocationDto>,
     val groupType: String? = null,  // "chain-on", "chain-off", "als", etc.
-    val colorIndex: Int = 0  // For distinguishing multiple groups
+    val colourIndex: Int = 0  // For distinguishing multiple groups
 )
 
 /**
@@ -113,7 +113,7 @@ data class GroupDto(
 data class ColouredRegionDto(
     val type: String,  // "row", "column", "box"
     val index: Int,    // 0-8 for row/column, 0-8 for box
-    val colorType: String  // "primary", "secondary", "warning", etc.
+    val colourType: String  // "primary", "secondary", "warning", etc.
 )
 
 /**
@@ -122,7 +122,7 @@ data class ColouredRegionDto(
 @Serializable
 data class ColouredCellDto(
     val cellIndex: Int,
-    val colorType: String  // "primary", "secondary", "warning", "target", etc.
+    val colourType: String  // "primary", "secondary", "warning", "target", etc.
 )
 
 /**
@@ -133,7 +133,7 @@ data class ColouredCandidateDto(
     val row: Int,
     val col: Int,
     val candidate: Int,  // 1-9
-    val colorType: String  // "target" (green), "elimination" (red/strikethrough), etc.
+    val colourType: String  // "target" (green), "elimination" (red/strikethrough), etc.
 )
 
 /**

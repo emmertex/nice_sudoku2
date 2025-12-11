@@ -7,7 +7,7 @@ import dto.*
 
     fun eliminationCandidates(
         eliminations: List<EliminationDto>,
-        color: String = "elimination"
+        colour: String = "elimination"
     ): List<ColouredCandidateDto> {
         val candidates = mutableListOf<ColouredCandidateDto>()
         for (elim in eliminations) {
@@ -17,7 +17,7 @@ import dto.*
                         row = cell / 9,
                         col = cell % 9,
                         candidate = elim.digit,
-                        colorType = color
+                        colourType = colour
                     )
                 )
             }

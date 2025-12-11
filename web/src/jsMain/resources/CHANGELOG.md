@@ -1,9 +1,12 @@
-# v0.7.0 - 2025-12-12
+# v0.7.1 - 2025-12-12
 
 ### Features
 - Support Multiple Languages ( Machine Translated )
 - - ar, bn, de, en, es, fr, hi, pt, ru, ur, zh
 
+### Bugfix
+- International English and Simplified English mismatch causing issues.
+- - All codebase refactored to use International English, for consistency.
 
 # v0.6.1 - 2025-12-10
 
