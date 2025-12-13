@@ -1,3 +1,9 @@
+# v0.8.0 - 2025-12-13
+
+### Features
+- Improvements to hints
+- - 
+
 # v0.7.1 - 2025-12-12
 
 ### Features

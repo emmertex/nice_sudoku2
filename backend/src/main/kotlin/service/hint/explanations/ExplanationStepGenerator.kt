@@ -66,21 +66,21 @@ fun generateExplanationSteps(
             steps.addAll(generateWingSteps(techniqueName, match, eliminations))
         }
         techniqueName.contains("Cycle", ignoreCase = true) -> {
-            steps.addAll(generateCycleSteps(techniqueName, eliminations))
+            steps.addAll(generateCycleSteps(techniqueName, match, eliminations))
         }
         techniqueName.contains("Colour", ignoreCase = true) ||
         techniqueName.contains("Colour", ignoreCase = true) ||
         techniqueName.contains("Medusa", ignoreCase = true) -> {
-            steps.addAll(generateColouringSteps(techniqueName, eliminations))
+            steps.addAll(generateColouringSteps(techniqueName, match, eliminations))
         }
         techniqueName.contains("Unique Rectangle", ignoreCase = true) -> {
-            steps.addAll(generateUniqueRectangleSteps(techniqueName, eliminations))
+            steps.addAll(generateUniqueRectangleSteps(techniqueName, match, eliminations))
         }
         techniqueName.equals("BUG", ignoreCase = true) || techniqueName.contains("Bivalue", ignoreCase = true) -> {
             steps.addAll(generateBugSteps(eliminations))
         }
         techniqueName.contains("Empty Rectangle", ignoreCase = true) -> {
-            steps.addAll(generateEmptyRectangleSteps(techniqueName, eliminations))
+            steps.addAll(generateEmptyRectangleSteps(techniqueName, match, eliminations))
         }
         techniqueName.contains("Sue", ignoreCase = true) -> {
             steps.addAll(generateSueDeCoqSteps(eliminations))

@@ -8,14 +8,34 @@ import dto.*
         eliminations: List<EliminationDto>
     ): List<ExplanationStepDto> {
         val steps = mutableListOf<ExplanationStepDto>()
-        val eliminationCells = eliminations.flatMap { it.cells }
-
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+        // In BUG+1, the elimination usually happens in the cell that has 3 candidates (or the extra one).
+        // Or it sets the value of that cell.
+        
+        val targetCell = eliminationCells.firstOrNull() ?: 0
+        val r = targetCell / 9
+        val c = targetCell % 9
+        
+        // Step 1: Explain the state
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Spot the BUG pattern",
-                description = "A BUG leaves every unsolved cell with two candidates except one inconsistency. Resolve that cell to break the pattern.",
-                highlightCells = eliminationCells
+                title = "Identify the Bivalue Universal Grave (BUG)",
+                description = "Notice that almost every unsolved cell on the board has exactly two candidates. " +
+                              "If ALL cells had two candidates in a specific pattern, the puzzle would have two solutions (a 'Grave' state).",
+                highlightCells = emptyList() // Maybe highlight all bivalue cells? Too noisy.
+            )
+        )
+        
+        // Step 2: The Exception
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 2,
+                title = "Spot the Exception",
+                description = "Cell R${r+1}C${c+1} is the only one breaking the pattern (it has 3 candidates or an extra candidate). " +
+                              "For the puzzle to have a unique solution, this cell must be the key.",
+                highlightCells = listOf(targetCell),
+                colouredCells = listOf(ColouredCellDto(targetCell, "warning"))
             )
         )
 
@@ -23,9 +43,9 @@ import dto.*
             val eliminationDesc = summarizeEliminations(eliminations)
             steps.add(
                 ExplanationStepDto(
-                    stepNumber = 2,
-                    title = "Resolve the contradiction",
-                    description = eliminationDesc ?: "Clear the conflicting candidate shown in the highlighted cells.",
+                    stepNumber = 3,
+                    title = "Resolve the BUG",
+                    description = eliminationDesc ?: "We must pick the candidate that prevents the BUG state.",
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)
                 )

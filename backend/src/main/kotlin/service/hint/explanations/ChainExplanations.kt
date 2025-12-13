@@ -12,38 +12,115 @@ import dto.*
         eliminations: List<EliminationDto>
     ): List<ExplanationStepDto> {
         val steps = mutableListOf<ExplanationStepDto>()
+        
+        // Extract visual data (lines and groups)
+        val (lines, groups, _) = service.hint.techniques.extractAICVisualData(match)
+        
         val chain = match.chain
         val nodes = chain.nodes
-
-        // Step 1: Introduction
-        steps.add(ExplanationStepDto(
-            stepNumber = 1,
-            title = "Chain Overview",
-            description = "This is a ${nodes.size}-node chain. Follow the alternating strong (=) and weak (-) links.",
-            highlightCells = emptyList()
-        ))
-
-        // Step 2: Walk through the chain
-        val chainDescription = StringBuilder()
-        nodes.forEachIndexed { index, node ->
-            if (index > 0) {
-                val linkType = if (chain.isFirstLinkStrong xor (index % 2 == 0)) "strong" else "weak"
-                chainDescription.append(" --[$linkType]--> ")
+        
+        // Helper to format node description
+        // Using Any type to avoid import issues, assuming structure matches what AICTechniques expects
+        fun formatNode(node: Any): String {
+            try {
+                // Use reflection or standard access if type was known
+                // Since we know AICTechniques uses node.digit() and node.cells(), let's mimic that loosely here
+                // BUT actually 'nodes' comes from 'chain.nodes' which is visible. 
+                // The error was 'Unresolved reference graph'.
+                // AICTechniques imports nothing special but uses node methods.
+                // Let's rely on type inference which works for 'curr' and 'next' but not for function args.
+                // We will cast to the specific interface if we knew it, or just use dynamic approaches?
+                // No, we can just define this lambda inside where 'node' is inferred from usage.
+                return "Node" // Placeholder if we can't access it?
+            } catch (e: Exception) { return "Node" }
+        }
+        
+        // Better approach: Inline the logic so we don't need to name the type in argument
+        // OR better yet, just copy the logic from AICTechniques which iterates nodes.
+        
+        val endpointCells = mutableListOf<Int>()
+        var startDesc = ""
+        var endDesc = ""
+        
+        if (nodes.isNotEmpty()) {
+            val startNode = nodes.first()
+            val endNode = nodes.last()
+            
+            // We can call methods on startNode because its type is inferred from the list
+            val startC = mutableListOf<String>()
+            var sc = startNode.cells().nextSetBit(0)
+            while (sc >= 0) {
+                endpointCells.add(sc)
+                startC.add("R${sc/9 + 1}C${sc%9 + 1}")
+                sc = startNode.cells().nextSetBit(sc + 1)
             }
-            val cells = mutableListOf<String>()
-            var cell = node.cells().nextSetBit(0)
-            while (cell >= 0) {
-                cells.add("R${cell/9 + 1}C${cell%9 + 1}")
-                cell = node.cells().nextSetBit(cell + 1)
+            startDesc = "(${startNode.digit() + 1})${startC.joinToString(",")}"
+
+            val endC = mutableListOf<String>()
+            var ec = endNode.cells().nextSetBit(0)
+            while (ec >= 0) {
+                endpointCells.add(ec)
+                endC.add("R${ec/9 + 1}C${ec%9 + 1}")
+                ec = endNode.cells().nextSetBit(ec + 1)
             }
-            chainDescription.append("(${node.digit() + 1})${cells.joinToString(",")}")
+            endDesc = "(${endNode.digit() + 1})${endC.joinToString(",")}"
+            
+            steps.add(ExplanationStepDto(
+                stepNumber = 1,
+                title = "Identify the chain endpoints",
+                description = "The chain connects $startDesc to $endDesc. We look for a contradiction between these points.",
+                highlightCells = endpointCells.distinct(),
+                colouredCandidates = groups.flatMap { g ->
+                    val type = if (g.colourIndex % 2 == 0) "target" else "highlight"
+                    // Fix: use .candidate instead of .digit if checking DTO, but here 'it' is CandidateLocationDto
+                    g.candidates.map { ColouredCandidateDto(it.row, it.col, it.candidate, type) }
+                }
+            ))
         }
 
+        // Step 2: Follow the chain
+        val logicDescription = buildString {
+            append("Follow the alternating links:\n")
+            for (i in 0 until nodes.size - 1) {
+                val curr = nodes[i]
+                val next = nodes[i+1]
+                val isStrong = chain.isFirstLinkStrong xor (i % 2 == 0)
+                val type = if (isStrong) "Solid (Strong)" else "Dashed (Weak)"
+                
+                // Formulate descriptions inline
+                val currC = mutableListOf<String>()
+                var cc = curr.cells().nextSetBit(0)
+                while (cc >= 0) { currC.add("R${cc/9 + 1}C${cc%9 + 1}"); cc = curr.cells().nextSetBit(cc + 1) }
+                val currStr = "(${curr.digit() + 1})${currC.joinToString(",")}"
+
+                val nextC = mutableListOf<String>()
+                var nc = next.cells().nextSetBit(0)
+                while (nc >= 0) { nextC.add("R${nc/9 + 1}C${nc%9 + 1}"); nc = next.cells().nextSetBit(nc + 1) }
+                val nextStr = "(${next.digit() + 1})${nextC.joinToString(",")}"
+
+                val logic = if (isStrong) "If $currStr is FALSE, then $nextStr is TRUE" 
+                           else "If $currStr is TRUE, then $nextStr is FALSE"
+                append("- $type link: $logic\n")
+            }
+        }
+        
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = "Follow the Chain",
-            description = chainDescription.toString(),
-            highlightCells = emptyList()
+            title = "Follow the chain logic",
+            description = logicDescription,
+            highlightCells = nodes.flatMap { node -> 
+                val list = mutableListOf<Int>()
+                var c = node.cells().nextSetBit(0)
+                while(c >= 0) { list.add(c); c = node.cells().nextSetBit(c+1) }
+                list
+            }.distinct(),
+            lines = lines,
+            groups = groups,
+             colouredCandidates = groups.flatMap { g ->
+                val type = if (g.colourIndex % 2 == 0) "target" else "highlight"
+                // Fix: use .candidate
+                g.candidates.map { ColouredCandidateDto(it.row, it.col, it.candidate, type) }
+            }
         ))
 
         // Step 3: Conclusion
@@ -52,11 +129,25 @@ import dto.*
                 val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }
                 "${elim.digit} from ${cells.joinToString(", ")}"
             }
+            
+            val highlightElims = eliminations.flatMap { it.cells }
+            val elimCandidates = eliminations.flatMap { elim ->
+                elim.cells.flatMap { cell -> 
+                    val r = cell / 9
+                    val c = cell % 9
+                    // Add elimination candidate
+                    listOf(ColouredCandidateDto(r, c, elim.digit, "elimination"))
+                }
+            }
+
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
                 title = "Apply Eliminations",
-                description = "The chain proves we can eliminate: $eliminationDesc",
-                highlightCells = eliminations.flatMap { it.cells }
+                description = "Eliminate candidates that would cause a contradiction in the chain:\n\n$eliminationDesc",
+                highlightCells = highlightElims,
+                colouredCandidates = elimCandidates,
+                lines = lines, 
+                groups = groups
             ))
         }
 
