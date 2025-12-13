@@ -10,6 +10,8 @@ import service.hint.explanations.generateSubsetSteps
 import service.hint.explanations.generateIntersectionSteps
 import service.hint.techniques.generateKiteSteps
 import service.hint.techniques.generateFishSteps
+import service.hint.techniques.generateSkyscraperSteps
+import service.hint.techniques.generateFinnedFishSteps
 import service.hint.techniques.generateWingSteps
 import service.hint.explanations.generateCycleSteps
 import service.hint.explanations.generateColouringSteps
@@ -55,11 +57,17 @@ fun generateExplanationSteps(
         (techniqueName.contains("Kite", ignoreCase = true) && !techniqueName.contains("String", ignoreCase = true)) -> {
             steps.addAll(generateKiteSteps(techniqueName, match, eliminations, puzzleString))
         }
+        techniqueName.contains("Skyscraper", ignoreCase = true) -> {
+            steps.addAll(generateSkyscraperSteps(techniqueName, match, eliminations))
+        }
+        techniqueName.contains("Finned", ignoreCase = true) || 
+        techniqueName.contains("Sashimi", ignoreCase = true) -> {
+            steps.addAll(generateFinnedFishSteps(techniqueName, match, eliminations))
+        }
         techniqueName.contains("Fish", ignoreCase = true) ||
         techniqueName.contains("X-Wing", ignoreCase = true) ||
         techniqueName.contains("Swordfish", ignoreCase = true) ||
-        techniqueName.contains("Jellyfish", ignoreCase = true) ||
-        techniqueName.contains("Skyscraper", ignoreCase = true) -> {
+        techniqueName.contains("Jellyfish", ignoreCase = true) -> {
             steps.addAll(generateFishSteps(techniqueName, match, eliminations))
         }
         techniqueName.contains("Wing", ignoreCase = true) -> {
@@ -69,7 +77,7 @@ fun generateExplanationSteps(
             steps.addAll(generateCycleSteps(techniqueName, match, eliminations))
         }
         techniqueName.contains("Colour", ignoreCase = true) ||
-        techniqueName.contains("Colour", ignoreCase = true) ||
+        techniqueName.contains("Color", ignoreCase = true) ||
         techniqueName.contains("Medusa", ignoreCase = true) -> {
             steps.addAll(generateColouringSteps(techniqueName, match, eliminations))
         }

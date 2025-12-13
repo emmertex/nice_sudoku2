@@ -326,3 +326,336 @@ import dto.*
 
         return steps
     }
+
+    /**
+     * Generate step-by-step explanation for Skyscraper pattern
+     */
+    fun generateSkyscraperSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+
+        // Extract pattern data
+        var digit = eliminations.firstOrNull()?.digit ?: 0
+        val baseIndices = mutableListOf<Int>()
+        val coverIndices = mutableListOf<Int>()
+        var finCells = java.util.BitSet()
+
+        try {
+            val matchClass = match.javaClass
+            val digitField = matchClass.getDeclaredField("digit")
+            val baseSecsField = matchClass.getDeclaredField("baseSecs")
+            val coverSecsField = matchClass.getDeclaredField("coverSecs")
+
+            digitField.isAccessible = true
+            baseSecsField.isAccessible = true
+            coverSecsField.isAccessible = true
+
+            digit = (digitField.get(match) as Int) + 1
+            val baseSecs = baseSecsField.get(match) as java.util.BitSet
+            val coverSecs = coverSecsField.get(match) as java.util.BitSet
+
+            var idx = baseSecs.nextSetBit(0)
+            while (idx >= 0) {
+                baseIndices.add(idx)
+                idx = baseSecs.nextSetBit(idx + 1)
+            }
+
+            idx = coverSecs.nextSetBit(0)
+            while (idx >= 0) {
+                coverIndices.add(idx)
+                idx = coverSecs.nextSetBit(idx + 1)
+            }
+
+            // Try to get fin cells (endpoints of skyscraper)
+            try {
+                val finsField = matchClass.getDeclaredField("fins")
+                finsField.isAccessible = true
+                finCells = finsField.get(match) as java.util.BitSet
+            } catch (e: Exception) {}
+
+        } catch (e: Exception) {}
+
+        val baseType = if (baseIndices.isNotEmpty()) getSectorType(baseIndices.first()) else "row"
+        val baseTypeText = if (baseType == "row") "rows" else "columns"
+        
+        // Get cells involved
+        val baseCells = baseIndices.flatMap { getSectorCells(it) }
+        val coverCells = coverIndices.flatMap { getSectorCells(it) }
+        
+        // Intersection cells (the 4 corners of the skyscraper pattern)
+        val patternCells = baseCells.filter { it in coverCells }.distinct()
+        
+        // Get endpoint cells (fins)
+        val endpointCells = mutableListOf<Int>()
+        var finIdx = finCells.nextSetBit(0)
+        while (finIdx >= 0) {
+            endpointCells.add(finIdx)
+            finIdx = finCells.nextSetBit(finIdx + 1)
+        }
+        
+        // If we couldn't get fin cells, try to identify them from the pattern
+        val actualEndpoints = if (endpointCells.isNotEmpty()) endpointCells else {
+            // Endpoints are cells that are in the pattern but not shared
+            patternCells.filter { cell ->
+                val row = cell / 9
+                val col = cell % 9
+                val cellsInSameBase = patternCells.filter { other ->
+                    if (baseType == "row") other / 9 == row else other % 9 == col
+                }
+                cellsInSameBase.size == 1
+            }
+        }
+
+        val baseNames = baseIndices.map { idx ->
+            if (baseType == "row") "Row ${idx % 9 + 1}" else "Column ${idx % 9 + 1}"
+        }
+        val baseNamesText = baseNames.joinToString(" and ")
+
+        // Build visual elements
+        val patternCandidates = patternCells.map { cell ->
+            ColouredCandidateDto(cell / 9, cell % 9, digit, "target")
+        }
+        val endpointColouredCells = actualEndpoints.map { ColouredCellDto(it, "warning") }
+        
+        // Build lines connecting the strong links
+        val skyscraperLines = mutableListOf<LineDto>()
+        
+        // For each base sector, find the strong link (2 cells with the digit)
+        for (baseIdx in baseIndices) {
+            val cellsInBase = patternCells.filter { cell ->
+                val sectorCells = getSectorCells(baseIdx)
+                cell in sectorCells
+            }
+            if (cellsInBase.size >= 2) {
+                val c1 = cellsInBase[0]
+                val c2 = cellsInBase[1]
+                skyscraperLines.add(LineDto(
+                    from = CandidateLocationDto(c1 / 9, c1 % 9, digit),
+                    to = CandidateLocationDto(c2 / 9, c2 % 9, digit),
+                    isStrongLink = true,
+                    lineType = "skyscraper-strong",
+                    description = "Strong link: exactly 2 candidates for $digit"
+                ))
+            }
+        }
+
+        // Step 1: Explain Skyscraper concept (ELI5)
+        val step1Description = "A Skyscraper is a pattern with two **strong links** on the same digit. " +
+            "\n\nLook at $baseNamesText. In each of these $baseTypeText, digit $digit appears in exactly TWO cells. " +
+            "That's a strong link - if one cell doesn't have $digit, the other MUST have it. " +
+            "\n\nThe two strong links are connected: one end of each strong link shares the same column (or row). " +
+            "The other ends - the 'roof' of the skyscraper (shown in yellow) - are the key cells."
+
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = "Find the Two Strong Links",
+            description = step1Description,
+            highlightCells = patternCells,
+            colouredCells = endpointColouredCells,
+            colouredCandidates = patternCandidates,
+            lines = skyscraperLines
+        ))
+
+        // Step 2: Explain the logic
+        val step2Description = "Here's why the Skyscraper works: " +
+            "\n\nThe connected ends of the two strong links are in the same column/row. " +
+            "If $digit is NOT in one of the connected cells, the strong link forces it to be in that cell's partner. " +
+            "But that partner is the 'roof' cell! " +
+            "\n\nSo no matter what: either $digit is in one roof cell, or it's in the other roof cell " +
+            "(or possibly both). One of the roof cells MUST have $digit."
+
+        steps.add(ExplanationStepDto(
+            stepNumber = 2,
+            title = "Follow the Logic",
+            description = step2Description,
+            highlightCells = actualEndpoints,
+            colouredCells = endpointColouredCells,
+            colouredCandidates = patternCandidates,
+            lines = skyscraperLines
+        ))
+
+        // Step 3: Make eliminations
+        if (eliminations.isNotEmpty()) {
+            val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+            
+            val step3Description = "Any cell that can see BOTH roof cells cannot have $digit. " +
+                "\n\nWhy? Because one of the roof cells must have $digit, and that would eliminate $digit from any cell seeing it. " +
+                "Since the elimination cell sees both roof cells, it will always be eliminated. " +
+                "\n\nRemove $digit from: $eliminationNames."
+
+            steps.add(ExplanationStepDto(
+                stepNumber = 3,
+                title = "Eliminate from Cells Seeing Both Roofs",
+                description = step3Description,
+                highlightCells = eliminationCells,
+                colouredCells = endpointColouredCells + eliminationCells.map { ColouredCellDto(it, "warning") },
+                colouredCandidates = patternCandidates + eliminationCandidates(eliminations),
+                lines = skyscraperLines
+            ))
+        }
+
+        return steps
+    }
+
+    /**
+     * Generate step-by-step explanation for Finned Fish patterns
+     */
+    fun generateFinnedFishSteps(
+        techniqueName: String,
+        match: TechniqueMatch,
+        eliminations: List<EliminationDto>
+    ): List<ExplanationStepDto> {
+        val steps = mutableListOf<ExplanationStepDto>()
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+
+        // Determine fish type
+        val isSashimi = techniqueName.contains("Sashimi", ignoreCase = true)
+        val fishType = when {
+            techniqueName.contains("Jellyfish", ignoreCase = true) -> "Jellyfish"
+            techniqueName.contains("Swordfish", ignoreCase = true) -> "Swordfish"
+            else -> "X-Wing"
+        }
+
+        // Extract pattern data
+        var digit = eliminations.firstOrNull()?.digit ?: 0
+        val baseIndices = mutableListOf<Int>()
+        val coverIndices = mutableListOf<Int>()
+        var finCells = java.util.BitSet()
+
+        try {
+            val matchClass = match.javaClass
+            val digitField = matchClass.getDeclaredField("digit")
+            val baseSecsField = matchClass.getDeclaredField("baseSecs")
+            val coverSecsField = matchClass.getDeclaredField("coverSecs")
+            val finsField = matchClass.getDeclaredField("fins")
+
+            digitField.isAccessible = true
+            baseSecsField.isAccessible = true
+            coverSecsField.isAccessible = true
+            finsField.isAccessible = true
+
+            digit = (digitField.get(match) as Int) + 1
+            val baseSecs = baseSecsField.get(match) as java.util.BitSet
+            val coverSecs = coverSecsField.get(match) as java.util.BitSet
+            finCells = finsField.get(match) as java.util.BitSet
+
+            var idx = baseSecs.nextSetBit(0)
+            while (idx >= 0) {
+                baseIndices.add(idx)
+                idx = baseSecs.nextSetBit(idx + 1)
+            }
+
+            idx = coverSecs.nextSetBit(0)
+            while (idx >= 0) {
+                coverIndices.add(idx)
+                idx = coverSecs.nextSetBit(idx + 1)
+            }
+        } catch (e: Exception) {}
+
+        val baseType = if (baseIndices.isNotEmpty()) getSectorType(baseIndices.first()) else "row"
+        val baseTypeText = if (baseType == "row") "rows" else "columns"
+        val coverTypeText = if (baseType == "row") "columns" else "rows"
+
+        // Get cells
+        val baseCells = baseIndices.flatMap { getSectorCells(it) }
+        val coverCells = coverIndices.flatMap { getSectorCells(it) }
+        val patternCells = baseCells.filter { it in coverCells }.distinct()
+
+        // Get fin cells
+        val finCellsList = mutableListOf<Int>()
+        var finIdx = finCells.nextSetBit(0)
+        while (finIdx >= 0) {
+            finCellsList.add(finIdx)
+            finIdx = finCells.nextSetBit(finIdx + 1)
+        }
+
+        // Find the box containing the fin
+        val finBox = if (finCellsList.isNotEmpty()) {
+            val cell = finCellsList.first()
+            (cell / 27) * 3 + ((cell % 9) / 3)
+        } else -1
+
+        val baseNames = baseIndices.map { idx ->
+            if (baseType == "row") "Row ${idx % 9 + 1}" else "Column ${idx % 9 + 1}"
+        }.joinToString(", ")
+
+        val coverNames = coverIndices.map { idx ->
+            if (baseType == "row") "Column ${idx % 9 + 1}" else "Row ${idx % 9 + 1}"
+        }.joinToString(", ")
+
+        // Build visual elements
+        val patternCandidates = patternCells.map { cell ->
+            ColouredCandidateDto(cell / 9, cell % 9, digit, "target")
+        }
+        val finCandidates = finCellsList.map { cell ->
+            ColouredCandidateDto(cell / 9, cell % 9, digit, "warning")
+        }
+        val finColouredCells = finCellsList.map { ColouredCellDto(it, "warning") }
+
+        val finCellNames = finCellsList.map { formatCellName(it) }.joinToString(", ")
+        val finDescription = if (isSashimi) "Sashimi fin" else "fin"
+
+        // Step 1: Explain the base fish pattern
+        val step1Description = "This is a **Finned $fishType**. Let's start with the basic pattern: " +
+            "\n\nLook at $baseNames. In a normal $fishType, digit $digit would appear only in cells that align " +
+            "with $coverNames. But here, there's an extra cell (or cells) that doesn't fit - that's the '$finDescription'. " +
+            "\n\nThe fin is at: $finCellNames (shown in yellow). " +
+            if (isSashimi) "\n\nIn a Sashimi variant, the fish would be incomplete without the fin - " +
+                "the fin is actually 'filling in' for a missing base cell." else ""
+
+        steps.add(ExplanationStepDto(
+            stepNumber = 1,
+            title = "Find the Finned Pattern",
+            description = step1Description,
+            highlightCells = patternCells + finCellsList,
+            colouredCells = finColouredCells,
+            colouredCandidates = patternCandidates + finCandidates
+        ))
+
+        // Step 2: Explain how the fin affects eliminations
+        val boxName = if (finBox >= 0) "Box ${finBox + 1}" else "the fin's box"
+        
+        val step2Description = "The fin changes what we can eliminate. Here's the logic: " +
+            "\n\n**If the fin is TRUE** (has $digit): The normal fish pattern applies to the rest, " +
+            "but we can only eliminate from cells that ALSO see the fin. " +
+            "\n\n**If the fin is FALSE**: Then $digit must be somewhere else in the fish pattern, " +
+            "and the normal fish eliminations would apply. " +
+            "\n\nEither way, any cell that sees both the fin AND the fish pattern can be eliminated! " +
+            "This means eliminations are restricted to $boxName (where the fin is)."
+
+        steps.add(ExplanationStepDto(
+            stepNumber = 2,
+            title = "Understand the Fin's Effect",
+            description = step2Description,
+            highlightCells = finCellsList,
+            colouredCells = finColouredCells,
+            colouredCandidates = patternCandidates + finCandidates,
+            regions = if (finBox >= 0) listOf(ColouredRegionDto("box", finBox, "secondary")) else emptyList()
+        ))
+
+        // Step 3: Make eliminations
+        if (eliminations.isNotEmpty()) {
+            val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+            
+            val step3Description = "Cells that can see the fin AND are in the fish's cover lines can be eliminated. " +
+                "\n\nThese cells are in $boxName (so they see the fin) and also in one of the cover $coverTypeText " +
+                "(so the fish pattern affects them). " +
+                "\n\nRemove $digit from: $eliminationNames."
+
+            steps.add(ExplanationStepDto(
+                stepNumber = 3,
+                title = "Eliminate Where Fin and Fish Meet",
+                description = step3Description,
+                highlightCells = eliminationCells,
+                colouredCells = finColouredCells + eliminationCells.map { ColouredCellDto(it, "warning") },
+                colouredCandidates = patternCandidates + finCandidates + eliminationCandidates(eliminations),
+                regions = if (finBox >= 0) listOf(ColouredRegionDto("box", finBox, "secondary")) else emptyList()
+            ))
+        }
+
+        return steps
+    }
