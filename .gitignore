@@ -57,3 +57,4 @@ hs_err_pid*.log
 *~
 backend/data/cache.db
 backend/data/cache-v2.db
+backend/data/cache-v2.db
