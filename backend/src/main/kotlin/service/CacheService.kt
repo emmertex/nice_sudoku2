@@ -34,7 +34,7 @@ class CacheService {
             
             val result = transaction(CacheDatabase.getDatabase()) {
                 val found = CacheTable
-                    .select { CacheTable.requestHash eq requestHash }
+                    .selectAll().where { CacheTable.requestHash eq requestHash }
                     .firstOrNull()
                 
                 if (found != null) {
@@ -74,7 +74,7 @@ class CacheService {
             
             transaction(CacheDatabase.getDatabase()) {
                 // Use INSERT OR REPLACE semantics by deleting first if exists
-                val existing = CacheTable.select { CacheTable.requestHash eq requestHash }.firstOrNull()
+                val existing = CacheTable.selectAll().where { CacheTable.requestHash eq requestHash }.firstOrNull()
                 if (existing != null) {
                     println("[CACHE-SERVICE] Updating existing cache entry")
                     // Update existing entry
@@ -119,14 +119,12 @@ class CacheService {
                 val totalEntries = CacheTable.selectAll().count().toLong()
                 
                 val entriesByEndpoint = CacheTable
-                    .slice(CacheTable.endpoint, CacheTable.id.count())
-                    .selectAll()
+                    .select(CacheTable.endpoint, CacheTable.id.count())
                     .groupBy(CacheTable.endpoint)
                     .associate { it[CacheTable.endpoint] to it[CacheTable.id.count()] }
                 
                 val timestamps = CacheTable
-                    .slice(CacheTable.createdAt)
-                    .selectAll()
+                    .select(CacheTable.createdAt)
                     .mapNotNull { it[CacheTable.createdAt] }
                 
                 val oldestTimestamp = timestamps.minOrNull()
@@ -192,8 +190,8 @@ class CacheService {
             transaction(CacheDatabase.getDatabase()) {
                 // Get IDs of entries to delete
                 val idsToDelete = CacheTable
-                    .slice(CacheTable.id)
-                    .select { CacheTable.createdAt less cutoffTime }
+                    .select(CacheTable.id)
+                    .where { CacheTable.createdAt less cutoffTime }
                     .map { it[CacheTable.id].value }
                 
                 var deleted = 0
@@ -225,8 +223,7 @@ class CacheService {
                     val toDelete = (currentCount - maxEntries).toInt()
                     // Get IDs of oldest entries to delete
                     val oldestIds = CacheTable
-                        .slice(CacheTable.id)
-                        .selectAll()
+                        .select(CacheTable.id)
                         .orderBy(CacheTable.createdAt to SortOrder.ASC)
                         .limit(toDelete)
                         .map { it[CacheTable.id].value }
