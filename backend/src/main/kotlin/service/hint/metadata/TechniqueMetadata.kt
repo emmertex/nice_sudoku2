@@ -27,7 +27,7 @@ private val techniquePriority = mapOf(
     "FINNED_X_WING_FISH" to 14, "Finned X-Wing" to 14,
     "SASHIMI_X_WING_FISH" to 15, "Sashimi X-Wing" to 15,
     // HARD (16-22): Colouring, uniqueness, wings, swordfish
-    "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16, "Simple Colouring" to 16,
+    "SIMPLE_COLOURING" to 16, "Simple Colouring" to 16, "Simple Coloring" to 16,
     "UNIQUE_RECTANGLE" to 17, "Unique Rectangles" to 17,
     "BUG" to 18, "Bivalue Universal Grave" to 18,
     "Y_WING" to 19, "XY-Wing" to 19, "XY_WING" to 19,

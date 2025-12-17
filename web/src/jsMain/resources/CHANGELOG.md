@@ -1,3 +1,19 @@
+# v0.8.0 - 2025-12-17
+
+### Features
+- Improvements to hints
+- - Almost all that are unfinished, should now be useful
+- More code cleanup
+- - Hopefully no more crashing backend
+
+### Todo
+- Continue working on hints
+- Language Support for Hints
+- Move solver Offline
+- Scale better for weird aspect ratios
+- - Galaxy Flip when closed, too small
+- - Galazy Fold and Pixel Fold when open, too small
+
 # v0.7.1 - 2025-12-12
 
 ### Features

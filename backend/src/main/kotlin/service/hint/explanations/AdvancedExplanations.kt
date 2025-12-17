@@ -8,25 +8,66 @@ import dto.*
         eliminations: List<EliminationDto>
     ): List<ExplanationStepDto> {
         val steps = mutableListOf<ExplanationStepDto>()
-        val eliminationCells = eliminations.flatMap { it.cells }
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+        val eliminationDigits = eliminations.map { it.digit }.distinct()
+        
+        // The target cell is usually the one with the extra candidate (BUG+1)
+        val targetCell = eliminationCells.firstOrNull() ?: 0
+        val targetCellName = formatCellName(targetCell)
+        val eliminationDigitText = eliminationDigits.joinToString(", ")
+
+        // Step 1: Explain what a BUG is (ELI5)
+        val step1Description = "Look at the unsolved cells on this puzzle. Almost every single one has exactly TWO candidates. " +
+            "This is a very special situation called a 'Bivalue Universal Grave' (BUG). " +
+            "\n\nHere's why it's a problem: if EVERY unsolved cell had exactly two candidates arranged in a certain pattern, " +
+            "you could swap the values around and get two different valid solutions! " +
+            "But a proper Sudoku puzzle has only ONE solution. " +
+            "\n\nSo something must 'break' this pattern - there must be at least one cell that's different."
 
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Spot the BUG pattern",
-                description = "A BUG leaves every unsolved cell with two candidates except one inconsistency. Resolve that cell to break the pattern.",
-                highlightCells = eliminationCells
+                title = "Spot the Bivalue Pattern",
+                description = step1Description,
+                highlightCells = emptyList(),
+                colouredCells = emptyList()
+            )
+        )
+        
+        // Step 2: Find the exception cell
+        val step2Description = "Now look at $targetCellName - this cell is special! " +
+            "While all the other unsolved cells have exactly two candidates, this one has THREE (or more). " +
+            "\n\nThis is the 'plus one' in BUG+1. This extra candidate is the key to solving the puzzle. " +
+            "If we removed this extra candidate, we'd have the deadly BUG pattern with multiple solutions. " +
+            "\n\nTherefore, the extra candidate MUST be the true value of this cell!"
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 2,
+                title = "Find the Exception Cell",
+                description = step2Description,
+                highlightCells = listOf(targetCell),
+                colouredCells = listOf(ColouredCellDto(targetCell, "warning")),
+                colouredCandidates = eliminationDigits.map { d ->
+                    ColouredCandidateDto(targetCell / 9, targetCell % 9, d, "target")
+                }
             )
         )
 
+        // Step 3: Make the elimination/placement
         if (eliminations.isNotEmpty()) {
-            val eliminationDesc = summarizeEliminations(eliminations)
+            val step3Description = "To avoid the BUG (which would mean multiple solutions), " +
+                "we must eliminate the candidates that would complete the deadly pattern. " +
+                "\n\nRemove $eliminationDigitText from $targetCellName. " +
+                "The remaining candidate is the solution for this cell."
+
             steps.add(
                 ExplanationStepDto(
-                    stepNumber = 2,
-                    title = "Resolve the contradiction",
-                    description = eliminationDesc ?: "Clear the conflicting candidate shown in the highlighted cells.",
+                    stepNumber = 3,
+                    title = "Prevent the BUG",
+                    description = step3Description,
                     highlightCells = eliminationCells,
+                    colouredCells = listOf(ColouredCellDto(targetCell, "target")),
                     colouredCandidates = eliminationCandidates(eliminations)
                 )
             )
@@ -39,24 +80,63 @@ import dto.*
         eliminations: List<EliminationDto>
     ): List<ExplanationStepDto> {
         val steps = mutableListOf<ExplanationStepDto>()
-        val eliminationCells = eliminations.flatMap { it.cells }
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+        val eliminationDigits = eliminations.map { it.digit }.distinct()
+        val eliminationDigitText = eliminationDigits.joinToString(", ")
+        val eliminationCellNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+
+        // Step 1: Explain Sue-de-Coq concept (ELI5)
+        val step1Description = "Sue-de-Coq is a powerful technique that works on the intersection of a box and a line (row or column). " +
+            "Here's the key insight: " +
+            "\n\nLook at where a box and a line overlap (2-3 cells). " +
+            "Count the candidates in these intersection cells - let's say there are N candidates. " +
+            "Now look for 'almost locked sets' (ALS) in the rest of the box AND the rest of the line " +
+            "that share some of these candidates. " +
+            "\n\nIf the candidates 'partition' correctly between the intersection and these ALS cells, " +
+            "we can make eliminations!"
 
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Partition the overlap",
-                description = "Sue-de-Coq splits the box-line overlap into disjoint digit sets, forcing eliminations around it.",
+                title = "Find the Box-Line Intersection",
+                description = step1Description,
                 highlightCells = eliminationCells
             )
         )
 
+        // Step 2: Explain the partition logic
+        val step2Description = "The partition works like this: " +
+            "\n\nImagine the candidates in the intersection split into groups. " +
+            "Some candidates are 'claimed' by the ALS in the line, others by the ALS in the box. " +
+            "Together, these claims account for all the candidates in the intersection. " +
+            "\n\nThis means: any cell OUTSIDE these groups that shares a house with them " +
+            "cannot have the partitioned candidates. They're fully accounted for!"
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 2,
+                title = "Understand the Partition",
+                description = step2Description,
+                highlightCells = eliminationCells,
+                colouredCandidates = eliminationDigits.flatMap { digit ->
+                    eliminationCells.map { cell ->
+                        ColouredCandidateDto(cell / 9, cell % 9, digit, "highlight")
+                    }
+                }
+            )
+        )
+
+        // Step 3: Make eliminations
         if (eliminations.isNotEmpty()) {
-            val eliminationDesc = summarizeEliminations(eliminations)
+            val step3Description = "Based on the partition, these candidates are 'locked' within the Sue-de-Coq structure. " +
+                "\n\nRemove $eliminationDigitText from $eliminationCellNames. " +
+                "These cells see the structure but aren't part of it."
+
             steps.add(
                 ExplanationStepDto(
-                    stepNumber = 2,
-                    title = "Eliminate outside the partition",
-                    description = eliminationDesc ?: "Remove digits that conflict with the partitioned sets.",
+                    stepNumber = 3,
+                    title = "Eliminate Outside the Partition",
+                    description = step3Description,
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)
                 )
@@ -71,24 +151,60 @@ import dto.*
         eliminations: List<EliminationDto>
     ): List<ExplanationStepDto> {
         val steps = mutableListOf<ExplanationStepDto>()
-        val eliminationCells = eliminations.flatMap { it.cells }
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+        val eliminationDigits = eliminations.map { it.digit }.distinct()
+        val eliminationDigitText = eliminationDigits.joinToString(", ")
+        val eliminationCellNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+
+        // Step 1: Explain Forcing Chains concept (ELI5)
+        val step1Description = "A Forcing Chain starts from a cell with 2 (or more) candidates and asks: " +
+            "'What happens if each candidate is true?' " +
+            "\n\nWe explore BOTH possibilities like branching paths: " +
+            "• Branch A: Assume candidate X is true, follow the consequences... " +
+            "• Branch B: Assume candidate Y is true, follow the consequences... " +
+            "\n\nIf both branches lead to the SAME conclusion about some other cell, " +
+            "that conclusion MUST be true - because one of the starting candidates must be correct!"
 
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Branch both possibilities",
-                description = "$techniqueName explores both outcomes from a start node; any conclusion common to all branches is forced.",
+                title = "Branch from the Starting Cell",
+                description = step1Description,
                 highlightCells = eliminationCells
             )
         )
 
+        // Step 2: Explain convergence
+        val step2Description = "Following both branches through chains of logical deductions, " +
+            "we find that they converge on a common result. " +
+            "\n\nThis is like two roads that start in different directions but both lead to the same destination. " +
+            "No matter which starting candidate is correct, the destination is certain. " +
+            "\n\nThe common conclusion is: $eliminationDigitText cannot be in $eliminationCellNames."
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 2,
+                title = "Both Paths Converge",
+                description = step2Description,
+                highlightCells = eliminationCells,
+                colouredCandidates = eliminationDigits.flatMap { digit ->
+                    eliminationCells.map { cell ->
+                        ColouredCandidateDto(cell / 9, cell % 9, digit, "highlight")
+                    }
+                }
+            )
+        )
+
+        // Step 3: Apply the forced conclusion
         if (eliminations.isNotEmpty()) {
-            val eliminationDesc = summarizeEliminations(eliminations)
+            val step3Description = "Since both branches agree on this conclusion, we can apply it with certainty. " +
+                "\n\nRemove $eliminationDigitText from $eliminationCellNames."
+
             steps.add(
                 ExplanationStepDto(
-                    stepNumber = 2,
-                    title = "Keep the common deduction",
-                    description = eliminationDesc ?: "Remove candidates invalid in every branch.",
+                    stepNumber = 3,
+                    title = "Apply the Forced Conclusion",
+                    description = step3Description,
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)
                 )
@@ -102,24 +218,60 @@ import dto.*
         eliminations: List<EliminationDto>
     ): List<ExplanationStepDto> {
         val steps = mutableListOf<ExplanationStepDto>()
-        val eliminationCells = eliminations.flatMap { it.cells }
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+        val eliminationDigits = eliminations.map { it.digit }.distinct()
+        val eliminationDigitText = eliminationDigits.joinToString(", ")
+        val eliminationCellNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+
+        // Step 1: Explain Nishio concept (ELI5)
+        val step1Description = "Nishio is a 'what if' technique. We pick a candidate and assume it's TRUE, " +
+            "then follow the chain of consequences to see what happens. " +
+            "\n\nIt's like a detective saying: 'Let's assume the butler did it. " +
+            "If that were true, then X would happen, then Y would happen...' " +
+            "\n\nIf following this chain leads to an IMPOSSIBLE situation (a contradiction), " +
+            "then our assumption was wrong - the candidate cannot be true!"
 
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Assume and test",
-                description = "Nishio assumes a single digit placement and discards branches that lead to contradiction.",
+                title = "Make an Assumption",
+                description = step1Description,
                 highlightCells = eliminationCells
             )
         )
 
+        // Step 2: Show the contradiction path
+        val step2Description = "We assumed $eliminationDigitText is true in $eliminationCellNames and followed the logic: " +
+            "\n\nAs we trace through the consequences (eliminating candidates, forcing placements), " +
+            "we eventually reach an impossible state - perhaps a cell with no candidates, " +
+            "or a digit that can't go anywhere in a house, or a cell that must have two different values. " +
+            "\n\nThis contradiction proves our assumption was wrong!"
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 2,
+                title = "Find the Contradiction",
+                description = step2Description,
+                highlightCells = eliminationCells,
+                colouredCandidates = eliminationDigits.flatMap { digit ->
+                    eliminationCells.map { cell ->
+                        ColouredCandidateDto(cell / 9, cell % 9, digit, "warning")
+                    }
+                }
+            )
+        )
+
+        // Step 3: Apply the elimination
         if (eliminations.isNotEmpty()) {
-            val eliminationDesc = summarizeEliminations(eliminations)
+            val step3Description = "Since assuming $eliminationDigitText leads to a contradiction, " +
+                "it cannot be true. " +
+                "\n\nRemove $eliminationDigitText from $eliminationCellNames."
+
             steps.add(
                 ExplanationStepDto(
-                    stepNumber = 2,
-                    title = "Discard impossible placements",
-                    description = eliminationDesc ?: "Remove the candidates that fail under every assumption.",
+                    stepNumber = 3,
+                    title = "Eliminate the Impossible",
+                    description = step3Description,
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)
                 )
@@ -134,24 +286,57 @@ import dto.*
         eliminations: List<EliminationDto>
     ): List<ExplanationStepDto> {
         val steps = mutableListOf<ExplanationStepDto>()
-        val eliminationCells = eliminations.flatMap { it.cells }
+        val eliminationCells = eliminations.flatMap { it.cells }.distinct()
+        val eliminationDigits = eliminations.map { it.digit }.distinct()
+        val eliminationDigitText = eliminationDigits.joinToString(", ")
+        val eliminationCellNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+
+        // Step 1: Explain the chain concept (ELI5)
+        val step1Description = "$techniqueName works by connecting candidates in a logical chain. " +
+            "\n\nThink of it like dominoes: if this candidate is true, then that one must be false, " +
+            "which means this other one must be true, and so on... " +
+            "\n\nThe chain uses two types of connections: " +
+            "• Strong links (solid): if one is false, the other is true " +
+            "• Weak links (dashed): both cannot be true at the same time"
 
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Trace the chain",
-                description = "$techniqueName links candidates so that one end forces eliminations at the other end.",
+                title = "Follow the Chain",
+                description = step1Description,
                 highlightCells = eliminationCells
             )
         )
 
+        // Step 2: Explain the elimination logic
+        val step2Description = "By following the chain from start to finish, we can prove that certain candidates " +
+            "must be eliminated. " +
+            "\n\nThe chain's endpoints (or the logic along the way) show that $eliminationDigitText " +
+            "cannot be in $eliminationCellNames - it would create a contradiction."
+
+        steps.add(
+            ExplanationStepDto(
+                stepNumber = 2,
+                title = "Reach the Conclusion",
+                description = step2Description,
+                highlightCells = eliminationCells,
+                colouredCandidates = eliminationDigits.flatMap { digit ->
+                    eliminationCells.map { cell ->
+                        ColouredCandidateDto(cell / 9, cell % 9, digit, "highlight")
+                    }
+                }
+            )
+        )
+
+        // Step 3: Make the elimination
         if (eliminations.isNotEmpty()) {
-            val eliminationDesc = summarizeEliminations(eliminations)
+            val step3Description = "Based on the chain logic, remove $eliminationDigitText from $eliminationCellNames."
+
             steps.add(
                 ExplanationStepDto(
-                    stepNumber = 2,
-                    title = "Eliminate the target candidate",
-                    description = eliminationDesc ?: "Cells seen by both ends cannot keep the target candidate.",
+                    stepNumber = 3,
+                    title = "Make the Elimination",
+                    description = step3Description,
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)
                 )

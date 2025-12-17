@@ -42,7 +42,7 @@ import dto.*
             subsetDigits = bitSetToList(digits).map { it + 1 } // Convert to 1-9
             subsetCells = bitSetToList(cells)
             sectorIndex = sectors.nextSetBit(0)
-            if (sectorIndex != null && sectorIndex >= 0) {
+            if (sectorIndex >= 0) {
                 sectorType = getSectorType(sectorIndex)
             }
         } catch (e: Exception) {
@@ -256,7 +256,7 @@ import dto.*
             sectorsField.isAccessible = true
             val sectors = sectorsField.get(match) as java.util.BitSet
             sectorIndex = sectors.nextSetBit(0)
-            if (sectorIndex != null && sectorIndex >= 0) {
+            if (sectorIndex >= 0) {
                 sectorType = getSectorType(sectorIndex)
             }
         } catch (e: Exception) {

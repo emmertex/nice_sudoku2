@@ -56,3 +56,5 @@ hs_err_pid*.log
 *.swo
 *~
 backend/data/cache.db
+backend/data/cache-v2.db
+backend/data/cache-v2.db
