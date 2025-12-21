@@ -3,7 +3,7 @@ package service.hint.techniques
 import sudoku.match.FishMatch
 import service.hint.helpers.*
 import service.hint.helpers.LanguageKeyBuilder.hintKey
-import service.hint.helpers.LanguageKeyBuilder.formatCellName
+import service.hint.helpers.formatCellName
 import sudoku.match.TechniqueMatch
 import dto.*
 

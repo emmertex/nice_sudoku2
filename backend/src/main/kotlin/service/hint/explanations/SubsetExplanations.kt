@@ -302,7 +302,6 @@ import dto.*
             }
 
             val boxNum = (row / 3) * 3 + (col / 3) + 1
-            val cellName = "R${row + 1}C${col + 1}"
             val cells = peerEliminations.flatMap { it.cells }.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
             
             // Highlight all three houses that see this cell
