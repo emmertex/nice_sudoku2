@@ -1,6 +1,8 @@
 package service.hint.explanations
 
 import service.hint.helpers.*
+import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.commonKey
 import sudoku.match.AICMatch
 import sudoku.match.ALSMatch
 import sudoku.match.TechniqueMatch
@@ -58,19 +60,14 @@ import dto.*
             endDesc = "($endDigit)${endC.joinToString(",")}"
         }
 
-        // Step 1: Explain what an AIC is (ELI5)
-        val step1Description = "An Alternating Inference Chain (AIC) connects candidates in a logical sequence. " +
-            "Think of it like a chain of dominoes where each piece affects the next. " +
-            "\n\nThis chain has ${nodes.size} links, starting at $startDesc and ending at $endDesc. " +
-            "\n\nThe chain alternates between two types of connections: " +
-            "• **Strong links** (solid lines): 'If this is FALSE, then that must be TRUE' " +
-            "• **Weak links** (dashed lines): 'If this is TRUE, then that must be FALSE' " +
-            "\n\nBy following the chain, we can prove certain candidates must be eliminated."
-
         steps.add(ExplanationStepDto(
             stepNumber = 1,
-            title = "Find the Chain",
-            description = step1Description,
+            title = hintKey("aic", 1, "title"),
+            description = hintKey("aic", 1, "description",
+                "nodeCount" to nodes.size.toString(),
+                "startDesc" to startDesc,
+                "endDesc" to endDesc
+            ),
             highlightCells = endpointCells.distinct(),
             lines = lines,
             groups = groups,
@@ -80,12 +77,9 @@ import dto.*
             }
         ))
 
-        // Step 2: Walk through the chain logic (simplified)
-        val step2Description = buildString {
-            append("Let's follow the chain step by step:\n\n")
-            
-            if (nodes.size <= 6) {
-                // Show full chain for shorter chains
+        // Build chain steps description for variable
+        val chainSteps = if (nodes.size <= 6) {
+            buildString {
                 for (i in 0 until nodes.size - 1) {
                     val curr = nodes[i]
                     val next = nodes[i+1]
@@ -109,20 +103,21 @@ import dto.*
                         append("then $nextDigit is NOT in ${nextC.joinToString(",")}\n")
                     }
                 }
-            } else {
-                // Summarize for longer chains
-                append("The chain has ${nodes.size} steps, alternating strong and weak links.\n")
-                append("Starting from $startDesc, following the logic leads us to $endDesc.\n")
             }
-            
-            append("\nThe chain endpoints are critical - any cell that can 'see' both endpoints ")
-            append("cannot have the target candidate.")
+        } else {
+            ""
         }
         
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = "Follow the Logic",
-            description = step2Description,
+            title = hintKey("aic", 2, "title"),
+            description = hintKey("aic", 2, "description",
+                "nodeCount" to nodes.size.toString(),
+                "startDesc" to startDesc,
+                "endDesc" to endDesc,
+                "chainSteps" to chainSteps,
+                "isLong" to (nodes.size > 6).toString()
+            ),
             highlightCells = allChainCells,
             lines = lines,
             groups = groups,
@@ -138,11 +133,6 @@ import dto.*
             val eliminationDigits = eliminations.map { it.digit }.distinct()
             val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
             val eliminationDigitText = eliminationDigits.joinToString(", ")
-            
-            val step3Description = "The chain proves that $eliminationDigitText cannot be in $eliminationNames. " +
-                "\n\nWhy? Because the chain's endpoints create a 'trap': no matter which endpoint is true, " +
-                "the elimination cell would see a cell that has the candidate. " +
-                "\n\nRemove $eliminationDigitText from: $eliminationNames."
 
             val elimCandidates = eliminations.flatMap { elim ->
                 elim.cells.map { cell -> 
@@ -152,8 +142,11 @@ import dto.*
 
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
-                title = "Make the Elimination",
-                description = step3Description,
+                title = hintKey("aic", 3, "title"),
+                description = hintKey("aic", 3, "description",
+                    "digits" to eliminationDigitText,
+                    "cells" to eliminationNames
+                ),
                 highlightCells = eliminationCells,
                 colouredCandidates = elimCandidates + groups.flatMap { g ->
                     val type = if (g.colourIndex % 2 == 0) "target" else "highlight"
@@ -185,19 +178,13 @@ import dto.*
             else -> "ALS Chain"
         }
 
-        // Step 1: Explain what an ALS is (ELI5)
-        val step1Description = "An **Almost Locked Set** (ALS) is a group of cells that's 'almost' solved. " +
-            "Here's the key idea: if you have N cells containing exactly N+1 different candidates, " +
-            "then removing just ONE candidate would 'lock' the remaining candidates to those cells. " +
-            "\n\nFor example: 3 cells with candidates {1,2,3,4} = almost locked. Remove any one digit, " +
-            "and the other 3 digits MUST go in those 3 cells. " +
-            "\n\nThis $alsType technique uses $numALS Almost Locked Sets that share 'connecting digits' - " +
-            "digits that can only be in one ALS or the other, linking them together."
-
         steps.add(ExplanationStepDto(
             stepNumber = 1,
-            title = "Understand Almost Locked Sets",
-            description = step1Description,
+            title = hintKey("als", 1, "title"),
+            description = hintKey("als", 1, "description",
+                "alsType" to alsType,
+                "numALS" to numALS.toString()
+            ),
             highlightCells = emptyList()
         ))
 
@@ -232,15 +219,19 @@ import dto.*
                 }
 
                 val alsName = "ALS ${('A'.code + alsIndex).toChar()}"
-                val alsDescription = "Look at $alsName: ${cells.size} cells (${cells.joinToString(", ")}) " +
-                    "with ${digits.size} candidates {${digits.joinToString(", ")}}. " +
-                    "\n\nThis is ${cells.size} cells with ${digits.size} candidates - that's 'almost locked' " +
-                    "because ${digits.size} = ${cells.size} + 1."
-
+                
                 steps.add(ExplanationStepDto(
                     stepNumber = stepNum++,
-                    title = "Find $alsName",
-                    description = alsDescription,
+                    title = hintKey("als", stepNum - 1, "title",
+                        "alsName" to alsName
+                    ),
+                    description = hintKey("als_identify", 1, "description",
+                        "alsName" to alsName,
+                        "cellCount" to cells.size.toString(),
+                        "cells" to cells.joinToString(", "),
+                        "digitCount" to digits.size.toString(),
+                        "digits" to digits.joinToString(", ")
+                    ),
                     highlightCells = cellIndices,
                     colouredCandidates = cellIndices.flatMap { c ->
                         digits.map { d -> ColouredCandidateDto(c / 9, c % 9, d, 
@@ -269,15 +260,12 @@ import dto.*
                 }
 
                 if (connectingDescriptions.isNotEmpty()) {
-                    val rccDescription = "The ALSs are connected by **shared digits** that can only appear in one ALS or the other: " +
-                        "\n\n${connectingDescriptions.joinToString("\n")} " +
-                        "\n\nThese 'connecting digits' act like bridges - if the digit is used in one ALS, " +
-                        "it's locked out of the other ALS, which then locks the remaining digits."
-
                     steps.add(ExplanationStepDto(
                         stepNumber = stepNum++,
-                        title = "Find the Connecting Digits",
-                        description = rccDescription,
+                        title = hintKey("als_connecting", 1, "title"),
+                        description = hintKey("als_connecting", 1, "description",
+                            "connections" to connectingDescriptions.joinToString("\n")
+                        ),
                         highlightCells = connectingCells,
                         colouredCandidates = allAlsCandidates
                     ))
@@ -292,16 +280,13 @@ import dto.*
             val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
             val eliminationDigitText = eliminationDigits.joinToString(", ")
 
-            val eliminationDescription = "Now for the payoff! Look at the digit(s) $eliminationDigitText. " +
-                "\n\nBecause of how the ALSs are connected, $eliminationDigitText must end up in one of the ALS cells. " +
-                "Any cell that can 'see' ALL the places where $eliminationDigitText could be in BOTH ALSs " +
-                "cannot have $eliminationDigitText - it would always conflict. " +
-                "\n\nRemove $eliminationDigitText from: $eliminationNames."
-
             steps.add(ExplanationStepDto(
                 stepNumber = stepNum,
-                title = "Make the Elimination",
-                description = eliminationDescription,
+                title = hintKey("als_elimination", 1, "title"),
+                description = hintKey("als_elimination", 1, "description",
+                    "digits" to eliminationDigitText,
+                    "cells" to eliminationNames
+                ),
                 highlightCells = eliminationCells,
                 colouredCandidates = eliminationCandidates(eliminations) + allAlsCandidates
             ))
@@ -320,16 +305,14 @@ import dto.*
         val eliminationCells = eliminations.flatMap { it.cells }.distinct()
         val eliminationDigits = eliminations.map { it.digit }.distinct()
 
-        // Step 1: Introduction to the technique
-        val step1Description = "This technique is called **$techniqueName**. " +
-            "\n\nIt uses logical deduction to prove that certain candidates must be eliminated " +
-            "or that certain cells must have specific values. " +
-            "\n\nThe pattern involves the highlighted cells and candidates."
-
         steps.add(ExplanationStepDto(
             stepNumber = 1,
-            title = techniqueName,
-            description = step1Description,
+            title = hintKey("generic", 1, "title",
+                "technique" to techniqueName
+            ),
+            description = hintKey("generic", 1, "description",
+                "technique" to techniqueName
+            ),
             highlightCells = eliminationCells + solvedCells.map { it.cell }
         ))
 
@@ -337,14 +320,14 @@ import dto.*
         if (eliminations.isNotEmpty()) {
             val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
             val eliminationDigitText = eliminationDigits.joinToString(", ")
-            
-            val eliminationDescription = "Based on the pattern, we can eliminate: " +
-                "\n\nRemove $eliminationDigitText from $eliminationNames."
 
             steps.add(ExplanationStepDto(
                 stepNumber = 2,
-                title = "Apply Eliminations",
-                description = eliminationDescription,
+                title = hintKey("generic", 2, "title"),
+                description = hintKey("generic", 2, "description",
+                    "digits" to eliminationDigitText,
+                    "cells" to eliminationNames
+                ),
                 highlightCells = eliminationCells,
                 colouredCandidates = eliminationCandidates(eliminations)
             ))
@@ -358,8 +341,10 @@ import dto.*
             
             steps.add(ExplanationStepDto(
                 stepNumber = steps.size + 1,
-                title = "Place Values",
-                description = "The technique reveals these solutions:\n\n$solvedDesc",
+                title = hintKey("generic", 3, "title"),
+                description = hintKey("generic", 3, "description",
+                    "solutions" to solvedDesc
+                ),
                 highlightCells = solvedCells.map { it.cell },
                 colouredCandidates = solvedCells.map { solved ->
                     ColouredCandidateDto(solved.cell / 9, solved.cell % 9, solved.digit, "target")

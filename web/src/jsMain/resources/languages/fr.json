@@ -317,114 +317,505 @@
       "from": "de"
     }
   },
-  "backend": {
-    "techniques": {
-      "NAKED_SINGLE": "Un seul candidat convient dans cette cellule, alors placez-le.",
-      "NAKED_SINGLES": "Un seul candidat convient dans cette cellule, alors placez-le.",
-      "HIDDEN_SINGLE": "Un chiffre n'apparaît que dans une seule cellule d'une maison, forçant son placement.",
-      "HIDDEN_SINGLES": "Un chiffre n'apparaît que dans une seule cellule d'une maison, forçant son placement.",
-      "POINTING_CANDIDATES": "Un chiffre est verrouillé dans une ligne d'une boîte, il peut donc être supprimé de cette ligne en dehors de la boîte.",
-      "POINTING_PAIRS": "Un chiffre est verrouillé dans une ligne d'une boîte, il peut donc être supprimé de cette ligne en dehors de la boîte.",
-      "CLAIMING_CANDIDATES": "Un chiffre est verrouillé dans une boîte d'une ligne, il peut donc être supprimé de cette boîte en dehors de la ligne.",
-      "BOX_LINE_REDUCTION": "Un chiffre est verrouillé dans une boîte d'une ligne, il peut donc être supprimé de cette boîte en dehors de la ligne.",
-      "NAKED_PAIR": "Deux cellules d'une maison contiennent exactement les deux mêmes candidats; ils réclament ces chiffres.",
-      "NAKED_PAIRS": "Deux cellules d'une maison contiennent exactement les deux mêmes candidats; ils réclament ces chiffres.",
-      "LOCKED_PAIR": "Deux cellules d'une maison contiennent exactement les deux mêmes candidats; ils réclament ces chiffres.",
-      "LOCKED_PAIRS": "Deux cellules d'une maison contiennent exactement les deux mêmes candidats; ils réclament ces chiffres.",
-      "NAKED_TRIPLE": "Trois cellules d'une maison contiennent exactement les trois mêmes candidats; ils réclament ces chiffres.",
-      "LOCKED_TRIPLES": "Trois cellules d'une maison contiennent exactement les trois mêmes candidats; ils réclament ces chiffres.",
-      "NAKED_TRIPLES": "Trois cellules d'une maison contiennent exactement les trois mêmes candidats; ils réclament ces chiffres.",
-      "NAKED_QUADRUPLE": "Quatre cellules d'une maison contiennent exactement les quatre mêmes candidats; ils réclament ces chiffres.",
-      "LOCKED_QUADRUPLES": "Quatre cellules d'une maison contiennent exactement les quatre mêmes candidats; ils réclament ces chiffres.",
-      "NAKED_QUADRUPLES": "Quatre cellules d'une maison contiennent exactement les quatre mêmes candidats; ils réclament ces chiffres.",
-      "HIDDEN_PAIR": "Deux chiffres ne peuvent apparaître que dans deux cellules d'une maison; les autres candidats de ces cellules sont supprimés.",
-      "HIDDEN_PAIRS": "Deux chiffres ne peuvent apparaître que dans deux cellules d'une maison; les autres candidats de ces cellules sont supprimés.",
-      "HIDDEN_TRIPLE": "Trois chiffres ne peuvent apparaître que dans trois cellules d'une maison; les autres candidats de ces cellules sont supprimés.",
-      "HIDDEN_TRIPLES": "Trois chiffres ne peuvent apparaître que dans trois cellules d'une maison; les autres candidats de ces cellules sont supprimés.",
-      "HIDDEN_QUADRUPLE": "Quatre chiffres ne peuvent apparaître que dans quatre cellules d'une maison; les autres candidats de ces cellules sont supprimés.",
-      "HIDDEN_QUADRUPLES": "Quatre chiffres ne peuvent apparaître que dans quatre cellules d'une maison; les autres candidats de ces cellules sont supprimés.",
-      "X_WING_FISH": "Les lignes et les colonnes forment un X-Wing, un chiffre peut donc être éliminé des lignes de couverture.",
-      "X_WING": "Les lignes et les colonnes forment un X-Wing, un chiffre peut donc être éliminé des lignes de couverture.",
-      "SKYSCRAPER_FISH": "Deux liens forts sur un chiffre forment un gratte-ciel, permettant des éliminations dans les colonnes/lignes partagées.",
-      "SKYSCRAPER": "Deux liens forts sur un chiffre forment un gratte-ciel, permettant des éliminations dans les colonnes/lignes partagées.",
-      "TWO_STRING_KITE_FISH": "Un cerf-volant à deux cordes utilise 2 liens forts, avec un lien faible dans la même boîte, pour éliminer un candidat à l'intersection entre les deux liens forts.",
-      "2_STRING_KITE": "Un cerf-volant à deux cordes utilise 2 liens forts, avec un lien faible dans la même boîte, pour éliminer un candidat à l'intersection entre les deux liens forts.",
-      "2_STRING_KITE_FISH": "Un cerf-volant à deux cordes utilise 2 liens forts, avec un lien faible dans la même boîte, pour éliminer un candidat à l'intersection entre les deux liens forts.",
-      "FINNED_X_WING_FISH": "Un X-Wing avec une nageoire; les cellules voyant la nageoire peuvent perdre ce chiffre.",
-      "FINNED_X_WING": "Un X-Wing avec une nageoire; les cellules voyant la nageoire peuvent perdre ce chiffre.",
-      "SASHIMI_X_WING_FISH": "Un X-Wing sashimi a une nageoire plus une base manquante; les cellules voyant la nageoire peuvent être éliminées.",
-      "SASHIMI_X_WING": "Un X-Wing sashimi a une nageoire plus une base manquante; les cellules voyant la nageoire peuvent être éliminées.",
-      "SWORDFISH_FISH": "Trois lignes alignent les candidats dans trois colonnes/lignes, permettant des éliminations (poisson-épée).",
-      "SWORDFISH": "Trois lignes alignent les candidats dans trois colonnes/lignes, permettant des éliminations (poisson-épée).",
-      "FINNED_SWORDFISH_FISH": "Un poisson-épée avec une nageoire; les cellules voyant la nageoire perdent ce chiffre.",
-      "FINNED_SWORDFISH": "Un poisson-épée avec une nageoire; les cellules voyant la nageoire perdent ce chiffre.",
-      "JELLYFISH_FISH": "Quatre lignes alignent les candidats dans quatre colonnes/lignes, permettant des éliminations (méduse).",
-      "JELLYFISH": "Quatre lignes alignent les candidats dans quatre colonnes/lignes, permettant des éliminations (méduse).",
-      "FINNED_JELLYFISH_FISH": "Une méduse avec une nageoire; les cellules voyant la nageoire perdent ce chiffre.",
-      "FINNED_JELLYFISH": "Une méduse avec une nageoire; les cellules voyant la nageoire perdent ce chiffre.",
-      "FRANKEN_X_WING_FISH": "Un poisson Franken mélange des boîtes et des lignes pour former la base/couverture, permettant des éliminations.",
-      "FRANKEN_X_WING": "Un poisson Franken mélange des boîtes et des lignes pour former la base/couverture, permettant des éliminations.",
-      "FINNED_FRANKEN_X_WING_FISH": "Un poisson Franken avec une nageoire; les cellules voyant la nageoire perdent ce chiffre.",
-      "FINNED_FRANKEN_X_WING": "Un poisson Franken avec une nageoire; les cellules voyant la nageoire perdent ce chiffre.",
-      "FINNED_MUTANT_X_WING_FISH": "Un poisson mutant avec une nageoire; les éliminations proviennent des cellules voyant la nageoire.",
-      "FINNED_MUTANT_X_WING": "Un poisson mutant avec une nageoire; les éliminations proviennent des cellules voyant la nageoire.",
-      "FRANKEN_SWORDFISH_FISH": "Une variante de poisson-épée boîte/ligne permettant des éliminations sur les lignes de couverture.",
-      "FRANKEN_SWORDFISH": "Une variante de poisson-épée boîte/ligne permettant des éliminations sur les lignes de couverture.",
-      "GROUPED_X_CYCLES": "Les X-Cycles groupés alternent les liens forts et faibles sur un chiffre pour prouver les éliminations.",
-      "SIMPLE_COLOURING": "Coloriez un chiffre en deux ensembles de liens forts; une couleur de contradiction est éliminée.",
-      "SIMPLE_COLORING": "Coloriez un chiffre en deux ensembles de liens forts; une couleur de contradiction est éliminée.",
-      "MEDUSA_3D": "3D Medusa colore plusieurs chiffres; les contradictions éliminent les candidats ou placent des valeurs.",
-      "3D_MEDUSA": "3D Medusa colore plusieurs chiffres; les contradictions éliminent les candidats ou placent des valeurs.",
-      "THREE_D_MEDUSA": "3D Medusa colore plusieurs chiffres; les contradictions éliminent les candidats ou placent des valeurs.",
-      "UNIQUE_RECTANGLE": "Empêchez un motif mortel en forçant ou en éliminant autour d'un rectangle de quatre cellules.",
-      "UNIQUE_RECTANGLES": "Empêchez un motif mortel en forçant ou en éliminant autour d'un rectangle de quatre cellules.",
-      "BUG": "Bivalue Universal Grave: un seul candidat brise l'impasse; placez ou éliminez en conséquence.",
-      "BIVALUE_UNIVERSAL_GRAVE": "Bivalue Universal Grave: un seul candidat brise l'impasse; placez ou éliminez en conséquence.",
-      "Y_WING": "XY-Wing (charnière + deux pinces) élimine un candidat partagé vu par les deux pinces.",
-      "XY_WING": "XY-Wing (charnière + deux pinces) élimine un candidat partagé vu par les deux pinces.",
-      "XYZ_WING": "XYZ-Wing (triade avec XYZ) supprime Z des cellules voyant les trois cellules.",
-      "WXYZ_WING": "WXYZ-Wing supprime le candidat partagé des pairs des quatre cellules.",
-      "W_WING": "W-Wing relie deux cellules bivaluées correspondantes par un lien fort, forçant les éliminations.",
-      "L_3__WING": "L-Wing avec 3 cellules relie les candidats pour forcer les éliminations.",
-      "L_WING": "L-Wing relie les candidats dans un motif en forme de L pour forcer les éliminations.",
-      "EMPTY_RECTANGLE": "Un rectangle vide force une interaction de paire conjuguée pour éliminer un candidat.",
-      "EMPTY_RECTANGLES": "Un rectangle vide force une interaction de paire conjuguée pour éliminer un candidat.",
-      "X_CYCLES": "Les X-Cycles alternent les liens forts/faibles sur un chiffre; les contradictions suppriment les candidats.",
-      "X_CYCLE": "Les X-Cycles alternent les liens forts/faibles sur un chiffre; les contradictions suppriment les candidats.",
-      "XY_CHAIN": "Les XY-Chains relient les cellules bivaluées; le chiffre cible est éliminé là où les deux extrémités voient.",
-      "AIC": "La chaîne d'inférence alternée prouve les éliminations via des liens forts/faibles alternés.",
-      "AIC_TYPE_2": "La chaîne d'inférence alternée (Type 2) prouve les éliminations via des liens forts/faibles alternés.",
-      "ALTERNATING_INFERENCE_CHAINS": "La chaîne d'inférence alternée prouve les éliminations via des liens forts/faibles alternés.",
-      "FORCING_CHAINS": "Les chaînes de forçage explorent les deux résultats et conservent la déduction commune à tous les chemins.",
-      "RING": "Une structure en anneau de liens forts et faibles force les éliminations aux points de jonction.",
-      "ALMOST_LOCKED_SETS": "Les ensembles presque verrouillés se connectent via des candidats restreints pour forcer les éliminations.",
-      "ALS_XY": "ALS-XY relie deux ensembles presque verrouillés via un candidat restreint partagé.",
-      "ALS_XZ": "ALS-XZ relie deux ensembles presque verrouillés via des candidats restreints partagés.",
-      "SUE_DE_COQ": "Sue-de-Coq divise un chevauchement boîte-ligne en ensembles de chiffres disjoints, forçant les éliminations.",
-      "NISHIO": "Nishio suppose un placement de chiffres et élague les branches qui mènent à une contradiction.",
-      "AIC___ALS": "Chaîne d'inférence alternée combinée à des ensembles presque verrouillés pour forcer les éliminations.",
-      "AIC_TYPE_1": "La chaîne d'inférence alternée (Type 1) utilise une alternance de liens forts/faibles pour prouver les éliminations.",
-      "XY_CHAINS__TYPE_1": "XY-Chain (Type 1) relie les cellules bivaluées; le chiffre cible est éliminé là où les deux extrémités voient.",
-      "ALS_CHAIN": "ALS-Chain relie plusieurs ensembles presque verrouillés en séquence pour forcer les éliminations.",
-      "SPLIT_WING": "Split-Wing utilise un motif divisé de candidats pour forcer les éliminations.",
-      "STRONG_WING__WINDMILL_": "Strong-Wing (Moulin à vent) utilise un motif de liens forts en moulin à vent pour éliminer les candidats.",
-      "INVERTED_H_3__WING": "Inverted H(3)-Wing utilise un motif en forme de H inversé avec 3 cellules pour forcer les éliminations.",
-      "INVERTED_M_3__WING": "Inverted M(3)-Wing utilise un motif en forme de M inversé avec 3 cellules pour forcer les éliminations.",
-      "INVERTED_L_3__WINGS": "Inverted L(3)-Wing utilise un motif en forme de L inversé avec 3 cellules pour forcer les éliminations.",
-      "UVWXYZ_WING": "UVWXYZ-Wing (aile à 6 cellules) supprime le candidat partagé des pairs des six cellules.",
-      "HIDDEN_XY__TYPE_1": "Hidden XY (Type 1) utilise des cellules bivaluées cachées dans un motif de chaîne XY pour éliminer les candidats."
-    }
-  },
-  "domain": {
-    "difficulty": {
-      "beginner": "Débutant",
-      "easy": "Facile",
-      "medium": "Moyen",
-      "tough": "Difficile",
-      "hard": "Très difficile",
-      "expert": "Expert",
-      "diabolical": "Diabolique",
-      "custom": "Personnalisé"
+  "hints": {
+    "common": {
+      "overview": "Aperçu",
+      "eliminations": "Éliminations",
+      "solution": "Solution",
+      "remove": "Supprimer {{digit}} de {{cells}}",
+      "place": "Placer {{digit}} dans {{cell}}",
+      "cellFormat": "L{{row}}C{{col}}"
+    },
+    "naked_single": {
+      "step1": {
+        "title": "Identifier le Single Nu (Naked Single)",
+        "description": "La cellule {{cell}} n'a qu'un seul candidat possible: {{digit}}"
+      },
+      "step2": {
+        "title": "Placer la valeur et éliminer",
+        "description": "Placez {{digit}} dans {{cell}}. Éliminez {{digit}} de la ligne {{row}}, de la colonne {{col}} et de la boîte {{box}}: {{cells}}"
+      }
+    },
+    "hidden_single": {
+      "step1": {
+        "title": "Identifier le Single Caché (Hidden Single)",
+        "description": "Dans {{house}}, seul {{cell}} peut être {{digit}}. Par conséquent, éliminez les autres candidats de cette cellule."
+      },
+      "step2": {
+        "title": "Éliminer des pairs",
+        "description": "Dans la ligne {{row}}, la colonne {{col}} et la boîte {{box}}, {{digit}} ne peut être que dans {{cell}}. Éliminez {{digit}} de: {{cells}}"
+      }
+    },
+    "naked_pair": {
+      "step1": {
+        "title": "Identifier la Paire Nue (Naked Pair)",
+        "description": "Les cellules {{cells}} dans {{house}} ne peuvent contenir que les chiffres {{digits}}. Ces chiffres sont 'verrouillés' dans ces cellules."
+      },
+      "step2": {
+        "title": "Éliminer de la même maison",
+        "description": "Comme {{digits}} ne peuvent être que dans {{subsetCells}}, éliminez ces chiffres de {{elimCells}} dans {{house}}."
+      },
+      "step3": {
+        "title": "Appliquer les candidats verrouillés",
+        "description": "Le {{subsetType}} nu verrouille {{digits}} dans {{house}}, donc éliminez {{digits}} de {{cells}}."
+      }
+    },
+    "naked_triple": {
+      "step1": {
+        "title": "Identifier le Triplet Nu (Naked Triple)",
+        "description": "Les cellules {{cells}} dans {{house}} ne peuvent contenir que les chiffres {{digits}}. Ces chiffres sont 'verrouillés' dans ces cellules."
+      },
+      "step2": {
+        "title": "Éliminer de la même maison",
+        "description": "Comme {{digits}} ne peuvent être que dans {{subsetCells}}, éliminez ces chiffres de {{elimCells}} dans {{house}}."
+      },
+      "step3": {
+        "title": "Appliquer les candidats verrouillés",
+        "description": "Le {{subsetType}} nu verrouille {{digits}} dans {{house}}, donc éliminez {{digits}} de {{cells}}."
+      }
+    },
+    "naked_quadruple": {
+      "step1": {
+        "title": "Identifier le Quadruplet Nu (Naked Quadruple)",
+        "description": "Les cellules {{cells}} dans {{house}} ne peuvent contenir que les chiffres {{digits}}. Ces chiffres sont 'verrouillés' dans ces cellules."
+      },
+      "step2": {
+        "title": "Éliminer de la même maison",
+        "description": "Comme {{digits}} ne peuvent être que dans {{subsetCells}}, éliminez ces chiffres de {{elimCells}} dans {{house}}."
+      },
+      "step3": {
+        "title": "Appliquer les candidats verrouillés",
+        "description": "Le {{subsetType}} nu verrouille {{digits}} dans {{house}}, donc éliminez {{digits}} de {{cells}}."
+      }
+    },
+    "hidden_pair": {
+      "step1": {
+        "title": "Identifier la Paire Cachée (Hidden Pair)",
+        "description": "Dans {{house}}, {{digits}} ne peuvent être placés que dans {{cells}}. Ces cellules sont 'verrouillées' pour ces chiffres."
+      },
+      "step2": {
+        "title": "Éliminer de la même maison",
+        "description": "Comme {{digits}} ne peuvent être que dans {{cells}}, éliminez les autres candidats de ces cellules."
+      },
+      "step3": {
+        "title": "Appliquer les candidats verrouillés cachés",
+        "description": "Le {{subsetType}} caché verrouille {{digits}} dans {{house}}, donc éliminez {{digits}} de {{cells}}."
+      }
+    },
+    "hidden_triple": {
+      "step1": {
+        "title": "Identifier le Triplet Caché (Hidden Triple)",
+        "description": "Dans {{house}}, {{digits}} ne peuvent être placés que dans {{cells}}. Ces cellules sont 'verrouillées' pour ces chiffres."
+      },
+      "step2": {
+        "title": "Éliminer de la même maison",
+        "description": "Comme {{digits}} ne peuvent être que dans {{cells}}, éliminez les autres candidats de ces cellules."
+      },
+      "step3": {
+        "title": "Appliquer les candidats verrouillés cachés",
+        "description": "Le {{subsetType}} caché verrouille {{digits}} dans {{house}}, donc éliminez {{digits}} de {{cells}}."
+      }
+    },
+    "hidden_quadruple": {
+      "step1": {
+        "title": "Identifier le Quadruplet Caché (Hidden Quadruple)",
+        "description": "Dans {{house}}, {{digits}} ne peuvent être placés que dans {{cells}}. Ces cellules sont 'verrouillées' pour ces chiffres."
+      },
+      "step2": {
+        "title": "Éliminer de la même maison",
+        "description": "Comme {{digits}} ne peuvent être que dans {{cells}}, éliminez les autres candidats de ces cellules."
+      },
+      "step3": {
+        "title": "Appliquer les candidats verrouillés cachés",
+        "description": "Le {{subsetType}} caché verrouille {{digits}} dans {{house}}, donc éliminez {{digits}} de {{cells}}."
+      }
+    },
+    "pointing_candidates": {
+      "step1": {
+        "title": "Identifier les Candidats Pointeurs (Pointing Candidates)",
+        "description": "Dans {{baseHouse}}, le candidat {{digit}} n'apparaît que dans des cellules qui appartiennent également à {{coverHouse}}."
+      },
+      "step2": {
+        "title": "Éliminer de {{house}}",
+        "description": "Éliminez {{digit}} des autres cellules de {{house}}: {{cells}}"
+      }
+    },
+    "claiming_candidates": {
+      "step1": {
+        "title": "Identifier les Candidats Revendicateurs (Claiming Candidates)",
+        "description": "Dans {{baseHouse}}, le candidat {{digit}} n'apparaît que dans des cellules qui appartiennent également à {{coverHouse}}."
+      },
+      "step2": {
+        "title": "Éliminer de {{house}}",
+        "description": "Éliminez {{digit}} des autres cellules de {{house}}: {{cells}}"
+      }
+    },
+    "bug": {
+      "step1": {
+        "title": "Repérer le motif bivalué",
+        "description": "Regardez les cellules non résolues de ce puzzle. Presque chacune d'entre elles possède exactement DEUX candidats. Il s'agit d'une situation très particulière appelée 'Bivalue Universal Grave' (BUG). Voici pourquoi c'est un problème: si CHAQUE cellule non résolue avait exactement deux candidats disposés selon un certain motif, vous pourriez échanger les valeurs et obtenir deux solutions valides differentes! Mais un vrai puzzle de Sudoku n'a qu'UNE seule solution. Quelque chose doit donc 'briser' ce motif - il doit y avoir au moins une cellule différente."
+      },
+      "step2": {
+        "title": "Trouver la cellule d'exception",
+        "description": "Maintenant, regardez {{cell}} - cette cellule est spéciale! Alors que toutes les autres cellules non résolues ont exactement deux candidats, celle-ci en a TROIS (ou plus). C'est le '+1' dans BUG+1. Ce candidat supplémentaire est la clé de la résolution du puzzle. Si nous supprimions ce candidat supplémentaire, nous aurions le motif mortel BUG avec plusieurs solutions. Par conséquent, le candidat supplémentaire DOIT être la vraie valeur de cette cellule!"
+      },
+      "step3": {
+        "title": "Empêcher le BUG",
+        "description": "Pour éviter le BUG (ce qui signifierait plusieurs solutions), nous devons éliminer les candidats qui compléteraient le motif mortel. Supprimez {{digits}} de {{cell}}. Le candidat restant est la solution pour cette cellule."
+      }
+    },
+    "aic": {
+      "step1": {
+        "title": "Trouver la chaîne",
+        "description": "Une chaîne d'inférence alternée (AIC) relie les candidats dans une séquence logique. Pensez-y comme à une chaîne de dominos où chaque pièce affecte la suivante. Cette chaîne comporte {{nodeCount}} maillons, commençant à {{startDesc}} et se terminant à {{endDesc}}. La chaîne alterne entre deux types de connexions: • **Liens forts** (lignes pleines): 'Si c'est FAUX, alors cela doit être VRAI' • **Liens faibles** (lignes pointillées): 'Si c'est VRAI, alors cela doit être FAUX'. En suivant la chaîne, on peut prouver que certains candidats doivent être éliminés."
+      },
+      "step2": {
+        "title": "Suivre la logique",
+        "description": "Suivons la chaîne étape par étape:\n\n{{chainSteps}}\n\nLes extrémités de la chaîne sont critiques - toute cellule capable de 'voir' les deux extrémités ne peut pas avoir le candidat cible."
+      },
+      "step3": {
+        "title": "Faire l'élimination",
+        "description": "La chaîne prouve que {{digits}} ne peut pas être dans {{cells}}. Pourquoi? Parce que les extrémités de la chaîne créent un 'piège': quel que soit l'extrémité vraie, la cellule d'élimination verrait une cellule possédant le candidat. Supprimez {{digits}} de: {{cells}}."
+      }
+    },
+    "als": {
+      "step1": {
+        "title": "Comprendre les ensembles presque verrouillés (Almost Locked Sets)",
+        "description": "Un **Ensemble Presque Verrouillé** (ALS) est un groupe de cellules qui est 'presque' résolu. Voici l'idée clé: si vous avez N cellules contenant exactement N+1 candidats différents, alors la suppression d'un seul candidat 'verrouillerait' les candidats restants dans ces cellules. Par exemple: 3 cellules avec les candidats {1,2,3,4} = presque verrouillées. Supprimez n'importe quel chiffre, et les 3 autres chiffres DOIVENT aller dans ces 3 cellules. Cette technique {{alsType}} utilise {{numALS}} ensembles presque verrouillés qui partagent des 'chiffres de connexion' - des chiffres qui ne peuvent être que dans un ALS ou dans l'autre, les reliant entre eux."
+      }
+    },
+    "als_identify": {
+      "step1": {
+        "description": "Regardez {{alsName}}: {{cellCount}} cellules ({{cells}}) avec {{digitCount}} candidats {{{digits}}}. Il s'agit de {{cellCount}} cellules avec {{digitCount}} candidats - c'est 'presque verrouillé' car {{digitCount}} = {{cellCount}} + 1."
+      }
+    },
+    "als_connecting": {
+      "step1": {
+        "title": "Trouver les chiffres de connexion",
+        "description": "Les ALS sont reliés par des **chiffres partagés** qui ne peuvent apparaître que dans un ALS ou dans l'autre:\n\n{{connections}}\n\nCes 'chiffres de connexion' agissent comme des ponts - si le chiffre est utilisé dans un ALS, il est exclu de l'autre ALS, ce qui verrouille alors les chiffres restants."
+      }
+    },
+    "als_elimination": {
+      "step1": {
+        "title": "Faire l'élimination",
+        "description": "Passons maintenant au résultat! Regardez le(s) chiffre(s) {{digits}}. En raison de la façon dont les ALS sont connectés, {{digits}} doit finir dans l'une des cellules ALS. Toute cellule capable de 'voir' TOUS les endroits où {{digits}} pourrait être dans les DEUX ALS ne peut pas avoir {{digits}} - il y aurait toujours un conflit. Supprimez {{digits}} de: {{cells}}."
+      }
+    },
+    "x_cycle": {
+      "step1": {
+        "title": "Trouver l'X-Cycle",
+        "description": "Un X-Cycle est une chaîne de cellules qui boucle sur elle-même. Ce cycle comporte {{cycleSize}} nœuds impliquant le chiffre {{digit}} aux cellules: {{cells}}. La clé est que la chaîne alterne entre des 'liens forts' (lignes pleines) et des 'liens faibles' (lignes pointillées). Lien fort = si l'un est faux, l'autre doit être vrai. Lien faible = les deux ne peuvent pas être vrais en même temps. Comme la chaîne forme une boucle complète, certains candidats DOIVENT être éliminés pour éviter une contradiction."
+      },
+      "step2": {
+        "title": "Comprendre la logique du cycle"
+      },
+      "step3": {
+        "title": "Éliminer des cellules voyant les deux couleurs",
+        "description": "La ou les cellules à {{cells}} peuvent voir des nœuds des deux 'couleurs' dans le cycle. Comme une couleur doit être vraie, ces cellules seraient toujours en conflit. Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "x_cycle_nice_loop": {
+      "step1": {
+        "description": "C'est une 'Boucle Agréable' (Nice Loop) (nombre pair de nœuds). Dans une boucle agréable, nous pouvons colorer les nœuds alternativement - appelons-les 'Vert' et 'Jaune'. Soit tous les nœuds verts auraient {{digit}}, SOIT tous les nœuds jaunes auraient {{digit}}. Toute cellule capable de voir à la fois un nœud vert et un nœud jaune ne peut pas avoir {{digit}} - quelle que soit la couleur vraie, cette cellule serait en conflit avec elle."
+      }
+    },
+    "x_cycle_discontinuous": {
+      "step1": {
+        "description": "C'est une 'Boucle Discontinue' (Discontinuous Loop) (nombre impair de nœuds). Avec un cycle impair, quelque chose doit 'casser' - nous trouvons une contradiction. En suivant la logique de la chaîne, nous pouvons prouver que certains candidats doivent être éliminés car les conserver créerait une situation impossible."
+      }
+    },
+    "simple_coloring": {
+      "step1": {
+        "title": "Comprendre le Simple Coloring",
+        "description": "Le Simple Coloring fonctionne sur un seul chiffre ({{digit}}). Voici l'idée: Trouvez tous les 'liens forts' pour le chiffre {{digit}}. Un lien fort existe lorsque {{digit}} apparaît dans exactement deux cellules d'une ligne, d'une colonne ou d'une boîte - si l'un est faux, l'autre doit être vrai. Colorez maintenant ces cellules alternativement - commencez par 'Vert', les cellules connectées deviennent 'Jaune', leurs connexions redeviennent 'Vert', et ainsi de suite. Nous avons {{greenCount}} cellules vertes et {{yellowCount}} cellules jaunes. Soit TOUTES les cellules vertes ont {{digit}}, SOIT TOUTES les cellules jaunes ont {{digit}}."
+      }
+    },
+    "3d_medusa": {
+      "step1": {
+        "title": "Comprendre le 3D Medusa Coloring",
+        "description": "Le 3D Medusa étend la coloration à plusieurs chiffres. Voici l'idée: commencez par n'importe quel candidat et appelez-le 'Vert'. Chaque candidat relié par un lien fort reçoit la couleur opposée ('Jaune'). Des liens forts existent lorsque: • Un chiffre n'apparaît que deux fois dans une ligne, une colonne ou une boîte • Une cellule n'a que deux candidats (cellule bivaluée). Nous colorons {{greenCount}} cellules en vert et {{yellowCount}} cellules en jaune. Un groupe de couleurs entier est VRAI, l'autre est FAUX - nous ne savons juste pas encore lequel."
+      }
+    },
+    "coloring": {
+      "step2": {
+        "title": "Trouver des pièges et des bouclages de couleur",
+        "description": "Nous cherchons maintenant des contradictions ou des 'pièges': **Piège de couleur (Color Trap)**: Si une cellule non colorée peut voir à la fois une cellule verte et une cellule jaune (dans la même ligne, colonne ou boîte), cette cellule ne peut pas avoir le chiffre. Pourquoi? Parce que l'une de ces couleurs doit être vraie, et l'une ou l'autre éliminerait le chiffre de cette cellule. **Bouclage de couleur (Color Wrap)**: Si deux cellules de la MÊME couleur peuvent se voir, cette couleur est impossible! Elles ne peuvent pas toutes deux avoir le chiffre. Donc l'AUTRE couleur doit être entièrement vraie."
+      },
+      "step3": {
+        "title": "Faire l'élimination",
+        "description": "Sur la base de l'analyse de coloration: la ou les cellules à {{cells}} voient soit les deux couleurs (piège de couleur), soit font partie d'une couleur qui se contredit (bouclage de couleur). Supprimez le(s) candidat(s) de: {{cells}}."
+      }
+    },
+    "generic": {
+      "step1": {
+        "title": "{{technique}}",
+        "description": "Cette technique est appelée **{{technique}}**. Elle utilise la déduction logique pour prouver que certains candidats doivent être éliminés ou que certaines cellules doivent avoir des valeurs spécifiques. Le motif implique les cellules et les candidats mis en surbrillance."
+      },
+      "step2": {
+        "title": "Appliquer les éliminations",
+        "description": "Sur la base du motif, nous pouvons éliminer: Supprimer {{digits}} de {{cells}}."
+      },
+      "step3": {
+        "title": "Placer les valeurs",
+        "description": "La technique révèle ces solutions:\n\n{{solutions}}"
+      }
+    },
+    "unique_rectangle": {
+      "step1": {
+        "title": "Repérer le motif mortel",
+        "description": "Regardez ces quatre cellules formant un rectangle: {{cells}}. Elles s'étendent sur exactement deux lignes, deux colonnes et deux boîtes. Notez qu'elles contiennent toutes les candidats {{digits}}. Voici le problème: si ces quatre cellules n'avaient QUE {{digits}} comme candidats, vous pourriez échanger les chiffres entre les coins diagonaux et avoir toujours une solution valide! Cela signifie que le puzzle aurait DEUX solutions - ce qui n'est pas autorisé dans un vrai Sudoku. Ce motif interdit est appelé 'Motif Mortel' ou 'Rectangle Unique' (Unique Rectangle)."
+      },
+      "step3": {
+        "title": "Faire l'élimination"
+      }
+    },
+    "unique_rectangle_type1": {
+      "step1": {
+        "title": "Comprendre le Type {{type}}",
+        "description": "C'est le Type 1 - le cas le plus simple. Trois coins du rectangle n'ont que {{digits}}, mais {{extraCell}} a un candidat supplémentaire. Pensez-y: si {{extraCell}} n'était que {{digits}} comme les autres, nous aurions le motif mortel. Donc le candidat supplémentaire DOIT être la vraie valeur de cette cellule! Nous pouvons supprimer {{digits}} de {{extraCell}} en toute sécurité."
+      }
+    },
+    "unique_rectangle_type2": {
+      "step1": {
+        "title": "Comprendre le Type {{type}}",
+        "description": "C'est le Type 2 - deux coins partagent le même candidat supplémentaire ({{extraDigit}}). Ces deux cellules se trouvent sur des coins opposés du rectangle. Comme le motif mortel ne peut pas exister, au moins l'un de ces coins doit être {{extraDigit}}. Toute cellule capable de voir ces DEUX coins ne peut pas avoir {{extraDigit}}."
+      }
+    },
+    "unique_rectangle_type3": {
+      "step1": {
+        "title": "Comprendre le Type {{type}}",
+        "description": "C'est le Type 3 - deux coins ont des candidats supplémentaires qui forment un 'sous-ensemble nu' (naked subset) avec les cellules proches. Les candidats supplémentaires dans les coins de l'UR, combinés à d'autres cellules de la même maison, forcent certaines éliminations. Le motif mortel est évité car la logique de sous-ensemble garantit que l'UR ne sera pas complété."
+      }
+    },
+    "unique_rectangle_type4": {
+      "step1": {
+        "title": "Comprendre le Type {{type}}",
+        "description": "C'est le Type 4 - l'un des chiffres de l'UR ({{digits}}) est 'verrouillé' dans deux coins opposés. En raison d'un lien fort, un chiffre doit aller dans ces deux coins. Cela signifie que l'AUTRE chiffre ne peut pas être dans ces coins (sinon nous aurions le motif mortel). Supprimez le chiffre non verrouillé des coins verrouillés."
+      }
+    },
+    "unique_rectangle_type5": {
+      "step1": {
+        "title": "Comprendre le Type {{type}}",
+        "description": "C'est le Type 5 - un lien fort diagonal empêche le motif mortel. Deux coins opposés sont fortement liés sur un chiffre, ce qui signifie que l'un d'eux doit l'avoir. Cela brise la symétrie qui permettrait le motif mortel."
+      }
+    },
+    "unique_rectangle_type6": {
+      "step1": {
+        "title": "Comprendre le Type {{type}}",
+        "description": "C'est le Type 6 - les deux diagonales ont des liens forts sur le même chiffre. Ce double verrouillage sur un chiffre signifie qu'il doit apparaître dans exactement deux coins opposés, forçant l'autre chiffre hors de ces coins."
+      }
+    },
+    "unique_rectangle_generic": {
+      "step1": {
+        "title": "Briser le motif",
+        "description": "Pour éviter ce motif mortel, nous devons nous assurer qu'il ne pourra jamais se compléter. Quelque chose doit 'briser' le rectangle - soit un candidat supplémentaire qui doit être vrai, soit un lien fort qui force un chiffre dans des coins spécifiques."
+      }
+    },
+    "unique_rectangle_elim_type1": {
+      "step1": {
+        "description": "Supprimez {{digits}} de {{cells}}. Le candidat supplémentaire dans cette cellule doit être sa vraie valeur pour empêcher le motif mortel."
+      }
+    },
+    "unique_rectangle_elim_type2": {
+      "step1": {
+        "description": "Supprimez {{digits}} de {{cells}}. Ces cellules voient les deux coins de l'UR qui partagent le candidat supplémentaire."
+      }
+    },
+    "empty_rectangle": {
+      "step1": {
+        "title": "Trouver le Rectangle Vide (Empty Rectangle)",
+        "description": "Regardez la boîte {{box}}. Le candidat {{digit}} n'apparaît que dans un motif en 'L' ou 'plié' - il manque dans au moins une ligne ET une colonne de la boîte. Cela crée un 'Rectangle Vide' - la ligne et la colonne vides forment une croix à l'intérieur de la boîte, et tous les candidats {{digit}} se trouvent dans les coins de cette croix. Les cellules avec {{digit}} sont: {{cells}}."
+      },
+      "step2": {
+        "title": "Se connecter au lien fort",
+        "description": "Maintenant, regardez à l'extérieur de la boîte. Il y a un 'lien fort' (ligne pleine) sur {{digit}} à {{conjugateCells}}. Un lien fort signifie: si une extrémité est fausse, l'autre DOIT être vraie. Une extrémité de ce lien fort se connecte au rectangle vide par une ligne ou une colonne partagée. Cela crée une chaîne logique: si l'extrémité éloignée du lien fort est vraie, elle élimine {{digit}} du point d'intersection dans la boîte, ce qui force alors {{digit}} à une position différente dans l'ER."
+      },
+      "step3": {
+        "title": "Faire l'élimination",
+        "description": "Voici l'idée clé: la cellule d'élimination ({{cells}}) peut voir les deux extrémités de notre chaîne - elle voit une extrémité du lien fort ET elle voit où {{digit}} serait forcé dans le rectangle vide. Quelle que soit la direction prise par la logique, {{digit}} finira dans une cellule qui voit {{cells}}. Donc {{digit}} ne peut pas être dans {{cells}}. Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "x_wing": {
+      "step1": {
+        "title": "Identifier le motif X-Wing",
+        "description": "Dans {{baseNames}}, le chiffre {{digit}} apparaît dans exactement {{baseCount}} {{baseTypeText}}. Ces candidats s'alignent parfaitement dans {{coverNames}}. Comme {{digit}} doit être placé dans l'une de ces positions dans chaque {{baseTypeText}} de base, cela verrouille {{digit}} dans les {{baseTypeText}} mis en évidence."
+      },
+      "step2": {
+        "title": "Éliminer de la couverture {{coverTypeText}}",
+        "description": "Comme {{digit}} est verrouillé dans {{baseNames}} (mis en évidence dans le {{baseTypeText}} de base), tout autre candidat {{digit}} dans {{coverNames}} doit être faux. Éliminez {{digit}} des cellules de la couverture {{coverTypeText}} qui ne font pas partie du motif."
+      },
+      "step3": {
+        "title": "Supprimer le candidat {{digit}}",
+        "description": "Supprimez {{digit}} de: {{cells}}. Ces cellules voient le motif de poisson et ne peuvent pas contenir {{digit}}."
+      }
+    },
+    "swordfish": {
+      "step1": {
+        "title": "Identifier le motif Swordfish",
+        "description": "Dans {{baseNames}}, le chiffre {{digit}} apparaît dans exactement trois {{baseTypeText}}. Ces candidats s'alignent sur trois {{coverTypeText}}: {{coverNames}}. Le motif swordfish verrouille {{digit}} dans ces {{baseTypeText}} de base."
+      },
+      "step2": {
+        "title": "Éliminer de la couverture {{coverTypeText}}",
+        "description": "Comme {{digit}} est verrouillé dans {{baseNames}} (mis en évidence dans le {{baseTypeText}} de base), tout autre candidat {{digit}} dans {{coverNames}} doit être faux. Éliminez {{digit}} des cellules de la couverture {{coverTypeText}} qui ne font pas partie du motif."
+      },
+      "step3": {
+        "title": "Supprimer le candidat {{digit}}",
+        "description": "Supprimez {{digit}} de: {{cells}}. Ces cellules voient le motif de poisson et ne peuvent pas contenir {{digit}}."
+      }
+    },
+    "jellyfish": {
+      "step1": {
+        "title": "Identifier le motif Jellyfish",
+        "description": "Dans {{baseNames}}, le chiffre {{digit}} apparaît dans exactement quatre {{baseTypeText}}. Ces candidats s'alignent sur quatre {{coverTypeText}}: {{coverNames}}. Le motif jellyfish verrouille {{digit}} dans ces {{baseTypeText}} de base."
+      },
+      "step2": {
+        "title": "Éliminer de la couverture {{coverTypeText}}",
+        "description": "Comme {{digit}} est verrouillé dans {{baseNames}} (mis en évidence dans le {{baseTypeText}} de base), tout autre candidat {{digit}} dans {{coverNames}} doit être faux. Éliminez {{digit}} des cellules de la couverture {{coverTypeText}} qui ne font pas partie du motif."
+      },
+      "step3": {
+        "title": "Supprimer le candidat {{digit}}",
+        "description": "Supprimez {{digit}} de: {{cells}}. Ces cellules voient le motif de poisson et ne peuvent pas contenir {{digit}}."
+      }
+    },
+    "basic_fish": {
+      "step1": {
+        "title": "Identifier le motif",
+        "description": "Les candidats du chiffre {{digit}} s'alignent sur la base {{baseTypeText}} ({{baseNames}}) et la couverture {{coverTypeText}} ({{coverNames}}) pour former ce motif."
+      },
+      "step2": {
+        "title": "Éliminer de la couverture {{coverTypeText}}",
+        "description": "Comme {{digit}} est verrouillé dans {{baseNames}} (mis en évidence dans le {{baseTypeText}} de base), tout autre candidat {{digit}} dans {{coverNames}} doit être faux. Éliminez {{digit}} des cellules de la couverture {{coverTypeText}} qui ne font pas partie du motif."
+      },
+      "step3": {
+        "title": "Supprimer le candidat {{digit}}",
+        "description": "Supprimez {{digit}} de: {{cells}}. Ces cellules voient le motif de poisson et ne peuvent pas contenir {{digit}}."
+      }
+    },
+    "skyscraper": {
+      "step1": {
+        "title": "Trouver les deux liens forts",
+        "description": "Un Gratte-ciel (Skyscraper) est un motif avec deux **liens forts** sur le même chiffre. Regardez {{baseNamesText}}. Dans chacun de ces {{baseTypeText}}, le chiffre {{digit}} apparaît dans exactement DEUX cellules. C'est un lien fort - si une cellule n'a pas {{digit}}, l'autre DOIT l'avoir. Les deux liens forts sont connectés: une extrémité de chaque lien fort partage la même colonne (ou ligne). Les autres extrémités - le 'toit' du gratte-ciel (indiqué en jaune) - sont les cellules clés."
+      },
+      "step2": {
+        "title": "Suivre la logique",
+        "description": "Voici pourquoi le Gratte-ciel fonctionne: les extrémités connectées des deux liens forts sont dans la même colonne/ligne. Si {{digit}} n'est PAS dans l'une des cellules connectées, le lien fort le force à être dans le partenaire de cette cellule. Mais ce partenaire est la cellule du 'toit'! Donc quoi qu'il arrive: soit {{digit}} est dans une cellule de toit, soit il est dans l'autre cellule de toit (ou peut-être les deux). L'une des cellules du toit DOIT avoir {{digit}}."
+      },
+      "step3": {
+        "title": "Éliminer des cellules voyant les deux toits",
+        "description": "Toute cellule capable de voir les DEUX cellules de toit ne peut pas avoir {{digit}}. Pourquoi? Parce que l'une des cellules de toit doit avoir {{digit}}, ce qui éliminerait {{digit}} de toute cellule la voyant. Comme la cellule d'élimination voit les deux cellules de toit, elle sera toujours éliminée. Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "finned_fish": {
+      "step1": {
+        "title": "Trouver le motif à nageoire (Finned)",
+        "description": "C'est un **{{fishType}} à nageoire**. Commençons par le motif de base: regardez {{baseNames}}. Dans un {{fishType}} normal, le chiffre {{digit}} n'apparaîtrait que dans les cellules s'alignant sur {{coverNames}}. Mais ici, il y a une cellule supplémentaire (ou des cellules) qui ne correspond pas - c'est la 'nageoire'. La nageoire est à: {{finCells}} (indiquée en jaune)."
+      },
+      "step2": {
+        "title": "Comprendre l'effet de la nageoire",
+        "description": "La nageoire change ce que nous pouvons éliminer. Voici la logique: **Si la nageoire est VRAIE** (possède {{digit}}): le motif de poisson normal s'applique au reste, mais nous ne pouvons éliminer que des cellules qui voient AUSSI la nageoire. **Si la nageoire est FAUSSE**: alors {{digit}} doit être ailleurs dans le motif de poisson, et les éliminations de poisson normales s'appliqueraient. De toute façon, toute cellule voyant à la fois la nageoire ET le motif de poisson peut être éliminée! Cela signifie que les éliminations sont limitées à la boîte {{boxName}} (où se trouve la nageoire)."
+      },
+      "step3": {
+        "title": "Éliminer là où la nageoire et le poisson se rencontrent",
+        "description": "Les cellules capables de voir la nageoire ET se trouvant dans les lignes de couverture du poisson peuvent être éliminées. Ces cellules sont dans la boîte {{boxName}} (elles voient donc la nageoire) et également dans l'une des couvertures {{coverTypeText}} (le motif de poisson les affecte donc). Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "sashimi_fish": {
+      "step1": {
+        "title": "Trouver le motif à nageoire (Finned)",
+        "description": "C'est un **{{fishType}} à nageoire**. Commençons par le motif de base: regardez {{baseNames}}. Dans un {{fishType}} normal, le chiffre {{digit}} n'apparaîtrait que dans les cellules s'alignant sur {{coverNames}}. Mais ici, il y a une cellule supplémentaire (ou des cellules) qui ne correspond pas - c'est la 'nageoire Sashimi'. La nageoire est à: {{finCells}} (indiquée en jaune). Dans une variante Sashimi, le poisson serait incomplet sans la nageoire - la nageoire 'remplace' en fait une cellule de base manquante."
+      },
+      "step2": {
+        "title": "Comprendre l'effet de la nageoire",
+        "description": "La nageoire change ce que nous pouvons éliminer. Voici la logique: **Si la nageoire est VRAIE** (possède {{digit}}): le motif de poisson normal s'applique au reste, mais nous ne pouvons éliminer que des cellules qui voient AUSSI la nageoire. **Si la nageoire est FAUSSE**: alors {{digit}} doit être ailleurs dans le motif de poisson, et les éliminations de poisson normales s'appliqueraient. De toute façon, toute cellule voyant à la fois la nageoire ET le motif de poisson peut être éliminée! Cela signifie que les éliminations sont limitées à la boîte {{boxName}} (où se trouve la nageoire)."
+      },
+      "step3": {
+        "title": "Éliminer là où la nageoire et le poisson se rencontrent",
+        "description": "Les cellules capables de voir la nageoire ET se trouvant dans les lignes de couverture du poisson peuvent être éliminées. Ces cellules sont dans la boîte {{boxName}} (elles voient donc la nageoire) et également dans l'une des couvertures {{coverTypeText}} (le motif de poisson les affecte donc). Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "xy_wing": {
+      "step1": {
+        "title": "Trouver le motif {{wingType}}",
+        "description": "Regardez la cellule jaune à {{pivotName}} - elle est appelée la 'charnière' (pivot) et possède exactement deux candidats. Maintenant, regardez les deux cellules vertes à {{pincerNamesText}} - ce sont les 'pinces' (pincers). Chaque pince partage un candidat avec la charnière, mais elles ont toutes deux {{targetDigitText}} en commun. Voici la clé: quel que soit le candidat placé dans la charnière, l'une des pinces DOIT finir avec {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Comprendre pourquoi ça fonctionne",
+        "description": "Comme une pince DOIT avoir {{targetDigitText}}, toute cellule capable de voir les DEUX pinces ne peut pas avoir {{targetDigitText}}. Elle serait en conflit avec la pince qui finit par avoir ce chiffre. La ligne pleine montre qu'une pince doit être vraie pour {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Supprimer {{digit}} des cellules qui voient le motif",
+        "description": "La ou les cellules à {{cells}} peuvent voir les deux pinces (ou toutes les cellules de l'aile), donc {{digit}} ne peut pas y aller. Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "xyz_wing": {
+      "step1": {
+        "title": "Trouver le motif {{wingType}}",
+        "description": "Regardez la cellule jaune à {{pivotName}} - elle a trois candidats: {{wingDigitText}}. Les deux cellules vertes à {{pincerNamesText}} partagent chacune deux de ces candidats avec la charnière. Le chiffre {{targetDigitText}} apparaît dans les TROIS cellules. Comme chaque résultat force {{targetDigitText}} dans l'une de ces cellules, toute cellule voyant les trois ne peut pas avoir {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Comprendre pourquoi ça fonctionne",
+        "description": "Les trois cellules forment un 'groupe fermé' pour {{targetDigitText}}. Quoi qu'il arrive, {{targetDigitText}} finira dans l'une d'elles. Toute cellule voyant les trois est empêchée d'avoir {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Supprimer {{digit}} des cellules qui voient le motif",
+        "description": "La ou les cellules à {{cells}} peuvent voir les deux pinces (ou toutes les cellules de l'aile), donc {{digit}} ne peut pas y aller. Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "wxyz_wing": {
+      "step1": {
+        "title": "Trouver le motif {{wingType}}",
+        "description": "Ce motif utilise quatre cellules qui contiennent ensemble quatre candidats différents. Le chiffre {{targetDigitText}} est spécial - il apparaît d'une manière qui garantit que l'une de ces cellules l'aura. Pensez-y comme au jeu de la chaise musicale: {{targetDigitText}} doit s'asseoir quelque part dans ce groupe."
+      },
+      "step2": {
+        "title": "Comprendre pourquoi ça fonctionne",
+        "description": "Les quatre cellules 'verrouillent' {{targetDigitText}} au sein de leur groupe. Toute cellule extérieure voyant les quatre doit renoncer à {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Supprimer {{digit}} des cellules qui voient le motif",
+        "description": "La ou les cellules à {{cells}} peuvent voir les deux pinces (ou toutes les cellules de l'aile), donc {{digit}} ne peut pas y aller. Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "w_wing": {
+      "step1": {
+        "title": "Trouver le motif {{wingType}}",
+        "description": "Regardez les deux cellules vertes à {{pincerNamesText}}. Elles ont toutes deux les deux mêmes candidats. Ces cellules sont reliées par un 'lien fort' (indiqué par une ligne pleine) sur l'un de ces chiffres. Cela signifie: si le chiffre de liaison est supprimé d'une cellule, l'autre cellule DOIT l'avoir. Quoi qu'il en soit, l'une de ces cellules aura {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Comprendre pourquoi ça fonctionne",
+        "description": "Comme les deux cellules sont reliées par un lien fort, leur 'autre' candidat ({{targetDigitText}}) est restreint. Toute cellule voyant les deux cellules vertes serait en conflit avec celle qui finit par avoir {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Supprimer {{digit}} des cellules qui voient le motif",
+        "description": "La ou les cellules à {{cells}} peuvent voir les deux pinces (ou toutes les cellules de l'aile), donc {{digit}} ne peut pas y aller. Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "generic_wing": {
+      "step1": {
+        "title": "Trouver le motif {{wingType}}",
+        "description": "Ce motif {{wingType}} relie les cellules d'une manière qui force {{targetDigitText}} à apparaître à des endroits spécifiques."
+      },
+      "step2": {
+        "title": "Comprendre pourquoi ça fonctionne",
+        "description": "Le motif garantit que {{targetDigitText}} apparaît dans l'une des cellules mises en évidence, le bloquant ailleurs."
+      },
+      "step3": {
+        "title": "Supprimer {{digit}} des cellules qui voient le motif",
+        "description": "La ou les cellules à {{cells}} peuvent voir les deux pinces (ou toutes les cellules de l'aile), donc {{digit}} ne peut pas y aller. Supprimez {{digit}} de: {{cells}}."
+      }
+    },
+    "kite": {
+      "step1": {
+        "title": "Trouver le motif cerf-volant (Kite)",
+        "description": "Regardez les deux candidats verts {{digit}} à {{kiteNames}}. Ce sont les extrémités du cerf-volant. Ils sont reliés par {{coverNames}}, qui contient deux autres candidats {{digit}} (indiqués en jaune). Pensez-y ainsi: l'une des cellules vertes DOIT avoir {{digit}}, mais elles ne peuvent pas l'avoir TOUTES LES DEUX."
+      },
+      "step2": {
+        "title": "Suivre la chaîne",
+        "description": "Le cerf-volant forme une chaîne: {{chain}}. Les lignes pleines indiquent des liens forts, et la ligne pointillée indique un lien faible. Quelle que soit la cellule verte possédant {{digit}}, le lien faible garantit qu'au moins l'une des cellules jaunes de la boîte l'aura. Toute cellule voyant les DEUX cellules vertes à {{kiteNames}} ne peut pas avoir {{digit}}."
+      },
+      "step3": {
+        "title": "Faire l'élimination",
+        "description": "Comme {{cells}} voit les deux cellules vertes, nous savons que {{digit}} ne peut pas y aller. Éliminez {{digit}} de: {{cells}}."
+      }
     }
   }
 }

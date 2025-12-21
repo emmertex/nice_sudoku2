@@ -310,9 +310,25 @@
       "adv": "অ্যাডভান্স"
     },
     "hints": {
-      "overview": "সংক্ষিপ্ত বিবরণ",
+      "title": "ইঙ্গিত",
+      "noHints": "এই মুহূর্তে কোনো নতুন ইঙ্গিত পাওয়া যায়নি।",
+      "loading": "ইঙ্গিত লোড হচ্ছে...",
+      "error": "ইঙ্গিত লোড করতে ত্রুটি।",
+      "apply": "প্রয়োগ করুন",
+      "details": "বিস্তারিত",
+      "step": "ধাপ {{step}}",
+      "of": "এর",
+      "type": "ধরণ:",
+      "difficulty": "কঠিনতা:",
+      "explanation": "ব্যাখ্যা:",
+      "candidatesRemoved": "সরানো প্রার্থীসমূহ:",
+      "candidatesSet": "সেট করা প্রার্থীসমূহ:",
+      "cellsAffected": "প্রভাবিত সেলসমূহ:",
+      "noEliminations": "কোনো নির্মূল নেই",
+      "description": "বর্ণনা",
       "eliminations": "নির্মূল",
       "solution": "সমাধান",
+      "overview": "সংক্ষিপ্ত বিবরণ",
       "remove": "সরান",
       "from": "থেকে"
     }

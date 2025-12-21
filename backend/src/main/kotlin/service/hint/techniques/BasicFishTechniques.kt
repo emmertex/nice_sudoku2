@@ -2,6 +2,8 @@ package service.hint.techniques
 
 import sudoku.match.FishMatch
 import service.hint.helpers.*
+import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.formatCellName
 import sudoku.match.TechniqueMatch
 import sudoku.HelpingTools.cardinals
 import sudoku.DataStorage.BasicGrid
@@ -252,26 +254,12 @@ import dto.*
             }
         }.joinToString(" and ")
 
-        // Step 1: Identify the pattern
-        val patternDescription = when {
-            techniqueName.contains("X-Wing", ignoreCase = true) ->
-                "In $baseNames, digit $digit appears in exactly ${baseIndices.size} $baseTypeText. " +
-                "These candidates line up perfectly in $coverNames. " +
-                "Because $digit must be placed in one of these positions in each base $baseTypeText, " +
-                "it locks $digit into the highlighted $baseTypeText."
-
-            techniqueName.contains("Swordfish", ignoreCase = true) ->
-                "In $baseNames, digit $digit appears in exactly three $baseTypeText. " +
-                "These candidates align across three $coverTypeText: $coverNames. " +
-                "The swordfish pattern locks $digit into these base $baseTypeText."
-
-            techniqueName.contains("Jellyfish", ignoreCase = true) ->
-                "In $baseNames, digit $digit appears in exactly four $baseTypeText. " +
-                "These candidates align across four $coverTypeText: $coverNames. " +
-                "The jellyfish pattern locks $digit into these base $baseTypeText."
-
-            else ->
-                "Digit $digit candidates align on base $baseTypeText ($baseNames) and cover $coverTypeText ($coverNames) to form a $techniqueName pattern."
+        // Determine the fish technique key based on pattern name
+        val fishKey = when {
+            techniqueName.contains("X-Wing", ignoreCase = true) -> "x_wing"
+            techniqueName.contains("Swordfish", ignoreCase = true) -> "swordfish"
+            techniqueName.contains("Jellyfish", ignoreCase = true) -> "jellyfish"
+            else -> "basic_fish"
         }
 
         // Coloured cells for the intersection points (yellow border)
@@ -280,8 +268,15 @@ import dto.*
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Identify the $techniqueName pattern",
-                description = patternDescription,
+                title = hintKey(fishKey, 1, "title"),
+                description = hintKey(fishKey, 1, "description",
+                    "baseNames" to baseNames,
+                    "digit" to digit.toString(),
+                    "baseCount" to baseIndices.size.toString(),
+                    "baseTypeText" to baseTypeText,
+                    "coverNames" to coverNames,
+                    "coverTypeText" to coverTypeText
+                ),
                 highlightCells = patternCells,
                 regions = baseRegions,
                 colouredCells = intersectionColouredCells,
@@ -291,16 +286,19 @@ import dto.*
 
         // Step 2: Explain why eliminations work
         if (eliminations.isNotEmpty()) {
-            val eliminationExplanation =
-                "Since $digit is locked in $baseNames (highlighted in the base $baseTypeText), " +
-                "any other $digit candidates in $coverNames must be false. " +
-                "Eliminate $digit from cells in the cover $coverTypeText that aren't part of the pattern."
-
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Eliminate from cover $coverTypeText",
-                    description = eliminationExplanation,
+                    title = hintKey(fishKey, 2, "title",
+                        "coverTypeText" to coverTypeText
+                    ),
+                    description = hintKey(fishKey, 2, "description",
+                        "digit" to digit.toString(),
+                        "baseNames" to baseNames,
+                        "baseTypeText" to baseTypeText,
+                        "coverNames" to coverNames,
+                        "coverTypeText" to coverTypeText
+                    ),
                     highlightCells = eliminationCells,
                     regions = coverRegions,
                     colouredCandidates = patternCandidates + eliminationCandidates
@@ -314,8 +312,13 @@ import dto.*
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 3,
-                    title = "Remove candidate $digit",
-                    description = "Remove $digit from: $eliminationNames. These cells see the fish pattern and cannot contain $digit.",
+                    title = hintKey(fishKey, 3, "title",
+                        "digit" to digit.toString()
+                    ),
+                    description = hintKey(fishKey, 3, "description",
+                        "digit" to digit.toString(),
+                        "cells" to eliminationNames
+                    ),
                     highlightCells = eliminationCells,
                     regions = allRegions,
                     colouredCells = intersectionColouredCells + eliminationColouredCells,
@@ -443,35 +446,26 @@ import dto.*
             }
         }
 
-        // Step 1: Explain Skyscraper concept (ELI5)
-        val step1Description = "A Skyscraper is a pattern with two **strong links** on the same digit. " +
-            "\n\nLook at $baseNamesText. In each of these $baseTypeText, digit $digit appears in exactly TWO cells. " +
-            "That's a strong link - if one cell doesn't have $digit, the other MUST have it. " +
-            "\n\nThe two strong links are connected: one end of each strong link shares the same column (or row). " +
-            "The other ends - the 'roof' of the skyscraper (shown in yellow) - are the key cells."
-
         steps.add(ExplanationStepDto(
             stepNumber = 1,
-            title = "Find the Two Strong Links",
-            description = step1Description,
+            title = hintKey("skyscraper", 1, "title"),
+            description = hintKey("skyscraper", 1, "description",
+                "baseNamesText" to baseNamesText,
+                "baseTypeText" to baseTypeText,
+                "digit" to digit.toString()
+            ),
             highlightCells = patternCells,
             colouredCells = endpointColouredCells,
             colouredCandidates = patternCandidates,
             lines = skyscraperLines
         ))
 
-        // Step 2: Explain the logic
-        val step2Description = "Here's why the Skyscraper works: " +
-            "\n\nThe connected ends of the two strong links are in the same column/row. " +
-            "If $digit is NOT in one of the connected cells, the strong link forces it to be in that cell's partner. " +
-            "But that partner is the 'roof' cell! " +
-            "\n\nSo no matter what: either $digit is in one roof cell, or it's in the other roof cell " +
-            "(or possibly both). One of the roof cells MUST have $digit."
-
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = "Follow the Logic",
-            description = step2Description,
+            title = hintKey("skyscraper", 2, "title"),
+            description = hintKey("skyscraper", 2, "description",
+                "digit" to digit.toString()
+            ),
             highlightCells = actualEndpoints,
             colouredCells = endpointColouredCells,
             colouredCandidates = patternCandidates,
@@ -481,16 +475,14 @@ import dto.*
         // Step 3: Make eliminations
         if (eliminations.isNotEmpty()) {
             val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
-            
-            val step3Description = "Any cell that can see BOTH roof cells cannot have $digit. " +
-                "\n\nWhy? Because one of the roof cells must have $digit, and that would eliminate $digit from any cell seeing it. " +
-                "Since the elimination cell sees both roof cells, it will always be eliminated. " +
-                "\n\nRemove $digit from: $eliminationNames."
 
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
-                title = "Eliminate from Cells Seeing Both Roofs",
-                description = step3Description,
+                title = hintKey("skyscraper", 3, "title"),
+                description = hintKey("skyscraper", 3, "description",
+                    "digit" to digit.toString(),
+                    "cells" to eliminationNames
+                ),
                 highlightCells = eliminationCells,
                 colouredCells = endpointColouredCells + eliminationCells.map { ColouredCellDto(it, "warning") },
                 colouredCandidates = patternCandidates + eliminationCandidates(eliminations),
@@ -599,38 +591,35 @@ import dto.*
         val finCellNames = finCellsList.map { formatCellName(it) }.joinToString(", ")
         val finDescription = if (isSashimi) "Sashimi fin" else "fin"
 
-        // Step 1: Explain the base fish pattern
-        val step1Description = "This is a **Finned $fishType**. Let's start with the basic pattern: " +
-            "\n\nLook at $baseNames. In a normal $fishType, digit $digit would appear only in cells that align " +
-            "with $coverNames. But here, there's an extra cell (or cells) that doesn't fit - that's the '$finDescription'. " +
-            "\n\nThe fin is at: $finCellNames (shown in yellow). " +
-            if (isSashimi) "\n\nIn a Sashimi variant, the fish would be incomplete without the fin - " +
-                "the fin is actually 'filling in' for a missing base cell." else ""
+        val finnedKey = if (isSashimi) "sashimi_fish" else "finned_fish"
 
         steps.add(ExplanationStepDto(
             stepNumber = 1,
-            title = "Find the Finned Pattern",
-            description = step1Description,
+            title = hintKey(finnedKey, 1, "title",
+                "fishType" to fishType
+            ),
+            description = hintKey(finnedKey, 1, "description",
+                "fishType" to fishType,
+                "baseNames" to baseNames,
+                "digit" to digit.toString(),
+                "coverNames" to coverNames,
+                "finCells" to finCellNames,
+                "isSashimi" to isSashimi.toString()
+            ),
             highlightCells = patternCells + finCellsList,
             colouredCells = finColouredCells,
             colouredCandidates = patternCandidates + finCandidates
         ))
 
-        // Step 2: Explain how the fin affects eliminations
         val boxName = if (finBox >= 0) "Box ${finBox + 1}" else "the fin's box"
-        
-        val step2Description = "The fin changes what we can eliminate. Here's the logic: " +
-            "\n\n**If the fin is TRUE** (has $digit): The normal fish pattern applies to the rest, " +
-            "but we can only eliminate from cells that ALSO see the fin. " +
-            "\n\n**If the fin is FALSE**: Then $digit must be somewhere else in the fish pattern, " +
-            "and the normal fish eliminations would apply. " +
-            "\n\nEither way, any cell that sees both the fin AND the fish pattern can be eliminated! " +
-            "This means eliminations are restricted to $boxName (where the fin is)."
 
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = "Understand the Fin's Effect",
-            description = step2Description,
+            title = hintKey(finnedKey, 2, "title"),
+            description = hintKey(finnedKey, 2, "description",
+                "digit" to digit.toString(),
+                "boxName" to boxName
+            ),
             highlightCells = finCellsList,
             colouredCells = finColouredCells,
             colouredCandidates = patternCandidates + finCandidates,
@@ -640,16 +629,16 @@ import dto.*
         // Step 3: Make eliminations
         if (eliminations.isNotEmpty()) {
             val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
-            
-            val step3Description = "Cells that can see the fin AND are in the fish's cover lines can be eliminated. " +
-                "\n\nThese cells are in $boxName (so they see the fin) and also in one of the cover $coverTypeText " +
-                "(so the fish pattern affects them). " +
-                "\n\nRemove $digit from: $eliminationNames."
 
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
-                title = "Eliminate Where Fin and Fish Meet",
-                description = step3Description,
+                title = hintKey(finnedKey, 3, "title"),
+                description = hintKey(finnedKey, 3, "description",
+                    "boxName" to boxName,
+                    "coverTypeText" to coverTypeText,
+                    "digit" to digit.toString(),
+                    "cells" to eliminationNames
+                ),
                 highlightCells = eliminationCells,
                 colouredCells = finColouredCells + eliminationCells.map { ColouredCellDto(it, "warning") },
                 colouredCandidates = patternCandidates + finCandidates + eliminationCandidates(eliminations),

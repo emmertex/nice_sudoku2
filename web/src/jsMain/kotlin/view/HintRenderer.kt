@@ -8,6 +8,7 @@ import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLElement
+import i18n.HintStringInterpolation
 
 internal fun TagConsumer<HTMLElement>.renderLandscapeHintSidebar(app: SudokuApp,
     hints: List<TechniqueMatchInfo>,
@@ -229,7 +230,8 @@ internal fun TagConsumer<HTMLElement>.renderInlineExplanationCompact(app: Sudoku
             } else {
                 div("inline-step") {
                     div("step-description") {
-                        renderInteractiveDescription(app, hint.description, hint)
+                        val interpolatedDesc = HintStringInterpolation.interpolate(hint.description)
+                        renderInteractiveDescription(app, interpolatedDesc, hint)
                     }
                 }
             }
@@ -265,7 +267,8 @@ internal fun TagConsumer<HTMLElement>.renderExplanationView(app: SudokuApp, hint
         // Technique info
         div("explanation-technique-info") {
             div("explanation-technique-name") { +hint.techniqueName }
-            div("explanation-technique-desc") { +hint.description }
+            val interpolatedDesc = HintStringInterpolation.interpolate(hint.description)
+            div("explanation-technique-desc") { +interpolatedDesc }
         }
 
         // Eureka notation if available (for chains)
@@ -282,14 +285,17 @@ internal fun TagConsumer<HTMLElement>.renderExplanationView(app: SudokuApp, hint
             if (currentStep != null) {
                 div("step-header") {
                     span("step-number") { +"Step ${currentStep.stepNumber}" }
-                    span("step-title") { +currentStep.title }
+                    val interpolatedTitle = HintStringInterpolation.interpolate(currentStep.title)
+                    span("step-title") { +interpolatedTitle }
                 }
                 div("step-description") {
-                    renderInteractiveDescription(app, currentStep.description, hint)
+                    val interpolatedDesc = HintStringInterpolation.interpolate(currentStep.description)
+                    renderInteractiveDescription(app, interpolatedDesc, hint)
                 }
             } else {
                 div("step-description") {
-                    renderInteractiveDescription(app, hint.description, hint)
+                    val interpolatedDesc = HintStringInterpolation.interpolate(hint.description)
+                    renderInteractiveDescription(app, interpolatedDesc, hint)
                 }
             }
         }
@@ -372,17 +378,20 @@ internal fun TagConsumer<HTMLElement>.renderInlineExplanation(app: SudokuApp, hi
             div("inline-step") {
                 div("step-header") {
                     span("step-number") { +"Step ${currentStep.stepNumber}" }
-                    span("step-title") { +currentStep.title }
+                    val interpolatedTitle = HintStringInterpolation.interpolate(currentStep.title)
+                    span("step-title") { +interpolatedTitle }
                 }
                 div("step-description") {
-                    renderInteractiveDescription(app, currentStep.description, hint)
+                    val interpolatedDesc = HintStringInterpolation.interpolate(currentStep.description)
+                    renderInteractiveDescription(app, interpolatedDesc, hint)
                 }
             }
         } else {
             // Fallback if no steps at all
             div("inline-step") {
                 div("step-description") {
-                    renderInteractiveDescription(app, hint.description, hint)
+                    val interpolatedDesc = HintStringInterpolation.interpolate(hint.description)
+                    renderInteractiveDescription(app, interpolatedDesc, hint)
                 }
             }
         }
@@ -425,7 +434,7 @@ internal fun SudokuApp.generateFallbackExplanationSteps(hint: TechniqueMatchInfo
     // Step 1: Overview
     steps.add(ExplanationStepDto(
         stepNumber = 1,
-        title = "Overview",
+        title = "{{hints.common.overview}}",
         description = hint.description,
         highlightCells = hint.highlightCells
     ))
@@ -433,12 +442,12 @@ internal fun SudokuApp.generateFallbackExplanationSteps(hint: TechniqueMatchInfo
     // Step 2: Eliminations (if any)
     if (hint.eliminations.isNotEmpty()) {
         val elimDesc = hint.eliminations.joinToString("; ") { elim ->
-            val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }
-            "Remove ${elim.digit} from ${cells.joinToString(", ")}"
+            val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+            "{{hints.common.remove|digit=${elim.digit}|cells=$cells}}"
         }
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = "Eliminations",
+            title = "{{hints.common.eliminations}}",
             description = elimDesc,
             highlightCells = hint.eliminations.flatMap { it.cells }
         ))
@@ -447,11 +456,12 @@ internal fun SudokuApp.generateFallbackExplanationSteps(hint: TechniqueMatchInfo
     // Step 3: Solutions (if any)
     if (hint.solvedCells.isNotEmpty()) {
         val solvedDesc = hint.solvedCells.joinToString("; ") { solved ->
-            "R${solved.cell/9 + 1}C${solved.cell%9 + 1} = ${solved.digit}"
+            val cell = "R${solved.cell/9 + 1}C${solved.cell%9 + 1}"
+            "{{hints.common.place|digit=${solved.digit}|cell=$cell}}"
         }
         steps.add(ExplanationStepDto(
             stepNumber = steps.size + 1,
-            title = "Solution",
+            title = "{{hints.common.solution}}",
             description = solvedDesc,
             highlightCells = hint.solvedCells.map { it.cell }
         ))

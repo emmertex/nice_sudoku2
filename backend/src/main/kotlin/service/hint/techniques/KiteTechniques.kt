@@ -2,6 +2,8 @@ package service.hint.techniques
 
 import sudoku.match.FishMatch
 import service.hint.helpers.*
+import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.formatCellName
 import sudoku.match.TechniqueMatch
 import sudoku.HelpingTools.cardinals
 import sudoku.DataStorage.BasicGrid
@@ -525,11 +527,12 @@ import dto.*
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Find the kite pattern",
-                description = "Look at the two green $digit candidates at $kiteNamesText. " +
-                    "These are the endpoints of the kite. They're connected through $coverNamesText, " +
-                    "which contains two more $digit candidates (shown in yellow). " +
-                    "Think of it like this: one of the green cells MUST have $digit, but they can't BOTH have it.",
+                title = hintKey("kite", 1, "title"),
+                description = hintKey("kite", 1, "description",
+                    "digit" to digit.toString(),
+                    "kiteNames" to kiteNamesText,
+                    "coverNames" to coverNamesText
+                ),
                 highlightCells = kiteCells,
                 regions = allRegions,  // Only show box
                 colouredCells = kiteColouredCells,
@@ -633,13 +636,12 @@ import dto.*
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Follow the chain",
-                    description = "The kite forms a chain: $chainDescription. " +
-                    "The solid lines indicate strong links, " +
-                    "and the dashed line indacates a weak link. " +
-                    "No matter which green cell has $digit, " +
-                    "the weak link ensures that at least one of the yellow cells in the box will have it. " +
-                    "Any cell that can see BOTH green cells at $kiteNamesText cannot have $digit.",
+                    title = hintKey("kite", 2, "title"),
+                    description = hintKey("kite", 2, "description",
+                        "chain" to chainDescription,
+                        "digit" to digit.toString(),
+                        "kiteNames" to kiteNamesText
+                    ),
                     highlightCells = kiteCells + eliminationCells,
                     regions = allRegions,
                     colouredCells = kiteColouredCells,
@@ -662,9 +664,11 @@ import dto.*
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 3,
-                    title = "Make the elimination",
-                    description = "Since $eliminationNames can see both green cells, " +
-                        "we know $digit cannot go there. Eliminate $digit from: $eliminationNames.",
+                    title = hintKey("kite", 3, "title"),
+                    description = hintKey("kite", 3, "description",
+                        "cells" to eliminationNames,
+                        "digit" to digit.toString()
+                    ),
                     highlightCells = eliminationCells,
                     regions = eliminationRegions,
                     colouredCells = kiteColouredCells + eliminationCells.map { ColouredCellDto(it, "warning") },

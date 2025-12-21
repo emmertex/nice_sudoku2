@@ -1,6 +1,8 @@
 package service.hint.explanations
 
 import service.hint.helpers.*
+import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.commonKey
 import sudoku.match.TechniqueMatch
 import sudoku.match.AICMatch
 import dto.*
@@ -34,18 +36,14 @@ import dto.*
                 cellNames.joinToString(", ")
             }
 
-            // Step 1: Explain what an X-Cycle is (ELI5)
-            val step1Description = "An X-Cycle is a chain of cells that loops back to where it started. " +
-                "This cycle has $cycleSize nodes involving digit $digit at cells: $cellNamesText. " +
-                "\n\nThe key is that the chain alternates between 'strong links' (solid lines) and 'weak links' (dashed lines). " +
-                "Strong link = if one is false, the other must be true. " +
-                "Weak link = both cannot be true at the same time. " +
-                "\n\nBecause the chain forms a complete loop, certain candidates MUST be eliminated to avoid a contradiction."
-
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
-                title = "Find the X-Cycle",
-                description = step1Description,
+                title = hintKey("x_cycle", 1, "title"),
+                description = hintKey("x_cycle", 1, "description",
+                    "cycleSize" to cycleSize.toString(),
+                    "digit" to digit.toString(),
+                    "cells" to cellNamesText
+                ),
                 highlightCells = cycleCells,
                 lines = lines,
                 groups = groups,
@@ -57,23 +55,13 @@ import dto.*
 
             // Step 2: Explain the cycle logic
             val isNiceLoop = cycleSize % 2 == 0
-            val step2Description = if (isNiceLoop) {
-                "This is a 'Nice Loop' (even number of nodes). " +
-                "In a nice loop, we can color the nodes alternately - let's call them 'Green' and 'Yellow'. " +
-                "All green nodes would have $digit, OR all yellow nodes would have $digit. " +
-                "\n\nAny cell that can see BOTH a green and a yellow node cannot have $digit - " +
-                "no matter which color is true, that cell would conflict with it."
-            } else {
-                "This is a 'Discontinuous Loop' (odd number of nodes). " +
-                "With an odd cycle, something must 'break' - we find a contradiction. " +
-                "\n\nFollowing the chain logic, we can prove certain candidates must be eliminated " +
-                "because keeping them would create an impossible situation."
-            }
-
+            
             steps.add(ExplanationStepDto(
                 stepNumber = 2,
-                title = "Understand the Cycle Logic",
-                description = step2Description,
+                title = hintKey("x_cycle", 2, "title"),
+                description = hintKey(if (isNiceLoop) "x_cycle_nice_loop" else "x_cycle_discontinuous", 1, "description",
+                    "digit" to digit.toString()
+                ),
                 highlightCells = cycleCells,
                 lines = lines,
                 groups = groups,
@@ -87,15 +75,14 @@ import dto.*
             if (eliminations.isNotEmpty()) {
                 val eliminationCells = eliminations.flatMap { it.cells }.distinct()
                 val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
-                
-                val step3Description = "The cell(s) at $eliminationNames can see nodes of both 'colors' in the cycle. " +
-                    "Since one color must be true, these cells would always conflict. " +
-                    "\n\nRemove $digit from: $eliminationNames."
 
                 steps.add(ExplanationStepDto(
                     stepNumber = 3,
-                    title = "Eliminate from Cells Seeing Both Colors",
-                    description = step3Description,
+                    title = hintKey("x_cycle", 3, "title"),
+                    description = hintKey("x_cycle", 3, "description",
+                        "cells" to eliminationNames,
+                        "digit" to digit.toString()
+                    ),
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations) + groups.flatMap { g ->
                         val type = if (g.colourIndex % 2 == 0) "target" else "highlight"
@@ -176,30 +163,14 @@ import dto.*
                 }
             }
 
-            // Step 1: Explain what Colouring is (ELI5)
-            val step1Title = if (is3DMedusa) "Understand 3D Medusa Colouring" else "Understand Simple Colouring"
-            val step1Description = if (is3DMedusa) {
-                "3D Medusa extends colouring to multiple digits. Here's the idea: " +
-                "\n\nStart with any candidate and call it 'Green'. Every candidate connected by a strong link " +
-                "gets the opposite color ('Yellow'). Strong links exist when: " +
-                "\n• A digit appears only twice in a row, column, or box " +
-                "\n• A cell has only two candidates (bivalue cell) " +
-                "\n\nWe color ${greenCells.size} cells Green and ${yellowCells.size} cells Yellow. " +
-                "One entire color group is TRUE, the other is FALSE - we just don't know which yet."
-            } else {
-                "Simple Colouring works on a single digit ($digit). Here's the idea: " +
-                "\n\nFind all the 'strong links' for digit $digit. A strong link exists when $digit appears " +
-                "in exactly two cells of a row, column, or box - if one is false, the other must be true. " +
-                "\n\nNow color these cells alternately - start with 'Green', connected cells become 'Yellow', " +
-                "their connections become 'Green' again, and so on. " +
-                "\n\nWe have ${greenCells.size} Green cells and ${yellowCells.size} Yellow cells. " +
-                "Either ALL green cells have $digit, OR ALL yellow cells have $digit."
-            }
-
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
-                title = step1Title,
-                description = step1Description,
+                title = hintKey(if (is3DMedusa) "3d_medusa" else "simple_coloring", 1, "title"),
+                description = hintKey(if (is3DMedusa) "3d_medusa" else "simple_coloring", 1, "description",
+                    "digit" to digit.toString(),
+                    "greenCount" to greenCells.size.toString(),
+                    "yellowCount" to yellowCells.size.toString()
+                ),
                 highlightCells = colouringCells,
                 lines = lines,
                 groups = groups,
@@ -209,18 +180,10 @@ import dto.*
                 }
             ))
 
-            // Step 2: Explain elimination rules
-            val step2Description = "Now we look for contradictions or 'traps': " +
-                "\n\n**Color Trap**: If an uncolored cell can see both a Green and a Yellow cell " +
-                "(in the same row, column, or box), that cell cannot have the digit. " +
-                "Why? Because one of those colors must be true, and either would eliminate the digit from that cell. " +
-                "\n\n**Color Wrap**: If two cells of the SAME color can see each other, that color is impossible! " +
-                "They can't both have the digit. So the OTHER color must be entirely true."
-
             steps.add(ExplanationStepDto(
                 stepNumber = 2,
-                title = "Find Color Traps and Wraps",
-                description = step2Description,
+                title = hintKey("coloring", 2, "title"),
+                description = hintKey("coloring", 2, "description"),
                 highlightCells = colouringCells,
                 lines = lines,
                 groups = groups,
@@ -234,17 +197,13 @@ import dto.*
             if (eliminations.isNotEmpty()) {
                 val eliminationCells = eliminations.flatMap { it.cells }.distinct()
                 val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
-                
-                // Try to determine if this is a trap or wrap
-                val step3Description = "Based on the coloring analysis: " +
-                    "\n\nThe cell(s) at $eliminationNames either see both colors (Color Trap) " +
-                    "or are part of a color that contradicts itself (Color Wrap). " +
-                    "\n\nRemove the candidate(s) from: $eliminationNames."
 
                 steps.add(ExplanationStepDto(
                     stepNumber = 3,
-                    title = "Make the Elimination",
-                    description = step3Description,
+                    title = hintKey("coloring", 3, "title"),
+                    description = hintKey("coloring", 3, "description",
+                        "cells" to eliminationNames
+                    ),
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations) + groups.flatMap { g ->
                         val type = if (g.colourIndex % 2 == 0) "target" else "highlight"

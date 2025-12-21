@@ -2,6 +2,8 @@ package service.hint.techniques
 
 import sudoku.match.FishMatch
 import service.hint.helpers.*
+import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.formatCellName
 import sudoku.match.TechniqueMatch
 import dto.*
 
@@ -260,35 +262,27 @@ import dto.*
         val wingDigitText = if (wingDigits.isNotEmpty()) wingDigits.joinToString(", ") else "the wing digits"
         val targetDigitText = targetDigit?.toString() ?: "the shared digit"
 
-        // Step 1: Find the pattern (ELI5 style)
-        val step1Description = when (wingType) {
-            "XY-Wing" -> "Look at the yellow cell at $pivotName - it's called the 'hinge' and has exactly two candidates. " +
-                "Now look at the two green cells at $pincerNamesText - these are the 'pincers'. " +
-                "Each pincer shares one candidate with the hinge, but they both have $targetDigitText in common. " +
-                "Here's the key: no matter which candidate goes in the hinge, one of the pincers MUST end up with $targetDigitText."
-            
-            "XYZ-Wing" -> "Look at the yellow cell at $pivotName - it has three candidates: $wingDigitText. " +
-                "The two green cells at $pincerNamesText each share two of those candidates with the hinge. " +
-                "The digit $targetDigitText appears in ALL three cells. Since every outcome forces $targetDigitText into one of these cells, " +
-                "any cell that can see all three cannot have $targetDigitText."
-            
-            "WXYZ-Wing" -> "This pattern uses four cells that together contain four different candidates. " +
-                "The digit $targetDigitText is special - it appears in a way that guarantees one of these cells will have it. " +
-                "Think of it like musical chairs: $targetDigitText must sit somewhere in this group."
-            
-            "W-Wing" -> "Look at the two green cells at $pincerNamesText. They both have the same two candidates. " +
-                "These cells are connected by a 'strong link' (shown as a solid line) on one of those digits. " +
-                "This means: if the linking digit is removed from one cell, the other cell MUST have it. " +
-                "Either way, one of these cells will have $targetDigitText."
-            
-            else -> "This $wingType pattern connects cells in a way that forces $targetDigitText to appear in specific locations."
+        // Determine the wing key
+        val wingKey = when (wingType) {
+            "XY-Wing" -> "xy_wing"
+            "XYZ-Wing" -> "xyz_wing"
+            "WXYZ-Wing" -> "wxyz_wing"
+            "W-Wing" -> "w_wing"
+            else -> "generic_wing"
         }
 
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Find the $wingType pattern",
-                description = step1Description,
+                title = hintKey(wingKey, 1, "title",
+                    "wingType" to wingType
+                ),
+                description = hintKey(wingKey, 1, "description",
+                    "pivotName" to pivotName,
+                    "pincerNamesText" to pincerNamesText,
+                    "targetDigitText" to targetDigitText,
+                    "wingDigitText" to wingDigitText
+                ),
                 highlightCells = wingCells,
                 regions = linkRegions,
                 colouredCells = colouredCells,
@@ -298,30 +292,14 @@ import dto.*
         )
 
         // Step 2: Explain WHY the elimination works
-        val step2Description = when (wingType) {
-            "XY-Wing" -> "Since one pincer MUST have $targetDigitText, any cell that can see BOTH pincers cannot have $targetDigitText. " +
-                "It would conflict with whichever pincer ends up with that digit. " +
-                "The solid line shows that one pincer must be true for $targetDigitText."
-            
-            "XYZ-Wing" -> "The three cells form a 'closed group' for $targetDigitText. " +
-                "No matter what happens, $targetDigitText will end up in one of them. " +
-                "Any cell that sees all three is blocked from having $targetDigitText."
-            
-            "WXYZ-Wing" -> "The four cells 'lock' $targetDigitText within their group. " +
-                "Any outside cell that can see all four must give up $targetDigitText."
-            
-            "W-Wing" -> "Because the two cells are connected by a strong link, their 'other' candidate ($targetDigitText) is restricted. " +
-                "Any cell seeing both green cells would conflict with whichever one ends up with $targetDigitText."
-            
-            else -> "The pattern guarantees $targetDigitText appears in one of the highlighted cells, blocking it elsewhere."
-        }
-
         if (pincerCells.isNotEmpty() || eliminationCells.isNotEmpty()) {
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Understand why it works",
-                    description = step2Description,
+                    title = hintKey(wingKey, 2, "title"),
+                    description = hintKey(wingKey, 2, "description",
+                        "targetDigitText" to targetDigitText
+                    ),
                     highlightCells = pincerCells.ifEmpty { wingCells },
                     regions = linkRegions,
                     colouredCells = colouredCells,
@@ -335,13 +313,17 @@ import dto.*
         if (eliminationCells.isNotEmpty() && targetDigit != null) {
             val eliminationNames = eliminationCells.joinToString(", ") { formatCellName(it) }
             val eliminationColouredCells = eliminationCells.map { ColouredCellDto(it, "warning") }
-            
+
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 3,
-                    title = "Remove $targetDigit from cells that see the pattern",
-                    description = "The cell(s) at $eliminationNames can see both pincers (or all wing cells), " +
-                        "so $targetDigit cannot go there. Remove $targetDigit from: $eliminationNames.",
+                    title = hintKey(wingKey, 3, "title",
+                        "digit" to targetDigit.toString()
+                    ),
+                    description = hintKey(wingKey, 3, "description",
+                        "cells" to eliminationNames,
+                        "digit" to targetDigit.toString()
+                    ),
                     highlightCells = eliminationCells,
                     regions = linkRegions,
                     colouredCells = colouredCells + eliminationColouredCells,

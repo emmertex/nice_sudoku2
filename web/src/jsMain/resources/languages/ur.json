@@ -310,9 +310,25 @@
       "adv": "جدید"
     },
     "hints": {
-      "overview": "جائزہ",
+      "title": "اشارے",
+      "noHints": "اس وقت کوئی نئے اشارے نہیں ملے ہیں۔",
+      "loading": "اشارے لوڈ ہو رہے ہیں...",
+      "error": "اشارے لوڈ کرنے میں خرابی۔",
+      "apply": "لاگو کریں",
+      "details": "تفصیلات",
+      "step": "مرحلہ {{step}}",
+      "of": "کا",
+      "type": "قسم:",
+      "difficulty": "مشکل:",
+      "explanation": "وضاحت:",
+      "candidatesRemoved": "ہٹائے گئے امیدوار:",
+      "candidatesSet": "سیٹ کیے گئے امیدوار:",
+      "cellsAffected": "متاثرہ خانے:",
+      "noEliminations": "کوئی اخراج نہیں",
+      "description": "تفصیل",
       "eliminations": "اخراج",
       "solution": "حل",
+      "overview": "جائزہ",
       "remove": "ہٹائیں",
       "from": "سے"
     }

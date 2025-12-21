@@ -317,6 +317,507 @@
       "from": "from"
     }
   },
+  "hints": {
+    "common": {
+      "overview": "Overview",
+      "eliminations": "Eliminations",
+      "solution": "Solution",
+      "remove": "Remove {{digit}} from {{cells}}",
+      "place": "Place {{digit}} in {{cell}}",
+      "cellFormat": "R{{row}}C{{col}}"
+    },
+    "naked_single": {
+      "step1": {
+        "title": "Identify the Naked Single",
+        "description": "Cell {{cell}} has only one possible candidate: {{digit}}"
+      },
+      "step2": {
+        "title": "Place Value and Eliminate",
+        "description": "Place {{digit}} in {{cell}}. Eliminate {{digit}} from Row {{row}}, Column {{col}}, and Box {{box}}: {{cells}}"
+      }
+    },
+    "hidden_single": {
+      "step1": {
+        "title": "Identify the Hidden Single",
+        "description": "In {{house}}, only {{cell}} can be {{digit}}. Thus, eliminate other candidates from this cell."
+      },
+      "step2": {
+        "title": "Eliminate from Peers",
+        "description": "In Row {{row}}, Column {{col}}, and Box {{box}}, {{digit}} can only be in {{cell}}. Eliminate {{digit}} from: {{cells}}"
+      }
+    },
+    "naked_pair": {
+      "step1": {
+        "title": "Identify the Naked Pair",
+        "description": "Cells {{cells}} in {{house}} can only contain {{digits}}. These digits are 'locked' to these cells."
+      },
+      "step2": {
+        "title": "Eliminate from Same House",
+        "description": "Since {{digits}} can only be in {{subsetCells}}, eliminate these digits from {{elimCells}} in {{house}}."
+      },
+      "step3": {
+        "title": "Apply Locked Candidates",
+        "description": "The Naked {{subsetType}} locks {{digits}} to {{house}}, so eliminate {{digits}} from {{cells}}."
+      }
+    },
+    "naked_triple": {
+      "step1": {
+        "title": "Identify the Naked Triple",
+        "description": "Cells {{cells}} in {{house}} can only contain {{digits}}. These digits are 'locked' to these cells."
+      },
+      "step2": {
+        "title": "Eliminate from Same House",
+        "description": "Since {{digits}} can only be in {{subsetCells}}, eliminate these digits from {{elimCells}} in {{house}}."
+      },
+      "step3": {
+        "title": "Apply Locked Candidates",
+        "description": "The Naked {{subsetType}} locks {{digits}} to {{house}}, so eliminate {{digits}} from {{cells}}."
+      }
+    },
+    "naked_quadruple": {
+      "step1": {
+        "title": "Identify the Naked Quadruple",
+        "description": "Cells {{cells}} in {{house}} can only contain {{digits}}. These digits are 'locked' to these cells."
+      },
+      "step2": {
+        "title": "Eliminate from Same House",
+        "description": "Since {{digits}} can only be in {{subsetCells}}, eliminate these digits from {{elimCells}} in {{house}}."
+      },
+      "step3": {
+        "title": "Apply Locked Candidates",
+        "description": "The Naked {{subsetType}} locks {{digits}} to {{house}}, so eliminate {{digits}} from {{cells}}."
+      }
+    },
+    "hidden_pair": {
+      "step1": {
+        "title": "Identify the Hidden Pair",
+        "description": "In {{house}}, {{digits}} can only be placed in {{cells}}. These cells are 'locked' to these digits."
+      },
+      "step2": {
+        "title": "Eliminate from Same House",
+        "description": "Since {{digits}} can only be in {{cells}}, eliminate other candidates from these cells."
+      },
+      "step3": {
+        "title": "Apply Hidden Locked Candidates",
+        "description": "The Hidden {{subsetType}} locks {{digits}} to {{house}}, so eliminate {{digits}} from {{cells}}."
+      }
+    },
+    "hidden_triple": {
+      "step1": {
+        "title": "Identify the Hidden Triple",
+        "description": "In {{house}}, {{digits}} can only be placed in {{cells}}. These cells are 'locked' to these digits."
+      },
+      "step2": {
+        "title": "Eliminate from Same House",
+        "description": "Since {{digits}} can only be in {{cells}}, eliminate other candidates from these cells."
+      },
+      "step3": {
+        "title": "Apply Hidden Locked Candidates",
+        "description": "The Hidden {{subsetType}} locks {{digits}} to {{house}}, so eliminate {{digits}} from {{cells}}."
+      }
+    },
+    "hidden_quadruple": {
+      "step1": {
+        "title": "Identify the Hidden Quadruple",
+        "description": "In {{house}}, {{digits}} can only be placed in {{cells}}. These cells are 'locked' to these digits."
+      },
+      "step2": {
+        "title": "Eliminate from Same House",
+        "description": "Since {{digits}} can only be in {{cells}}, eliminate other candidates from these cells."
+      },
+      "step3": {
+        "title": "Apply Hidden Locked Candidates",
+        "description": "The Hidden {{subsetType}} locks {{digits}} to {{house}}, so eliminate {{digits}} from {{cells}}."
+      }
+    },
+    "pointing_candidates": {
+      "step1": {
+        "title": "Identify the Pointing Candidates",
+        "description": "In {{baseHouse}}, candidate {{digit}} only appears in cells that also belong to {{coverHouse}}."
+      },
+      "step2": {
+        "title": "Eliminate from {{house}}",
+        "description": "Eliminate {{digit}} from other cells in {{house}}: {{cells}}"
+      }
+    },
+    "claiming_candidates": {
+      "step1": {
+        "title": "Identify the Claiming Candidates",
+        "description": "In {{baseHouse}}, candidate {{digit}} only appears in cells that also belong to {{coverHouse}}."
+      },
+      "step2": {
+        "title": "Eliminate from {{house}}",
+        "description": "Eliminate {{digit}} from other cells in {{house}}: {{cells}}"
+      }
+    },
+    "bug": {
+      "step1": {
+        "title": "Spot the Bivalue Pattern",
+        "description": "Look at the unsolved cells on this puzzle. Almost every single one has exactly TWO candidates. This is a very special situation called a 'Bivalue Universal Grave' (BUG). Here's why it's a problem: if EVERY unsolved cell had exactly two candidates arranged in a certain pattern, you could swap the values around and get two different valid solutions! But a proper Sudoku puzzle has only ONE solution. So something must 'break' this pattern - there must be at least one cell that's different."
+      },
+      "step2": {
+        "title": "Find the Exception Cell",
+        "description": "Now look at {{cell}} - this cell is special! While all the other unsolved cells have exactly two candidates, this one has THREE (or more). This is the 'plus one' in BUG+1. This extra candidate is the key to solving the puzzle. If we removed this extra candidate, we'd have the deadly BUG pattern with multiple solutions. Therefore, the extra candidate MUST be the true value of this cell!"
+      },
+      "step3": {
+        "title": "Prevent the BUG",
+        "description": "To avoid the BUG (which would mean multiple solutions), we must eliminate the candidates that would complete the deadly pattern. Remove {{digits}} from {{cell}}. The remaining candidate is the solution for this cell."
+      }
+    },
+    "aic": {
+      "step1": {
+        "title": "Find the Chain",
+        "description": "An Alternating Inference Chain (AIC) connects candidates in a logical sequence. Think of it like a chain of dominoes where each piece affects the next. This chain has {{nodeCount}} links, starting at {{startDesc}} and ending at {{endDesc}}. The chain alternates between two types of connections: • **Strong links** (solid lines): 'If this is FALSE, then that must be TRUE' • **Weak links** (dashed lines): 'If this is TRUE, then that must be FALSE'. By following the chain, we can prove certain candidates must be eliminated."
+      },
+      "step2": {
+        "title": "Follow the Logic",
+        "description": "Let's follow the chain step by step:\n\n{{chainSteps}}\n\nThe chain endpoints are critical - any cell that can 'see' both endpoints cannot have the target candidate."
+      },
+      "step3": {
+        "title": "Make the Elimination",
+        "description": "The chain proves that {{digits}} cannot be in {{cells}}. Why? Because the chain's endpoints create a 'trap': no matter which endpoint is true, the elimination cell would see a cell that has the candidate. Remove {{digits}} from: {{cells}}."
+      }
+    },
+    "als": {
+      "step1": {
+        "title": "Understand Almost Locked Sets",
+        "description": "An **Almost Locked Set** (ALS) is a group of cells that's 'almost' solved. Here's the key idea: if you have N cells containing exactly N+1 different candidates, then removing just ONE candidate would 'lock' the remaining candidates to those cells. For example: 3 cells with candidates {1,2,3,4} = almost locked. Remove any one digit, and the other 3 digits MUST go in those 3 cells. This {{alsType}} technique uses {{numALS}} Almost Locked Sets that share 'connecting digits' - digits that can only be in one ALS or the other, linking them together."
+      }
+    },
+    "als_identify": {
+      "step1": {
+        "description": "Look at {{alsName}}: {{cellCount}} cells ({{cells}}) with {{digitCount}} candidates {{{digits}}}. This is {{cellCount}} cells with {{digitCount}} candidates - that's 'almost locked' because {{digitCount}} = {{cellCount}} + 1."
+      }
+    },
+    "als_connecting": {
+      "step1": {
+        "title": "Find the Connecting Digits",
+        "description": "The ALSs are connected by **shared digits** that can only appear in one ALS or the other:\n\n{{connections}}\n\nThese 'connecting digits' act like bridges - if the digit is used in one ALS, it's locked out of the other ALS, which then locks the remaining digits."
+      }
+    },
+    "als_elimination": {
+      "step1": {
+        "title": "Make the Elimination",
+        "description": "Now for the payoff! Look at the digit(s) {{digits}}. Because of how the ALSs are connected, {{digits}} must end up in one of the ALS cells. Any cell that can 'see' ALL the places where {{digits}} could be in BOTH ALSs cannot have {{digits}} - it would always conflict. Remove {{digits}} from: {{cells}}."
+      }
+    },
+    "x_cycle": {
+      "step1": {
+        "title": "Find the X-Cycle",
+        "description": "An X-Cycle is a chain of cells that loops back to where it started. This cycle has {{cycleSize}} nodes involving digit {{digit}} at cells: {{cells}}. The key is that the chain alternates between 'strong links' (solid lines) and 'weak links' (dashed lines). Strong link = if one is false, the other must be true. Weak link = both cannot be true at the same time. Because the chain forms a complete loop, certain candidates MUST be eliminated to avoid a contradiction."
+      },
+      "step2": {
+        "title": "Understand the Cycle Logic"
+      },
+      "step3": {
+        "title": "Eliminate from Cells Seeing Both Colors",
+        "description": "The cell(s) at {{cells}} can see nodes of both 'colors' in the cycle. Since one color must be true, these cells would always conflict. Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "x_cycle_nice_loop": {
+      "step1": {
+        "description": "This is a 'Nice Loop' (even number of nodes). In a nice loop, we can color the nodes alternately - let's call them 'Green' and 'Yellow'. All green nodes would have {{digit}}, OR all yellow nodes would have {{digit}}. Any cell that can see BOTH a green and a yellow node cannot have {{digit}} - no matter which color is true, that cell would conflict with it."
+      }
+    },
+    "x_cycle_discontinuous": {
+      "step1": {
+        "description": "This is a 'Discontinuous Loop' (odd number of nodes). With an odd cycle, something must 'break' - we find a contradiction. Following the chain logic, we can prove certain candidates must be eliminated because keeping them would create an impossible situation."
+      }
+    },
+    "simple_coloring": {
+      "step1": {
+        "title": "Understand Simple Coloring",
+        "description": "Simple Coloring works on a single digit ({{digit}}). Here's the idea: Find all the 'strong links' for digit {{digit}}. A strong link exists when {{digit}} appears in exactly two cells of a row, column, or box - if one is false, the other must be true. Now color these cells alternately - start with 'Green', connected cells become 'Yellow', their connections become 'Green' again, and so on. We have {{greenCount}} Green cells and {{yellowCount}} Yellow cells. Either ALL green cells have {{digit}}, OR ALL yellow cells have {{digit}}."
+      }
+    },
+    "3d_medusa": {
+      "step1": {
+        "title": "Understand 3D Medusa Coloring",
+        "description": "3D Medusa extends coloring to multiple digits. Here's the idea: Start with any candidate and call it 'Green'. Every candidate connected by a strong link gets the opposite color ('Yellow'). Strong links exist when: • A digit appears only twice in a row, column, or box • A cell has only two candidates (bivalue cell). We color {{greenCount}} cells Green and {{yellowCount}} cells Yellow. One entire color group is TRUE, the other is FALSE - we just don't know which yet."
+      }
+    },
+    "coloring": {
+      "step2": {
+        "title": "Find Color Traps and Wraps",
+        "description": "Now we look for contradictions or 'traps': **Color Trap**: If an uncolored cell can see both a Green and a Yellow cell (in the same row, column, or box), that cell cannot have the digit. Why? Because one of those colors must be true, and either would eliminate the digit from that cell. **Color Wrap**: If two cells of the SAME color can see each other, that color is impossible! They can't both have the digit. So the OTHER color must be entirely true."
+      },
+      "step3": {
+        "title": "Make the Elimination",
+        "description": "Based on the coloring analysis: The cell(s) at {{cells}} either see both colors (Color Trap) or are part of a color that contradicts itself (Color Wrap). Remove the candidate(s) from: {{cells}}."
+      }
+    },
+    "generic": {
+      "step1": {
+        "title": "{{technique}}",
+        "description": "This technique is called **{{technique}}**. It uses logical deduction to prove that certain candidates must be eliminated or that certain cells must have specific values. The pattern involves the highlighted cells and candidates."
+      },
+      "step2": {
+        "title": "Apply Eliminations",
+        "description": "Based on the pattern, we can eliminate: Remove {{digits}} from {{cells}}."
+      },
+      "step3": {
+        "title": "Place Values",
+        "description": "The technique reveals these solutions:\n\n{{solutions}}"
+      }
+    },
+    "unique_rectangle": {
+      "step1": {
+        "title": "Spot the Deadly Pattern",
+        "description": "Look at these four cells forming a rectangle: {{cells}}. They span exactly two rows, two columns, and two boxes. Notice they all contain the candidates {{digits}}. Here's the problem: if these four cells ONLY had {{digits}} as candidates, you could swap the digits between the diagonal corners and still have a valid solution! That means the puzzle would have TWO solutions - which is not allowed in proper Sudoku. This forbidden pattern is called a 'Deadly Pattern' or 'Unique Rectangle'."
+      },
+      "step3": {
+        "title": "Make the Elimination"
+      }
+    },
+    "unique_rectangle_type1": {
+      "step1": {
+        "title": "Understand Type {{type}}",
+        "description": "This is Type 1 - the simplest case. Three corners of the rectangle have only {{digits}}, but {{extraCell}} has an extra candidate. Think about it: if {{extraCell}} were just {{digits}} like the others, we'd have the deadly pattern. So the extra candidate MUST be the true value of that cell! We can safely remove {{digits}} from {{extraCell}}."
+      }
+    },
+    "unique_rectangle_type2": {
+      "step1": {
+        "title": "Understand Type {{type}}",
+        "description": "This is Type 2 - two corners share the same extra candidate ({{extraDigit}}). These two cells are on opposite corners of the rectangle. Since the deadly pattern can't exist, at least one of these corners must be {{extraDigit}}. Any cell that can see BOTH of these corners cannot have {{extraDigit}}."
+      }
+    },
+    "unique_rectangle_type3": {
+      "step1": {
+        "title": "Understand Type {{type}}",
+        "description": "This is Type 3 - two corners have extra candidates that form a 'naked subset' with nearby cells. The extra candidates in the UR corners, combined with other cells in the same house, force certain eliminations. The deadly pattern is avoided because the subset logic guarantees the UR won't complete."
+      }
+    },
+    "unique_rectangle_type4": {
+      "step1": {
+        "title": "Understand Type {{type}}",
+        "description": "This is Type 4 - one of the UR digits ({{digits}}) is 'locked' into two opposite corners. Because of a strong link, one digit must go in those two corners. This means the OTHER digit cannot be in those corners (or we'd have the deadly pattern). Remove the non-locked digit from the locked corners."
+      }
+    },
+    "unique_rectangle_type5": {
+      "step1": {
+        "title": "Understand Type {{type}}",
+        "description": "This is Type 5 - a diagonal strong link prevents the deadly pattern. Two opposite corners are strongly linked on one digit, meaning one of them must have it. This breaks the symmetry that would allow the deadly pattern."
+      }
+    },
+    "unique_rectangle_type6": {
+      "step1": {
+        "title": "Understand Type {{type}}",
+        "description": "This is Type 6 - both diagonals have strong links on the same digit. This double-lock on one digit means it must appear in exactly two opposite corners, forcing the other digit out of those corners."
+      }
+    },
+    "unique_rectangle_generic": {
+      "step1": {
+        "title": "Break the Pattern",
+        "description": "To avoid this deadly pattern, we need to ensure it can never complete. Something must 'break' the rectangle - either an extra candidate that must be true, or a strong link that forces one digit into specific corners."
+      }
+    },
+    "unique_rectangle_elim_type1": {
+      "step1": {
+        "description": "Remove {{digits}} from {{cells}}. The extra candidate in this cell must be its true value to prevent the deadly pattern."
+      }
+    },
+    "unique_rectangle_elim_type2": {
+      "step1": {
+        "description": "Remove {{digits}} from {{cells}}. These cells see both UR corners that share the extra candidate."
+      }
+    },
+    "empty_rectangle": {
+      "step1": {
+        "title": "Find the Empty Rectangle",
+        "description": "Look at {{box}}. The candidate {{digit}} only appears in an 'L-shape' or 'bent' pattern - it's missing from at least one row AND one column within the box. This creates an 'Empty Rectangle' - the empty row and column form a cross inside the box, and all the {{digit}} candidates are in the corners of this cross. The cells with {{digit}} are: {{cells}}."
+      },
+      "step2": {
+        "title": "Connect to the Strong Link",
+        "description": "Now look outside the box. There's a 'strong link' (solid line) on {{digit}} at {{conjugateCells}}. A strong link means: if one end is false, the other MUST be true. One end of this strong link connects to the Empty Rectangle through a shared row or column. This creates a chain of logic: if the far end of the strong link is true, it eliminates {{digit}} from the intersection point in the box, which then forces {{digit}} to a different position in the ER."
+      },
+      "step3": {
+        "title": "Make the Elimination",
+        "description": "Here's the key insight: the elimination cell ({{cells}}) can see both ends of our chain - it sees one end of the strong link AND it sees where {{digit}} would be forced in the Empty Rectangle. No matter which way the logic goes, {{digit}} will end up in a cell that sees {{cells}}. So {{digit}} cannot be in {{cells}}. Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "x_wing": {
+      "step1": {
+        "title": "Identify the X-Wing pattern",
+        "description": "In {{baseNames}}, digit {{digit}} appears in exactly {{baseCount}} {{baseTypeText}}. These candidates line up perfectly in {{coverNames}}. Because {{digit}} must be placed in one of these positions in each base {{baseTypeText}}, it locks {{digit}} into the highlighted {{baseTypeText}}."
+      },
+      "step2": {
+        "title": "Eliminate from cover {{coverTypeText}}",
+        "description": "Since {{digit}} is locked in {{baseNames}} (highlighted in the base {{baseTypeText}}), any other {{digit}} candidates in {{coverNames}} must be false. Eliminate {{digit}} from cells in the cover {{coverTypeText}} that aren't part of the pattern."
+      },
+      "step3": {
+        "title": "Remove candidate {{digit}}",
+        "description": "Remove {{digit}} from: {{cells}}. These cells see the fish pattern and cannot contain {{digit}}."
+      }
+    },
+    "swordfish": {
+      "step1": {
+        "title": "Identify the Swordfish pattern",
+        "description": "In {{baseNames}}, digit {{digit}} appears in exactly three {{baseTypeText}}. These candidates align across three {{coverTypeText}}: {{coverNames}}. The swordfish pattern locks {{digit}} into these base {{baseTypeText}}."
+      },
+      "step2": {
+        "title": "Eliminate from cover {{coverTypeText}}",
+        "description": "Since {{digit}} is locked in {{baseNames}} (highlighted in the base {{baseTypeText}}), any other {{digit}} candidates in {{coverNames}} must be false. Eliminate {{digit}} from cells in the cover {{coverTypeText}} that aren't part of the pattern."
+      },
+      "step3": {
+        "title": "Remove candidate {{digit}}",
+        "description": "Remove {{digit}} from: {{cells}}. These cells see the fish pattern and cannot contain {{digit}}."
+      }
+    },
+    "jellyfish": {
+      "step1": {
+        "title": "Identify the Jellyfish pattern",
+        "description": "In {{baseNames}}, digit {{digit}} appears in exactly four {{baseTypeText}}. These candidates align across four {{coverTypeText}}: {{coverNames}}. The jellyfish pattern locks {{digit}} into these base {{baseTypeText}}."
+      },
+      "step2": {
+        "title": "Eliminate from cover {{coverTypeText}}",
+        "description": "Since {{digit}} is locked in {{baseNames}} (highlighted in the base {{baseTypeText}}), any other {{digit}} candidates in {{coverNames}} must be false. Eliminate {{digit}} from cells in the cover {{coverTypeText}} that aren't part of the pattern."
+      },
+      "step3": {
+        "title": "Remove candidate {{digit}}",
+        "description": "Remove {{digit}} from: {{cells}}. These cells see the fish pattern and cannot contain {{digit}}."
+      }
+    },
+    "basic_fish": {
+      "step1": {
+        "title": "Identify the pattern",
+        "description": "Digit {{digit}} candidates align on base {{baseTypeText}} ({{baseNames}}) and cover {{coverTypeText}} ({{coverNames}}) to form this pattern."
+      },
+      "step2": {
+        "title": "Eliminate from cover {{coverTypeText}}",
+        "description": "Since {{digit}} is locked in {{baseNames}} (highlighted in the base {{baseTypeText}}), any other {{digit}} candidates in {{coverNames}} must be false. Eliminate {{digit}} from cells in the cover {{coverTypeText}} that aren't part of the pattern."
+      },
+      "step3": {
+        "title": "Remove candidate {{digit}}",
+        "description": "Remove {{digit}} from: {{cells}}. These cells see the fish pattern and cannot contain {{digit}}."
+      }
+    },
+    "skyscraper": {
+      "step1": {
+        "title": "Find the Two Strong Links",
+        "description": "A Skyscraper is a pattern with two **strong links** on the same digit. Look at {{baseNamesText}}. In each of these {{baseTypeText}}, digit {{digit}} appears in exactly TWO cells. That's a strong link - if one cell doesn't have {{digit}}, the other MUST have it. The two strong links are connected: one end of each strong link shares the same column (or row). The other ends - the 'roof' of the skyscraper (shown in yellow) - are the key cells."
+      },
+      "step2": {
+        "title": "Follow the Logic",
+        "description": "Here's why the Skyscraper works: The connected ends of the two strong links are in the same column/row. If {{digit}} is NOT in one of the connected cells, the strong link forces it to be in that cell's partner. But that partner is the 'roof' cell! So no matter what: either {{digit}} is in one roof cell, or it's in the other roof cell (or possibly both). One of the roof cells MUST have {{digit}}."
+      },
+      "step3": {
+        "title": "Eliminate from Cells Seeing Both Roofs",
+        "description": "Any cell that can see BOTH roof cells cannot have {{digit}}. Why? Because one of the roof cells must have {{digit}}, and that would eliminate {{digit}} from any cell seeing it. Since the elimination cell sees both roof cells, it will always be eliminated. Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "finned_fish": {
+      "step1": {
+        "title": "Find the Finned Pattern",
+        "description": "This is a **Finned {{fishType}}**. Let's start with the basic pattern: Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there's an extra cell (or cells) that doesn't fit - that's the 'fin'. The fin is at: {{finCells}} (shown in yellow)."
+      },
+      "step2": {
+        "title": "Understand the Fin's Effect",
+        "description": "The fin changes what we can eliminate. Here's the logic: **If the fin is TRUE** (has {{digit}}): The normal fish pattern applies to the rest, but we can only eliminate from cells that ALSO see the fin. **If the fin is FALSE**: Then {{digit}} must be somewhere else in the fish pattern, and the normal fish eliminations would apply. Either way, any cell that sees both the fin AND the fish pattern can be eliminated! This means eliminations are restricted to {{boxName}} (where the fin is)."
+      },
+      "step3": {
+        "title": "Eliminate Where Fin and Fish Meet",
+        "description": "Cells that can see the fin AND are in the fish's cover lines can be eliminated. These cells are in {{boxName}} (so they see the fin) and also in one of the cover {{coverTypeText}} (so the fish pattern affects them). Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "sashimi_fish": {
+      "step1": {
+        "title": "Find the Finned Pattern",
+        "description": "This is a **Finned {{fishType}}**. Let's start with the basic pattern: Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there's an extra cell (or cells) that doesn't fit - that's the 'Sashimi fin'. The fin is at: {{finCells}} (shown in yellow). In a Sashimi variant, the fish would be incomplete without the fin - the fin is actually 'filling in' for a missing base cell."
+      },
+      "step2": {
+        "title": "Understand the Fin's Effect",
+        "description": "The fin changes what we can eliminate. Here's the logic: **If the fin is TRUE** (has {{digit}}): The normal fish pattern applies to the rest, but we can only eliminate from cells that ALSO see the fin. **If the fin is FALSE**: Then {{digit}} must be somewhere else in the fish pattern, and the normal fish eliminations would apply. Either way, any cell that sees both the fin AND the fish pattern can be eliminated! This means eliminations are restricted to {{boxName}} (where the fin is)."
+      },
+      "step3": {
+        "title": "Eliminate Where Fin and Fish Meet",
+        "description": "Cells that can see the fin AND are in the fish's cover lines can be eliminated. These cells are in {{boxName}} (so they see the fin) and also in one of the cover {{coverTypeText}} (so the fish pattern affects them). Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "xy_wing": {
+      "step1": {
+        "title": "Find the {{wingType}} pattern",
+        "description": "Look at the yellow cell at {{pivotName}} - it's called the 'hinge' and has exactly two candidates. Now look at the two green cells at {{pincerNamesText}} - these are the 'pincers'. Each pincer shares one candidate with the hinge, but they both have {{targetDigitText}} in common. Here's the key: no matter which candidate goes in the hinge, one of the pincers MUST end up with {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Understand why it works",
+        "description": "Since one pincer MUST have {{targetDigitText}}, any cell that can see BOTH pincers cannot have {{targetDigitText}}. It would conflict with whichever pincer ends up with that digit. The solid line shows that one pincer must be true for {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Remove {{digit}} from cells that see the pattern",
+        "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "xyz_wing": {
+      "step1": {
+        "title": "Find the {{wingType}} pattern",
+        "description": "Look at the yellow cell at {{pivotName}} - it has three candidates: {{wingDigitText}}. The two green cells at {{pincerNamesText}} each share two of those candidates with the hinge. The digit {{targetDigitText}} appears in ALL three cells. Since every outcome forces {{targetDigitText}} into one of these cells, any cell that can see all three cannot have {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Understand why it works",
+        "description": "The three cells form a 'closed group' for {{targetDigitText}}. No matter what happens, {{targetDigitText}} will end up in one of them. Any cell that sees all three is blocked from having {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Remove {{digit}} from cells that see the pattern",
+        "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "wxyz_wing": {
+      "step1": {
+        "title": "Find the {{wingType}} pattern",
+        "description": "This pattern uses four cells that together contain four different candidates. The digit {{targetDigitText}} is special - it appears in a way that guarantees one of these cells will have it. Think of it like musical chairs: {{targetDigitText}} must sit somewhere in this group."
+      },
+      "step2": {
+        "title": "Understand why it works",
+        "description": "The four cells 'lock' {{targetDigitText}} within their group. Any outside cell that can see all four must give up {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Remove {{digit}} from cells that see the pattern",
+        "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "w_wing": {
+      "step1": {
+        "title": "Find the {{wingType}} pattern",
+        "description": "Look at the two green cells at {{pincerNamesText}}. They both have the same two candidates. These cells are connected by a 'strong link' (shown as a solid line) on one of those digits. This means: if the linking digit is removed from one cell, the other cell MUST have it. Either way, one of these cells will have {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Understand why it works",
+        "description": "Because the two cells are connected by a strong link, their 'other' candidate ({{targetDigitText}}) is restricted. Any cell seeing both green cells would conflict with whichever one ends up with {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Remove {{digit}} from cells that see the pattern",
+        "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "generic_wing": {
+      "step1": {
+        "title": "Find the {{wingType}} pattern",
+        "description": "This {{wingType}} pattern connects cells in a way that forces {{targetDigitText}} to appear in specific locations."
+      },
+      "step2": {
+        "title": "Understand why it works",
+        "description": "The pattern guarantees {{targetDigitText}} appears in one of the highlighted cells, blocking it elsewhere."
+      },
+      "step3": {
+        "title": "Remove {{digit}} from cells that see the pattern",
+        "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+      }
+    },
+    "kite": {
+      "step1": {
+        "title": "Find the kite pattern",
+        "description": "Look at the two green {{digit}} candidates at {{kiteNames}}. These are the endpoints of the kite. They're connected through {{coverNames}}, which contains two more {{digit}} candidates (shown in yellow). Think of it like this: one of the green cells MUST have {{digit}}, but they can't BOTH have it."
+      },
+      "step2": {
+        "title": "Follow the chain",
+        "description": "The kite forms a chain: {{chain}}. The solid lines indicate strong links, and the dashed line indicates a weak link. No matter which green cell has {{digit}}, the weak link ensures that at least one of the yellow cells in the box will have it. Any cell that can see BOTH green cells at {{kiteNames}} cannot have {{digit}}."
+      },
+      "step3": {
+        "title": "Make the elimination",
+        "description": "Since {{cells}} can see both green cells, we know {{digit}} cannot go there. Eliminate {{digit}} from: {{cells}}."
+      }
+    }
+  },
   "backend": {
     "techniques": {
       "NAKED_SINGLE": "Only one candidate fits in this cell, so place it.",

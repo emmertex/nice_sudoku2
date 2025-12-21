@@ -1,6 +1,8 @@
 package service.hint.explanations
 
 import service.hint.helpers.*
+import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.commonKey
 import sudoku.match.TechniqueMatch
 import dto.*
 
@@ -16,36 +18,23 @@ import dto.*
         val targetCellName = formatCellName(targetCell)
         val eliminationDigitText = eliminationDigits.joinToString(", ")
 
-        // Step 1: Explain what a BUG is (ELI5)
-        val step1Description = "Look at the unsolved cells on this puzzle. Almost every single one has exactly TWO candidates. " +
-            "This is a very special situation called a 'Bivalue Universal Grave' (BUG). " +
-            "\n\nHere's why it's a problem: if EVERY unsolved cell had exactly two candidates arranged in a certain pattern, " +
-            "you could swap the values around and get two different valid solutions! " +
-            "But a proper Sudoku puzzle has only ONE solution. " +
-            "\n\nSo something must 'break' this pattern - there must be at least one cell that's different."
-
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Spot the Bivalue Pattern",
-                description = step1Description,
+                title = hintKey("bug", 1, "title"),
+                description = hintKey("bug", 1, "description"),
                 highlightCells = emptyList(),
                 colouredCells = emptyList()
             )
         )
         
-        // Step 2: Find the exception cell
-        val step2Description = "Now look at $targetCellName - this cell is special! " +
-            "While all the other unsolved cells have exactly two candidates, this one has THREE (or more). " +
-            "\n\nThis is the 'plus one' in BUG+1. This extra candidate is the key to solving the puzzle. " +
-            "If we removed this extra candidate, we'd have the deadly BUG pattern with multiple solutions. " +
-            "\n\nTherefore, the extra candidate MUST be the true value of this cell!"
-
         steps.add(
             ExplanationStepDto(
                 stepNumber = 2,
-                title = "Find the Exception Cell",
-                description = step2Description,
+                title = hintKey("bug", 2, "title"),
+                description = hintKey("bug", 2, "description",
+                    "cell" to targetCellName
+                ),
                 highlightCells = listOf(targetCell),
                 colouredCells = listOf(ColouredCellDto(targetCell, "warning")),
                 colouredCandidates = eliminationDigits.map { d ->
@@ -56,16 +45,14 @@ import dto.*
 
         // Step 3: Make the elimination/placement
         if (eliminations.isNotEmpty()) {
-            val step3Description = "To avoid the BUG (which would mean multiple solutions), " +
-                "we must eliminate the candidates that would complete the deadly pattern. " +
-                "\n\nRemove $eliminationDigitText from $targetCellName. " +
-                "The remaining candidate is the solution for this cell."
-
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 3,
-                    title = "Prevent the BUG",
-                    description = step3Description,
+                    title = hintKey("bug", 3, "title"),
+                    description = hintKey("bug", 3, "description",
+                        "digits" to eliminationDigitText,
+                        "cell" to targetCellName
+                    ),
                     highlightCells = eliminationCells,
                     colouredCells = listOf(ColouredCellDto(targetCell, "target")),
                     colouredCandidates = eliminationCandidates(eliminations)
@@ -428,8 +415,12 @@ import dto.*
             // Pointing Candidates: digit in box is restricted to a line, eliminate from rest of line
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
-                title = "Identify the Pointing Candidates",
-                description = "In $baseHouseName, candidate $digit only appears in cells that also belong to $coverHouseName.",
+                title = hintKey("pointing_candidates", 1, "title"),
+                description = hintKey("pointing_candidates", 1, "description",
+                    "baseHouse" to baseHouseName,
+                    "digit" to digit.toString(),
+                    "coverHouse" to coverHouseName
+                ),
                 highlightCells = intersectionCells,
                 regions = regions,
                 colouredCells = intersectionColouredCells,
@@ -446,8 +437,14 @@ import dto.*
 
                 steps.add(ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Eliminate from $coverHouseName",
-                    description = "Eliminate $digit from other cells in $coverHouseName: $eliminationCellNames",
+                    title = hintKey("pointing_candidates", 2, "title",
+                        "house" to coverHouseName
+                    ),
+                    description = hintKey("pointing_candidates", 2, "description",
+                        "digit" to digit.toString(),
+                        "house" to coverHouseName,
+                        "cells" to eliminationCellNames
+                    ),
                     highlightCells = eliminationCells,
                     regions = listOfNotNull(coverRegion),
                     colouredCells = intersectionColouredCells,
@@ -458,8 +455,12 @@ import dto.*
             // Claiming/Box-Line Reduction: digit in line is restricted to a box, eliminate from rest of box
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
-                title = "Identify the Claiming Candidates",
-                description = "In $baseHouseName, candidate $digit only appears in cells that also belong to $coverHouseName.",
+                title = hintKey("claiming_candidates", 1, "title"),
+                description = hintKey("claiming_candidates", 1, "description",
+                    "baseHouse" to baseHouseName,
+                    "digit" to digit.toString(),
+                    "coverHouse" to coverHouseName
+                ),
                 highlightCells = intersectionCells,
                 regions = regions,
                 colouredCells = intersectionColouredCells,
@@ -476,8 +477,14 @@ import dto.*
 
                 steps.add(ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Eliminate from $coverHouseName",
-                    description = "Eliminate $digit from other cells in $coverHouseName: $eliminationCellNames",
+                    title = hintKey("claiming_candidates", 2, "title",
+                        "house" to coverHouseName
+                    ),
+                    description = hintKey("claiming_candidates", 2, "description",
+                        "digit" to digit.toString(),
+                        "house" to coverHouseName,
+                        "cells" to eliminationCellNames
+                    ),
                     highlightCells = eliminationCells,
                     regions = listOfNotNull(coverRegion),
                     colouredCells = intersectionColouredCells,

@@ -1,6 +1,8 @@
 package service.hint.explanations
 
 import service.hint.helpers.*
+import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.commonKey
 import dto.*
 import sudoku.match.TechniqueMatch
 
@@ -143,76 +145,31 @@ import sudoku.match.TechniqueMatch
             urDigits.map { d -> ColouredCandidateDto(r, c, d, "highlight") }
         }
 
-        // Step 1: Explain the Deadly Pattern concept (ELI5)
-        val step1Description = "Look at these four cells forming a rectangle: ${urCellNames.joinToString(", ")}. " +
-            "They span exactly two rows, two columns, and two boxes. " +
-            "Notice they all contain the candidates $urDigitText. " +
-            "\n\nHere's the problem: if these four cells ONLY had $urDigitText as candidates, " +
-            "you could swap the digits between the diagonal corners and still have a valid solution! " +
-            "That means the puzzle would have TWO solutions - which is not allowed in proper Sudoku. " +
-            "This forbidden pattern is called a 'Deadly Pattern' or 'Unique Rectangle'."
-
         steps.add(ExplanationStepDto(
             stepNumber = 1,
-            title = "Spot the Deadly Pattern",
-            description = step1Description,
+            title = hintKey("unique_rectangle", 1, "title"),
+            description = hintKey("unique_rectangle", 1, "description",
+                "cells" to urCellNames.joinToString(", "),
+                "digits" to urDigitText
+            ),
             highlightCells = urCells,
             colouredCells = urColouredCells,
             colouredCandidates = urCandidates,
             lines = rectangleLines
         ))
         
-        // Step 2: Type-specific explanation (ELI5)
-        val step2Description = when(type) {
-            1 -> {
-                val extraCell = eliminationCells.firstOrNull()
-                val extraCellName = extraCell?.let { formatCellName(it) } ?: "one corner"
-                "This is Type 1 - the simplest case. Three corners of the rectangle have only $urDigitText, " +
-                "but $extraCellName has an extra candidate. " +
-                "\n\nThink about it: if $extraCellName were just $urDigitText like the others, " +
-                "we'd have the deadly pattern. So the extra candidate MUST be the true value of that cell! " +
-                "We can safely remove $urDigitText from $extraCellName."
-            }
-            2 -> {
-                val extraDigit = eliminationDigits.firstOrNull()
-                "This is Type 2 - two corners share the same extra candidate ($extraDigit). " +
-                "These two cells are on opposite corners of the rectangle. " +
-                "\n\nSince the deadly pattern can't exist, at least one of these corners must be $extraDigit. " +
-                "Any cell that can see BOTH of these corners cannot have $extraDigit."
-            }
-            3 -> {
-                "This is Type 3 - two corners have extra candidates that form a 'naked subset' with nearby cells. " +
-                "\n\nThe extra candidates in the UR corners, combined with other cells in the same house, " +
-                "force certain eliminations. The deadly pattern is avoided because the subset logic " +
-                "guarantees the UR won't complete."
-            }
-            4 -> {
-                "This is Type 4 - one of the UR digits ($urDigitText) is 'locked' into two opposite corners. " +
-                "\n\nBecause of a strong link, one digit must go in those two corners. " +
-                "This means the OTHER digit cannot be in those corners (or we'd have the deadly pattern). " +
-                "Remove the non-locked digit from the locked corners."
-            }
-            5 -> {
-                "This is Type 5 - a diagonal strong link prevents the deadly pattern. " +
-                "\n\nTwo opposite corners are strongly linked on one digit, meaning one of them must have it. " +
-                "This breaks the symmetry that would allow the deadly pattern."
-            }
-            6 -> {
-                "This is Type 6 - both diagonals have strong links on the same digit. " +
-                "\n\nThis double-lock on one digit means it must appear in exactly two opposite corners, " +
-                "forcing the other digit out of those corners."
-            }
-            else -> {
-                "To avoid this deadly pattern, we need to ensure it can never complete. " +
-                "\n\nSomething must 'break' the rectangle - either an extra candidate that must be true, " +
-                "or a strong link that forces one digit into specific corners."
-            }
-        }
+        val typeKey = if (type > 0) "unique_rectangle_type$type" else "unique_rectangle_generic"
         
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = if (type > 0) "Understand Type $type" else "Break the Pattern",
-            description = step2Description,
+            title = hintKey(typeKey, 1, "title",
+                "type" to type.toString()
+            ),
+            description = hintKey(typeKey, 1, "description",
+                "digits" to urDigitText,
+                "extraCell" to (eliminationCells.firstOrNull()?.let { formatCellName(it) } ?: "one corner"),
+                "extraDigit" to (eliminationDigits.firstOrNull()?.toString() ?: "")
+            ),
             highlightCells = if (eliminationCells.isNotEmpty()) eliminationCells else urCells,
             colouredCells = urColouredCells,
             colouredCandidates = urCandidates + eliminationCandidates(eliminations),
@@ -224,18 +181,13 @@ import sudoku.match.TechniqueMatch
             val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
             val eliminatedDigits = eliminationDigits.joinToString(", ")
             
-            val step3Description = when(type) {
-                1 -> "Remove $eliminatedDigits from $eliminationNames. " +
-                    "The extra candidate in this cell must be its true value to prevent the deadly pattern."
-                2 -> "Remove $eliminatedDigits from $eliminationNames. " +
-                    "These cells see both UR corners that share the extra candidate."
-                else -> "Remove $eliminatedDigits from $eliminationNames to ensure the deadly pattern cannot form."
-            }
-            
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
-                title = "Make the Elimination",
-                description = step3Description,
+                title = hintKey("unique_rectangle", 3, "title"),
+                description = hintKey("unique_rectangle_elim_type$type", 1, "description",
+                    "digits" to eliminatedDigits,
+                    "cells" to eliminationNames
+                ),
                 highlightCells = eliminationCells,
                 colouredCells = urColouredCells + eliminationCells.map { ColouredCellDto(it, "warning") },
                 colouredCandidates = urCandidates + eliminationCandidates(eliminations),
@@ -373,20 +325,17 @@ import sudoku.match.TechniqueMatch
             ColouredCandidateDto(cell / 9, cell % 9, digit, "highlight")
         }
 
-        // Step 1: Explain the Empty Rectangle concept (ELI5)
         val boxName = if (boxIndex >= 0) "Box ${boxIndex + 1}" else "the highlighted box"
         val erCellNames = erCells.map { formatCellName(it) }.joinToString(", ")
-        
-        val step1Description = "Look at $boxName. The candidate $digit only appears in an 'L-shape' or 'bent' pattern - " +
-            "it's missing from at least one row AND one column within the box. " +
-            "\n\nThis creates an 'Empty Rectangle' - the empty row and column form a cross inside the box, " +
-            "and all the $digit candidates are in the corners of this cross. " +
-            "The cells with $digit are: $erCellNames."
 
         steps.add(ExplanationStepDto(
             stepNumber = 1,
-            title = "Find the Empty Rectangle",
-            description = step1Description,
+            title = hintKey("empty_rectangle", 1, "title"),
+            description = hintKey("empty_rectangle", 1, "description",
+                "box" to boxName,
+                "digit" to digit.toString(),
+                "cells" to erCellNames
+            ),
             highlightCells = erCells,
             regions = regions,
             colouredCells = erColouredCells,
@@ -394,24 +343,16 @@ import sudoku.match.TechniqueMatch
             lines = erLines
         ))
         
-        // Step 2: Explain the connection to conjugate pair
         val conjugateNames = conjugateCells.map { formatCellName(it) }.joinToString(" and ")
-        
-        val step2Description = if (conjugateCells.isNotEmpty()) {
-            "Now look outside the box. There's a 'strong link' (solid line) on $digit at $conjugateNames. " +
-            "A strong link means: if one end is false, the other MUST be true. " +
-            "\n\nOne end of this strong link connects to the Empty Rectangle through a shared row or column. " +
-            "This creates a chain of logic: if the far end of the strong link is true, it eliminates $digit " +
-            "from the intersection point in the box, which then forces $digit to a different position in the ER."
-        } else {
-            "A strong link outside the box connects to this Empty Rectangle. " +
-            "If the external candidate is true, it forces $digit to shift within the box pattern."
-        }
 
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = "Connect to the Strong Link",
-            description = step2Description,
+            title = hintKey("empty_rectangle", 2, "title"),
+            description = hintKey("empty_rectangle", 2, "description",
+                "digit" to digit.toString(),
+                "conjugateCells" to conjugateNames,
+                "hasConjugate" to conjugateCells.isNotEmpty().toString()
+            ),
             highlightCells = erCells + conjugateCells,
             regions = regions,
             colouredCells = erColouredCells + conjugateColouredCells,
@@ -422,17 +363,14 @@ import sudoku.match.TechniqueMatch
         // Step 3: Make the elimination
         if (eliminations.isNotEmpty()) {
             val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
-            
-            val step3Description = "Here's the key insight: the elimination cell ($eliminationNames) can see " +
-                "both ends of our chain - it sees one end of the strong link AND it sees where $digit " +
-                "would be forced in the Empty Rectangle. " +
-                "\n\nNo matter which way the logic goes, $digit will end up in a cell that sees $eliminationNames. " +
-                "So $digit cannot be in $eliminationNames. Remove $digit from: $eliminationNames."
 
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
-                title = "Make the Elimination",
-                description = step3Description,
+                title = hintKey("empty_rectangle", 3, "title"),
+                description = hintKey("empty_rectangle", 3, "description",
+                    "cells" to eliminationNames,
+                    "digit" to digit.toString()
+                ),
                 highlightCells = eliminationCells,
                 regions = regions,
                 colouredCells = erColouredCells + conjugateColouredCells + eliminationCells.map { ColouredCellDto(it, "warning") },
