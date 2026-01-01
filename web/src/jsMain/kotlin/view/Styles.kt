@@ -2760,4 +2760,259 @@ val CSS_STYLES = """
         background: rgb(var(--colour-accent-info));
         transform: translateY(-2px);
     }
+    
+    /* Help button in mode indicators */
+    .help-btn {
+        width: clamp(20px, 4vmin, 28px);
+        height: clamp(20px, 4vmin, 28px);
+        border-radius: 50%;
+        border: none;
+        background: rgba(var(--colour-accent-info), 0.3);
+        color: rgb(var(--colour-accent-info));
+        font-size: clamp(0.6rem, calc(0.55rem + 0.4vmin), 0.85rem);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .help-btn:hover {
+        background: rgba(var(--colour-accent-info), 0.5);
+        transform: scale(1.1);
+    }
+    
+    /* Button Help Modal Styles */
+    .button-help-modal {
+        max-width: 550px;
+    }
+    
+    .button-help-modal h1 {
+        color: rgb(var(--colour-accent-primary));
+        font-size: clamp(1.3rem, calc(1.1rem + 1vmin), 1.8rem);
+        margin-bottom: clamp(12px, 2vmin, 20px);
+        text-align: center;
+    }
+    
+    .button-help-modal .help-section {
+        margin-bottom: clamp(16px, 3vmin, 24px);
+    }
+    
+    .button-help-modal .help-section h2 {
+        color: rgb(var(--colour-accent-warning));
+        font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
+        margin-bottom: clamp(10px, 1.5vmin, 14px);
+        padding-bottom: clamp(6px, 1vmin, 10px);
+        border-bottom: 1px solid rgba(var(--colour-border), 0.2);
+    }
+    
+    .button-help-grid {
+        display: flex;
+        flex-direction: column;
+        gap: clamp(8px, 1.5vmin, 12px);
+    }
+    
+    .button-help-item {
+        display: flex;
+        align-items: flex-start;
+        gap: clamp(10px, 2vmin, 16px);
+        padding: clamp(8px, 1.5vmin, 12px);
+        background: rgba(var(--colour-bg-tertiary), 0.15);
+        border-radius: clamp(6px, 1vmin, 10px);
+        transition: all 0.15s ease;
+    }
+    
+    .button-help-item:hover {
+        background: rgba(var(--colour-bg-tertiary), 0.25);
+    }
+    
+    .button-help-icon {
+        flex-shrink: 0;
+        min-width: clamp(36px, 7vmin, 50px);
+        height: clamp(28px, 5vmin, 36px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: clamp(0.85rem, calc(0.75rem + 0.5vmin), 1.1rem);
+        border-radius: clamp(4px, 0.8vmin, 6px);
+        background: rgba(var(--colour-bg-tertiary), 0.3);
+        color: rgb(var(--colour-text-primary));
+    }
+    
+    .button-help-icon.badge {
+        padding: clamp(4px, 0.8vmin, 6px) clamp(6px, 1.2vmin, 10px);
+        font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.8rem);
+        font-weight: 600;
+        min-width: auto;
+    }
+    
+    .button-help-icon.badge.highlight-mode {
+        background: rgba(var(--colour-accent-primary), 0.3);
+        color: rgb(var(--colour-accent-primary));
+    }
+    
+    .button-help-icon.badge.play-mode.fast {
+        background: rgba(var(--colour-accent-success), 0.3);
+        color: rgb(var(--colour-accent-success));
+    }
+    
+    .button-help-icon.badge.category.easy {
+        background: rgba(14, 64, 77, 0.8);
+        color: rgb(141, 186, 203);
+    }
+    
+    .button-help-icon.badge.primary {
+        background: rgba(var(--colour-accent-primary), 0.4);
+        color: rgb(var(--colour-accent-primary));
+    }
+    
+    .button-help-icon.badge.secondary {
+        background: rgba(var(--colour-accent-secondary), 0.4);
+        color: rgb(var(--colour-accent-secondary));
+    }
+    
+    .button-help-icon.btn-preview {
+        background: rgba(var(--colour-accent-desat), 0.2);
+        padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 12px);
+        min-width: auto;
+    }
+    
+    .button-help-icon.btn-preview.hint {
+        background: rgba(var(--colour-accent-warning), 0.3);
+    }
+    
+    .button-help-icon.btn-preview.deselect {
+        background: rgba(var(--colour-accent-tertiary), 0.2);
+        color: rgb(var(--colour-accent-tertiary));
+        font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
+    }
+    
+    .button-help-icon.btn-preview.set {
+        background: rgba(var(--colour-accent-success), 0.3);
+        color: rgb(var(--colour-accent-success));
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+    }
+    
+    .button-help-icon.btn-preview.clr {
+        background: rgba(var(--colour-accent-primary), 0.2);
+        color: rgb(var(--colour-accent-primary));
+        font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
+    }
+    
+    .button-help-icon.btn-preview.clr-other {
+        background: rgba(var(--colour-accent-warning), 0.2);
+        color: rgb(var(--colour-accent-warning));
+        font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
+    }
+    
+    .button-help-icon.number-pad-preview {
+        display: flex;
+        gap: 2px;
+        padding: clamp(4px, 0.8vmin, 8px);
+        min-width: auto;
+    }
+    
+    .button-help-icon.number-pad-preview .num {
+        background: rgba(var(--colour-accent-desat), 0.15);
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
+    }
+    
+    .button-help-icon.number-pad-preview .num.dots {
+        background: transparent;
+        padding: 2px 2px;
+    }
+    
+    .button-help-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .button-help-name {
+        font-weight: 600;
+        color: rgb(var(--colour-text-primary));
+        font-size: clamp(0.75rem, calc(0.7rem + 0.35vmin), 0.9rem);
+        margin-bottom: 2px;
+    }
+    
+    .button-help-desc {
+        color: rgba(var(--colour-text-primary), 0.7);
+        font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.8rem);
+        line-height: 1.4;
+    }
+    
+    .button-help-modal .tip-section {
+        background: rgba(var(--colour-accent-info), 0.1);
+        border-radius: clamp(8px, 1.5vmin, 12px);
+        padding: clamp(12px, 2vmin, 18px);
+        border-left: 3px solid rgb(var(--colour-accent-info));
+    }
+    
+    .button-help-modal .tip-section h2 {
+        color: rgb(var(--colour-accent-info));
+        border-bottom: none;
+        margin-bottom: clamp(6px, 1vmin, 10px);
+        padding-bottom: 0;
+    }
+    
+    .button-help-modal .tip-text {
+        color: rgba(var(--colour-text-primary), 0.85);
+        font-size: clamp(0.75rem, calc(0.7rem + 0.35vmin), 0.9rem);
+        line-height: 1.5;
+        margin: 0;
+    }
+    
+    .button-help-modal .link-section {
+        text-align: center;
+        padding: clamp(10px, 2vmin, 16px);
+        background: rgba(var(--colour-bg-tertiary), 0.1);
+        border-radius: clamp(6px, 1vmin, 10px);
+    }
+    
+    .button-help-modal .help-link-text {
+        color: rgba(var(--colour-text-primary), 0.7);
+        font-size: clamp(0.75rem, calc(0.7rem + 0.35vmin), 0.9rem);
+        margin: 0;
+    }
+    
+    .button-help-modal .help-link {
+        color: rgb(var(--colour-accent-info));
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.15s ease;
+        text-decoration: none;
+    }
+    
+    .button-help-modal .help-link:hover {
+        text-decoration: underline;
+        color: rgb(var(--colour-accent-primary));
+    }
+    
+    .button-help-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: clamp(16px, 3vmin, 24px);
+        padding-top: clamp(12px, 2vmin, 16px);
+        border-top: 1px solid rgba(var(--colour-border), 0.2);
+    }
+    
+    .button-help-actions .close-btn {
+        padding: clamp(10px, 2vmin, 14px) clamp(24px, 5vmin, 40px);
+        border: none;
+        border-radius: clamp(6px, 1.5vmin, 10px);
+        font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.05rem);
+        font-weight: 600;
+        cursor: pointer;
+        background: rgba(var(--colour-accent-info), 0.8);
+        color: rgb(var(--colour-text-primary));
+        transition: all 0.2s ease;
+    }
+    
+    .button-help-actions .close-btn:hover {
+        background: rgb(var(--colour-accent-info));
+        transform: translateY(-2px);
+    }
 """.trimIndent()

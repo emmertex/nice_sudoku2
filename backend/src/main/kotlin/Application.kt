@@ -38,16 +38,28 @@ fun Application.module() {
     }
     
     install(CORS) {
-        // Allow requests from the web frontend (typically runs on different port)
-        anyHost() // For development - restrict in production
+        // Allow requests from any origin (including sudoku.emmertex.com)
+        anyHost()
+        
+        // Allow common HTTP methods
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
-        allowMethod(HttpMethod.Options)
+        
+        // Allow common headers
         allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.Authorization)
-        allowCredentials = true
+        allowHeader(HttpHeaders.Origin)
+        
+        // Expose headers to the client
+        exposeHeader(HttpHeaders.ContentType)
+        
+        // Note: allowCredentials is intentionally NOT set (defaults to false)
+        // because the frontend doesn't send credentials with fetch requests.
+        // Setting allowCredentials=true with anyHost() causes CORS issues
+        // since Access-Control-Allow-Origin cannot be "*" when credentials are allowed.
     }
     
     install(StatusPages) {

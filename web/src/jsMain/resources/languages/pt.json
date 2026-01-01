@@ -213,7 +213,7 @@
       "space": "Espaço",
       "spaceDesc": ": Se um número for selecionado (filtro), alterna seu candidato na célula selecionada",
       "n": "N",
-      "nDesc": ": Ativa/desativa o modo de notas/lápis",
+      "nDesc": ": Ativa/desativa o modo de notas/lápiz",
       "editing": "Edição",
       "undoButton": "Botão Desfazer (↩)",
       "undoButtonDesc": ": Desfaz a última ação (colocação e remoção de candidatos)",
@@ -258,7 +258,7 @@
       "clearSelections": "Limpa as seleções na tela do jogo",
       "modeSwitching": "Mudança de Modo",
       "nMode": "N",
-      "nModeDesc": ": Alterna o modo de Notas/Lápis",
+      "nModeDesc": ": Alterna o modo de Notas/Lápiz",
       "whenEnabled": "Quando ativado, a entrada de número adiciona/remove marcas de lápis em vez de valores",
       "notes": "Notas",
       "shortcutsDisabled": "Todos os atalhos de teclado são desativados ao digitar em campos de entrada ou áreas de texto para evitar conflitos",
@@ -309,6 +309,59 @@
       "cell": "Célula",
       "adv": "Avançado"
     },
+    "buttonHelp": {
+      "title": "Referência Rápida",
+      "topBar": "Barra Superior",
+      "menuBtn": "Botão Menu",
+      "menuBtnDesc": "Abrir configurações, navegação e opções",
+      "highlightMode": "Modo de Destaque",
+      "highlightModeDesc": "Mostra o estilo de destaque atual. Toque para alterar nas configurações.",
+      "playMode": "Modo de Jogo",
+      "playModeDesc": "Mostra modo Rápido/Célula/Avançado. Toque para alternar entre Rápido ↔ Avançado.",
+      "gameInfo": "Informações do Jogo",
+      "category": "Categoria",
+      "categoryDesc": "Categoria de dificuldade do quebra-cabeça (Iniciante a Diabólico)",
+      "difficulty": "Classificação de Dificuldade",
+      "difficultyDesc": "Pontuação numérica de dificuldade do quebra-cabeça",
+      "timer": "Cronômetro",
+      "timerDesc": "Tempo gasto neste quebra-cabeça",
+      "pauseBtn": "Pausar",
+      "pauseBtnDesc": "Pausar o jogo e ocultar a grade",
+      "mistakes": "Erros",
+      "mistakesDesc": "Número de colocações incorretas feitas",
+      "hintsUsed": "Dicas Usadas",
+      "hintsUsedDesc": "Número de vezes que dicas foram solicitadas",
+      "controls": "Botões de Controle",
+      "notesBtn": "Modo Notas",
+      "notesBtnDesc": "Alternar modo lápis/notas. Quando ativo, números adicionam candidatos em vez de resolver células.",
+      "undoBtn": "Desfazer",
+      "undoBtnDesc": "Desfazer sua última ação (colocação ou eliminação)",
+      "hintBtn": "Dica",
+      "hintBtnDesc": "Mostrar dicas e técnicas de resolução. Requer conexão com o backend.",
+      "clearBtn": "Limpar Seleção",
+      "clearBtnDesc": "Limpar todos os números selecionados (teclado: Escape)",
+      "numberPads": "Teclados Numéricos",
+      "numberBtns": "Botões Numéricos",
+      "numberBtnsDesc": "Toque para selecionar/colocar números. Esmaecido quando todas as 9 instâncias estão colocadas.",
+      "primaryRow": "Seleção Primária (Azul)",
+      "primaryRowDesc": "No modo Avançado: primeira linha seleciona números primários para destaque azul",
+      "secondaryRow": "Seleção Secundária (Vermelho)",
+      "secondaryRowDesc": "No modo Avançado: segunda linha seleciona números secundários para destaque vermelho",
+      "advancedActions": "Ações do Modo Avançado",
+      "deselectBtn": "Desmarcar",
+      "deselectBtnDesc": "Desmarcar a célula para mostrar os teclados numéricos novamente",
+      "setBtn": "Definir",
+      "setBtnDesc": "Colocar o número selecionado na célula atual",
+      "clrBtn": "Limpar Candidatos",
+      "clrBtnDesc": "Remover os candidatos selecionados da célula atual",
+      "clrOtherBtn": "Limpar Outros",
+      "clrOtherBtnDesc": "Remover todos os candidatos EXCETO os selecionados",
+      "quickTip": "💡 Dica Rápida",
+      "quickTipText": "Toque no emblema Rápido/Avançado no cabeçalho para alternar rapidamente entre os modos sem abrir configurações!",
+      "moreHelp": "Para atalhos de teclado e ajuda detalhada, consulte o",
+      "keyboardShortcuts": "Guia de Ajuda Completo →",
+      "gotIt": "Entendi!"
+    },
     "hints": {
       "overview": "Visão Geral",
       "eliminations": "Eliminações",
@@ -317,23 +370,524 @@
       "from": "de"
     }
   },
+  "hints": {
+    "common": {
+      "overview": "Visão Geral",
+      "eliminations": "Eliminações",
+      "solution": "Solução",
+      "remove": "Remover {{digit}} de {{cells}}",
+      "place": "Colocar {{digit}} em {{cell}}",
+      "cellFormat": "L{{row}}C{{col}}"
+    },
+    "naked_single": {
+      "step1": {
+        "title": "Identificar o Único Nu (Naked Single)",
+        "description": "A célula {{cell}} tem apenas um candidato possível: {{digit}}"
+      },
+      "step2": {
+        "title": "Colocar o valor e eliminar",
+        "description": "Coloque {{digit}} em {{cell}}. Elimine {{digit}} da Linha {{row}}, Coluna {{col}} e Bloco {{box}}: {{cells}}"
+      }
+    },
+    "hidden_single": {
+      "step1": {
+        "title": "Identificar o Único Oculto (Hidden Single)",
+        "description": "Em {{house}}, apenas {{cell}} pode ser {{digit}}. Portanto, elimine outros candidatos desta célula."
+      },
+      "step2": {
+        "title": "Eliminar dos pares",
+        "description": "Na Linha {{row}}, Coluna {{col}} e Bloco {{box}}, {{digit}} só pode estar em {{cell}}. Elimine {{digit}} de: {{cells}}"
+      }
+    },
+    "naked_pair": {
+      "step1": {
+        "title": "Identificar o Par Nu (Naked Pair)",
+        "description": "As células {{cells}} em {{house}} só podem conter os dígitos {{digits}}. Estes dígitos estão 'bloqueados' nestas células."
+      },
+      "step2": {
+        "title": "Eliminar da mesma casa",
+        "description": "Como {{digits}} só podem estar em {{subsetCells}}, elimine estes dígitos de {{elimCells}} em {{house}}."
+      },
+      "step3": {
+        "title": "Aplicar candidatos bloqueados",
+        "description": "O {{subsetType}} nu bloqueia {{digits}} em {{house}}, então elimine {{digits}} de {{cells}}."
+      }
+    },
+    "naked_triple": {
+      "step1": {
+        "title": "Identificar o Trio Nu (Naked Triple)",
+        "description": "As células {{cells}} em {{house}} só podem conter os dígitos {{digits}}. Estes dígitos estão 'bloqueados' nestas células."
+      },
+      "step2": {
+        "title": "Eliminar da mesma casa",
+        "description": "Como {{digits}} só podem estar em {{subsetCells}}, elimine estes dígitos de {{elimCells}} em {{house}}."
+      },
+      "step3": {
+        "title": "Aplicar candidatos bloqueados",
+        "description": "O {{subsetType}} nu bloqueia {{digits}} em {{house}}, então elimine {{digits}} de {{cells}}."
+      }
+    },
+    "naked_quadruple": {
+      "step1": {
+        "title": "Identificar o Quarteto Nu (Naked Quadruple)",
+        "description": "As células {{cells}} em {{house}} só podem conter os dígitos {{digits}}. Estes dígitos estão 'bloqueados' nestas células."
+      },
+      "step2": {
+        "title": "Eliminar da mesma casa",
+        "description": "Como {{digits}} só podem estar em {{subsetCells}}, elimine estes dígitos de {{elimCells}} em {{house}}."
+      },
+      "step3": {
+        "title": "Aplicar candidatos bloqueados",
+        "description": "O {{subsetType}} nu bloqueia {{digits}} em {{house}}, então elimine {{digits}} de {{cells}}."
+      }
+    },
+    "hidden_pair": {
+      "step1": {
+        "title": "Identificar o Par Oculto (Hidden Pair)",
+        "description": "Em {{house}}, {{digits}} só podem ser colocados em {{cells}}. Estas células estão 'bloqueadas' para estes dígitos."
+      },
+      "step2": {
+        "title": "Eliminar da mesma casa",
+        "description": "Como {{digits}} só podem estar em {{cells}}, elimine outros candidatos destas células."
+      },
+      "step3": {
+        "title": "Aplicar candidatos bloqueados ocultos",
+        "description": "O {{subsetType}} oculto bloqueia {{digits}} em {{house}}, então elimine {{digits}} de {{cells}}."
+      }
+    },
+    "hidden_triple": {
+      "step1": {
+        "title": "Identificar o Trio Oculto (Hidden Triple)",
+        "description": "Em {{house}}, {{digits}} só podem ser colocados em {{cells}}. Estas células estão 'bloqueadas' para estes dígitos."
+      },
+      "step2": {
+        "title": "Eliminar da mesma casa",
+        "description": "Como {{digits}} só podem estar em {{cells}}, elimine outros candidatos destas células."
+      },
+      "step3": {
+        "title": "Aplicar candidatos bloqueados ocultos",
+        "description": "O {{subsetType}} oculto bloqueia {{digits}} em {{house}}, então elimine {{digits}} de {{cells}}."
+      }
+    },
+    "hidden_quadruple": {
+      "step1": {
+        "title": "Identificar o Quarteto Oculto (Hidden Quadruple)",
+        "description": "Em {{house}}, {{digits}} só podem ser colocados em {{cells}}. Estas células estão 'bloqueadas' para estes dígitos."
+      },
+      "step2": {
+        "title": "Eliminar da mesma casa",
+        "description": "Como {{digits}} só podem estar em {{cells}}, elimine outros candidatos destas células."
+      },
+      "step3": {
+        "title": "Aplicar candidatos bloqueados ocultos",
+        "description": "O {{subsetType}} oculto bloqueia {{digits}} em {{house}}, então elimine {{digits}} de {{cells}}."
+      }
+    },
+    "pointing_candidates": {
+      "step1": {
+        "title": "Identificar Candidatos Apontadores (Pointing Candidates)",
+        "description": "Em {{baseHouse}}, o candidato {{digit}} só aparece em células que também pertencem a {{coverHouse}}."
+      },
+      "step2": {
+        "title": "Eliminar de {{house}}",
+        "description": "Elimine {{digit}} de outras células em {{house}}: {{cells}}"
+      }
+    },
+    "claiming_candidates": {
+      "step1": {
+        "title": "Identificar Candidatos Reclamadores (Claiming Candidates)",
+        "description": "Em {{baseHouse}}, o candidato {{digit}} só aparece em células que também pertencem a {{coverHouse}}."
+      },
+      "step2": {
+        "title": "Eliminar de {{house}}",
+        "description": "Elimine {{digit}} de outras células em {{house}}: {{cells}}"
+      }
+    },
+    "bug": {
+      "step1": {
+        "title": "Identificar o padrão bivalor",
+        "description": "Olhe para as células não resolvidas neste quebra-cabeça. Quase todas têm exatamente DOIS candidatos. Esta é uma situação muito especial chamada 'Bivalue Universal Grave' (BUG). Aqui está o porquê de ser um problema: se CADA célula não resolvida tivesse exatamente dois candidatos organizados em um certo padrão, você poderia trocar os valores e obter duas soluções válidas diferentes! Mas um quebra-cabeça de Sudoku adequado tem apenas UMA solução. Portanto, algo deve 'quebrar' este padrão - deve haver pelo menos uma célula que seja diferente."
+      },
+      "step2": {
+        "title": "Encontrar a célula de exceção",
+        "description": "Agora olhe para {{cell}} - esta célula é especial! Enquanto todas as outras células não resolvidas têm exatamente dois candidatos, esta tem TRÊS (ou mais). Este é o '+1' em BUG+1. Este candidato extra é a chave para resolver o quebra-cabeça. Se removêssemos este candidato extra, teríamos o padrão mortal BUG com múltiplas soluções. Portanto, o candidato extra DEVE ser o verdadeiro valor desta célula!"
+      },
+      "step3": {
+        "title": "Prevenir o BUG",
+        "description": "Para evitar o BUG (o que significaria múltiplas soluções), devemos eliminar os candidatos que completariam o padrão mortal. Remova {{digits}} de {{cell}}. O candidato restante é a solução para esta célula."
+      }
+    },
+    "aic": {
+      "step1": {
+        "title": "Encontrar a cadeia",
+        "description": "Uma Cadeia de Inferência Alternada (AIC) conecta candidatos em uma sequência lógica. Pense nela como uma cadeia de dominós onde cada peça afeta a próxima. Esta cadeia tem {{nodeCount}} elos, começando em {{startDesc}} e terminando em {{endDesc}}. A cadeia alterna entre dois tipos de conexões: • **Links fortes** (linhas sólidas): 'Se isso for FALSO, então aquilo deve ser VERDADEIRO' • **Links fracos** (linhas tracejadas): 'Se isso for VERDADEIRO, então aquilo deve ser FALSO'. Ao seguir a cadeia, podemos provar que certos candidatos devem ser eliminados."
+      },
+      "step2": {
+        "title": "Seguir a lógica",
+        "description": "Vamos seguir a cadeia passo a passo:\n\n{{chainSteps}}\n\nAs extremidades da cadeia são críticas - qualquer célula que possa 'ver' ambas as extremidades não pode ter o candidato alvo."
+      },
+      "step3": {
+        "title": "Fazer a eliminação",
+        "description": "A cadeia prova que {{digits}} não podem estar em {{cells}}. Por quê? Porque as extremidades da cadeia criam uma 'armadilha': não importa qual extremidade seja verdadeira, a célula de eliminação veria uma célula que tem o candidato. Remova {{digits}} de: {{cells}}."
+      }
+    },
+    "als": {
+      "step1": {
+        "title": "Entender Conjuntos Quase Bloqueados (Almost Locked Sets)",
+        "description": "Um **Conjunto Quase Bloqueado** (ALS) é um grupo de células que está 'quase' resolvido. Aqui está a ideia chave: se você tem N células contendo exatamente N+1 candidatos diferentes, então remover apenas UM candidato 'bloquearia' os candidatos restantes nessas células. Por exemplo: 3 células com candidatos {1,2,3,4} = quase bloqueado. Remova qualquer dígito, e os outros 3 dígitos DEVEM ir nessas 3 células. Esta técnica {{alsType}} usa {{numALS}} Conjuntos Quase Bloqueados que compartilham 'dígitos de conexão' - dígitos que só podem estar em um ALS ou no outro, ligando-os entre si."
+      }
+    },
+    "als_identify": {
+      "step1": {
+        "description": "Olhe para {{alsName}}: {{cellCount}} células ({{cells}}) com {{digitCount}} candidatos {{{digits}}}. São {{cellCount}} células com {{digitCount}} candidatos - isso é 'quase bloqueado' porque {{digitCount}} = {{cellCount}} + 1."
+      }
+    },
+    "als_connecting": {
+      "step1": {
+        "title": "Encontrar os dígitos de conexão",
+        "description": "Os ALSs estão conectados por **dígitos compartilhados** que só podem aparecer em um ALS ou no outro:\n\n{{connections}}\n\nEstes 'dígitos de conexão' agem como pontes - se o dígito for usado em um ALS, ele é bloqueado fora do outro ALS, o que bloqueia os dígitos restantes."
+      }
+    },
+    "als_elimination": {
+      "step1": {
+        "title": "Fazer a eliminação",
+        "description": "Agora o resultado! Olhe para o(s) dígito(s) {{digits}}. Devido à forma como os ALSs estão conectados, {{digits}} deve acabar em uma das células do ALS. Qualquer célula que possa 'ver' TODOS os lugares onde {{digits}} poderia estar em AMBOS os ALSs não pode ter {{digits}} - haveria sempre um conflito. Remova {{digits}} de: {{cells}}."
+      }
+    },
+    "x_cycle": {
+      "step1": {
+        "title": "Encontrar o Ciclo-X (X-Cycle)",
+        "description": "Um Ciclo-X é uma cadeia de células que faz um loop de volta para onde começou. Este ciclo tem {{cycleSize}} nós envolvendo o dígito {{digit}} nas células: {{cells}}. A chave é que a cadeia alterna entre 'links fortes' (linhas sólidas) e 'links fracos' (linhas tracejadas). Link forte = se um for falso, o outro deve ser verdadeiro. Link fraco = ambos não podem ser verdadeiros ao mesmo tempo. Como a cadeia forma um loop completo, certos candidatos DEVEM ser eliminados para evitar uma contradição."
+      },
+      "step2": {
+        "title": "Entender a lógica do ciclo"
+      },
+      "step3": {
+        "title": "Eliminar de células vendo ambas as cores",
+        "description": "As células em {{cells}} podem ver nós de ambas as 'cores' no ciclo. Como uma cor deve ser verdadeira, estas células estariam sempre em conflito. Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "x_cycle_nice_loop": {
+      "step1": {
+        "description": "Este é um 'Nice Loop' (número par de nós). Em um nice loop, podemos colorir os nós alternadamente - vamos chamá-los de 'Verde' e 'Amarelo'. Ou todos os nós verdes teriam {{digit}}, OU todos os nós amarelos teriam {{digit}}. Qualquer célula que possa ver TANTO um nó verde QUANTO um amarelo não pode ter {{digit}} - não importa qual cor seja verdadeira, aquela célula entraria em conflito com ela."
+      }
+    },
+    "x_cycle_discontinuous": {
+      "step1": {
+        "description": "Este é um 'Discontinuous Loop' (número ímpar de nós). Com um ciclo ímpar, algo deve 'quebrar' - encontramos uma contradição. Seguindo a lógica da cadeia, podemos provar que certos candidatos devem ser eliminados porque mantê-los criaria uma situação impossível."
+      }
+    },
+    "simple_coloring": {
+      "step1": {
+        "title": "Entender o Colorimento Simples (Simple Coloring)",
+        "description": "O Colorimento Simples funciona em um único dígito ({{digit}}). Aqui está a ideia: Encontre todos os 'links fortes' para o dígito {{digit}}. Um link forte existe quando {{digit}} aparece em exatamente duas células de uma linha, coluna ou bloco - se uma for falsa, a outra deve ser verdadeira. Agora colora estas células alternadamente - comece com 'Verde', células conectadas tornam-se 'Amarelo', suas conexões tornam-se 'Verde' novamente, e assim por diante. Temos {{greenCount}} células Verdes e {{yellowCount}} células Amarelas. Ou TODAS as células verdes têm {{digit}}, OU TODAS as amarelas têm {{digit}}."
+      }
+    },
+    "3d_medusa": {
+      "step1": {
+        "title": "Entender o Colorimento Medusa 3D",
+        "description": "A Medusa 3D estende o colorimento para múltiplos dígitos. Aqui está a ideia: Comece com qualquer candidato e chame-o de 'Verde'. Cada candidato conectado por um link forte recebe a cor oposta ('Amarelo'). Links fortes existem quando: • Um dígito aparece apenas duas vezes em uma linha, coluna ou bloco • Uma célula tem apenas dois candidatos (célula bivalor). Colorimos {{greenCount}} células de Verde e {{yellowCount}} células de Amarelo. Um grupo de cores inteiro é VERDADEIRO, o outro é FALSO - só não sabemos qual ainda."
+      }
+    },
+    "coloring": {
+      "step2": {
+        "title": "Encontrar armadilhas e voltas de cor",
+        "description": "Agora procuramos por contradições ou 'armadilhas': **Armadilha de Cor (Color Trap)**: Se uma célula não colorida puder ver tanto uma célula Verde quanto uma Amarela (na mesma linha, coluna ou bloco), aquela célula não pode ter o dígito. Por quê? Porque uma dessas cores deve ser verdadeira, e qualquer uma eliminaria o dígito daquela célula. **Volta de Cor (Color Wrap)**: Se duas células da MESMA cor puderem se ver, aquela cor é impossível! Elas não podem ambas ter o dígito. Então a OUTRA cor deve ser inteiramente verdadeira."
+      },
+      "step3": {
+        "title": "Fazer a eliminação",
+        "description": "Com base na análise de colorimento: As células em {{cells}} ou veem ambas as cores (Armadilha de Cor) ou fazem parte de uma cor que se contradiz (Volta de Cor). Remova o(s) candidato(s) de: {{cells}}."
+      }
+    },
+    "generic": {
+      "step1": {
+        "title": "{{technique}}",
+        "description": "Esta técnica é chamada **{{technique}}**. Ela usa dedução lógica para provar que certos candidatos devem ser eliminados ou que certas células devem ter valores específicos. O padrão envolve as células e candidatos destacados."
+      },
+      "step2": {
+        "title": "Aplicar eliminações",
+        "description": "Com base no padrão, podemos eliminar: Remover {{digits}} de {{cells}}."
+      },
+      "step3": {
+        "title": "Colocar valores",
+        "description": "A técnica revela estas soluções:\n\n{{solutions}}"
+      }
+    },
+    "unique_rectangle": {
+      "step1": {
+        "title": "Detectar o padrão mortal",
+        "description": "Olhe para estas quatro células formando um retângulo: {{cells}}. Elas abrangem exatamente duas linhas, duas colunas e dois blocos. Note que todas contêm os candidatos {{digits}}. Aqui está o problema: se estas quatro células tivessem APENAS {{digits}} como candidatos, você poderia trocar os dígitos entre os cantos diagonais e ainda assim ter uma solução válida! Isso significa que o quebra-cabeça teria DUAS soluções - o que não é permitido no Sudoku adequado. Este padrão proibido é chamado de 'Padrão Mortal' ou 'Retângulo Único' (Unique Rectangle)."
+      },
+      "step3": {
+        "title": "Fazer a eliminação"
+      }
+    },
+    "unique_rectangle_type1": {
+      "step1": {
+        "title": "Entender o Tipo {{type}}",
+        "description": "Este é o Tipo 1 - o caso mais simples. Três cantos do retângulo têm apenas {{digits}}, mas {{extraCell}} tem um candidato extra. Pense sobre isso: se {{extraCell}} fosse apenas {{digits}} como as outras, teríamos o padrão mortal. Então o candidato extra DEVE ser o verdadeiro valor dessa célula! Podemos remover com segurança {{digits}} de {{extraCell}}."
+      }
+    },
+    "unique_rectangle_type2": {
+      "step1": {
+        "title": "Entender o Tipo {{type}}",
+        "description": "Este é o Tipo 2 - dois cantos compartilham o mesmo candidato extra ({{extraDigit}}). Estas duas células estão em cantos opostos do retângulo. Como o padrão mortal não pode existir, pelo menos um destes cantos deve ser {{extraDigit}}. Qualquer célula que possa ver AMBOS estes cantos não pode ter {{extraDigit}}."
+      }
+    },
+    "unique_rectangle_type3": {
+      "step1": {
+        "title": "Entender o Tipo {{type}}",
+        "description": "Este é o Tipo 3 - dois cantos têm candidatos extras que formam um 'subconjunto nu' com células próximas. Os candidatos extras nos cantos do UR, combinados com outras células na mesma casa, forçam certas eliminações. O padrão mortal é evitado porque a lógica do subconjunto garante que o UR não se completará."
+      }
+    },
+    "unique_rectangle_type4": {
+      "step1": {
+        "title": "Entender o Tipo {{type}}",
+        "description": "Este é o Tipo 4 - um dos dígitos do UR ({{digits}}) está 'bloqueado' em dois cantos opostos. Devido a um link forte, um dígito deve ir naqueles dois cantos. Isto significa que o OUTRO dígito não pode estar naqueles cantos (ou teríamos o padrão mortal). Remova o dígito não bloqueado dos cantos bloqueados."
+      }
+    },
+    "unique_rectangle_type5": {
+      "step1": {
+        "title": "Entender o Tipo {{type}}",
+        "description": "Este é o Tipo 5 - um link forte diagonal evita o padrão mortal. Dois cantos opostos estão fortemente ligados em um dígito, lo que significa que um deles deve tê-lo. Isto quebra a simetria que permitiria o padrão mortal."
+      }
+    },
+    "unique_rectangle_type6": {
+      "step1": {
+        "title": "Entender o Tipo {{type}}",
+        "description": "Este é o Tipo 6 - ambas as diagonais têm links fortes no mesmo dígito. Este bloqueio duplo em um dígito significa que ele deve aparecer em exatamente dois cantos opostos, forçando o outro dígito para fora desses cantos."
+      }
+    },
+    "unique_rectangle_generic": {
+      "step1": {
+        "title": "Quebrar o padrão",
+        "description": "Para evitar este padrão mortal, precisamos garantir que ele nunca se complete. Algo deve 'quebrar' o retângulo - ou um candidato extra que deve ser verdadeiro, ou um link forte que force um dígito em cantos específicos."
+      }
+    },
+    "unique_rectangle_elim_type1": {
+      "step1": {
+        "description": "Remova {{digits}} de {{cells}}. O candidato extra nesta célula deve ser seu verdadeiro valor para evitar o padrão mortal."
+      }
+    },
+    "unique_rectangle_elim_type2": {
+      "step1": {
+        "description": "Remova {{digits}} de {{cells}}. Estas células veem ambos os cantos do UR que compartilham o candidato extra."
+      }
+    },
+    "empty_rectangle": {
+      "step1": {
+        "title": "Encontrar o Retângulo Vazio (Empty Rectangle)",
+        "description": "Olhe para {{box}}. O candidato {{digit}} só aparece em um padrão de 'forma de L' ou 'curvado' - ele está ausente em pelo menos uma linha E uma coluna dentro do bloco. Isso cria um 'Retângulo Vazio' - a linha e a coluna vazias formam uma cruz dentro do bloco, e todos os candidatos {{digit}} estão nos cantos desta cruz. As células com {{digit}} são: {{cells}}."
+      },
+      "step2": {
+        "title": "Conectar ao link forte",
+        "description": "Agora olhe para fora do bloco. Há um 'link forte' (linha sólida) em {{digit}} em {{conjugateCells}}. Um link forte significa: se uma extremidade for falsa, a outra DEVE ser verdadeira. Uma extremidade deste link forte conecta-se ao Retângulo Vazio através de uma linha ou coluna compartilhada. Isso cria uma cadeia de lógica: se a extremidade distante do link forte for verdadeira, ela elimina {{digit}} do ponto de interseção no bloco, o que então força {{digit}} para uma posição diferente no ER."
+      },
+      "step3": {
+        "title": "Fazer a eliminação",
+        "description": "Aqui está a ideia chave: a célula de eliminação ({{cells}}) pode ver ambas as extremidades da nossa cadeia - ela vê uma extremidade do link forte E vê onde {{digit}} seria forçado no Retângulo Vazio. Não importa para que lado a lógica vá, {{digit}} acabará em uma célula que vê {{cells}}. Portanto, {{digit}} não pode estar em {{cells}}. Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "x_wing": {
+      "step1": {
+        "title": "Identificar o padrão X-Wing",
+        "description": "Em {{baseNames}}, o dígito {{digit}} aparece em exatamente {{baseCount}} {{baseTypeText}}. Estes candidatos se alinham perfeitamente em {{coverNames}}. Como {{digit}} deve ser colocado em uma destas posições em cada {{baseTypeText}} base, ele bloqueia {{digit}} nos {{baseTypeText}} destacados."
+      },
+      "step2": {
+        "title": "Eliminar da cobertura {{coverTypeText}}",
+        "description": "Como {{digit}} está bloqueado em {{baseNames}} (destacado no {{baseTypeText}} base), quaisquer outros candidatos {{digit}} em {{coverNames}} devem ser falsos. Elimine {{digit}} das células na cobertura {{coverTypeText}} que não fazem parte do padrão."
+      },
+      "step3": {
+        "title": "Remover candidato {{digit}}",
+        "description": "Remova {{digit}} de: {{cells}}. Estas células veem o padrão peixe e não podem conter {{digit}}."
+      }
+    },
+    "swordfish": {
+      "step1": {
+        "title": "Identificar o padrão Swordfish",
+        "description": "Em {{baseNames}}, o dígito {{digit}} aparece em exatamente três {{baseTypeText}}. Estes candidatos se alinham através de três {{coverTypeText}}: {{coverNames}}. O padrão swordfish bloqueia {{digit}} nestes {{baseTypeText}} base."
+      },
+      "step2": {
+        "title": "Eliminar da cobertura {{coverTypeText}}",
+        "description": "Como {{digit}} está bloqueado em {{baseNames}} (destacado no {{baseTypeText}} base), quaisquer outros candidatos {{digit}} em {{coverNames}} devem ser falsos. Elimine {{digit}} das células na cobertura {{coverTypeText}} que não fazem parte do padrão."
+      },
+      "step3": {
+        "title": "Remover candidato {{digit}}",
+        "description": "Remova {{digit}} de: {{cells}}. Estas células veem o padrão peixe e não podem conter {{digit}}."
+      }
+    },
+    "jellyfish": {
+      "step1": {
+        "title": "Identificar o padrão Jellyfish",
+        "description": "Em {{baseNames}}, o dígito {{digit}} aparece em exatamente quatro {{baseTypeText}}. Estes candidatos se alinham através de quatro {{coverTypeText}}: {{coverNames}}. O padrão jellyfish bloqueia {{digit}} nestes {{baseTypeText}} base."
+      },
+      "step2": {
+        "title": "Eliminar da cobertura {{coverTypeText}}",
+        "description": "Como {{digit}} está bloqueado em {{baseNames}} (destacado no {{baseTypeText}} base), quaisquer outros candidatos {{digit}} em {{coverNames}} devem ser falsos. Elimine {{digit}} das células na cobertura {{coverTypeText}} que não fazem parte do padrão."
+      },
+      "step3": {
+        "title": "Remover candidato {{digit}}",
+        "description": "Remova {{digit}} de: {{cells}}. Estas células veem o padrão peixe e não podem conter {{digit}}."
+      }
+    },
+    "basic_fish": {
+      "step1": {
+        "title": "Identificar o padrão",
+        "description": "Candidatos do dígito {{digit}} se alinham na base {{baseTypeText}} ({{baseNames}}) e cobertura {{coverTypeText}} ({{coverNames}}) para formar este padrão."
+      },
+      "step2": {
+        "title": "Eliminar da cobertura {{coverTypeText}}",
+        "description": "Como {{digit}} está bloqueado em {{baseNames}} (destacado no {{baseTypeText}} base), quaisquer outros candidatos {{digit}} em {{coverNames}} devem ser falsos. Elimine {{digit}} das células na cobertura {{coverTypeText}} que não fazem parte do padrão."
+      },
+      "step3": {
+        "title": "Remover candidato {{digit}}",
+        "description": "Remova {{digit}} de: {{cells}}. Estas células veem o padrão peixe e não podem conter {{digit}}."
+      }
+    },
+    "skyscraper": {
+      "step1": {
+        "title": "Encontrar os dois links fortes",
+        "description": "Um Skyscraper (Arranha-céu) é um padrão com dois **links fortes** no mesmo dígito. Olhe para {{baseNamesText}}. Em cada um destes {{baseTypeText}}, o dígito {{digit}} aparece em exatamente DUAS células. Isso é um link forte - se uma célula não tiver {{digit}}, a outra DEVE tê-lo. Os dois links fortes estão conectados: uma extremidade de cada link forte compartilha a mesma coluna (ou linha). As outras extremidades - o 'telhado' do arranha-céu (mostrado em amarelo) - são as células-chave."
+      },
+      "step2": {
+        "title": "Seguir a lógica",
+        "description": "Aqui está o porquê do Skyscraper funcionar: As extremidades conectadas dos dois links fortes estão na mesma coluna/linha. Se {{digit}} NÃO estiver em uma das células conectadas, o link forte o força a estar no parceiro dessa célula. Mas aquele parceiro é a célula do 'telhado'! Então, não importa o que aconteça: ou {{digit}} está em uma célula de telhado, ou está na outra célula de telhado (ou possivelmente em ambas). Uma das células do telhado DEVE ter {{digit}}."
+      },
+      "step3": {
+        "title": "Eliminar das células vendo ambos os telhados",
+        "description": "Qualquer célula que possa ver AMBAS as células do telhado não pode ter {{digit}}. Por quê? Porque uma das células do telhado deve ter {{digit}}, e isso eliminaria {{digit}} de qualquer célula que a visse. Como a célula de eliminação vê ambas as células do telhado, ela será sempre eliminada. Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "finned_fish": {
+      "step1": {
+        "title": "Encontrar o padrão com barbatana (Finned)",
+        "description": "Este é um **{{fishType}} com barbatana**. Vamos começar com o padrão básico: olhe para {{baseNames}}. Em um {{fishType}} normal, o dígito {{digit}} apareceria apenas em células que se alinham com {{coverNames}}. Mas aqui, há uma célula extra (ou células) que não se encaixa - essa é a 'barbatana'. A barbatana está em: {{finCells}} (mostrada em amarelo)."
+      },
+      "step2": {
+        "title": "Entender o efeito da barbatana",
+        "description": "A barbatana muda o que podemos eliminar. Aqui está a lógica: **Se a barbatana for VERDADEIRA** (tem {{digit}}): O padrão de peixe normal se aplica ao resto, mas só podemos eliminar de células que TAMBÉM veem a barbatana. **Se a barbatana for FALSA**: Então {{digit}} deve estar em outro lugar no padrão de peixe, e as eliminações normais de peixe se aplicariam. De qualquer forma, qualquer célula que veja tanto a barbatana QUANTO o padrão de peixe pode ser eliminada! Isso significa que as eliminações são restritas ao bloco {{boxName}} (onde a barbatana está)."
+      },
+      "step3": {
+        "title": "Eliminar onde a barbatana e o peixe se encontram",
+        "description": "Células que podem ver a barbatana E estão nas linhas de cobertura do peixe podem ser eliminadas. Estas células estão no bloco {{boxName}} (então elas veem a barbatana) e também em uma das coberturas {{coverTypeText}} (então o padrão de peixe as afeta). Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "sashimi_fish": {
+      "step1": {
+        "title": "Encontrar o padrão com barbatana (Finned)",
+        "description": "Este é um **{{fishType}} com barbatana**. Vamos começar com o padrão básico: olhe para {{baseNames}}. Em um {{fishType}} normal, o dígito {{digit}} apareceria apenas em células que se alinham com {{coverNames}}. Mas aqui, há uma célula extra (ou células) que não se encaixa - essa é a 'barbatana Sashimi'. A barbatana está em: {{finCells}} (mostrada em amarelo). Em uma variante Sashimi, o peixe estaria incompleto sem a barbatana - a barbatana está na verdade 'preenchendo' uma célula base ausente."
+      },
+      "step2": {
+        "title": "Entender o efeito da barbatana",
+        "description": "A barbatana muda o que podemos eliminar. Aqui está a lógica: **Se a barbatana for VERDADEIRA** (tem {{digit}}): O padrão de peixe normal se aplica ao resto, mas só podemos eliminar de células que TAMBÉM veem a barbatana. **Se a barbatana for FALSA**: Então {{digit}} deve estar em outro lugar no padrão de peixe, e as eliminações normais de peixe se aplicariam. De qualquer forma, qualquer célula que veja tanto a barbatana QUANTO o padrão de peixe pode ser eliminada! Isso significa que as eliminações são restritas ao bloco {{boxName}} (onde a barbatana está)."
+      },
+      "step3": {
+        "title": "Eliminar onde a barbatana e o peixe se encontram",
+        "description": "Células que podem ver a barbatana E estão nas linhas de cobertura do peixe podem ser eliminadas. Estas células estão no bloco {{boxName}} (então elas veem a barbatana) e também em uma das coberturas {{coverTypeText}} (então o padrão de peixe as afeta). Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "xy_wing": {
+      "step1": {
+        "title": "Encontrar o padrão {{wingType}}",
+        "description": "Olhe para a célula amarela em {{pivotName}} - ela é chamada de 'dobradiça' (pivot) e tem exatamente dois candidatos. Agora olhe para as duas células verdes em {{pincerNamesText}} - estas são as 'pinças' (pincers). Cada pinça compartilha um candidato com a dobradiça, mas ambas têm {{targetDigitText}} em comum. Aqui está a chave: não importa qual candidato vá na dobradiça, uma das pinças DEVE acabar com {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Entender por que funciona",
+        "description": "Como uma pinça DEVE ter {{targetDigitText}}, qualquer célula que possa ver AMBAS as pinças não pode ter {{targetDigitText}}. Ela entraria em conflito com qualquer pinça que acabasse com aquele dígito. A linha sólida mostra que uma pinça deve ser verdadeira para {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Remover {{digit}} de células que veem o padrão",
+        "description": "A(s) célula(s) em {{cells}} podem ver ambas as pinças (ou todas as células da asa), então {{digit}} não pode ir lá. Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "xyz_wing": {
+      "step1": {
+        "title": "Encontrar o padrão {{wingType}}",
+        "description": "Olhe para a célula amarela em {{pivotName}} - ela tem três candidatos: {{wingDigitText}}. As duas células verdes em {{pincerNamesText}} compartilham cada uma dois daqueles candidatos com a dobradiça. O dígito {{targetDigitText}} aparece em TODAS as três células. Como cada resultado força {{targetDigitText}} para uma destas células, qualquer célula que possa ver as três não pode ter {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Entender por que funciona",
+        "description": "As três células formam um 'grupo fechado' para {{targetDigitText}}. Não importa o que aconteça, {{targetDigitText}} acabará em uma delas. Qualquer célula que veja as três é bloqueada de ter {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Remover {{digit}} de células que veem o padrão",
+        "description": "A(s) célula(s) em {{cells}} podem ver ambas as pinças (ou todas as células da asa), então {{digit}} não pode ir lá. Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "wxyz_wing": {
+      "step1": {
+        "title": "Encontrar o padrão {{wingType}}",
+        "description": "Este padrão usa quatro células que juntas contêm quatro candidatos diferentes. O dígito {{targetDigitText}} é especial - ele aparece de uma forma que garante que uma destas células o terá. Pense nisso como dança das cadeiras: {{targetDigitText}} deve sentar-se em algum lugar neste grupo."
+      },
+      "step2": {
+        "title": "Entender por que funciona",
+        "description": "As quatro células 'bloqueiam' {{targetDigitText}} dentro de seu grupo. Qualquer célula externa que possa ver as quatro deve abrir mão de {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Remover {{digit}} de células que veem o padrão",
+        "description": "A(s) célula(s) em {{cells}} podem ver ambas as pinças (ou todas as células da asa), então {{digit}} não pode ir lá. Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "w_wing": {
+      "step1": {
+        "title": "Encontrar o padrão {{wingType}}",
+        "description": "Olhe para as duas células verdes em {{pincerNamesText}}. Ambas têm os mesmos dois candidatos. Estas células estão conectadas por um 'link forte' (mostrado como uma linha sólida) em um daqueles dígitos. Isto significa: se o dígito de ligação for removido de uma célula, a outra célula DEVE tê-lo. De qualquer forma, uma destas células terá {{targetDigitText}}."
+      },
+      "step2": {
+        "title": "Entender por que funciona",
+        "description": "Como as duas células estão conectadas por um link forte, seu 'outro' candidato ({{targetDigitText}}) é restrito. Qualquer célula vendo ambas as células verdes entraria em conflito com qualquer uma que acabasse com {{targetDigitText}}."
+      },
+      "step3": {
+        "title": "Remover {{digit}} de células que veem o padrão",
+        "description": "A(s) célula(s) em {{cells}} podem ver ambas as pinças (ou todas as células da asa), então {{digit}} não pode ir lá. Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "generic_wing": {
+      "step1": {
+        "title": "Encontrar o padrão {{wingType}}",
+        "description": "Este padrão {{wingType}} conecta células de uma forma que força {{targetDigitText}} a aparecer em locais específicos."
+      },
+      "step2": {
+        "title": "Entender por que funciona",
+        "description": "O padrão garante que {{targetDigitText}} apareça em uma das células destacadas, bloqueando-o em outro lugar."
+      },
+      "step3": {
+        "title": "Remover {{digit}} de células que veem o padrão",
+        "description": "A(s) célula(s) em {{cells}} podem ver ambas as pinças (ou todas as células da asa), então {{digit}} não pode ir lá. Remova {{digit}} de: {{cells}}."
+      }
+    },
+    "kite": {
+      "step1": {
+        "title": "Encontrar o padrão pipa (Kite)",
+        "description": "Olhe para os dois candidatos verdes {{digit}} em {{kiteNames}}. Estas são as extremidades da pipa. Eles estão conectados através de {{coverNames}}, que contém mais dois candidatos {{digit}} (mostrados em amarelo). Pense nisso assim: uma das células verdes DEVE ter {{digit}}, mas elas não podem AMBAS tê-lo."
+      },
+      "step2": {
+        "title": "Seguir a cadeia",
+        "description": "A pipa forma uma cadeia: {{chain}}. As linhas sólidas indicam links fortes, e a linha tracejada indica um link fraco. Não importa qual célula verde tenha {{digit}}, o link fraco garante que pelo menos uma das células amarelas no bloco o terá. Qualquer célula que possa ver AMBAS as células verdes em {{kiteNames}} não pode ter {{digit}}."
+      },
+      "step3": {
+        "title": "Fazer a eliminação",
+        "description": "Como {{cells}} pode ver ambas as células verdes, sabemos que {{digit}} não pode ir lá. Elimine {{digit}} de: {{cells}}."
+      }
+    }
+  },
   "backend": {
     "techniques": {
       "NAKED_SINGLE": "Esta célula só pode ter um candidato, então coloque-o.",
       "NAKED_SINGLES": "Esta célula só pode ter um candidato, então coloque-o.",
       "HIDDEN_SINGLE": "O dígito só aparece em uma célula de uma casa, forçando sua colocação.",
       "HIDDEN_SINGLES": "O dígito só aparece em uma célula de uma casa, forçando sua colocação.",
-      "POINTING_CANDIDATES": "O dígito está bloqueado em uma única linha de um bloco, então pode ser removido daquela linha fora do bloco.",
-      "POINTING_PAIRS": "O dígito está bloqueado em uma única linha de um bloco, então pode ser removido daquela linha fora do bloco.",
-      "CLAIMING_CANDIDATES": "O dígito está bloqueado em um único bloco de uma linha, então pode ser removido daquele bloco fora da linha.",
-      "BOX_LINE_REDUCTION": "O dígito está bloqueado em um único bloco de uma linha, então pode ser removido daquele bloco fora da linha.",
+      "POINTING_CANDIDATES": "O dígito está bloqueado em uma única linha de um bloco, então pode be removido daquela linha fora do bloco.",
+      "POINTING_PAIRS": "O dígito está bloqueado em uma única linha de um bloco, então pode be removido daquela linha fora do bloco.",
+      "CLAIMING_CANDIDATES": "O dígito está bloqueado em um único bloco de uma linha, então pode be removido daquele bloco fora da linha.",
+      "BOX_LINE_REDUCTION": "O dígito está bloqueado em um único bloco de uma linha, então pode be removido daquele bloco fora da linha.",
       "NAKED_PAIR": "Duas células em uma casa contêm exatamente os mesmos dois candidatos; eles reivindicam esses dígitos.",
       "NAKED_PAIRS": "Duas células em uma casa contêm exatamente os mesmos dois candidatos; eles reivindicam esses dígitos.",
       "LOCKED_PAIR": "Duas células em uma casa contêm exatamente os mesmos dois candidatos; eles reivindicam esses dígitos.",
       "LOCKED_PAIRS": "Duas células em uma casa contêm exatamente os mesmos dois candidatos; eles reivindicam esses dígitos.",
       "NAKED_TRIPLE": "Três células em uma casa contêm exatamente os mesmos três candidatos; eles reivindicam esses dígitos.",
-      "LOCKED_TRIPLES": "Três células em uma casa contêm exatamente os mesmos três candidatos; eles reivindicam esses dígitos.",
-      "NAKED_TRIPLES": "Três células em uma casa contêm exatamente os mesmos três candidatos; eles reivindicam esses dígitos.",
+      "LOCKED_TRIPLES": "Três células em uma casa contêm exactly os mesmos três candidatos; eles reivindicam esses dígitos.",
+      "NAKED_TRIPLES": "Três células em uma casa contêm exactly os mesmos três candidatos; eles reivindicam esses dígitos.",
       "NAKED_QUADRUPLE": "Quatro células em uma casa contêm exatamente os mesmos quatro candidatos; eles reivindicam esses dígitos.",
       "LOCKED_QUADRUPLES": "Quatro células em uma casa contêm exatamente os mesmos quatro candidatos; eles reivindicam esses dígitos.",
       "NAKED_QUADRUPLES": "Quatro células em uma casa contêm exatamente os mesmos quatro candidatos; eles reivindicam esses dígitos.",
@@ -343,8 +897,8 @@
       "HIDDEN_TRIPLES": "Três dígitos só podem aparecer em três células de uma casa; outros candidatos nessas células são removidos.",
       "HIDDEN_QUADRUPLE": "Quatro dígitos só podem aparecer em quatro células de uma casa; outros candidatos nessas células são removidos.",
       "HIDDEN_QUADRUPLES": "Quatro dígitos só podem aparecer em quatro células de uma casa; outros candidatos nessas células são removidos.",
-      "X_WING_FISH": "As linhas e colunas formam um X-Wing, então o dígito pode ser eliminado das linhas de cobertura.",
-      "X_WING": "As linhas e colunas formam um X-Wing, então o dígito pode ser eliminado das linhas de cobertura.",
+      "X_WING_FISH": "As linhas e colunas formam um X-Wing, então o dígito pode be eliminado das linhas de cobertura.",
+      "X_WING": "As linhas e colunas formam um X-Wing, então o dígito pode be eliminado das linhas de cobertura.",
       "SKYSCRAPER_FISH": "Dois links fortes no dígito formam um arranha-céu, permitindo eliminações em suas colunas/linhas compartilhadas.",
       "SKYSCRAPER": "Dois links fortes no dígito formam um arranha-céu, permitindo eliminações em suas colunas/linhas compartilhadas.",
       "TWO_STRING_KITE_FISH": "Uma pipa de duas cordas usa 2 links fortes com um link fraco no mesmo bloco para eliminar um candidato na interseção dos dois links fortes.",
@@ -352,8 +906,8 @@
       "2_STRING_KITE_FISH": "Uma pipa de duas cordas usa 2 links fortes com um link fraco no mesmo bloco para eliminar um candidato na interseção dos dois links fortes.",
       "FINNED_X_WING_FISH": "Um X-Wing com uma barbatana; as células que veem a barbatana podem perder esse dígito.",
       "FINNED_X_WING": "Um X-Wing com uma barbatana; as células que veem a barbatana podem perder esse dígito.",
-      "SASHIMI_X_WING_FISH": "Um X-Wing Sashimi tem uma barbatana mais uma base ausente; as células que veem a barbatana podem ser eliminadas.",
-      "SASHIMI_X_WING": "Um X-Wing Sashimi tem uma barbatana mais uma base ausente; as células que veem a barbatana podem ser eliminadas.",
+      "SASHIMI_X_WING_FISH": "Um X-Wing Sashimi tem uma barbatana mais uma base ausente; as células que veem a barbatana podem be eliminadas.",
+      "SASHIMI_X_WING": "Um X-Wing Sashimi tem uma barbatana mais uma base ausente; as células que veem a barbatana podem be eliminadas.",
       "SWORDFISH_FISH": "Três linhas alinham os candidatos em três colunas/linhas, permitindo eliminações (peixe-espada).",
       "SWORDFISH": "Três linhas alinham os candidatos em três colunas/linhas, permitindo eliminações (peixe-espada).",
       "FINNED_SWORDFISH_FISH": "Um peixe-espada com uma barbatana; as células que veem a barbatana perdem esse dígito.",

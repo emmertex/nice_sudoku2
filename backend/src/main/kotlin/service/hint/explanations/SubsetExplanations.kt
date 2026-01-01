@@ -1,6 +1,8 @@
 package service.hint.explanations
 
 import service.hint.helpers.*
+import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.commonKey
 import sudoku.match.TechniqueMatch
 import dto.*
 
@@ -94,10 +96,15 @@ import dto.*
 
         if (isNaked) {
             // Naked Subset: cells only contain these digits
+            val techKey = "naked_${subsetType.lowercase()}"
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
-                title = "Identify the Naked $subsetType",
-                description = "Cells $cellNames in $houseName can only contain $digitNames. These digits are 'locked' to these cells.",
+                title = hintKey(techKey, 1, "title"),
+                description = hintKey(techKey, 1, "description",
+                    "cells" to cellNames,
+                    "house" to houseName,
+                    "digits" to digitNames
+                ),
                 highlightCells = subsetCells,
                 regions = regions,
                 colouredCells = colouredSubsetCells,
@@ -112,19 +119,18 @@ import dto.*
                     }
                 }
 
-                val normalDesc = if (normalEliminations.size == 1) {
-                    val elim = normalEliminations.first()
-                    val digit = elim.digit
-                    val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
-                    "Since $digitNames can only be in $cellNames, eliminate $digit from $cells in $houseName."
-                } else {
-                    "Since $digitNames can only be in $cellNames, eliminate these digits from other cells in $houseName."
-                }
-
+                val elimCells = normalEliminations.flatMap { it.cells }.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+                val techKey = "naked_${subsetType.lowercase()}"
+                
                 steps.add(ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Eliminate from Same House",
-                    description = normalDesc,
+                    title = hintKey(techKey, 2, "title"),
+                    description = hintKey(techKey, 2, "description",
+                        "digits" to digitNames,
+                        "subsetCells" to cellNames,
+                        "elimCells" to elimCells,
+                        "house" to houseName
+                    ),
                     highlightCells = subsetCells + normalEliminations.flatMap { it.cells },
                     regions = regions,
                     colouredCells = colouredSubsetCells,
@@ -140,19 +146,19 @@ import dto.*
                     }
                 }
 
-                val pointingDesc = if (pointingEliminations.size == 1) {
-                    val elim = pointingEliminations.first()
-                    val digit = elim.digit
-                    val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
-                    "The Naked $subsetType locks $digit to $houseName, so eliminate $digit from $cells."
-                } else {
-                    "The Naked $subsetType locks these digits to $houseName, eliminating them from other houses."
-                }
-
+                val elimCells = pointingEliminations.flatMap { it.cells }.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+                val elimDigits = pointingEliminations.map { it.digit }.distinct().joinToString(", ")
+                val techKey = "naked_${subsetType.lowercase()}"
+                
                 steps.add(ExplanationStepDto(
                     stepNumber = if (normalEliminations.isNotEmpty()) 3 else 2,
-                    title = "Apply Locked Candidates",
-                    description = pointingDesc,
+                    title = hintKey(techKey, 3, "title"),
+                    description = hintKey(techKey, 3, "description",
+                        "subsetType" to subsetType,
+                        "digits" to elimDigits,
+                        "house" to houseName,
+                        "cells" to elimCells
+                    ),
                     highlightCells = subsetCells + pointingEliminations.flatMap { it.cells },
                     regions = regions,
                     colouredCells = colouredSubsetCells,
@@ -161,10 +167,15 @@ import dto.*
             }
         } else {
             // Hidden Subset: digits can only be in these cells
+            val techKey = "hidden_${subsetType.lowercase()}"
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
-                title = "Identify the Hidden $subsetType",
-                description = "In $houseName, $digitNames can only be placed in $cellNames. These cells are 'locked' to these digits.",
+                title = hintKey(techKey, 1, "title"),
+                description = hintKey(techKey, 1, "description",
+                    "house" to houseName,
+                    "digits" to digitNames,
+                    "cells" to cellNames
+                ),
                 highlightCells = subsetCells,
                 regions = regions,
                 colouredCells = colouredSubsetCells,
@@ -179,19 +190,15 @@ import dto.*
                     }
                 }
 
-                val normalDesc = if (normalEliminations.size == 1) {
-                    val elim = normalEliminations.first()
-                    val digit = elim.digit
-                    val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
-                    "Since $digitNames can only be in $cellNames, eliminate other candidates from these cells."
-                } else {
-                    "Since $digitNames can only be in $cellNames, eliminate other candidates from these cells."
-                }
-
+                val techKey = "hidden_${subsetType.lowercase()}"
+                
                 steps.add(ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Eliminate from Same House",
-                    description = normalDesc,
+                    title = hintKey(techKey, 2, "title"),
+                    description = hintKey(techKey, 2, "description",
+                        "digits" to digitNames,
+                        "cells" to cellNames
+                    ),
                     highlightCells = subsetCells + normalEliminations.flatMap { it.cells },
                     regions = regions,
                     colouredCells = colouredSubsetCells,
@@ -207,19 +214,19 @@ import dto.*
                     }
                 }
 
-                val pointingDesc = if (pointingEliminations.size == 1) {
-                    val elim = pointingEliminations.first()
-                    val digit = elim.digit
-                    val cells = elim.cells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
-                    "The Hidden $subsetType locks $digit to $houseName, so eliminate $digit from $cells."
-                } else {
-                    "The Hidden $subsetType locks these digits to $houseName, eliminating them from other houses."
-                }
-
+                val elimCells = pointingEliminations.flatMap { it.cells }.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+                val elimDigits = pointingEliminations.map { it.digit }.distinct().joinToString(", ")
+                val techKey = "hidden_${subsetType.lowercase()}"
+                
                 steps.add(ExplanationStepDto(
                     stepNumber = if (normalEliminations.isNotEmpty()) 3 else 2,
-                    title = "Apply Hidden Locked Candidates",
-                    description = pointingDesc,
+                    title = hintKey(techKey, 3, "title"),
+                    description = hintKey(techKey, 3, "description",
+                        "subsetType" to subsetType,
+                        "digits" to elimDigits,
+                        "house" to houseName,
+                        "cells" to elimCells
+                    ),
                     highlightCells = subsetCells + pointingEliminations.flatMap { it.cells },
                     regions = regions,
                     colouredCells = colouredSubsetCells,
@@ -273,10 +280,14 @@ import dto.*
         if (techniqueName.contains("Naked", ignoreCase = true)) {
             // Naked Single: cell has only one candidate
             // For Step 1, highlight the cell itself (no region needed - it's about the cell's candidates)
+            val cellName = "R${row + 1}C${col + 1}"
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
-                title = "Identify the Naked Single",
-                description = "Cell R${row + 1}C${col + 1} has only one possible candidate: $digit",
+                title = hintKey("naked_single", 1, "title"),
+                description = hintKey("naked_single", 1, "description", 
+                    "cell" to cellName,
+                    "digit" to digit.toString()
+                ),
                 highlightCells = listOf(cellIndex),
                 colouredCells = listOf(ColouredCellDto(cellIndex, "warning")),
                 colouredCandidates = listOf(ColouredCandidateDto(row, col, digit, "target"))
@@ -291,13 +302,8 @@ import dto.*
             }
 
             val boxNum = (row / 3) * 3 + (col / 3) + 1
-            val eliminationDesc = if (peerEliminations.isNotEmpty()) {
-                val cells = peerEliminations.flatMap { it.cells }.map { "R${it/9 + 1}C${it%9 + 1}" }
-                "Place $digit in R${row + 1}C${col + 1}. Eliminate $digit from Row ${row + 1}, Column ${col + 1}, and Box $boxNum: ${cells.joinToString(", ")}"
-            } else {
-                "Place $digit in R${row + 1}C${col + 1}"
-            }
-
+            val cells = peerEliminations.flatMap { it.cells }.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
+            
             // Highlight all three houses that see this cell
             val allRegions = listOf(
                 ColouredRegionDto("row", row, "primary"),
@@ -307,8 +313,15 @@ import dto.*
 
             steps.add(ExplanationStepDto(
                 stepNumber = 2,
-                title = "Place Value and Eliminate",
-                description = eliminationDesc,
+                title = hintKey("naked_single", 2, "title"),
+                description = hintKey("naked_single", 2, "description",
+                    "cell" to cellName,
+                    "digit" to digit.toString(),
+                    "row" to (row + 1).toString(),
+                    "col" to (col + 1).toString(),
+                    "box" to boxNum.toString(),
+                    "cells" to cells
+                ),
                 highlightCells = listOf(cellIndex),
                 regions = allRegions,
                 colouredCells = listOf(ColouredCellDto(cellIndex, "target")),
@@ -328,10 +341,15 @@ import dto.*
                 emptyList()
             }
 
+            val cellName = "R${row + 1}C${col + 1}"
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
-                title = "Identify the Hidden Single",
-                description = "In $houseName, only R${row + 1}C${col + 1} can be $digit. Thus, eliminate other candidates from this cell.",
+                title = hintKey("hidden_single", 1, "title"),
+                description = hintKey("hidden_single", 1, "description",
+                    "house" to houseName,
+                    "cell" to cellName,
+                    "digit" to digit.toString()
+                ),
                 highlightCells = listOf(cellIndex),
                 regions = regions,
                 colouredCells = listOf(ColouredCellDto(cellIndex, "warning")),
@@ -346,8 +364,9 @@ import dto.*
             // Step 2: Show eliminations from peer cells (row, column, box)
             if (peerEliminations.isNotEmpty()) {
                 val peerCells = peerEliminations.flatMap { it.cells }.filter { it != cellIndex }.distinct()
-                val peerCellNames = peerCells.map { "R${it/9 + 1}C${it%9 + 1}" }
+                val peerCellNames = peerCells.map { "R${it/9 + 1}C${it%9 + 1}" }.joinToString(", ")
                 val boxNum = (row / 3) * 3 + (col / 3) + 1
+                val cellName = "R${row + 1}C${col + 1}"
 
                 // Highlight all three houses that see this cell
                 val allRegions = listOf(
@@ -358,8 +377,15 @@ import dto.*
 
                 steps.add(ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Eliminate from Peers",
-                    description = "In Row ${row + 1}, Column ${col + 1}, and Box $boxNum, $digit can only be in R${row + 1}C${col + 1}. Eliminate $digit from: ${peerCellNames.joinToString(", ")}",
+                    title = hintKey("hidden_single", 2, "title"),
+                    description = hintKey("hidden_single", 2, "description",
+                        "row" to (row + 1).toString(),
+                        "col" to (col + 1).toString(),
+                        "box" to boxNum.toString(),
+                        "digit" to digit.toString(),
+                        "cell" to cellName,
+                        "cells" to peerCellNames
+                    ),
                     highlightCells = peerCells,
                     regions = allRegions,
                     colouredCells = listOf(ColouredCellDto(cellIndex, "target")),

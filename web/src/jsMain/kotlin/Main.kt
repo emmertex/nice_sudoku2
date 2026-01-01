@@ -58,6 +58,7 @@ class SudokuApp {
     // Modal state
     internal var showAboutModal = false
     internal var showHelpModal = false
+    internal var showButtonHelpModal = false  // Quick reference modal for buttons/icons
     internal var showCompletionModal = false
     internal var completionShownForPuzzle: String? = null  // Track which puzzle we've shown completion for
     internal var showVersionModal = false
@@ -233,6 +234,11 @@ class SudokuApp {
         // Help modal (can appear over any screen)
         if (showHelpModal) {
             renderHelpModal()
+        }
+        
+        // Button help modal (quick reference for game screen buttons)
+        if (showButtonHelpModal) {
+            renderButtonHelpModal()
         }
         
         // Completion modal (shown when puzzle is solved)

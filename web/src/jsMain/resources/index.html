@@ -6,7 +6,7 @@
     <title>Nice Sudoku</title>
     <meta name="description" content="A beautiful Sudoku game with advanced solving techniques">
     <meta name="theme-color" content="#1a1a2e">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,6 +18,11 @@
 </head>
 <body>
     <div id="app"></div>
-    <script src="web.js"></script>
+    <script>
+        // Configure API URL - empty string means use relative URLs (same origin)
+        // This works when frontend and backend are served from the same domain via reverse proxy
+        window.STORMDOKU_API_URL = '';
+    </script>
+    <script src="/web.js"></script>
 </body>
 </html>

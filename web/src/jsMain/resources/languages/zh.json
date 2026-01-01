@@ -309,12 +309,565 @@
       "cell": "单元格",
       "adv": "高级"
     },
+    "buttonHelp": {
+      "title": "快速参考",
+      "topBar": "顶部栏",
+      "menuBtn": "菜单按钮",
+      "menuBtnDesc": "打开设置、导航和选项",
+      "highlightMode": "高亮模式",
+      "highlightModeDesc": "显示当前高亮样式。点击可在设置中更改。",
+      "playMode": "游戏模式",
+      "playModeDesc": "显示快速/单元格/高级模式。点击可在快速 ↔ 高级之间切换。",
+      "gameInfo": "游戏信息",
+      "category": "类别",
+      "categoryDesc": "谜题难度类别（初学者到魔鬼级）",
+      "difficulty": "难度评级",
+      "difficultyDesc": "谜题的数字难度分数",
+      "timer": "计时器",
+      "timerDesc": "在此谜题上花费的时间",
+      "pauseBtn": "暂停",
+      "pauseBtnDesc": "暂停游戏并隐藏网格",
+      "mistakes": "错误",
+      "mistakesDesc": "错误放置的次数",
+      "hintsUsed": "已使用提示",
+      "hintsUsedDesc": "请求提示的次数",
+      "controls": "控制按钮",
+      "notesBtn": "笔记模式",
+      "notesBtnDesc": "切换铅笔/笔记模式。激活时，数字添加候选而不是解决单元格。",
+      "undoBtn": "撤销",
+      "undoBtnDesc": "撤销您的上一个操作（放置或消除）",
+      "hintBtn": "提示",
+      "hintBtnDesc": "显示解题提示和技巧。需要后端连接。",
+      "clearBtn": "清除选择",
+      "clearBtnDesc": "清除所有选中的数字（键盘：Escape）",
+      "numberPads": "数字键盘",
+      "numberBtns": "数字按钮",
+      "numberBtnsDesc": "点击选择/放置数字。当所有9个实例都已放置时变灰。",
+      "primaryRow": "主选择（蓝色）",
+      "primaryRowDesc": "在高级模式下：第一行选择蓝色高亮的主要数字",
+      "secondaryRow": "次选择（红色）",
+      "secondaryRowDesc": "在高级模式下：第二行选择红色高亮的次要数字",
+      "advancedActions": "高级模式操作",
+      "deselectBtn": "取消选择",
+      "deselectBtnDesc": "取消选择单元格以再次显示数字键盘",
+      "setBtn": "设置",
+      "setBtnDesc": "将选中的数字放入当前单元格",
+      "clrBtn": "清除候选",
+      "clrBtnDesc": "从当前单元格中删除选中的候选",
+      "clrOtherBtn": "清除其他",
+      "clrOtherBtnDesc": "删除除选中之外的所有候选",
+      "quickTip": "💡 快速提示",
+      "quickTipText": "点击标题中的快速/高级徽章可以快速切换模式，无需打开设置！",
+      "moreHelp": "有关键盘快捷键和详细帮助，请参阅",
+      "keyboardShortcuts": "完整帮助指南 →",
+      "gotIt": "明白了！"
+    },
     "hints": {
       "overview": "概述",
       "eliminations": "排除",
       "solution": "解法",
       "remove": "移除",
       "from": "从"
+    }
+  },
+  "hints": {
+    "common": {
+      "overview": "概述",
+      "eliminations": "排除",
+      "solution": "解法",
+      "remove": "从 {{cells}} 中移除 {{digit}}",
+      "place": "在 {{cell}} 中填入 {{digit}}",
+      "cellFormat": "R{{row}}C{{col}}"
+    },
+    "naked_single": {
+      "step1": {
+        "title": "识别唯余 (Naked Single)",
+        "description": "单元格 {{cell}} 只有一个可能的候选数：{{digit}}"
+      },
+      "step2": {
+        "title": "填入数值并排除",
+        "description": "在 {{cell}} 中填入 {{digit}}。从第 {{row}} 行、第 {{col}} 列和第 {{box}} 宫中排除 {{digit}}：{{cells}}"
+      }
+    },
+    "hidden_single": {
+      "step1": {
+        "title": "识别排除 (Hidden Single)",
+        "description": "在 {{house}} 中，只有 {{cell}} 可以填入 {{digit}}。因此，从该单元格中排除其他候选数。"
+      },
+      "step2": {
+        "title": "从相关单元格中排除",
+        "description": "在第 {{row}} 行、第 {{col}} 列和第 {{box}} 宫中，{{digit}} 只能在 {{cell}} 中。从以下位置排除 {{digit}}：{{cells}}"
+      }
+    },
+    "naked_pair": {
+      "step1": {
+        "title": "识别数对 (Naked Pair)",
+        "description": "{{house}} 中的单元格 {{cells}} 只能包含 {{digits}}。这些数字被“锁定”在这些单元格中。"
+      },
+      "step2": {
+        "title": "从同一区域中排除",
+        "description": "由于 {{digits}} 只能在 {{subsetCells}} 中，因此从 {{house}} 中的 {{elimCells}} 排除这些数字。"
+      },
+      "step3": {
+        "title": "应用锁定候选数",
+        "description": "数对 {{subsetType}} 将 {{digits}} 锁定在 {{house}} 中，因此从 {{cells}} 中排除 {{digits}}。"
+      }
+    },
+    "naked_triple": {
+      "step1": {
+        "title": "识别三数组 (Naked Triple)",
+        "description": "{{house}} 中的单元格 {{cells}} 只能包含 {{digits}}。这些数字被“锁定”在这些单元格中。"
+      },
+      "step2": {
+        "title": "从同一区域中排除",
+        "description": "由于 {{digits}} 只能在 {{subsetCells}} 中，因此从 {{house}} 中的 {{elimCells}} 排除 these 数字。"
+      },
+      "step3": {
+        "title": "应用锁定候选数",
+        "description": "三数组 {{subsetType}} 将 {{digits}} 锁定在 {{house}} 中，因此从 {{cells}} 中排除 {{digits}}。"
+      }
+    },
+    "naked_quadruple": {
+      "step1": {
+        "title": "识别四数组 (Naked Quadruple)",
+        "description": "{{house}} 中的单元格 {{cells}} 只能包含 {{digits}}。这些数字被“锁定”在这些单元格中。"
+      },
+      "step2": {
+        "title": "从同一区域中排除",
+        "description": "由于 {{digits}} 只能在 {{subsetCells}} 中，因此从 {{house}} 中的 {{elimCells}} 排除 these 数字。"
+      },
+      "step3": {
+        "title": "应用锁定候选数",
+        "description": "四数组 {{subsetType}} 将 {{digits}} 锁定在 {{house}} 中，因此从 {{cells}} 中排除 {{digits}}。"
+      }
+    },
+    "hidden_pair": {
+      "step1": {
+        "title": "识别隐性数对 (Hidden Pair)",
+        "description": "在 {{house}} 中，{{digits}} 只能填入 {{cells}}。这些单元格被“锁定”给这些数字。"
+      },
+      "step2": {
+        "title": "从同一区域中排除",
+        "description": "由于 {{digits}} 只能在 {{cells}} 中，因此从这些单元格中排除其他候选数。"
+      },
+      "step3": {
+        "title": "应用隐性锁定候选数",
+        "description": "隐性 {{subsetType}} 将 {{digits}} 锁定在 {{house}} 中，因此从 {{cells}} 中排除 {{digits}}。"
+      }
+    },
+    "hidden_triple": {
+      "step1": {
+        "title": "识别隐性三数组 (Hidden Triple)",
+        "description": "在 {{house}} 中，{{digits}} 只能填入 {{cells}}。这些单元格被“锁定”给这些数字。"
+      },
+      "step2": {
+        "title": "从同一区域中排除",
+        "description": "由于 {{digits}} 只能在 {{cells}} 中，因此从这些单元格中排除其他候选数。"
+      },
+      "step3": {
+        "title": "应用隐性锁定候选数",
+        "description": "隐性 {{subsetType}} 将 {{digits}} 锁定在 {{house}} 中，因此从 {{cells}} 中排除 {{digits}}。"
+      }
+    },
+    "hidden_quadruple": {
+      "step1": {
+        "title": "识别隐性四数组 (Hidden Quadruple)",
+        "description": "在 {{house}} 中，{{digits}} 只能填入 {{cells}}。这些单元格被“锁定”给这些数字。"
+      },
+      "step2": {
+        "title": "从同一区域中排除",
+        "description": "由于 {{digits}} 只能在 {{cells}} 中，因此从这些单元格中排除其他候选数。"
+      },
+      "step3": {
+        "title": "应用隐性锁定候选数",
+        "description": "隐性 {{subsetType}} 将 {{digits}} 锁定在 {{house}} 中，因此从 {{cells}} 中排除 {{digits}}。"
+      }
+    },
+    "pointing_candidates": {
+      "step1": {
+        "title": "识别区块对齐 (Pointing Candidates)",
+        "description": "在 {{baseHouse}} 中，候选数 {{digit}} 仅出现在同时也属于 {{coverHouse}} 的单元格中。"
+      },
+      "step2": {
+        "title": "从 {{house}} 中排除",
+        "description": "从 {{house}} 中的其他单元格排除 {{digit}}：{{cells}}"
+      }
+    },
+    "claiming_candidates": {
+      "step1": {
+        "title": "识别行列对齐 (Claiming Candidates)",
+        "description": "在 {{baseHouse}} 中，候选数 {{digit}} 仅出现在同时也属于 {{coverHouse}} 的单元格中。"
+      },
+      "step2": {
+        "title": "从 {{house}} 中排除",
+        "description": "从 {{house}} 中的其他单元格排除 {{digit}}：{{cells}}"
+      }
+    },
+    "bug": {
+      "step1": {
+        "title": "发现双值模式",
+        "description": "观察谜题中未解决的单元格。几乎每一个都恰好有两个候选数。这是一种非常特殊的情况，称为“双值通用坟墓”(Bivalue Universal Grave, BUG)。原因是：如果每一个未解决的单元格都恰好有两个候选数并按某种模式排列，你可以交换这些数值而得到两个不同的有效解！但一个标准的数独谜题只有一个解。所以必须有东西“打破”这个模式——至少有一个单元格是不同的。"
+      },
+      "step2": {
+        "title": "找到例外单元格",
+        "description": "现在看 {{cell}}——这个单元格很特别！虽然所有其他未解决的单元格都恰好有两个候选数，但这个单元格有三个（或更多）。这就是 BUG+1 中的“+1”。这个额外的候选数是解决谜题的关键。如果我们移除了这个额外的候选数，我们就会陷入具有多个解的致命 BUG 模式。因此，这个额外的候选数必须是该单元格的真实值！"
+      },
+      "step3": {
+        "title": "防止 BUG",
+        "description": "为了避免 BUG（这意味着会有多个解），我们必须排除会完成该致命模式的候选数。从 {{cell}} 中移除 {{digits}}。剩下的候选数就是该单元格的解。"
+      }
+    },
+    "aic": {
+      "step1": {
+        "title": "寻找链",
+        "description": "交替推断链 (Alternating Inference Chain, AIC) 按逻辑顺序连接候选数。就像多米诺骨牌链一样，每一块都会影响下一块。这条链有 {{nodeCount}} 个链接，起始于 {{startDesc}}，结束于 {{endDesc}}。链在两种连接类型之间交替：• **强链接**（实线）：‘如果这个是假，那么那个一定是真’ • **弱链接**（虚线）：‘如果这个是真，那么那个一定是假’。通过遵循链条，我们可以证明某些候选数必须被排除。"
+      },
+      "step2": {
+        "title": "遵循逻辑",
+        "description": "让我们一步步遵循这条链：\n\n{{chainSteps}}\n\n链条的端点至关重要——任何能同时“看到”两个端点的单元格都不能包含目标候选数。"
+      },
+      "step3": {
+        "title": "进行排除",
+        "description": "链条证明了 {{digits}} 不能在 {{cells}} 中。为什么？因为链条的端点创造了一个“陷阱”：无论哪个端点为真，被排除的单元格都会看到一个包含该候选数的单元格。从以下位置移除 {{digits}}：{{cells}}。"
+          },
+    "als": {
+      "step1": {
+        "title": "理解几乎锁定集合 (Almost Locked Sets)",
+        "description": "**几乎锁定集合** (Almost Locked Set, ALS) 是一组“几乎”被解决的单元格。核心思想是：如果你有 N 个单元格，其中恰好包含 N+1 个不同的候选数，那么仅移除一个候选数就会将剩余的候选数“锁定”在这些单元格中。例如：3个包含候选数 {1,2,3,4} 的单元格 = 几乎锁定。移除任何一个数字，其他3个数字就必须填入这3个单元格中。这种 {{alsType}} 技巧使用了 {{numALS}} 个共享“连接数字”的几乎锁定集合，这些数字只能出现在一个 ALS 或另一个 ALS 中，从而将它们链接在一起。"
+      }
+    },
+    "als_identify": {
+      "step1": {
+        "description": "看 {{alsName}}：{{cellCount}} 个单元格 ({{cells}})，包含 {{digitCount}} 个候选数 {{{digits}}}。这是 {{cellCount}} 个单元格对应 {{digitCount}} 个候选数——这是“几乎锁定”的，因为 {{digitCount}} = {{cellCount}} + 1."
+      }
+    },
+    "als_connecting": {
+      "step1": {
+        "title": "寻找连接数字",
+        "description": "ALS 通过**共享数字**连接，这些数字只能出现在一个 ALS 或另一个 ALS 中：\n\n{{connections}}\n\n这些“连接数字”就像桥梁——如果数字在一个 ALS 中使用，它就会从另一个 ALS 中被锁定，进而锁定剩余的数字。"
+      }
+    },
+    "als_elimination": {
+      "step1": {
+        "title": "进行排除",
+        "description": "现在到了收获的时候！看数字 {{digits}}。由于 ALS 的连接方式，{{digits}} 最终必须出现在其中一个 ALS 单元格中。任何能看到两个 ALS 中 {{digits}} 所有可能位置的单元格都不能包含 {{digits}}——它总是会产生冲突。从以下位置移除 {{digits}}：{{cells}}。"
+      }
+    },
+    "x_cycle": {
+      "step1": {
+        "title": "寻找 X-周期",
+        "description": "X-周期是一条链接回起始位置的单元格链。该周期有 {{cycleSize}} 个节点，涉及单元格 {{cells}} 中的数字 {{digit}}。关键在于链条在“强链接”（实线）和“弱链接”（虚线）之间交替。强链接 = 如果一个为假，另一个必须为真。弱链接 = 两者不能同时为真。由于链条形成一个完整的回路，某些候选数必须被排除以避免矛盾。"
+      },
+      "step2": {
+        "title": "理解周期逻辑"
+      },
+      "step3": {
+        "title": "从能看到两种颜色的单元格中排除",
+        "description": "{{cells}} 处的单元格可以看到周期中两种“颜色”的节点。由于其中一种颜色必须为真，这些单元格总是会产生冲突。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "x_cycle_nice_loop": {
+      "step1": {
+        "description": "这是一个“优美回路” (Nice Loop)（节点数为偶数）。在一个优美回路中，我们可以交替给节点着色——让我们称它们为“绿色”和“黄色”。要么所有绿色节点都包含 {{digit}}，要么所有黄色节点都包含 {{digit}}。任何能同时看到绿色和黄色节点的单元格都不能包含 {{digit}}——无论哪种颜色为真，该单元格都会与其发生冲突。"
+      }
+    },
+    "x_cycle_discontinuous": {
+      "step1": {
+        "description": "这是一个“非连续回路” (Discontinuous Loop)（节点数为奇数）。对于奇数周期，某些东西必须“打破”——我们发现了一个矛盾。遵循链条逻辑，我们可以证明某些候选数必须被排除，因为保留它们会创造一种不可能的情况。"
+      }
+    },
+    "simple_coloring": {
+      "step1": {
+        "title": "理解单数着色 (Simple Coloring)",
+        "description": "单数着色针对单个数字 ({{digit}})。思路是：找到数字 {{digit}} 的所有“强链接”。当 {{digit}} 恰好出现在某一行、列或宫的两个单元格中时，就存在强链接——如果一个为假，另一个必须为真。现在交替给这些单元格着色——从“绿色”开始，连接的单元格变为“黄色”，它们的连接再次变为“绿色”，依此类推。我们有 {{greenCount}} 个绿色单元格 and {{yellowCount}} 个黄色单元格。要么所有绿色单元格都包含 {{digit}}，要么所有黄色单元格都包含 {{digit}}。"
+      }
+    },
+    "3d_medusa": {
+      "step1": {
+        "title": "理解 3D 美杜莎着色 (3D Medusa)",
+        "description": "3D 美杜莎将着色扩展到多个数字。思路是：从任何候选数开始并称其为“绿色”。通过强链接连接的每个候选数都获得相反的颜色（“黄色”）。强链接存在于：• 一个数字在一行、列或宫中仅出现两次 • 一个单元格仅有两个候选数（双值单元格）。我们将 {{greenCount}} 个候选数着色为绿色，{{yellowCount}} 个候选数着色为黄色。一整组颜色为真，另一组为假——我们只是暂时不知道是哪一组。"
+      }
+    },
+    "coloring": {
+      "step2": {
+        "title": "寻找颜色陷阱和回路",
+        "description": "现在我们寻找矛盾或“陷阱”：**颜色陷阱**：如果一个未着色的单元格可以看到同区域内的绿色和黄色单元格，那么该单元格就不能包含该数字。为什么？因为其中一种颜色必须为真，任何一种都会从该单元格中排除该数字。**颜色回路**：如果两个相同颜色的单元格可以看到彼此，那么这种颜色就是不可能的！它们不能同时包含该数字。所以另一种颜色必须全部为真。"
+      },
+      "step3": {
+        "title": "进行排除",
+        "description": "根据着色分析：{{cells}} 处的单元格要么看到了两种颜色（颜色陷阱），要么是自相矛盾颜色的一部分（颜色回路）。从以下位置移除候选数：{{cells}}。"
+      }
+    },
+    "generic": {
+      "step1": {
+        "title": "{{technique}}",
+        "description": "这种技巧被称为 **{{technique}}**。它使用逻辑推导来证明某些候选数必须被排除，或者某些单元格必须具有特定数值。模式涉及突出显示的单元格和候选数。"
+      },
+      "step2": {
+        "title": "应用排除",
+        "description": "根据该模式，我们可以排除：从 {{cells}} 中移除 {{digits}}。"
+      },
+      "step3": {
+        "title": "填入数值",
+        "description": "该技巧揭示了以下解法：\n\n{{solutions}}"
+      }
+    },
+    "unique_rectangle": {
+      "step1": {
+        "title": "发现致命模式",
+        "description": "观察这四个形成矩形的单元格：{{cells}}。它们恰好横跨两行、两列和两宫。注意它们都包含候选数 {{digits}}。问题在于：如果这四个单元格的候选数只有 {{digits}}，你可以交换对角线上的数字而仍然得到有效解！这意味着谜题会有两个解——这在标准数独中是不允许的。这种被禁止的模式被称为“致命模式”或“唯一矩形”(Unique Rectangle)。"
+      },
+      "step3": {
+        "title": "进行排除"
+      }
+    },
+    "unique_rectangle_type1": {
+      "step1": {
+        "title": "理解类型 {{type}}",
+        "description": "这是类型 1——最简单的情况。矩形的三个角只有 {{digits}}，但 {{extraCell}} 有一个额外的候选数。想一想：如果 {{extraCell}} 像其他角一样只有 {{digits}}，我们就会得到致命模式。因此，这个额外的候选数必须是该单元格的真实值！我们可以放心地从 {{extraCell}} 中移除 {{digits}}。"
+      }
+    },
+    "unique_rectangle_type2": {
+      "step1": {
+        "title": "理解类型 {{type}}",
+        "description": "这是类型 2——两个角共享同一个额外候选数 ({{extraDigit}})。这两个单元格位于矩形的对角线上。由于致命模式不能存在，这些角中至少有一个必须是 {{extraDigit}}。任何能同时看到这两个角的单元格都不能包含 {{extraDigit}}。"
+      }
+    },
+    "unique_rectangle_type3": {
+      "step1": {
+        "title": "理解类型 {{type}}",
+        "description": "这是类型 3——两个角具有额外的候选数，并与附近单元格形成“唯余子集”。唯一矩形角中的额外候选数，结合同一区域中的其他单元格，强制执行某些排除。致命模式得以避免，因为子集逻辑保证了唯一矩形不会完成。"
+      }
+    },
+    "unique_rectangle_type4": {
+      "step1": {
+        "title": "理解类型 {{type}}",
+        "description": "这是类型 4——唯一矩形的其中一个数字 ({{digits}}) 被“锁定”在两个对角线上。由于强链接，一个数字必须填入这两个角。这意味着另一个数字不能在这些角中（否则我们会得到致命模式）。从锁定角中移除非锁定的数字。"
+      }
+    },
+    "unique_rectangle_type5": {
+      "step1": {
+        "title": "理解类型 {{type}}",
+        "description": "这是类型 5——一条对角线强链接防止了致命模式。两个对角线单元格在某个数字上强链接，意味着其中一个必须包含它。这打破了允许致命模式存在的对称性。"
+      }
+    },
+    "unique_rectangle_type6": {
+      "step1": {
+        "title": "理解类型 {{type}}",
+        "description": "这是类型 6——两条对角线在同一个数字上都有强链接。这种对某个数字的双重锁定意味着它必须出现在恰好两个对角线上，从而将另一个数字从这些角中挤出。"
+      }
+    },
+    "unique_rectangle_generic": {
+      "step1": {
+        "title": "打破模式",
+        "description": "为了避免这种致命模式，我们需要确保它永远无法完成。必须有东西来“打破”这个矩形——要么是一个必须为真的额外候选数，要么是迫使某个数字填入特定角的强链接。"
+      }
+    },
+    "unique_rectangle_elim_type1": {
+      "step1": {
+        "description": "从 {{cells}} 中移除 {{digits}}。该单元格中的额外候选数必须是其真实值，以防止致命模式。"
+      }
+    },
+    "unique_rectangle_elim_type2": {
+      "step1": {
+        "description": "从 {{cells}} 中移除 {{digits}}。这些单元格能同时看到共享额外候选数的唯一矩形角。"
+      }
+    },
+    "empty_rectangle": {
+      "step1": {
+        "title": "寻找空矩形 (Empty Rectangle)",
+        "description": "观察宫 {{box}}。候选数 {{digit}} 仅以“L形”或“转角”模式出现——它在宫内的至少一行和一列中缺失。这创造了一个“空矩形”——宫内的空行和空列形成一个十字，所有的 {{digit}} 候选数都位于该十字的角落。包含 {{digit}} 的单元格为：{{cells}}。"
+      },
+      "step2": {
+        "title": "连接到强链接",
+        "description": "现在看宫外。在 {{conjugateCells}} 处有一个 {{digit}} 的“强链接”（实线）。强链接意味着：如果一端为假，另一端必须为真。这条强链接的一端通过共享的行或列连接到空矩形。这创造了一个逻辑链：如果强链接的远端为真，它排除了宫内交叉点处的 {{digit}}，进而迫使 {{digit}} 进入空矩形中的另一个位置。"
+      },
+      "step3": {
+        "title": "进行排除",
+        "description": "关键点在于：排除单元格 ({{cells}}) 可以看到我们链条的两端——它能看到强链接的一端，也能看到 {{digit}} 在空矩形中被迫填入的位置。无论逻辑如何发展，{{digit}} 最终都会出现在一个能看到 {{cells}} 的单元格中。因此 {{digit}} 不能在 {{cells}} 中。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "x_wing": {
+      "step1": {
+        "title": "识别 X-Wing 模式",
+        "description": "在 {{baseNames}} 中，数字 {{digit}} 恰好出现在 {{baseCount}} 个 {{baseTypeText}} 中。这些候选数在 {{coverNames}} 中完美对齐。由于在每个基础 {{baseTypeText}} 中都必须填入 {{digit}}，这会将 {{digit}} 锁定在突出显示的 {{baseTypeText}} 中。"
+      },
+      "step2": {
+        "title": "从覆盖 {{coverTypeText}} 中排除",
+        "description": "由于 {{digit}} 被锁定在 {{baseNames}}（突出显示在基础 {{baseTypeText}} 中）中，{{coverNames}} 中的任何其他 {{digit}} 候选数都必须为假。从覆盖 {{coverTypeText}} 中排除不属于该模式的 {{digit}}。"
+      },
+      "step3": {
+        "title": "移除候选数 {{digit}}",
+        "description": "从以下位置移除 {{digit}}：{{cells}}。这些单元格能看到鱼模式，不能包含 {{digit}}。"
+      }
+    },
+    "swordfish": {
+      "step1": {
+        "title": "识别剑鱼 (Swordfish) 模式",
+        "description": "在 {{baseNames}} 中，数字 {{digit}} 恰好出现在三个 {{baseTypeText}} 中。这些候选数在三个 {{coverTypeText}} 中对齐：{{coverNames}}。剑鱼模式将 {{digit}} 锁定在这些基础 {{baseTypeText}} 中。"
+      },
+      "step2": {
+        "title": "从覆盖 {{coverTypeText}} 中排除",
+        "description": "由于 {{digit}} 被锁定在 {{baseNames}}（突出显示在基础 {{baseTypeText}} 中）中，{{coverNames}} 中的任何其他 {{digit}} 候选数都必须为假。从覆盖 {{coverTypeText}} 中排除不属于该模式的 {{digit}}。"
+      },
+      "step3": {
+        "title": "移除候选数 {{digit}}",
+        "description": "从以下位置移除 {{digit}}：{{cells}}。这些单元格能看到鱼模式，不能包含 {{digit}}。"
+      }
+    },
+    "jellyfish": {
+      "step1": {
+        "title": "识别水母 (Jellyfish) 模式",
+        "description": "在 {{baseNames}} 中，数字 {{digit}} 恰好出现在四个 {{baseTypeText}} 中。这些候选数在四个 {{coverTypeText}} 中对齐：{{coverNames}}。水母模式将 {{digit}} 锁定在这些基础 {{baseTypeText}} 中。"
+      },
+      "step2": {
+        "title": "从覆盖 {{coverTypeText}} 中排除",
+        "description": "由于 {{digit}} 被锁定在 {{baseNames}}（突出显示在基础 {{baseTypeText}} 中）中，{{coverNames}} 中的任何其他 {{digit}} 候选数都必须为假。从覆盖 {{coverTypeText}} 中排除不属于该模式的 {{digit}}。"
+      },
+      "step3": {
+        "title": "移除候选数 {{digit}}",
+        "description": "从以下位置移除 {{digit}}：{{cells}}。这些单元格能看到鱼模式，不能包含 {{digit}}。"
+      }
+    },
+    "basic_fish": {
+      "step1": {
+        "title": "识别模式",
+        "description": "数字 {{digit}} 候选数在基础 {{baseTypeText}} ({{baseNames}}) 和覆盖 {{coverTypeText}} ({{coverNames}}) 上对齐，形成该模式。"
+      },
+      "step2": {
+        "title": "从覆盖 {{coverTypeText}} 中排除",
+        "description": "由于 {{digit}} 被锁定在 {{baseNames}}（突出显示在基础 {{baseTypeText}} 中）中，{{coverNames}} 中的任何其他 {{digit}} 候选数都必须为假。从覆盖 {{coverTypeText}} 中排除不属于该模式的 {{digit}}。"
+      },
+      "step3": {
+        "title": "移除候选数 {{digit}}",
+        "description": "从以下位置移除 {{digit}}：{{cells}}。这些单元格能看到鱼模式，不能包含 {{digit}}。"
+      }
+    },
+    "skyscraper": {
+      "step1": {
+        "title": "寻找两个强链接",
+        "description": "摩天大楼 (Skyscraper) 是具有两个相同数字**强链接**的模式。观察 {{baseNamesText}}。在每个 {{baseTypeText}} 中，数字 {{digit}} 恰好出现在两个单元格中。这就是强链接——如果一个单元格没有 {{digit}}，另一个必须包含它。这两个强链接被连接起来：每个强链接的一端共享同一列（或行）。另一端——摩天大楼的“屋顶”（显示为黄色）——是关键单元格。"
+      },
+      "step2": {
+        "title": "遵循逻辑",
+        "description": "摩天大楼的工作原理如下：两个强链接的连接端在同一列/行中。如果 {{digit}} 不在其中一个连接端，强链接会迫使它出现在该单元格的伴侣端。但那个伴侣端就是“屋顶”单元格！所以无论如何：要么 {{digit}} 在一个屋顶单元格中，要么在另一个中（或两者都在）。其中一个屋顶单元格必须包含 {{digit}}。"
+      },
+      "step3": {
+        "title": "从能看到两个屋顶的单元格中排除",
+        "description": "任何能看到两个屋顶单元格的单元格都不能包含 {{digit}}。为什么？因为其中一个屋顶单元格必须包含 {{digit}}，这会排除能看到它的单元格中的 {{digit}}。由于排除单元格能看到两个屋顶单元格，它总是会被排除。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "finned_fish": {
+      "step1": {
+        "title": "寻找带鳍模式",
+        "description": "这是一个**带鳍的 {{fishType}}**。让我们从基础模式开始：观察 {{baseNames}}。在正常的 {{fishType}} 中，数字 {{digit}} 应该只出现在与 {{coverNames}} 对齐的单元格中。但在这里，有一个不匹配的额外单元格（或单元格）——那就是“鳍”。鳍位于：{{finCells}}（显示为黄色）。"
+      },
+      "step2": {
+        "title": "理解鳍的作用",
+        "description": "鳍改变了我们可以排除的范围。逻辑如下：**如果鳍为真**（包含 {{digit}}）：正常鱼模式适用于其余部分，但我们只能从同时也看到鳍的单元格中排除。**如果鳍为假**：那么 {{digit}} 必须出现在鱼模式的其他位置，此时正常的鱼排除规则适用。无论哪种情况，任何能同时看到鳍和鱼模式的单元格都可以被排除！这意味着排除范围被限制在宫 {{boxName}}（鳍所在的位置）内。"
+      },
+      "step3": {
+        "title": "从鳍与鱼交会处排除",
+        "description": "能看到鳍且处于鱼模式覆盖线上的单元格可以被排除。这些单元格位于宫 {{boxName}} 内（因此能看到鳍），也位于其中一个覆盖 {{coverTypeText}} 上（因此受鱼模式影响）。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "sashimi_fish": {
+      "step1": {
+        "title": "寻找带鳍模式",
+        "description": "这是一个**带鳍的 {{fishType}}**。让我们从基础模式开始：观察 {{baseNames}}。在正常的 {{fishType}} 中，数字 {{digit}} 应该只出现在与 {{coverNames}} 对齐的单元格中。但在这里，有一个不匹配的额外单元格（或单元格）——那就是“生鱼片鳍”。鳍位于：{{finCells}}（显示为黄色）。在生鱼片变体中，没有鳍鱼模式就不完整——鳍实际上是在“填补”缺失的基础单元格。"
+      },
+      "step2": {
+        "title": "理解鳍的作用",
+        "description": "鳍改变了我们可以排除的范围。逻辑如下：**如果鳍为真**（包含 {{digit}}）：正常鱼模式适用于其余部分，但我们只能从同时也看到鳍的单元格中排除。**如果鳍为假**：那么 {{digit}} 必须出现在鱼模式的其他位置，此时正常的鱼排除规则适用。无论哪种情况，任何能同时看到鳍和鱼模式的单元格都可以被排除！这意味着排除范围被限制在宫 {{boxName}}（鳍所在的位置）内。"
+      },
+      "step3": {
+        "title": "从鳍与鱼交会处排除",
+        "description": "能看到鳍且处于鱼模式覆盖线上的单元格可以被排除。这些单元格位于宫 {{boxName}} 内（因此能看到鳍），也位于其中一个覆盖 {{coverTypeText}} 上（因此受鱼模式影响）。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "xy_wing": {
+      "step1": {
+        "title": "寻找 {{wingType}} 模式",
+        "description": "看 {{pivotName}} 处的黄色单元格——它被称为“铰链”，恰好有两个候选数。现在看 {{pincerNamesText}} 处的两个绿色单元格——这些是“钳子”。每个钳子与铰链共享一个候选数，但它们都有共同的 {{targetDigitText}}。关键点在于：无论铰链中填入哪个候选数，其中一个钳子最终必须填入 {{targetDigitText}}。"
+      },
+      "step2": {
+        "title": "理解其原理",
+        "description": "由于其中一个钳子必须包含 {{targetDigitText}}，任何能同时看到两个钳子的单元格都不能包含 {{targetDigitText}}。它会与最终包含该数字的那个钳子发生冲突。实线表示其中一个钳子必须为真。"
+      },
+      "step3": {
+        "title": "从看到该模式的单元格中移除 {{digit}}",
+        "description": "{{cells}} 处的单元格可以看到两个钳子（或所有翼单元格），因此 {{digit}} 不能填在那里。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "xyz_wing": {
+      "step1": {
+        "title": "寻找 {{wingType}} 模式",
+        "description": "看 {{pivotName}} 处的黄色单元格——它有三个候选数：{{wingDigitText}}。{{pincerNamesText}} 处的两个绿色单元格各与铰链共享其中的两个候选数。数字 {{targetDigitText}} 在所有三个单元格中都出现。由于任何结果都会迫使 {{targetDigitText}} 进入其中一个单元格，任何能看到所有三个单元格的单元格都不能包含 {{targetDigitText}}。"
+      },
+      "step2": {
+        "title": "理解其原理",
+        "description": "这三个单元格形成了 {{targetDigitText}} 的“封闭组”。无论发生什么，{{targetDigitText}} 最终都会出现在其中一个单元格中。任何能看到所有三个单元格的单元格都被阻止包含 {{targetDigitText}}。"
+      },
+      "step3": {
+        "title": "从看到该模式的单元格中移除 {{digit}}",
+        "description": "{{cells}} 处的单元格可以看到两个钳子（或所有翼单元格），因此 {{digit}} 不能填在那里。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "wxyz_wing": {
+      "step1": {
+        "title": "寻找 {{wingType}} 模式",
+        "description": "该模式使用了四个单元格，它们共同包含四个不同的候选数。数字 {{targetDigitText}} 是特殊的——它出现的方式保证了其中一个单元格会包含它。这就像抢凳子游戏：{{targetDigitText}} 必须坐在这一组中的某个地方。"
+      },
+      "step2": {
+        "title": "理解其原理",
+        "description": "这四个单元格将 {{targetDigitText}} “锁定”在其组内。任何能看到所有四个单元格的外部单元格都必须放弃 {{targetDigitText}}。"
+      },
+      "step3": {
+        "title": "从看到该模式的单元格中移除 {{digit}}",
+        "description": "{{cells}} 处的单元格可以看到两个钳子（或所有翼单元格），因此 {{digit}} 不能填在那里。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "w_wing": {
+      "step1": {
+        "title": "寻找 {{wingType}} 模式",
+        "description": "看 {{pincerNamesText}} 处的两个绿色单元格。它们具有相同的两个候选数。这些单元格通过其中一个数字的“强链接”（显示为实线）相连。这意味着：如果该连接数字从一个单元格中移除，另一个单元格必须包含它。无论哪种情况，其中一个单元格都会包含 {{targetDigitText}}。"
+      },
+      "step2": {
+        "title": "理解其原理",
+        "description": "由于两个单元格通过强链接相连，它们的“另一个”候选数 ({{targetDigitText}}) 受到限制。任何看到两个绿色单元格的单元格都会与最终包含 {{targetDigitText}} 的那个单元格发生冲突。"
+      },
+      "step3": {
+        "title": "从看到该模式的单元格中移除 {{digit}}",
+        "description": "{{cells}} 处的单元格可以看到两个钳子（或所有翼单元格），因此 {{digit}} 不能填在那里。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "generic_wing": {
+      "step1": {
+        "title": "寻找 {{wingType}} 模式",
+        "description": "这种 {{wingType}} 模式连接单元格，迫使 {{targetDigitText}} 出现在特定位置。"
+      },
+      "step2": {
+        "title": "理解其原理",
+        "description": "该模式保证了 {{targetDigitText}} 出现在突出的单元格之一，从而阻断了其他位置。"
+      },
+      "step3": {
+        "title": "从看到该模式的单元格中移除 {{digit}}",
+        "description": "{{cells}} 处的单元格可以看到两个钳子（或所有翼单元格），因此 {{digit}} 不能填在那里。从以下位置移除 {{digit}}：{{cells}}。"
+      }
+    },
+    "kite": {
+      "step1": {
+        "title": "寻找风筝模式",
+        "description": "看 {{kiteNames}} 处的两个绿色 {{digit}} 候选数。这些是风筝的端点。它们通过 {{coverNames}} 连接，其中包含另外两个 {{digit}} 候选数（显示为黄色）。可以这样想：其中一个绿色单元格必须包含 {{digit}}，但它们不能同时包含它。"
+      },
+      "step2": {
+        "title": "遵循链条",
+        "description": "风筝形成了一条链：{{chain}}。实线表示强链接，虚线表示弱链接。无论哪个绿色单元格包含 {{digit}}，弱链接都能确保宫内的黄色单元格中至少有一个会包含它。任何能同时看到 {{kiteNames}} 处两个绿色单元格的单元格都不能包含 {{digit}}。"
+      },
+      "step3": {
+        "title": "进行排除",
+        "description": "由于 {{cells}} 可以看到两个绿色单元格，我们知道 {{digit}} 不能填在那里。从以下位置排除 {{digit}}：{{cells}}。"
+      }
     }
   },
   "backend": {
