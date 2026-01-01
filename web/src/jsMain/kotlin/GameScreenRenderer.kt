@@ -69,6 +69,14 @@ internal fun SudokuApp.renderGameScreen() {
                                 HighlightMode.PENCIL -> "✏️"
                             }
                         }
+                        // Help button - opens button help modal
+                        button(classes = "help-btn") {
+                            +"?"
+                            onClickFunction = {
+                                showButtonHelpModal = true
+                                render()
+                            }
+                        }
                         span("mode-badge play-mode ${if (playMode != PlayMode.CELL_FIRST) "clickable" else ""} ${when (playMode) {
                             PlayMode.FAST -> "fast"
                             PlayMode.CELL_FIRST -> "cell-first"

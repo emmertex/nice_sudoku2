@@ -1,3 +1,23 @@
+# v0.8.2 - 2025-12-30
+
+### Features
+- Help Button
+- - Because of buttons without text, this opens a modal that explains all icons
+- - Did not use tooltips, as using with touchscreen on notebooks was causing stuck tooltips
+- - A link to the Main Help modal is also in the Help Button modal, explaining how the game works, keybaord shortcuts, and alike
+
+### Fixes
+- CORS
+
+
+# v0.8.1 - 2025-12-18
+
+### Features
+- Language now supports Hints! 
+- - Kind of - It is still WIP, but but the language files are in place, and most parsers.
+- - Main pupose is to be able to start working on language files.
+
+
 # v0.8.0 - 2025-12-17
 
 ### Features

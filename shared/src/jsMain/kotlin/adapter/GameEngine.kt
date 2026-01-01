@@ -26,8 +26,10 @@ actual class GameEngine actual constructor() {
     // Format: "R{row}C{col}={value}" for placements, "R{row}C{col}<>{candidate}" for eliminations
     private val actionStack: MutableList<String> = mutableListOf()
     
-    // Backend API base URL - configurable via environment or defaults to sudoku.emmertex.com
-    private val apiBaseUrl: String = js("window.STORMDOKU_API_URL || 'http://localhost:8181'") as String
+    // Backend API base URL - configurable via window.STORMDOKU_API_URL
+    // For production with reverse proxy: set to '' (empty string) for relative URLs
+    // For local development: defaults to 'http://localhost:8181'
+    private val apiBaseUrl: String = js("window.STORMDOKU_API_URL !== undefined ? window.STORMDOKU_API_URL : 'http://localhost:8181'") as String
     
     // Backend availability flag - checked on startup
     var isBackendAvailable: Boolean = false
