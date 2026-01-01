@@ -42,11 +42,11 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.compose.runtime:runtime:1.6.11")
-                implementation("org.jetbrains.compose.foundation:foundation:1.6.11")
-                implementation("org.jetbrains.compose.material3:material3:1.6.11")
-                implementation("org.jetbrains.compose.ui:ui:1.6.11")
-                implementation("org.jetbrains.compose.components:components-resources:1.6.11")
+                implementation("org.jetbrains.compose.runtime:runtime:1.7.3")
+                implementation("org.jetbrains.compose.foundation:foundation:1.7.3")
+                implementation("org.jetbrains.compose.material3:material3:1.7.3")
+                implementation("org.jetbrains.compose.ui:ui:1.7.3")
+                implementation("org.jetbrains.compose.components:components-resources:1.7.3")
 
                 // Kotlinx
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
@@ -76,7 +76,7 @@ kotlin {
 
         val jsMain by getting {
             dependencies {
-                implementation("org.jetbrains.compose.html:html-core:1.6.11")
+                implementation("org.jetbrains.compose.html:html-core:1.7.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.9.0")
             }
         }
