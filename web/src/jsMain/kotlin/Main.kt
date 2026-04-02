@@ -139,9 +139,7 @@ class SudokuApp {
             resizeTimeout = window.setTimeout({
                 if (currentScreen == AppScreen.GAME) {
                     matchHintSidebarHeight()
-                    if (isLandscape == false) {
-                        applyContainerScaling()
-                    }
+                    applyContainerScaling()
                 }
             }, 100)
         })

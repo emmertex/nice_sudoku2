@@ -202,7 +202,14 @@ object PuzzleStringParser {
     fun isValidPuzzleString(input: String): Boolean {
         val cleaned = input.trim().replace("\\s+".toRegex(), "")
 
-        if (cleaned.length != 81 && cleaned.length != 810 && cleaned.length != 891) return false
+        if (cleaned.length != 81 && cleaned.length != 729 && cleaned.length != 810 && cleaned.length != 891) return false
+
+        if (cleaned.length == 729) {
+            for (i in cleaned.indices) {
+                if (cleaned[i] != '0' && cleaned[i] != '1') return false
+            }
+            return true
+        }
 
         // Check first 81 chars are valid digits or .
         for (i in 0 until 81) {

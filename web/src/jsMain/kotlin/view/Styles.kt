@@ -23,7 +23,7 @@ val CSS_STYLES = """
     
     :root {
         /* Base size calculations - scales with viewport */
-        --grid-size: min(90vw, 90vh - 200px, 600px);
+        --grid-size: min(90vw, 90vh - 200px, 900px);
         --cell-size: calc(var(--grid-size) / 9.5);
         --font-scale: min(1, var(--grid-size) / 400);
 
@@ -56,6 +56,20 @@ val CSS_STYLES = """
         --epaper-invert-selection: 0;
         --colour-accent-desat: 255, 255, 255;
         --gradient-bg: linear-gradient(135deg, rgb(26,26,46) 0%, rgb(22,33,62) 50%, rgb(15,52,96) 100%);
+
+        /*
+         * 3×3 block separation (gutters show .sudoku-grid background = rail below).
+         * Reassign using theme vars only — works with JS-applied themes:
+         *   A) Darker rails:      --sudoku-grid-rail-rgb: var(--colour-shadow);      --sudoku-grid-rail-alpha: 0.4;
+         *   B) Cell-toned rails:  --sudoku-grid-rail-rgb: var(--colour-bg-tertiary); --sudoku-grid-rail-alpha: 0.55;
+         *   C) Border lines:      --sudoku-box-border-w: clamp(2px, 0.45vmin, 5px);
+         *       optional tighter gap: --sudoku-box-margin-extra: clamp(1px, 0.3vmin, 5px);
+         */
+        --sudoku-box-margin-extra: clamp(2px, 0.4vmin, 5px);
+        --sudoku-grid-rail-rgb: var(--colour-bg-primary);
+        --sudoku-grid-rail-alpha: 0.3;
+        --sudoku-box-border-w: 0px;
+        --sudoku-box-border-opacity: 0.65;
     }
     
     html, body {
@@ -172,7 +186,7 @@ val CSS_STYLES = """
     
     .game-info span {
         align-content: center;
-        font-size: clamp(0.6rem, calc(0.55rem + 0.5vmin), 0.8rem);
+        font-size: clamp(0.6rem, calc(var(--cell-size) * 0.13), min(1rem, calc(var(--cell-size) * 0.20)));
         padding-left: 6px;
         padding-right: 6px;
         padding-top: 2px;
@@ -693,7 +707,7 @@ val CSS_STYLES = """
     }
     
     .sudoku-grid {
-        background: rgba(var(--colour-bg-primary), 0.3);
+        background: rgba(var(--sudoku-grid-rail-rgb), var(--sudoku-grid-rail-alpha));
         border-radius: clamp(6px, 1.5vmin, 12px);
         padding: clamp(3px, 0.75vmin, 6px);
         display: flex;
@@ -705,6 +719,8 @@ val CSS_STYLES = """
         aspect-ratio: 1;
         position: relative;
         z-index: 20;
+        /* So cell fonts track the real drawn grid when max-width: 100% shrinks below --grid-size */
+        container-type: size;
     }
     
     .sudoku-row {
@@ -735,11 +751,33 @@ val CSS_STYLES = """
     .cell.given { background: rgba(var(--colour-bg-tertiary), 0.25); }
     .cell.solved { background: rgba(var(--colour-bg-tertiary), 0.15); }
     .cell.mistake { background: rgba(var(--colour-accent-error), 0.5); }
-    .cell.box-left { margin-left: clamp(2px, 0.5vmin, 4px); }
-    .cell.box-top { margin-top: clamp(2px, 0.5vmin, 4px); }
+
+    .cell.box-left {
+        margin-left: calc(clamp(2px, 0.5vmin, 4px) + var(--sudoku-box-margin-extra));
+    }
+    .cell.box-top {
+        margin-top: calc(clamp(2px, 0.5vmin, 4px) + var(--sudoku-box-margin-extra));
+    }
+
+    /* Optional thick lines on 3×3 boundaries (non–e-paper cells have no base border) */
+    html:not(.theme-epaper) .cell.box-left {
+        border-left: var(--sudoku-box-border-w) solid rgba(var(--colour-border), var(--sudoku-box-border-opacity));
+    }
+    html:not(.theme-epaper) .cell.box-top {
+        border-top: var(--sudoku-box-border-w) solid rgba(var(--colour-border), var(--sudoku-box-border-opacity));
+    }
+
+    /* e-paper: keep 1px grid; add extra width only when --sudoku-box-border-w > 0 */
+    html.theme-epaper .cell.box-left {
+        border-left-width: calc(1px + var(--sudoku-box-border-w));
+    }
+    html.theme-epaper .cell.box-top {
+        border-top-width: calc(1px + var(--sudoku-box-border-w));
+    }
     
     .cell-value {
-        font-size: clamp(0.9rem, calc(var(--grid-size) / 18), 2rem);
+        /* Scales with cell; max tracks cell too (old 2rem cap blocked growth on large grids) */
+        font-size: clamp(0.42rem, calc(var(--cell-size) * 0.56), min(5rem, calc(var(--cell-size) * 0.72)));
         font-weight: 600;
         color: rgb(var(--colour-text-primary));
     }
@@ -758,7 +796,7 @@ val CSS_STYLES = """
     }
     
     .candidate {
-        font-size: clamp(0.85rem, calc(var(--grid-size) / 60), 1.2rem);
+        font-size: clamp(0.28rem, calc(var(--cell-size) * 0.24), min(2rem, calc(var(--cell-size) * 0.36)));
         color: rgba(var(--colour-text-primary), 0.85);
         display: flex;
         justify-content: center;
@@ -768,6 +806,15 @@ val CSS_STYLES = """
     }
     
     .candidate.hidden { visibility: hidden; }
+
+    @supports (font-size: clamp(1px, 5cqmin, 10px)) {
+        .cell-value {
+            font-size: clamp(0.42rem, 6.2cqmin, min(5rem, 7.5cqmin));
+        }
+        .candidate {
+            font-size: clamp(0.28rem, 2.65cqmin, min(2rem, 3.6cqmin));
+        }
+    }
     
     /* Hint highlighting for cells */
     .cell.hint-cover-area {
@@ -1554,7 +1601,7 @@ val CSS_STYLES = """
         aspect-ratio: 1;
         border: none;
         border-radius: clamp(6px, 1.5vmin, 12px);
-        font-size: clamp(0.9rem, calc(0.8rem + 1vmin), 1.5rem);
+        font-size: clamp(0.85rem, calc(var(--cell-size) * 0.38), min(2.5rem, calc(var(--cell-size) * 0.52)));
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
@@ -1982,7 +2029,7 @@ val CSS_STYLES = """
     }
     
     .mode-badge {
-        font-size: clamp(0.55rem, calc(0.5rem + 0.4vmin), 0.7rem);
+        font-size: clamp(0.55rem, calc(var(--cell-size) * 0.12), min(0.95rem, calc(var(--cell-size) * 0.19)));
         padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 8px);
         border-radius: clamp(2px, 0.5vmin, 4px);
         background: rgba(var(--colour-bg-tertiary), 0.15);
@@ -1998,7 +2045,7 @@ val CSS_STYLES = """
     
     /* Selected number badges - inline with mode indicators */
     .selected-num {
-        font-size: clamp(0.55rem, calc(0.5rem + 0.4vmin), 0.7rem);
+        font-size: clamp(0.55rem, calc(var(--cell-size) * 0.12), min(0.95rem, calc(var(--cell-size) * 0.19)));
         font-weight: 700;
         padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 8px);
         border-radius: clamp(2px, 0.5vmin, 4px);
@@ -2020,7 +2067,7 @@ val CSS_STYLES = """
         padding: clamp(4px, 1vmin, 8px) clamp(8px, 2vmin, 14px);
         border: none;
         border-radius: clamp(4px, 1vmin, 8px);
-        font-size: clamp(0.6rem, calc(0.55rem + 0.4vmin), 0.8rem);
+        font-size: clamp(0.6rem, calc(var(--cell-size) * 0.17), min(0.95rem, calc(var(--cell-size) * 0.26)));
         font-weight: 600;
         cursor: pointer;
         transition: all 0.15s ease;
@@ -2291,7 +2338,7 @@ val CSS_STYLES = """
     /* Large screens */
     @media (min-width: 1200px) and (min-height: 900px) {
         :root {
-            --grid-size: min(70vh, 700px);
+            --grid-size: min(70vh, 1050px);
         }
     }
     

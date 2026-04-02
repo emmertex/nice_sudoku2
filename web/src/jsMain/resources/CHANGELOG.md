@@ -1,3 +1,8 @@
+# v0.8.3 - 2026-04-01
+
+### Fixes
+- Working on resolving the issue of pencil marks outside the cells.
+
 # v0.8.2 - 2025-12-30
 
 ### Features

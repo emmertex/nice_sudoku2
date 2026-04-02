@@ -485,21 +485,19 @@ internal fun SudokuApp.renderGameScreen() {
         } // Close sudoku-container-wrapper
     }
     
-    // Apply scaling after DOM is updated
+    // Apply scaling after DOM is updated (portrait and landscape / hints sidebar)
     window.setTimeout({
         matchHintSidebarHeight()
-        if (isLandscape == false) {
-            applyContainerScaling()
-        }
+        applyContainerScaling()
     }, 0)
 }
 
 /**
- * Calculate and apply scale transform to fit container within viewport.
- * This prevents scrolling by scaling down the game container if it exceeds viewport boundaries.
+ * Calculate and apply scale transform to fit container within #app.
+ * Wrapper is sized to the *visual* bounds (layout × scale) so flex layout matches what you see
+ * and wide-aspect / landscape + hint sidebars still shrink when content is taller than the viewport.
  */
 internal fun SudokuApp.applyContainerScaling() {
-    // Only scale on game screen
     if (currentScreen != AppScreen.GAME) return
     
     val wrapper = document.querySelector(".sudoku-container-wrapper") as? HTMLElement
@@ -507,52 +505,62 @@ internal fun SudokuApp.applyContainerScaling() {
     
     if (wrapper == null || container == null) return
     
-    // Store original styles to restore later
     val originalMaxHeight = container.style.maxHeight
     val originalHeight = container.style.height
-    val originalTransform = container.style.transform
     val originalWrapperHeight = wrapper.style.height
+    val originalWrapperWidth = wrapper.style.width
     
-    // Temporarily remove height constraints to allow container to expand to natural size
-    // This is crucial for accurate measurement when content changes (e.g., second number pad appears)
     container.style.maxHeight = "none"
     container.style.height = "auto"
     container.style.transform = "scale(1)"
-    wrapper.style.height = "auto"  // Allow wrapper to expand during measurement
+    container.style.transformOrigin = ""
+    wrapper.style.height = "auto"
+    wrapper.style.width = "auto"
     
-    // Force a reflow to ensure accurate measurements
-    val _x = container.offsetHeight
+    val _reflow = container.offsetHeight
     
-    // Get the natural (unscaled) dimensions of the container
-    // Use scrollWidth/scrollHeight to get the full content size
     val containerWidth = container.scrollWidth.toDouble()
     val containerHeight = container.scrollHeight.toDouble()
     
-    // Restore original height constraints
     container.style.maxHeight = originalMaxHeight
     container.style.height = originalHeight
     wrapper.style.height = originalWrapperHeight
+    wrapper.style.width = originalWrapperWidth
     
-    // Get available viewport space
-    // Use wrapper's parent (app element) to get actual available space
+    if (containerWidth < 1.0 || containerHeight < 1.0) return
+    
     val appElement = document.getElementById("app") as? HTMLElement
     val availableWidth = (appElement?.clientWidth ?: window.innerWidth).toDouble()
     val availableHeight = (appElement?.clientHeight ?: window.innerHeight).toDouble()
     
-    // Calculate scale factors for both dimensions
     val scaleX = availableWidth / containerWidth
     val scaleY = availableHeight / containerHeight
-    
-    // Use the smaller scale to ensure it fits in both dimensions
-    // Also ensure we don't scale up (min scale is 1.0)
     val scale = minOf(scaleX, scaleY, 1.0)
     
-    // Apply the scale transform
-    container.style.transform = "scale($scale)"
-    
-    // Ensure wrapper is properly sized
-    wrapper.style.width = "100%"
-    wrapper.style.height = "100%"
+    val layoutEpsilon = 1e-6
+    if (scale < 1.0 - layoutEpsilon) {
+        val visualWidth = containerWidth * scale
+        val visualHeight = containerHeight * scale
+        wrapper.style.width = "${visualWidth}px"
+        wrapper.style.height = "${visualHeight}px"
+        wrapper.style.setProperty("flex-shrink", "0")
+        wrapper.style.setProperty("overflow", "hidden")
+        wrapper.style.display = "flex"
+        wrapper.style.justifyContent = "flex-start"
+        wrapper.style.alignItems = "flex-start"
+        container.style.transform = "scale($scale)"
+        container.style.transformOrigin = "top left"
+    } else {
+        container.style.transform = ""
+        container.style.transformOrigin = ""
+        wrapper.style.width = "100%"
+        wrapper.style.height = "100%"
+        wrapper.style.removeProperty("flex-shrink")
+        wrapper.style.removeProperty("overflow")
+        wrapper.style.display = ""
+        wrapper.style.justifyContent = ""
+        wrapper.style.alignItems = ""
+    }
 }
 
 /**
@@ -589,11 +597,6 @@ private fun FlowContent.renderCell(
     val row = cellIndex / 9
     val col = cellIndex % 9
     val isSelected = app.selectedCell == cellIndex
-    
-    val boxBorderClasses = buildString {
-        if (col % 3 == 0 && col > 0) append(" box-left")
-        if (row % 3 == 0 && row > 0) append(" box-top")
-    }
     
     // Check if this cell has a mistake (wrong value vs solution)
     val hasMistake = if (cell.isSolved && !cell.isGiven && app.solution != null) {
@@ -674,8 +677,14 @@ private fun FlowContent.renderCell(
         cell.displayCandidates.all { it in allSelectedNumbers }
     val coveredClass = if (allCandidatesCovered) " all-candidates-covered" else ""
     
+    // 3×3 block boundaries (pairs with .box-left / .box-top in Styles.kt for gutters + optional lines)
+    val boxSepClass = buildString {
+        if (col > 0 && col % 3 == 0) append(" box-left")
+        if (row > 0 && row % 3 == 0) append(" box-top")
+    }
+    
     val solvedClass = if (cell.isSolved && !cell.isGiven) " solved" else ""
-    div("cell${if (isSelected) " selected" else ""}${if (cell.isGiven) " given" else ""}$solvedClass${if (hasMistake) " mistake" else ""}$highlightClass$hintClass$coveredClass$boxBorderClasses") {
+    div("cell${if (isSelected) " selected" else ""}${if (cell.isGiven) " given" else ""}$solvedClass${if (hasMistake) " mistake" else ""}$highlightClass$hintClass$coveredClass$boxSepClass") {
         if (cell.isSolved) {
             span("cell-value") { +"${cell.value}" }
         } else if (cell.displayCandidates.isNotEmpty()) {

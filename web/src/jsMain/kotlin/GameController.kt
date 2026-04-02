@@ -127,13 +127,15 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
     val importResult = if (text.startsWith("SCv7_32_")) {
         helpers.importExport.SudokuCoachFormat.importFromSudokuCoach(text)
     } else {
-        if (!PuzzleStringParser.isValidPuzzleString(text)) {
+        val cleaned = text.trim().replace("\\s+".toRegex(), "")
+        if (!PuzzleStringParser.isValidPuzzleString(cleaned)) {
             showToast(if (fromUrl) "Invalid shared game link" else "Invalid puzzle string")
             return false
         }
 
-        // Normalize first 81 chars by converting '.' to '0' for parsing
-        val normalized = text.take(81).map { if (it == '.') '0' else it }.joinToString("") + text.drop(81)
+        // 729 = notes-only (no leading value grid); otherwise normalize '.' in first 81 value chars
+        val normalized = if (cleaned.length == 729) cleaned
+        else cleaned.take(81).map { if (it == '.') '0' else it }.joinToString("") + cleaned.drop(81)
         val basicImport = SavedGameState.parseImportStateString(normalized)
         // Convert to ImportResult format
         if (basicImport != null) {

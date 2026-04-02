@@ -277,40 +277,78 @@ data class SavedGameState(
          */
         fun parseImportStateString(state: String): Triple<IntArray, Array<Set<Int>>, String>? {
             val length = state.length
-            if (length != 81 && length != 810 && length != 891) return null
+            if (length != 81 && length != 729 && length != 810 && length != 891) return null
 
             val values = IntArray(81)
             val userEliminations = Array<Set<Int>>(81) { emptySet() }
             var originalPuzzle = ""
 
-            // Parse values (first 81 chars)
-            for (i in 0 until 81) {
-                values[i] = state[i].digitToIntOrNull() ?: return null
-            }
-
-            if (length >= 810) {
-                // Parse user eliminations (next 729 chars)
-                for (cell in 0 until 81) {
-                    val eliminationSet = mutableSetOf<Int>()
-                    for (n in 0 until 9) {
-                        val idx = 81 + cell * 9 + n
-                        if (state[idx] == '1') {
-                            eliminationSet.add(n + 1)
+            when (length) {
+                729 -> {
+                    // Notes-only: no cell values in the string; 1 = pencil mark shown, 0 = hidden.
+                    // Convert to user eliminations (same as parseStateStringFromNotesFormat).
+                    // If exactly one pencil mark is shown, treat that digit as the current cell value.
+                    for (cell in 0 until 81) {
+                        val shown = mutableListOf<Int>()
+                        val eliminationSet = mutableSetOf<Int>()
+                        for (n in 0 until 9) {
+                            val idx = cell * 9 + n
+                            when (state[idx]) {
+                                '1' -> shown.add(n + 1)
+                                '0' -> eliminationSet.add(n + 1)
+                                else -> return null
+                            }
                         }
+                        userEliminations[cell] = eliminationSet
+                        values[cell] = if (shown.size == 1) shown.single() else 0
                     }
-                    userEliminations[cell] = eliminationSet
+                    originalPuzzle = "0".repeat(81)
                 }
-            }
-
-            if (length == 891) {
-                // Parse original puzzle (last 81 chars)
-                originalPuzzle = state.substring(810, 891)
-            } else if (length == 81) {
-                // For 81-char strings, use values as original puzzle
-                originalPuzzle = state
-            } else {
-                // For 810-char strings, we don't have original puzzle, so create from values
-                originalPuzzle = values.joinToString("") { it.toString() }
+                81 -> {
+                    for (i in 0 until 81) {
+                        values[i] = state[i].digitToIntOrNull() ?: return null
+                    }
+                    originalPuzzle = state
+                }
+                810 -> {
+                    for (i in 0 until 81) {
+                        values[i] = state[i].digitToIntOrNull() ?: return null
+                    }
+                    val idxStart = 81
+                    for (cell in 0 until 81) {
+                        val eliminationSet = mutableSetOf<Int>()
+                        for (n in 0 until 9) {
+                            val idx = idxStart + cell * 9 + n
+                            when (state[idx]) {
+                                '1' -> eliminationSet.add(n + 1)
+                                '0' -> {}
+                                else -> return null
+                            }
+                        }
+                        userEliminations[cell] = eliminationSet
+                    }
+                    originalPuzzle = values.joinToString("") { it.toString() }
+                }
+                891 -> {
+                    for (i in 0 until 81) {
+                        values[i] = state[i].digitToIntOrNull() ?: return null
+                    }
+                    val idxStart = 81
+                    for (cell in 0 until 81) {
+                        val eliminationSet = mutableSetOf<Int>()
+                        for (n in 0 until 9) {
+                            val idx = idxStart + cell * 9 + n
+                            when (state[idx]) {
+                                '1' -> eliminationSet.add(n + 1)
+                                '0' -> {}
+                                else -> return null
+                            }
+                        }
+                        userEliminations[cell] = eliminationSet
+                    }
+                    originalPuzzle = state.substring(810, 891)
+                }
+                else -> return null
             }
 
             return Triple(values, userEliminations, originalPuzzle)
