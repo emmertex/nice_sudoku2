@@ -32,6 +32,7 @@ internal fun SudokuApp.startNewGame(puzzle: PuzzleDefinition) {
 
     gameStartTime = currentTimeMillis()
     pausedTime = 0L
+    isPaused = false
     selectedCell = null
     completionShownForPuzzle = null  // Reset completion modal tracking for new game
     currentScreen = AppScreen.GAME
@@ -88,14 +89,19 @@ internal fun SudokuApp.resumeGame(saved: SavedGameState) {
     }
 
     solution = saved.solution
-    currentGame = saved
-    GameStateManager.setCurrentGameId(saved.puzzleId)
+    val loaded = if (trackPlayTime) saved else saved.copy(elapsedTimeMs = 0L)
+    currentGame = loaded
+    GameStateManager.setCurrentGameId(loaded.puzzleId)
+    if (!trackPlayTime && saved.elapsedTimeMs != 0L) {
+        GameStateManager.saveGame(loaded)
+    }
 
     gameStartTime = currentTimeMillis()
-    pausedTime = saved.elapsedTimeMs
+    pausedTime = loaded.elapsedTimeMs
+    isPaused = false
     selectedCell = null
     // If already completed, mark as shown so we don't re-show modal when resuming
-    completionShownForPuzzle = if (saved.isCompleted) saved.puzzleId else null
+    completionShownForPuzzle = if (loaded.isCompleted) loaded.puzzleId else null
     currentScreen = AppScreen.GAME
     render()
 
@@ -122,9 +128,10 @@ internal fun SudokuApp.resumeGame(saved: SavedGameState) {
  */
 internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean = false): Boolean {
     val text = rawInput.trim()
+    val isCoachImport = text.startsWith("SCv7_32_")
 
     // Check if it's Sudoku Coach format
-    val importResult = if (text.startsWith("SCv7_32_")) {
+    val importResult = if (isCoachImport) {
         helpers.importExport.SudokuCoachFormat.importFromSudokuCoach(text)
     } else {
         val cleaned = text.trim().replace("\\s+".toRegex(), "")
@@ -174,6 +181,17 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         }
     }
 
+    val metadataImportLocks = if (isCoachImport) {
+        MetadataImportLocks(
+            title = importResult.title.isNotBlank(),
+            author = importResult.author.isNotBlank(),
+            authorContact = importResult.authorContact.isNotBlank(),
+            description = importResult.description.isNotBlank()
+        )
+    } else {
+        MetadataImportLocks()
+    }
+
     // Create initial puzzle definition with metadata from import
     val puzzleId = "custom_${currentTimeMillis()}"
     var puzzle = PuzzleDefinition(
@@ -184,7 +202,8 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         title = importResult.title,
         author = importResult.author,
         authorContact = importResult.authorContact,
-        description = importResult.description
+        description = importResult.description,
+        metadataImportLocks = metadataImportLocks
     )
     
     // Save custom puzzle immediately so it appears in Custom section
@@ -200,7 +219,7 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         solution = null,
         category = DifficultyCategory.CUSTOM,
         difficulty = 0f,
-        elapsedTimeMs = importResult.playTimeMs,
+        elapsedTimeMs = if (trackPlayTime) importResult.playTimeMs else 0L,
         mistakeCount = importResult.mistakes,
         hintCount = importResult.hints,
         isCompleted = false,
@@ -208,7 +227,8 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         title = importResult.title,
         author = importResult.author,
         authorContact = importResult.authorContact,
-        description = importResult.description
+        description = importResult.description,
+        metadataImportLocks = metadataImportLocks
     )
     currentGame?.let {
         GameStateManager.saveGame(it)
@@ -218,6 +238,7 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
     // Reset timers/selection and render game screen
     gameStartTime = currentTimeMillis()
     pausedTime = 0L
+    isPaused = false
     selectedCell = null
     currentScreen = AppScreen.GAME
     solution = null
@@ -280,25 +301,109 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
  * User eliminations are stored separately from auto-calculated candidates.
  * This ensures user eliminations are never lost when candidates are recalculated.
  */
+/**
+ * Reset saved progress to givens, zero timer/mistakes/hints, clear undo stack.
+ * If this puzzle is the active game, reload the engine from the reset state.
+ */
+/**
+ * Persist metadata from Puzzle Browser details. Respects import locks per field.
+ * Updates custom puzzle entry when present; always updates saved game when present.
+ */
+internal fun SudokuApp.savePuzzleBrowserMetadata(
+    puzzleId: String,
+    title: String,
+    author: String,
+    authorContact: String,
+    description: String
+) {
+    val saved = GameStateManager.loadGame(puzzleId)
+    val customPuzzle = GameStateManager.loadCustomPuzzles().find { it.id == puzzleId }
+    val locks = saved?.metadataImportLocks ?: customPuzzle?.metadataImportLocks ?: MetadataImportLocks()
+    if (customPuzzle != null) {
+        val updated = customPuzzle.copy(
+            title = if (locks.title) customPuzzle.title else title,
+            author = if (locks.author) customPuzzle.author else author,
+            authorContact = if (locks.authorContact) customPuzzle.authorContact else authorContact,
+            description = if (locks.description) customPuzzle.description else description
+        )
+        GameStateManager.saveCustomPuzzle(updated)
+    }
+    if (saved != null) {
+        val updatedGame = saved.copy(
+            title = if (locks.title) saved.title else title,
+            author = if (locks.author) saved.author else author,
+            authorContact = if (locks.authorContact) saved.authorContact else authorContact,
+            description = if (locks.description) saved.description else description
+        )
+        GameStateManager.saveGame(updatedGame)
+        if (currentGame?.puzzleId == puzzleId) {
+            currentGame = updatedGame
+        }
+    }
+    showToast(LanguageConfig.getString("ui.puzzleBrowser.metadataSaved"))
+    render()
+}
+
+internal fun SudokuApp.resetSavedPuzzleToGivens(puzzleId: String) {
+    val saved = GameStateManager.loadGame(puzzleId) ?: return
+    val initialState = GameStateManager.initialCurrentStateString(saved.puzzleString)
+    val reset = saved.copy(
+        currentState = initialState,
+        elapsedTimeMs = 0L,
+        mistakeCount = 0,
+        hintCount = 0,
+        isCompleted = false,
+        actionStack = emptyList(),
+        lastPlayedTimestamp = currentTimeMillis()
+    )
+    GameStateManager.saveGame(reset)
+    if (currentGame?.puzzleId == puzzleId) {
+        resumeGame(reset)
+        showToast(LanguageConfig.getString("ui.puzzleBrowser.resetDone"))
+    } else {
+        showToast(LanguageConfig.getString("ui.puzzleBrowser.resetDone"))
+        render()
+    }
+}
+
 internal fun SudokuApp.saveCurrentState(newHint: Boolean = false) {
     val game = currentGame ?: return
     val grid = gameEngine.getCurrentGrid()
-    val elapsedSinceStart = currentTimeMillis() - gameStartTime
+    val additionalTimeMs = when {
+        !trackPlayTime -> 0L
+        isPaused -> (pauseStartTime - gameStartTime).coerceAtLeast(0L)
+        else -> currentTimeMillis() - gameStartTime
+    }
 
-    // updateGameState uses createStateString which saves user eliminations
     val updated = GameStateManager.updateGameState(
         currentGame = game,
         grid = grid,
         actionStack = gameEngine.getActionStack(),
-        additionalTimeMs = elapsedSinceStart,
+        additionalTimeMs = additionalTimeMs,
         newHint = newHint
-    )
+    ).let { state ->
+        if (!trackPlayTime) state.copy(elapsedTimeMs = 0L) else state
+    }
     currentGame = updated
     GameStateManager.saveGame(updated)
 
-    // Reset timer
     gameStartTime = currentTimeMillis()
     pausedTime = updated.elapsedTimeMs
+    if (isPaused) {
+        pauseStartTime = gameStartTime
+    }
+}
+
+/**
+ * Call before switching away from the game screen while a puzzle is active.
+ * Persists progress and, when play time tracking is on, leaves the game paused so the board is blocked until resume.
+ */
+internal fun SudokuApp.prepareLeaveGameScreen() {
+    if (currentGame == null) return
+    saveCurrentState()
+    if (trackPlayTime && !isPaused) {
+        pauseGame()
+    }
 }
 
 internal fun SudokuApp.loadNextUncompletedGame(category: DifficultyCategory) {

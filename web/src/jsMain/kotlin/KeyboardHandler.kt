@@ -302,7 +302,7 @@ class KeyboardHandler {
                 "m" -> {
                     if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
                         // M: Open menu/settings
-                        app.saveCurrentState()
+                        app.prepareLeaveGameScreen()
                         app.currentScreen = AppScreen.SETTINGS
                         app.render()
                         return true
@@ -311,7 +311,7 @@ class KeyboardHandler {
                 "b" -> {
                     if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
                         // B: Open puzzle browser
-                        app.saveCurrentState()
+                        app.prepareLeaveGameScreen()
                         app.currentScreen = AppScreen.PUZZLE_BROWSER
                         app.render()
                         return true
@@ -320,7 +320,7 @@ class KeyboardHandler {
                 "i" -> {
                     if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
                         // I: Open import/export
-                        app.saveCurrentState()
+                        app.prepareLeaveGameScreen()
                         app.currentScreen = AppScreen.IMPORT_EXPORT
                         app.render()
                         return true

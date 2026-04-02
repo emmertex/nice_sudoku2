@@ -1,5 +1,6 @@
 package helpers.importExport
 
+import adapter.GameEngine
 import domain.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -238,6 +239,31 @@ object SudokuCoachFormat {
             console.log("Stack trace:", e.stackTraceToString())
             return null
         }
+    }
+
+    /**
+     * Export the original givens position only (no user progress). Session stats are always zero.
+     */
+    fun exportToSudokuCoachOriginalPuzzle(
+        originalPuzzle: String,
+        title: String = "",
+        author: String = "",
+        authorContact: String = "",
+        description: String = ""
+    ): String? {
+        val engine = GameEngine()
+        engine.loadPuzzle(originalPuzzle)
+        return exportToSudokuCoach(
+            grid = engine.getCurrentGrid(),
+            originalPuzzle = originalPuzzle,
+            title = title,
+            author = author,
+            authorContact = authorContact,
+            description = description,
+            playTimeMs = 0L,
+            mistakes = 0,
+            hints = 0
+        )
     }
     
     /**

@@ -5,6 +5,7 @@ import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLTextAreaElement
 import domain.*
 import helpers.importExport.buildShareUrl
+import helpers.importExport.SudokuCoachFormat
 import i18n.LanguageConfig
 
 /**
@@ -13,28 +14,52 @@ import i18n.LanguageConfig
 internal fun SudokuApp.renderImportExport() {
     val grid = gameEngine.getCurrentGrid()
     val game = currentGame
-    
-    // Create export strings
+
     val puzzleString = game?.puzzleString ?: ""
-    val currentValues = grid.cells.joinToString("") { 
-        (it.value ?: 0).toString() 
+    val state891 = SavedGameState.createStateStringFor891Export(grid, puzzleString)
+    val state810 = SavedGameState.createStateStringForExport(grid)
+    val state729 = if (state810.length >= 810) state810.substring(81, 810) else ""
+
+    if (exportPanelScope != "original" && exportPanelScope != "current") {
+        exportPanelScope = "current"
     }
-    // Use new export format (user eliminations: 1 = eliminated) with original puzzle
-    val stateString891 = SavedGameState.createStateStringFor891Export(grid, game?.puzzleString ?: "")
-    
-    // Sudoku Coach format with metadata
-    val sudokuCoachString = helpers.importExport.SudokuCoachFormat.exportToSudokuCoach(
-        grid = grid,
-        originalPuzzle = game?.puzzleString ?: "",
-        title = game?.title ?: "",
-        author = game?.author ?: "",
-        authorContact = game?.authorContact ?: "",
-        description = game?.description ?: "",
-        playTimeMs = game?.elapsedTimeMs ?: 0L,
-        mistakes = game?.mistakeCount ?: 0,
-        hints = game?.hintCount ?: 0
-    )
-    
+    if (exportPanelScope == "original" && exportPanelSubKey != "81" && exportPanelSubKey != "coach") {
+        exportPanelSubKey = "coach"
+    }
+    if (exportPanelScope == "current" && exportPanelSubKey != "729" && exportPanelSubKey != "891" && exportPanelSubKey != "coach") {
+        exportPanelSubKey = "coach"
+    }
+
+    val exportString = when (exportPanelScope) {
+        "original" -> when (exportPanelSubKey) {
+            "81" -> puzzleString
+            "coach" -> SudokuCoachFormat.exportToSudokuCoachOriginalPuzzle(
+                originalPuzzle = puzzleString,
+                title = game?.title ?: "",
+                author = game?.author ?: "",
+                authorContact = game?.authorContact ?: "",
+                description = game?.description ?: ""
+            ) ?: ""
+            else -> puzzleString
+        }
+        else -> when (exportPanelSubKey) {
+            "729" -> state729
+            "891" -> state891
+            "coach" -> SudokuCoachFormat.exportToSudokuCoach(
+                grid = grid,
+                originalPuzzle = puzzleString,
+                title = game?.title ?: "",
+                author = game?.author ?: "",
+                authorContact = game?.authorContact ?: "",
+                description = game?.description ?: "",
+                playTimeMs = game?.elapsedTimeMs ?: 0L,
+                mistakes = game?.mistakeCount ?: 0,
+                hints = game?.hintCount ?: 0
+            ) ?: ""
+            else -> state891
+        }
+    }
+
     appRoot.append {
         div("sudoku-container import-export") {
             div("header") {
@@ -47,131 +72,107 @@ internal fun SudokuApp.renderImportExport() {
                 }
                 h1 { +LanguageConfig.getString("ui.importExport.title") }
             }
-            
-            // Export section
+
             div("section") {
                 h2 { +LanguageConfig.getString("ui.importExport.export") }
-                
-                div("export-option") {
-                    label { +LanguageConfig.getString("ui.importExport.originalPuzzle") }
-                    div("export-row") {
-                        input(InputType.text, classes = "export-field") {
-                            value = puzzleString
-                            readonly = true
+
+                div("export-panel-scope") {
+                    button(classes = "export-scope-btn ${if (exportPanelScope == "original") "active" else ""}") {
+                        +LanguageConfig.getString("ui.importExport.scopeOriginal")
+                        onClickFunction = {
+                            exportPanelScope = "original"
+                            if (exportPanelSubKey != "81" && exportPanelSubKey != "coach") {
+                                exportPanelSubKey = "81"
+                            }
+                            render()
                         }
-                        button(classes = "copy-btn") {
-                            +LanguageConfig.getString("ui.importExport.copy")
+                    }
+                    button(classes = "export-scope-btn ${if (exportPanelScope == "current") "active" else ""}") {
+                        +LanguageConfig.getString("ui.importExport.scopeCurrent")
+                        onClickFunction = {
+                            exportPanelScope = "current"
+                            if (exportPanelSubKey != "729" && exportPanelSubKey != "891" && exportPanelSubKey != "coach") {
+                                exportPanelSubKey = "coach"
+                            }
+                            render()
+                        }
+                    }
+                }
+
+                if (exportPanelScope == "original") {
+                    div("export-panel-formats") {
+                        button(classes = "export-format-btn ${if (exportPanelSubKey == "81") "active" else ""}") {
+                            +LanguageConfig.getString("ui.importExport.fmt81")
                             onClickFunction = {
-                                ClipboardUtils.copyToClipboard(puzzleString,
-                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedPuzzle")) },
-                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
-                                )
+                                exportPanelSubKey = "81"
+                                render()
                             }
                         }
-                        button(classes = "copy-btn") {
-                            +LanguageConfig.getString("ui.importExport.copyUrl")
+                        button(classes = "export-format-btn ${if (exportPanelSubKey == "coach") "active" else ""}") {
+                            +LanguageConfig.getString("ui.importExport.fmtCoachComplete")
                             onClickFunction = {
-                                val shareUrl = buildShareUrl(puzzleString)
-                                ClipboardUtils.copyToClipboard(shareUrl,
-                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedPuzzleUrl")) },
-                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
-                                )
+                                exportPanelSubKey = "coach"
+                                render()
+                            }
+                        }
+                    }
+                } else {
+                    div("export-panel-formats") {
+                        button(classes = "export-format-btn ${if (exportPanelSubKey == "729") "active" else ""}") {
+                            +LanguageConfig.getString("ui.importExport.fmt729")
+                            onClickFunction = {
+                                exportPanelSubKey = "729"
+                                render()
+                            }
+                        }
+                        button(classes = "export-format-btn ${if (exportPanelSubKey == "891") "active" else ""}") {
+                            +LanguageConfig.getString("ui.importExport.fmt891")
+                            onClickFunction = {
+                                exportPanelSubKey = "891"
+                                render()
+                            }
+                        }
+                        button(classes = "export-format-btn ${if (exportPanelSubKey == "coach") "active" else ""}") {
+                            +LanguageConfig.getString("ui.importExport.fmtCoachCurrentFull")
+                            onClickFunction = {
+                                exportPanelSubKey = "coach"
+                                render()
                             }
                         }
                     }
                 }
-                
-                div("export-option") {
-                    label { +LanguageConfig.getString("ui.importExport.currentState") }
-                    div("export-row") {
-                        input(InputType.text, classes = "export-field") {
-                            value = currentValues
-                            readonly = true
-                        }
-                        button(classes = "copy-btn") {
-                            +LanguageConfig.getString("ui.importExport.copy")
-                            onClickFunction = {
-                                ClipboardUtils.copyToClipboard(currentValues,
-                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedState")) },
-                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
-                                )
-                            }
-                        }
-                        button(classes = "copy-btn") {
-                            +LanguageConfig.getString("ui.importExport.copyUrl")
-                            onClickFunction = {
-                                val shareUrl = buildShareUrl(currentValues)
-                                ClipboardUtils.copyToClipboard(shareUrl,
-                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedStateUrl")) },
-                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
-                                )
-                            }
+
+                p("export-complete-hint") {
+                    +LanguageConfig.getString("ui.importExport.completeFormatDescription")
+                }
+
+                div("export-row") {
+                    input(InputType.text, classes = "export-field") {
+                        value = exportString
+                        readonly = true
+                    }
+                    button(classes = "copy-btn") {
+                        +LanguageConfig.getString("ui.importExport.copy")
+                        onClickFunction = {
+                            ClipboardUtils.copyToClipboard(exportString,
+                                onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedExport")) },
+                                onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
+                            )
                         }
                     }
-                }
-                
-                div("export-option") {
-                    label { +LanguageConfig.getString("ui.importExport.fullState") }
-                    div("export-row") {
-                        input(InputType.text, classes = "export-field") {
-                            value = stateString891
-                            readonly = true
-                        }
-                        button(classes = "copy-btn") {
-                            +LanguageConfig.getString("ui.importExport.copy")
-                            onClickFunction = {
-                                ClipboardUtils.copyToClipboard(stateString891,
-                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedFullState")) },
-                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
-                                )
-                            }
-                        }
-                        button(classes = "copy-btn") {
-                            +LanguageConfig.getString("ui.importExport.copyUrl")
-                            onClickFunction = {
-                                val shareUrl = buildShareUrl(stateString891)
-                                ClipboardUtils.copyToClipboard(shareUrl,
-                                    onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedFullStateUrl")) },
-                                    onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                if (sudokuCoachString != null) {
-                    div("export-option") {
-                        label { +LanguageConfig.getString("ui.importExport.sudokuCoachFormat") }
-                        div("export-row") {
-                            input(InputType.text, classes = "export-field") {
-                                value = sudokuCoachString
-                                readonly = true
-                            }
-                            button(classes = "copy-btn") {
-                                +LanguageConfig.getString("ui.importExport.copy")
-                                onClickFunction = {
-                                    ClipboardUtils.copyToClipboard(sudokuCoachString,
-                                        onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedSudokuCoach")) },
-                                        onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopy")) }
-                                    )
-                                }
-                            }
-                            button(classes = "copy-btn") {
-                                +LanguageConfig.getString("ui.importExport.copyUrl")
-                                onClickFunction = {
-                                    val shareUrl = buildShareUrl(sudokuCoachString)
-                                    ClipboardUtils.copyToClipboard(shareUrl,
-                                        onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedSudokuCoachUrl")) },
-                                        onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
-                                    )
-                                }
-                            }
+                    button(classes = "copy-btn") {
+                        +LanguageConfig.getString("ui.importExport.copyUrl")
+                        onClickFunction = {
+                            val shareUrl = buildShareUrl(exportString)
+                            ClipboardUtils.copyToClipboard(shareUrl,
+                                onSuccess = { showToast(LanguageConfig.getString("ui.importExport.copiedExportUrl")) },
+                                onError = { showToast(LanguageConfig.getString("ui.importExport.failedToCopyUrl")) }
+                            )
                         }
                     }
                 }
             }
-            
-            // Import section
+
             div("section") {
                 h2 { +LanguageConfig.getString("ui.importExport.import") }
                 p("hint") {
@@ -181,12 +182,12 @@ internal fun SudokuApp.renderImportExport() {
                     }
                     +" format"
                 }
-                
+
                 textArea(classes = "import-field") {
                     id = "import-input"
                     placeholder = LanguageConfig.getString("ui.importExport.placeholder")
                 }
-                
+
                 div("import-actions") {
                     button(classes = "paste-btn") {
                         +LanguageConfig.getString("ui.importExport.pasteFromClipboard")
@@ -203,7 +204,7 @@ internal fun SudokuApp.renderImportExport() {
                             )
                         }
                     }
-                    
+
                     button(classes = "load-btn") {
                         +LanguageConfig.getString("ui.importExport.loadPuzzle")
                         onClickFunction = {
@@ -214,12 +215,10 @@ internal fun SudokuApp.renderImportExport() {
                     }
                 }
             }
-            
-            // Toast
+
             if (toastMessage != null) {
                 div("toast") { +toastMessage!! }
             }
         }
     }
 }
-

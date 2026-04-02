@@ -1,7 +1,10 @@
+import kotlinx.browser.document
 import kotlinx.html.*
 import kotlinx.html.dom.append
 import kotlinx.html.js.onClickFunction
 import kotlinx.html.js.onInputFunction
+import org.w3c.dom.HTMLInputElement
+import org.w3c.dom.HTMLTextAreaElement
 import domain.*
 import domain.getLocalizedDisplayName
 import i18n.LanguageConfig
@@ -19,6 +22,7 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                 button(classes = "back-btn") {
                     +LanguageConfig.getString("ui.puzzleBrowser.back")
                     onClickFunction = {
+                        browserSelectedPuzzleId = null
                         currentScreen = AppScreen.GAME
                         render()
                     }
@@ -101,6 +105,7 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                                 +cat.getLocalizedDisplayName()
                                 onClickFunction = {
                                     selectedCategory = cat
+                                    browserSelectedPuzzleId = null
                                     render()
                                 }
                             }
@@ -120,18 +125,16 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                     }
                 }
                 
+                val puzzles = PuzzleLibrary.getPuzzlesForCategory(selectedCategory)
+                val isLoading = PuzzleLibrary.isPuzzlesLoading(selectedCategory)
+                if (puzzles.isEmpty() && !isLoading && selectedCategory != DifficultyCategory.CUSTOM) {
+                    PuzzleLibrary.getPuzzlesForCategoryAsync(selectedCategory) {
+                        render()
+                    }
+                }
+
                 // Puzzle list
                 div("puzzle-list") {
-                    val puzzles = PuzzleLibrary.getPuzzlesForCategory(selectedCategory)
-                    val isLoading = PuzzleLibrary.isPuzzlesLoading(selectedCategory)
-                    
-                    // Trigger async load with callback to re-render
-                    if (puzzles.isEmpty() && !isLoading && selectedCategory != DifficultyCategory.CUSTOM) {
-                        PuzzleLibrary.getPuzzlesForCategoryAsync(selectedCategory) {
-                            render()
-                        }
-                    }
-                    
                     if (isLoading) {
                         div("empty-message") {
                             +LanguageConfig.getString("ui.puzzleBrowser.loadingPuzzles")
@@ -152,30 +155,28 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                         // Skip completed puzzles if hide completed is enabled
                         if (hideCompletedPuzzles && isCompleted) continue
                         
-                        div("puzzle-item ${if (isCompleted) "completed" else ""}") {
-                            span("puzzle-num") { +"#${index + 1}" }
-                            // Show title if available (as link if URL exists)
-                            val puzzleTitle = puzzle.title
+                        val puzzleTitleDisplay = if (selectedCategory == DifficultyCategory.CUSTOM) {
+                            puzzle.title.ifBlank { existingGame?.title.orEmpty() }
+                        } else {
+                            puzzle.title
+                        }
+                        div("puzzle-item ${if (isCompleted) "completed" else ""} ${if (puzzle.id == browserSelectedPuzzleId) "puzzle-item-selected" else ""}") {
+                            span("puzzle-num puzzle-num-select") {
+                                +"#${index + 1}"
+                                onClickFunction = {
+                                    browserSelectedPuzzleId =
+                                        if (browserSelectedPuzzleId == puzzle.id) null else puzzle.id
+                                    render()
+                                }
+                            }
                             val puzzleUrl = puzzle.url
-                            if (puzzleTitle.isNotEmpty()) {
+                            if (puzzleTitleDisplay.isNotEmpty()) {
                                 if (puzzleUrl.isNotEmpty()) {
                                     a(href = puzzleUrl, target = "_blank", classes = "puzzle-title-link") {
-                                        +puzzleTitle
+                                        +puzzleTitleDisplay
                                     }
                                 } else {
-                                    span("puzzle-title") { +puzzleTitle }
-                                }
-                                // Show info button if there's additional metadata
-                                if (puzzle.author.isNotEmpty() || puzzle.description.isNotEmpty()) {
-                                    button(classes = "info-btn") {
-                                        +"ℹ️"
-                                        attributes["title"] = "Show puzzle information"
-                                        onClickFunction = {
-                                            puzzleInfoTarget = puzzle
-                                            showPuzzleInfoModal = true
-                                            render()
-                                        }
-                                    }
+                                    span("puzzle-title") { +puzzleTitleDisplay }
                                 }
                             }
                             // Show category for graded custom puzzles
@@ -216,6 +217,9 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                                         GameStateManager.deleteCustomPuzzle(puzzle.id)
                                         // Also delete the saved game if it exists
                                         GameStateManager.deleteGame(puzzle.id)
+                                        if (browserSelectedPuzzleId == puzzle.id) {
+                                            browserSelectedPuzzleId = null
+                                        }
                                         showToast(LanguageConfig.getString("ui.puzzleBrowser.customPuzzleDeleted"))
                                         render()
                                     }
@@ -225,6 +229,95 @@ internal fun SudokuApp.renderPuzzleBrowser() {
                                 +if (isCompleted) LanguageConfig.getString("ui.puzzleBrowser.replay") else LanguageConfig.getString("ui.puzzleBrowser.play")
                                 onClickFunction = {
                                     startNewGame(puzzle)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                browserSelectedPuzzleId?.let { selId ->
+                    puzzles.find { it.id == selId }?.let { sp ->
+                        val saved = GameStateManager.loadGame(selId)
+                        val customPuzzle = GameStateManager.loadCustomPuzzles().find { it.id == selId }
+                        val locks = saved?.metadataImportLocks ?: sp.metadataImportLocks
+                        fun eff(savedStr: String?, puzzleStr: String) =
+                            savedStr?.takeIf { it.isNotBlank() } ?: puzzleStr
+                        val titleEff = eff(saved?.title, sp.title)
+                        val authorEff = eff(saved?.author, sp.author)
+                        val contactEff = eff(saved?.authorContact, sp.authorContact)
+                        val descEff = eff(saved?.description, sp.description)
+                        val canSaveMetadata = (customPuzzle != null || saved != null) &&
+                            !(locks.title && locks.author && locks.authorContact && locks.description)
+
+                        div("puzzle-details-section") {
+                            h2 { +LanguageConfig.getString("ui.puzzleBrowser.puzzleDetails") }
+                            button(classes = "details-clear-btn") {
+                                +LanguageConfig.getString("ui.puzzleBrowser.clearSelection")
+                                onClickFunction = {
+                                    browserSelectedPuzzleId = null
+                                    render()
+                                }
+                            }
+                            div("detail-fields") {
+                                fun FlowContent.detailRow(
+                                    labelKey: String,
+                                    lock: Boolean,
+                                    fieldValue: String,
+                                    inputId: String,
+                                    multiline: Boolean = false
+                                ) {
+                                    div("detail-field-row") {
+                                        span("detail-label") { +LanguageConfig.getString(labelKey) }
+                                        if (!lock) {
+                                            if (multiline) {
+                                                textArea(classes = "detail-textarea") {
+                                                    id = inputId
+                                                    +fieldValue
+                                                }
+                                            } else {
+                                                input(InputType.text, classes = "detail-input") {
+                                                    id = inputId
+                                                    value = fieldValue
+                                                }
+                                            }
+                                        } else {
+                                            span("detail-value detail-locked") {
+                                                +(if (fieldValue.isBlank()) LanguageConfig.getString("ui.puzzleBrowser.metadataDash") else fieldValue)
+                                            }
+                                        }
+                                    }
+                                }
+                                detailRow("ui.modals.puzzleInfo.titleLabel", locks.title, titleEff, "browser-detail-title")
+                                detailRow("ui.modals.puzzleInfo.author", locks.author, authorEff, "browser-detail-author")
+                                detailRow("ui.modals.puzzleInfo.contact", locks.authorContact, contactEff, "browser-detail-contact")
+                                detailRow("ui.modals.puzzleInfo.description", locks.description, descEff, "browser-detail-description", multiline = true)
+                            }
+                            if (saved != null) {
+                                div("detail-stats-row") {
+                                    span("detail-label") { +LanguageConfig.getString("ui.puzzleBrowser.statsPlayTime") }
+                                    span("detail-value") { +formatTime(saved.elapsedTimeMs) }
+                                    span("detail-label") { +LanguageConfig.getString("ui.puzzleBrowser.statsMistakes") }
+                                    span("detail-value") { +"${saved.mistakeCount}" }
+                                    span("detail-label") { +LanguageConfig.getString("ui.puzzleBrowser.statsHints") }
+                                    span("detail-value") { +"${saved.hintCount}" }
+                                }
+                                button(classes = "reset-puzzle-btn") {
+                                    +LanguageConfig.getString("ui.puzzleBrowser.resetPuzzle")
+                                    onClickFunction = {
+                                        resetSavedPuzzleToGivens(selId)
+                                    }
+                                }
+                            }
+                            if (canSaveMetadata) {
+                                button(classes = "save-metadata-btn") {
+                                    +LanguageConfig.getString("ui.puzzleBrowser.saveMetadata")
+                                    onClickFunction = {
+                                        val t = (document.getElementById("browser-detail-title") as? HTMLInputElement)?.value?.trim() ?: ""
+                                        val a = (document.getElementById("browser-detail-author") as? HTMLInputElement)?.value?.trim() ?: ""
+                                        val c = (document.getElementById("browser-detail-contact") as? HTMLInputElement)?.value?.trim() ?: ""
+                                        val d = (document.getElementById("browser-detail-description") as? HTMLTextAreaElement)?.value?.trim() ?: ""
+                                        savePuzzleBrowserMetadata(selId, t, a, c, d)
+                                    }
                                 }
                             }
                         }

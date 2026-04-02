@@ -24,6 +24,7 @@ object GameStateManager {
     private const val THEME_KEY = "nice_sudoku_theme"
     private const val MISTAKE_DETECTION_KEY = "nice_sudoku_mistake_detection"
     private const val CANDIDATE_MODE_KEY = "nice_sudoku_candidate_mode"
+    private const val TRACK_PLAY_TIME_KEY = "nice_sudoku_track_play_time"
     
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -302,6 +303,29 @@ object GameStateManager {
     }
     
     /**
+     * Whether puzzle time is tracked and pause/resume UX is used (default: true).
+     */
+    fun getTrackPlayTime(): Boolean {
+        return try {
+            when (localStorage[TRACK_PLAY_TIME_KEY]) {
+                null, "true" -> true
+                "false" -> false
+                else -> true
+            }
+        } catch (e: Exception) {
+            true
+        }
+    }
+    
+    fun setTrackPlayTime(enabled: Boolean) {
+        try {
+            localStorage[TRACK_PLAY_TIME_KEY] = if (enabled) "true" else "false"
+        } catch (e: Exception) {
+            console.log("Error saving track play time preference: ${e.message}")
+        }
+    }
+    
+    /**
      * Save a custom puzzle to the library
      * Updates existing puzzle if it already exists (by ID), otherwise adds new
      */
@@ -363,13 +387,7 @@ object GameStateManager {
      * MANUAL mode: 729 ones = ALL eliminated, start with blank pencil marks
      */
     fun createNewGame(puzzle: PuzzleDefinition, solution: String? = null): SavedGameState {
-        // Initialize state based on candidate mode
-        val candidateMode = getCandidateMode()
-        val eliminationString = when (candidateMode) {
-            CandidateMode.AUTO -> "0".repeat(729)   // 0 = not eliminated, show auto-calculated
-            CandidateMode.MANUAL -> "1".repeat(729) // 1 = all eliminated, start blank
-        }
-        val initialState = puzzle.puzzleString + eliminationString
+        val initialState = initialCurrentStateString(puzzle.puzzleString)
         
         return SavedGameState(
             puzzleId = puzzle.id,
@@ -382,8 +400,26 @@ object GameStateManager {
             mistakeCount = 0,
             hintCount = 0,
             isCompleted = false,
-            lastPlayedTimestamp = currentTimeMillis()
+            lastPlayedTimestamp = currentTimeMillis(),
+            title = puzzle.title,
+            author = puzzle.author,
+            authorContact = puzzle.authorContact,
+            description = puzzle.description,
+            metadataImportLocks = puzzle.metadataImportLocks
         )
+    }
+
+    /**
+     * Fresh saved-state string for a puzzle (givens + elimination row per candidate mode).
+     * Used for new games and reset-to-givens.
+     */
+    fun initialCurrentStateString(puzzleString: String): String {
+        val candidateMode = getCandidateMode()
+        val eliminationString = when (candidateMode) {
+            CandidateMode.AUTO -> "0".repeat(729)
+            CandidateMode.MANUAL -> "1".repeat(729)
+        }
+        return puzzleString + eliminationString
     }
     
     /**

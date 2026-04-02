@@ -1,7 +1,38 @@
+# v0.9.0 - 2026-04-01
+
+### Features
+- Viewing, Changing, Importing and Exporting Puzzle Metadata
+- Export of more formats.
+- - Origional Puzzle
+- - - 81 Char String, the standard format shared online in most places
+- - - Complete Format.  Compatible with Sudoku Coach, but with additional metadata.
+- - - - Givens
+- - - - Pencil Marks
+- - - - Origional Puzzle
+- - - - Puzzle Title
+- - - - Puzzle Author
+- - - - Puzzle Author Contact Info
+- - - - Puzzle Description
+- - Current State
+- - - 729 Char String, Pencil Marks Only. This is commonly used in apps like HoDoKu.
+- - - 891 Char String, Current Puzzle State, Pencil Marks, And Origional Puzzle.  Intended to resolve limitations of HoDoKu format.
+- - - Complete, Compatible with Sudoku Coach, but with additional metadata.
+- - - - Everything mentioned for Origional Puzzle, but additionally.
+- - - - Play Time
+- - - - Mistake Count
+- - - - Hints Used Count 
+- Puzzle Max Size increased 1.5x
+- Display Puzzle Title on main screen.
+- Title to show Puzzle Info.
+- New Setting.  Track Play Time.
+- - When enabled, any movement from the play screen will pause the timer, and block the play screen.
+- - When this is disabled, the "Pause" screen will not show up, and play time will always stay as 0.
+- - Puzzle Time will not start counting unless a new puzzle ist started AND this setting is enabled
+
 # v0.8.3 - 2026-04-01
 
 ### Fixes
-- Working on resolving the issue of pencil marks outside the cells.
+- Resolved issue of pencil marks appearing outside the cells boundaries.
 
 # v0.8.2 - 2025-12-30
 

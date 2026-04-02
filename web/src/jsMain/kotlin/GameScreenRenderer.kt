@@ -14,6 +14,7 @@ import kotlinx.html.js.onClickFunction
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.asList
+import org.w3c.dom.events.Event
 import view.*
 import kotlin.js.Date
 import kotlin.math.abs
@@ -33,7 +34,17 @@ internal fun SudokuApp.renderGameScreen() {
         showCompletionModal = true
     }
     
-    val currentElapsed = pausedTime + (currentTimeMillis() - gameStartTime)
+    val currentElapsed = if (trackPlayTime) {
+        if (isPaused) pausedTime + (pauseStartTime - gameStartTime)
+        else pausedTime + (currentTimeMillis() - gameStartTime)
+    } else 0L
+
+    val puzzleTitleTrimmed = game?.title?.trim().orEmpty()
+    document.title = when {
+        game == null -> "Nice Sudoku"
+        puzzleTitleTrimmed.isEmpty() -> "Nice Sudoku"
+        else -> "Nice Sudoku - $puzzleTitleTrimmed"
+    }
     
     // Compute highlights
     val primaryCells = getPrimaryHighlightCells(grid)
@@ -50,13 +61,32 @@ internal fun SudokuApp.renderGameScreen() {
                     button(classes = "nav-btn menu-btn") {
                         +"☰ Menu"
                         onClickFunction = {
-                            saveCurrentState()
+                            prepareLeaveGameScreen()
                             currentScreen = AppScreen.SETTINGS
                             render()
                         }
                     }
                     div {
-                        h1 { +"Nice Sudoku" }
+                        h1 {
+                            if (game == null) {
+                                +"Nice Sudoku"
+                            } else {
+                                val headerLinkText = if (puzzleTitleTrimmed.isEmpty()) {
+                                    "Nice Sudoku"
+                                } else {
+                                    "Nice Sudoku - $puzzleTitleTrimmed"
+                                }
+                                a(href = "#", classes = "game-header-title-link") {
+                                    +headerLinkText
+                                    onClickFunction = { ev ->
+                                        (ev as? Event)?.preventDefault()
+                                        puzzleInfoTarget = game
+                                        showPuzzleInfoModal = true
+                                        render()
+                                    }
+                                }
+                            }
+                        }
                         div("powered-by") { +"Powered by StormDoku" }
                     }
                     // Show current mode indicators and selected numbers
@@ -131,10 +161,12 @@ internal fun SudokuApp.renderGameScreen() {
                         span("difficulty") { +"★ ${game.difficulty}" }
                         span("timer-container") {
                             span("timer") { +"⏱ ${formatTime(currentElapsed)}" }
-                            button(classes = "pause-btn") {
-                                +(if (isPaused) "▶" else "⏸")
-                                onClickFunction = {
-                                    togglePause()
+                            if (trackPlayTime) {
+                                button(classes = "pause-btn") {
+                                    +(if (isPaused) "▶" else "⏸")
+                                    onClickFunction = {
+                                        togglePause()
+                                    }
                                 }
                             }
                         }
@@ -159,7 +191,7 @@ internal fun SudokuApp.renderGameScreen() {
             // Game area
             div("game-area") {
                 // Sudoku grid container with SVG overlay
-                div("sudoku-grid-container ${if (isPaused) "paused" else ""}") {
+                div("sudoku-grid-container ${if (isPaused && trackPlayTime) "paused" else ""}") {
                     // Sudoku grid
         div("sudoku-grid") {
                         for (row in 0..8) {
@@ -181,7 +213,7 @@ internal fun SudokuApp.renderGameScreen() {
                     }
                     
                     // Pause overlay (blur effect when paused)
-                    if (isPaused) {
+                    if (isPaused && trackPlayTime) {
                         div("pause-overlay") {
                             onClickFunction = {
                                 resumeGame()

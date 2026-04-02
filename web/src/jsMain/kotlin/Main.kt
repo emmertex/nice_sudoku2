@@ -32,6 +32,7 @@ class SudokuApp {
     internal var currentTheme = GameStateManager.getTheme()
     internal var mistakeDetectionMode = GameStateManager.getMistakeDetectionMode()
     internal var candidateMode = GameStateManager.getCandidateMode()
+    internal var trackPlayTime = GameStateManager.getTrackPlayTime()
     internal var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Primary selected numbers (light blue)
     internal var selectedNumbers2: MutableSet<Int> = mutableSetOf()  // Secondary selected numbers (light red)
     
@@ -71,6 +72,12 @@ class SudokuApp {
     
     // Puzzle browser state
     internal var hideCompletedPuzzles = GameStateManager.getHideCompleted()
+    internal var browserSelectedPuzzleId: String? = null
+
+    /** Import/Export: "original" | "current" */
+    internal var exportPanelScope: String = "current"
+    /** Original: "81" | "coach"; Current: "729" | "891" | "coach" */
+    internal var exportPanelSubKey: String = "coach"
     
     // Timer update interval
     internal var timerIntervalId: Int? = null
@@ -146,7 +153,7 @@ class SudokuApp {
         
         // Set up window focus/blur listeners for auto-pause
         window.addEventListener("blur", {
-            if (currentScreen == AppScreen.GAME && currentGame != null && !isPaused) {
+            if (trackPlayTime && currentScreen == AppScreen.GAME && currentGame != null && !isPaused) {
                 pauseGame()
             }
         })
@@ -223,6 +230,9 @@ class SudokuApp {
             AppScreen.IMPORT_EXPORT -> renderImportExport()
             AppScreen.SETTINGS -> renderSettings()
         }
+        if (currentScreen != AppScreen.GAME) {
+            document.title = "Nice Sudoku"
+        }
         
         // About modal (can appear over any screen)
         if (showAboutModal) {
@@ -288,7 +298,9 @@ class SudokuApp {
         }
         
         // Calculate current elapsed time (don't increment if paused)
-        val currentElapsed = if (isPaused) {
+        val currentElapsed = if (!trackPlayTime) {
+            0L
+        } else if (isPaused) {
             pausedTime + (pauseStartTime - gameStartTime)
         } else {
             pausedTime + (currentTimeMillis() - gameStartTime)
@@ -300,7 +312,7 @@ class SudokuApp {
     }
     
     internal fun pauseGame() {
-        if (isPaused || currentGame == null) return
+        if (!trackPlayTime || isPaused || currentGame == null) return
         
         isPaused = true
         pauseStartTime = currentTimeMillis()
@@ -308,10 +320,8 @@ class SudokuApp {
     }
     
     internal fun resumeGame() {
-        if (!isPaused || currentGame == null) return
+        if (!trackPlayTime || !isPaused || currentGame == null) return
         
-        // Add the paused time to pausedTime
-        val pauseDuration = currentTimeMillis() - pauseStartTime
         pausedTime += pauseStartTime - gameStartTime
         gameStartTime = currentTimeMillis()
         
@@ -320,6 +330,7 @@ class SudokuApp {
     }
     
     internal fun togglePause() {
+        if (!trackPlayTime) return
         if (isPaused) {
             resumeGame()
         } else {

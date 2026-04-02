@@ -326,6 +326,48 @@ internal fun SudokuApp.renderSettings() {
                 }
             }
 
+            div("section") {
+                h2 { +LanguageConfig.getString("ui.settings.trackPlayTime") }
+                p("setting-desc") { +LanguageConfig.getString("ui.settings.trackPlayTimeDesc") }
+                div("mode-options") {
+                    button(classes = "mode-btn ${if (trackPlayTime) "active" else ""}") {
+                        +LanguageConfig.getString("ui.settings.trackPlayTimeOn")
+                        onClickFunction = {
+                            if (!trackPlayTime) {
+                                trackPlayTime = true
+                                GameStateManager.setTrackPlayTime(true)
+                                currentGame?.let {
+                                    pausedTime = it.elapsedTimeMs
+                                    gameStartTime = currentTimeMillis()
+                                }
+                                render()
+                            }
+                        }
+                    }
+                    button(classes = "mode-btn ${if (!trackPlayTime) "active" else ""}") {
+                        +LanguageConfig.getString("ui.settings.trackPlayTimeOff")
+                        onClickFunction = {
+                            if (trackPlayTime) {
+                                trackPlayTime = false
+                                GameStateManager.setTrackPlayTime(false)
+                                isPaused = false
+                                if (currentGame != null) {
+                                    saveCurrentState()
+                                }
+                                render()
+                            }
+                        }
+                    }
+                }
+                div("mode-explanation") {
+                    +if (trackPlayTime) {
+                        LanguageConfig.getString("ui.settings.trackPlayTimeOnDesc")
+                    } else {
+                        LanguageConfig.getString("ui.settings.trackPlayTimeOffDesc")
+                    }
+                }
+            }
+
             // Language section
             div("section") {
                 h2 { +LanguageConfig.getString("ui.settings.language") }

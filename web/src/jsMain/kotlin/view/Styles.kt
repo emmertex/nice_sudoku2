@@ -169,6 +169,17 @@ val CSS_STYLES = """
         letter-spacing: -0.02em;
     }
 
+    .header h1 .game-header-title-link {
+        color: inherit;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .header h1 .game-header-title-link:hover {
+        text-decoration: underline;
+        text-underline-offset: 0.12em;
+    }
+
     .powered-by {
         color: rgb(var(--colour-text-primary));
         display: block;
@@ -1706,6 +1717,126 @@ val CSS_STYLES = """
     }
     
     .puzzle-item.completed { opacity: 0.6; }
+
+    .puzzle-item-selected {
+        outline: 2px solid rgba(var(--colour-accent-primary), 0.55);
+        outline-offset: 1px;
+    }
+
+    .puzzle-num-select {
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .puzzle-num-select:hover {
+        color: rgb(var(--colour-accent-primary));
+    }
+
+    .puzzle-details-section {
+        margin-top: clamp(10px, 2vmin, 18px);
+        padding: clamp(10px, 2vmin, 16px);
+        background: rgba(var(--colour-bg-tertiary), 0.22);
+        border-radius: clamp(6px, 1.2vmin, 10px);
+    }
+
+    .puzzle-details-section h2 {
+        margin-bottom: clamp(6px, 1.5vmin, 10px);
+    }
+
+    .details-clear-btn {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: rgba(var(--colour-bg-tertiary), 0.35);
+        color: rgba(var(--colour-text-primary), 0.85);
+    }
+
+    .details-clear-btn:hover {
+        background: rgba(var(--colour-bg-tertiary), 0.5);
+    }
+
+    .detail-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .detail-field-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 8px 12px;
+    }
+
+    .detail-label {
+        min-width: 6.5rem;
+        color: rgba(var(--colour-text-primary), 0.75);
+        font-size: 0.8rem;
+    }
+
+    .detail-input {
+        flex: 1;
+        min-width: 10rem;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(var(--colour-border), 0.35);
+        background: rgba(var(--colour-bg-primary), 0.35);
+        color: rgb(var(--colour-text-primary));
+        font-size: 0.8rem;
+    }
+
+    .detail-textarea {
+        flex: 1;
+        min-width: 10rem;
+        min-height: 4rem;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(var(--colour-border), 0.35);
+        background: rgba(var(--colour-bg-primary), 0.35);
+        color: rgb(var(--colour-text-primary));
+        font-size: 0.8rem;
+        resize: vertical;
+    }
+
+    .detail-value.detail-locked {
+        color: rgba(var(--colour-text-primary), 0.85);
+        font-size: 0.8rem;
+        flex: 1;
+        min-width: 10rem;
+    }
+
+    .detail-stats-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        margin: 12px 0 8px;
+        align-items: center;
+        font-size: 0.78rem;
+    }
+
+    .detail-stats-row .detail-label { min-width: auto; }
+
+    .save-metadata-btn, .reset-puzzle-btn {
+        margin-top: 8px;
+        margin-right: 8px;
+        padding: 8px 14px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
+        color: rgba(var(--colour-text-primary), 0.85);
+    }
+
+    .save-metadata-btn:hover, .reset-puzzle-btn:hover {
+        background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
+    }
     
     .puzzle-num {
         color: rgba(var(--colour-text-primary), 0.5);
@@ -1825,6 +1956,43 @@ val CSS_STYLES = """
     .export-row {
         display: flex;
         gap: 8px;
+    }
+
+    .export-panel-scope, .export-panel-formats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: clamp(6px, 1.2vmin, 10px);
+        margin-bottom: clamp(8px, 1.5vmin, 12px);
+    }
+
+    .export-scope-btn, .export-format-btn {
+        padding: clamp(6px, 1.2vmin, 10px) clamp(8px, 1.8vmin, 14px);
+        border: none;
+        border-radius: clamp(4px, 1vmin, 8px);
+        font-size: clamp(0.62rem, calc(0.58rem + 0.35vmin), 0.82rem);
+        font-weight: 600;
+        cursor: pointer;
+        background: rgba(var(--colour-bg-tertiary), 0.25);
+        color: rgba(var(--colour-text-primary), 0.72);
+        transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .export-scope-btn:hover, .export-format-btn:hover {
+        background: rgba(var(--colour-bg-tertiary), 0.4);
+        color: rgb(var(--colour-text-primary));
+    }
+
+    .export-scope-btn.active, .export-format-btn.active {
+        background: rgba(var(--colour-accent-primary), 0.38);
+        color: rgb(var(--colour-text-primary));
+    }
+
+    .export-complete-hint {
+        font-size: clamp(0.68rem, calc(0.65rem + 0.25vmin), 0.8rem);
+        color: rgba(var(--colour-text-primary), 0.6);
+        margin-bottom: clamp(8px, 1.5vmin, 14px);
+        line-height: 1.45;
+        max-width: 52rem;
     }
     
     .export-field {

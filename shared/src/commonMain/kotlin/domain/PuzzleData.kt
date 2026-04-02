@@ -3,6 +3,17 @@ package domain
 import kotlinx.serialization.Serializable
 
 /**
+ * When true, the field was non-empty on Sudoku Coach import and must stay read-only in the UI.
+ */
+@Serializable
+data class MetadataImportLocks(
+    val title: Boolean = false,
+    val author: Boolean = false,
+    val authorContact: Boolean = false,
+    val description: Boolean = false
+)
+
+/**
  * Represents a puzzle definition from the puzzle library
  */
 @Serializable
@@ -18,7 +29,8 @@ data class PuzzleDefinition(
     val url: String = "",          // Optional URL (for training puzzles)
     val author: String = "",       // Optional author name
     val authorContact: String = "",  // Optional author contact (URL or email)
-    val description: String = ""   // Optional puzzle description
+    val description: String = "",   // Optional puzzle description
+    val metadataImportLocks: MetadataImportLocks = MetadataImportLocks()
 )
 
 enum class DifficultyCategory(val displayName: String) {
@@ -93,7 +105,8 @@ data class SavedGameState(
     val title: String = "",          // Optional puzzle title
     val author: String = "",         // Optional author name
     val authorContact: String = "",  // Optional author contact (URL or email)
-    val description: String = ""     // Optional puzzle description
+    val description: String = "",    // Optional puzzle description
+    val metadataImportLocks: MetadataImportLocks = MetadataImportLocks()
 ) {
     companion object {
         /**

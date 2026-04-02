@@ -7,6 +7,7 @@ import domain.PuzzleDefinition
 import domain.SavedGameState
 import domain.getLocalizedDisplayName
 import i18n.LanguageConfig
+import GameStateManager
 
 /**
  * Extension functions for rendering modal dialogues in SudokuApp.
@@ -215,21 +216,26 @@ internal fun SudokuApp.renderVersionModal() {
     }
 }
 
+private fun infoDash(): String = LanguageConfig.getString("ui.puzzleBrowser.metadataDash")
+
 internal fun SudokuApp.renderPuzzleInfoModal(target: Any) {
-    // Extract data from either PuzzleDefinition or SavedGameState
-    val (title, author, authorContact, description, difficulty, category, puzzleId, quality, techniques, url) = when (target) {
+    val data = when (target) {
         is PuzzleDefinition -> {
+            val saved = GameStateManager.loadGame(target.id)
             InfoData(
-                title = target.title,
-                author = target.author,
-                authorContact = target.authorContact,
-                description = target.description,
+                title = saved?.title?.takeIf { it.isNotBlank() } ?: target.title,
+                author = saved?.author?.takeIf { it.isNotBlank() } ?: target.author,
+                authorContact = saved?.authorContact?.takeIf { it.isNotBlank() } ?: target.authorContact,
+                description = saved?.description?.takeIf { it.isNotBlank() } ?: target.description,
                 difficulty = target.difficulty,
                 category = target.category,
                 puzzleId = target.id,
                 quality = target.quality,
                 techniques = target.techniques,
-                url = target.url
+                url = target.url,
+                playTimeMs = saved?.elapsedTimeMs,
+                mistakeCount = saved?.mistakeCount,
+                hintCount = saved?.hintCount
             )
         }
         is SavedGameState -> {
@@ -243,11 +249,24 @@ internal fun SudokuApp.renderPuzzleInfoModal(target: Any) {
                 puzzleId = target.puzzleId,
                 quality = null,
                 techniques = null,
-                url = ""
+                url = "",
+                playTimeMs = target.elapsedTimeMs,
+                mistakeCount = target.mistakeCount,
+                hintCount = target.hintCount
             )
         }
         else -> return
     }
+    val title = data.title
+    val author = data.author
+    val authorContact = data.authorContact
+    val description = data.description
+    val difficulty = data.difficulty
+    val category = data.category
+    val puzzleId = data.puzzleId
+    val quality = data.quality
+    val techniques = data.techniques
+    val url = data.url
     
     appRoot.append {
         div("modal-overlay") {
@@ -270,52 +289,55 @@ internal fun SudokuApp.renderPuzzleInfoModal(target: Any) {
                 h2 { +LanguageConfig.getString("ui.modals.puzzleInfo.title") }
                 
                 div("info-grid") {
-                    // Title (if available)
-                    if (title.isNotEmpty()) {
-                        div("info-row") {
-                            span("info-label") { +LanguageConfig.getString("ui.modals.puzzleInfo.titleLabel") }
-                            if (url.isNotEmpty()) {
-                                a(href = url, target = "_blank", classes = "info-value link") {
-                                    +title
-                                }
-                            } else {
-                                span("info-value") { +title }
+                    div("info-row") {
+                        span("info-label") { +LanguageConfig.getString("ui.modals.puzzleInfo.titleLabel") }
+                        if (title.isNotBlank() && url.isNotEmpty()) {
+                            a(href = url, target = "_blank", classes = "info-value link") {
+                                +title
                             }
+                        } else {
+                            span("info-value") { +(if (title.isBlank()) infoDash() else title) }
                         }
                     }
-                    
-                    // Author (if available)
-                    if (author.isNotEmpty()) {
-                        div("info-row") {
-                            span("info-label") { +LanguageConfig.getString("ui.modals.puzzleInfo.author") }
-                            span("info-value") { +author }
-                        }
+                    div("info-row") {
+                        span("info-label") { +LanguageConfig.getString("ui.modals.puzzleInfo.author") }
+                        span("info-value") { +(if (author.isBlank()) infoDash() else author) }
                     }
-                    
-                    // Author Contact (if available)
-                    if (authorContact.isNotEmpty()) {
-                        div("info-row") {
-                            span("info-label") { +LanguageConfig.getString("ui.modals.puzzleInfo.contact") }
-                            // Check if it's a URL or email
-                            if (authorContact.startsWith("http://") || authorContact.startsWith("https://")) {
+                    div("info-row") {
+                        span("info-label") { +LanguageConfig.getString("ui.modals.puzzleInfo.contact") }
+                        when {
+                            authorContact.isBlank() -> span("info-value") { +infoDash() }
+                            authorContact.startsWith("http://") || authorContact.startsWith("https://") ->
                                 a(href = authorContact, target = "_blank", classes = "info-value link") {
                                     +authorContact
                                 }
-                            } else if (authorContact.contains("@")) {
+                            authorContact.contains("@") ->
                                 a(href = "mailto:$authorContact", classes = "info-value link") {
                                     +authorContact
                                 }
-                            } else {
-                                span("info-value") { +authorContact }
-                            }
+                            else -> span("info-value") { +authorContact }
                         }
                     }
-                    
-                    // Description (if available)
-                    if (description.isNotEmpty()) {
-                        div("info-row full-width") {
-                            span("info-label") { +LanguageConfig.getString("ui.modals.puzzleInfo.description") }
-                            p("info-value description") { +description }
+                    div("info-row full-width") {
+                        span("info-label") { +LanguageConfig.getString("ui.modals.puzzleInfo.description") }
+                        p("info-value description") { +(if (description.isBlank()) infoDash() else description) }
+                    }
+                    div("info-row") {
+                        span("info-label") { +LanguageConfig.getString("ui.puzzleBrowser.statsPlayTime") }
+                        span("info-value") {
+                            +(data.playTimeMs?.let { formatTime(it) } ?: infoDash())
+                        }
+                    }
+                    div("info-row") {
+                        span("info-label") { +LanguageConfig.getString("ui.puzzleBrowser.statsMistakes") }
+                        span("info-value") {
+                            +(data.mistakeCount?.let { "$it" } ?: infoDash())
+                        }
+                    }
+                    div("info-row") {
+                        span("info-label") { +LanguageConfig.getString("ui.puzzleBrowser.statsHints") }
+                        span("info-value") {
+                            +(data.hintCount?.let { "$it" } ?: infoDash())
                         }
                     }
                     
@@ -404,5 +426,8 @@ private data class InfoData(
     val puzzleId: String,
     val quality: Float?,
     val techniques: Map<String, Int>?,
-    val url: String
+    val url: String,
+    val playTimeMs: Long? = null,
+    val mistakeCount: Int? = null,
+    val hintCount: Int? = null
 )
