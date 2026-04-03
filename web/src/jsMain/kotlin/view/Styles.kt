@@ -169,21 +169,45 @@ val CSS_STYLES = """
         letter-spacing: -0.02em;
     }
 
-    .header h1 .game-header-title-link {
-        color: inherit;
-        text-decoration: none;
-        cursor: pointer;
+    .header-brand {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1em;
+        min-width: 0;
     }
 
-    .header h1 .game-header-title-link:hover {
+    .game-header-puzzle-title {
+        display: block;
+        max-width: 100%;
+        font-size: clamp(0.65rem, calc(0.55rem + 1vmin), 0.95rem);
+        font-weight: 600;
+        color: rgba(var(--colour-text-primary), 0.75);
+        cursor: pointer;
+        text-decoration: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .game-header-puzzle-title:hover {
         text-decoration: underline;
-        text-underline-offset: 0.12em;
+        text-underline-offset: 0.15em;
     }
 
     .powered-by {
-        color: rgb(var(--colour-text-primary));
         display: block;
         font-size: small;
+        line-height: 1.3;
+    }
+
+    .powered-by-link {
+        color: rgb(var(--colour-accent-primary));
+        text-decoration: none;
+    }
+
+    .powered-by-link:hover {
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
     }
     
     .game-info {
@@ -500,6 +524,20 @@ val CSS_STYLES = """
         opacity: 0.7;
         animation: pulse 2s ease-in-out infinite;
     }
+
+    .pause-notification {
+        margin-top: clamp(0.75rem, 2vmin, 1.25rem);
+        max-width: min(90%, 22rem);
+        margin-left: auto;
+        margin-right: auto;
+        padding: clamp(0.5rem, 1.5vmin, 0.65rem) clamp(0.75rem, 2vmin, 1rem);
+        font-size: clamp(0.75rem, 1.8vmin, 0.95rem);
+        line-height: 1.35;
+        opacity: 0.82;
+        border-radius: 8px;
+        background: rgba(var(--colour-bg-tertiary), 0.45);
+        border: 1px solid rgba(var(--colour-accent-desat), 0.25);
+    }
     
     @keyframes pulse {
         0%, 100% {
@@ -807,7 +845,7 @@ val CSS_STYLES = """
     }
     
     .candidate {
-        font-size: clamp(0.28rem, calc(var(--cell-size) * 0.24), min(2rem, calc(var(--cell-size) * 0.36)));
+        font-size: clamp(calc(var(--cell-size) * 0.115), calc(var(--cell-size) * 0.24), min(2rem, calc(var(--cell-size) * 0.36)));
         color: rgba(var(--colour-text-primary), 0.85);
         display: flex;
         justify-content: center;
@@ -823,7 +861,7 @@ val CSS_STYLES = """
             font-size: clamp(0.42rem, 6.2cqmin, min(5rem, 7.5cqmin));
         }
         .candidate {
-            font-size: clamp(0.28rem, 2.65cqmin, min(2rem, 3.6cqmin));
+            font-size: clamp(1.15cqmin, 2.65cqmin, min(2rem, 3.6cqmin));
         }
     }
     

@@ -328,6 +328,7 @@
       "menu": "☰ Menü",
       "title": "Nice Sudoku",
       "poweredBy": "Angetrieben von StormDoku",
+      "pauseNotification": "Die automatische Pause können Sie in den Einstellungen deaktivieren, indem Sie „Spielzeit erfassen“ ausschalten.",
       "placed": "Gesetzt",
       "rcb": "ZSB",
       "rcbPlus": "ZSB+",

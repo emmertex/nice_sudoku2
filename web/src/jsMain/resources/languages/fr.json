@@ -328,6 +328,7 @@
       "menu": "☰ Menu",
       "title": "Nice Sudoku",
       "poweredBy": "Propulsé par StormDoku",
+      "pauseNotification": "La pause automatique peut être désactivée dans les réglages en désactivant « Suivre le temps de jeu ».",
       "placed": "Placé",
       "rcb": "LCB",
       "rcbPlus": "LCB+",

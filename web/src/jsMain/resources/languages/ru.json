@@ -328,6 +328,7 @@
       "menu": "☰ Меню",
       "title": "Nice Sudoku",
       "poweredBy": "На базе StormDoku",
+      "pauseNotification": "Автопаузу можно отключить в настройках, выключив «Учитывать время игры».",
       "placed": "Размещено",
       "rcb": "РСБ",
       "rcbPlus": "РСБ+",

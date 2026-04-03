@@ -328,6 +328,7 @@
       "menu": "☰ 菜单",
       "title": "Nice Sudoku",
       "poweredBy": "由 StormDoku 提供支持",
+      "pauseNotification": "可在设置中关闭「记录游玩时间」以停用自动暂停。",
       "placed": "已放置",
       "rcb": "行列表",
       "rcbPlus": "行列表+",

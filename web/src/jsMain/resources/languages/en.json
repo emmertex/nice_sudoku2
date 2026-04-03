@@ -328,6 +328,7 @@
       "menu": "☰ Menu",
       "title": "Nice Sudoku",
       "poweredBy": "Powered by StormDoku",
+      "pauseNotification": "Auto Pause can be disabled in the Settings by Disabling Track Play Time",
       "placed": "Placed",
       "rcb": "RCB",
       "rcbPlus": "RCB+",

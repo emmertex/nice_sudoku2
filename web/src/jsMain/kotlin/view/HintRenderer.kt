@@ -207,7 +207,8 @@ internal fun TagConsumer<HTMLElement>.renderInlineExplanationCompact(app: Sudoku
                     }
 
                     span("step-badge") { +"Step ${currentStep.stepNumber}" }
-                    span("step-title") { +currentStep.title }
+                    val interpolatedTitle = HintStringInterpolation.interpolate(currentStep.title)
+                    span("step-title") { +interpolatedTitle }
 
                     // Step navigation buttons (only show if more than one step)
                     if (steps.size > 1) {
@@ -224,17 +225,18 @@ internal fun TagConsumer<HTMLElement>.renderInlineExplanationCompact(app: Sudoku
                     }
                 }
                 div("step-description") {
-                    renderInteractiveDescription(app, currentStep.description, hint)
+                    val interpolatedDesc = HintStringInterpolation.interpolate(currentStep.description)
+                    renderInteractiveDescription(app, interpolatedDesc, hint)
                 }
             }
-            } else {
-                div("inline-step") {
-                    div("step-description") {
-                        val interpolatedDesc = HintStringInterpolation.interpolate(hint.description)
-                        renderInteractiveDescription(app, interpolatedDesc, hint)
-                    }
+        } else {
+            div("inline-step") {
+                div("step-description") {
+                    val interpolatedDesc = HintStringInterpolation.interpolate(hint.description)
+                    renderInteractiveDescription(app, interpolatedDesc, hint)
                 }
             }
+        }
     }
 }
 

@@ -1,26 +1,34 @@
-# v0.9.0 - 2026-04-01
+# v0.9.1 - 2026-04-02
+
+### Fixes
+- Hints now display correct text in vertical mode.
+- Further improvements to pencil marks on small viewports
+- Pause Menu let's user know it can be disabled in settings
+- Moved Puzzle Name from Title Suffix to it's own Subtitle
+
+# v0.9.0 - 2026-04-02
 
 ### Features
 - Viewing, Changing, Importing and Exporting Puzzle Metadata
 - Export of more formats.
 - - Origional Puzzle
-- - - 81 Char String, the standard format shared online in most places
-- - - Complete Format.  Compatible with Sudoku Coach, but with additional metadata.
-- - - - Givens
-- - - - Pencil Marks
-- - - - Origional Puzzle
-- - - - Puzzle Title
-- - - - Puzzle Author
-- - - - Puzzle Author Contact Info
-- - - - Puzzle Description
+- - * 81 Char String, the standard format shared online in most places
+- - * Complete Format.  Compatible with Sudoku Coach, but with additional metadata.
+- - ** Givens
+- - ** Pencil Marks
+- - ** Origional Puzzle
+- - ** Puzzle Title
+- - ** Puzzle Author
+- - ** Puzzle Author Contact Info
+- - ** Puzzle Description
 - - Current State
-- - - 729 Char String, Pencil Marks Only. This is commonly used in apps like HoDoKu.
-- - - 891 Char String, Current Puzzle State, Pencil Marks, And Origional Puzzle.  Intended to resolve limitations of HoDoKu format.
-- - - Complete, Compatible with Sudoku Coach, but with additional metadata.
-- - - - Everything mentioned for Origional Puzzle, but additionally.
-- - - - Play Time
-- - - - Mistake Count
-- - - - Hints Used Count 
+- - * 729 Char String, Pencil Marks Only. This is commonly used in apps like HoDoKu.
+- - * 891 Char String, Current Puzzle State, Pencil Marks, And Origional Puzzle.  Intended to resolve limitations of HoDoKu format.
+- - * Complete, Compatible with Sudoku Coach, but with additional metadata.
+- - ** Everything mentioned for Origional Puzzle, but additionally.
+- - ** Play Time
+- - ** Mistake Count
+- - ** Hints Used Count 
 - Puzzle Max Size increased 1.5x
 - Display Puzzle Title on main screen.
 - Title to show Puzzle Info.

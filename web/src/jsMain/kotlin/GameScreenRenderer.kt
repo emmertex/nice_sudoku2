@@ -66,28 +66,30 @@ internal fun SudokuApp.renderGameScreen() {
                             render()
                         }
                     }
-                    div {
+                    div("header-brand") {
                         h1 {
-                            if (game == null) {
-                                +"Nice Sudoku"
-                            } else {
-                                val headerLinkText = if (puzzleTitleTrimmed.isEmpty()) {
-                                    "Nice Sudoku"
-                                } else {
-                                    "Nice Sudoku - $puzzleTitleTrimmed"
-                                }
-                                a(href = "#", classes = "game-header-title-link") {
-                                    +headerLinkText
-                                    onClickFunction = { ev ->
-                                        (ev as? Event)?.preventDefault()
-                                        puzzleInfoTarget = game
-                                        showPuzzleInfoModal = true
-                                        render()
-                                    }
+                            +LanguageConfig.getString("ui.gameScreen.title")
+                        }
+                        if (game != null && puzzleTitleTrimmed.isNotEmpty()) {
+                            span("game-header-puzzle-title") {
+                                +puzzleTitleTrimmed
+                                onClickFunction = {
+                                    puzzleInfoTarget = game
+                                    showPuzzleInfoModal = true
+                                    render()
                                 }
                             }
                         }
-                        div("powered-by") { +"Powered by StormDoku" }
+                        div("powered-by") {
+                            a(
+                                href = "https://github.com/strmckr",
+                                target = "_blank",
+                                classes = "powered-by-link"
+                            ) {
+                                attributes["rel"] = "noopener noreferrer"
+                                +LanguageConfig.getString("ui.gameScreen.poweredBy")
+                            }
+                        }
                     }
                     // Show current mode indicators and selected numbers
                     div("mode-indicators") {
@@ -222,6 +224,9 @@ internal fun SudokuApp.renderGameScreen() {
                                 div("pause-icon") { +"⏸" }
                                 div("pause-text") { +"PAUSED" }
                                 div("pause-subtext") { +"Click to resume" }
+                                div("pause-notification") {
+                                    +LanguageConfig.getString("ui.gameScreen.pauseNotification")
+                                }
                             }
                         }
                     }

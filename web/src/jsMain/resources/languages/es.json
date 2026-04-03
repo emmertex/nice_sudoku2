@@ -328,6 +328,7 @@
       "menu": "☰ Menú",
       "title": "Nice Sudoku",
       "poweredBy": "Con tecnología de StormDoku",
+      "pauseNotification": "Puedes desactivar la pausa automática en Ajustes desactivando «Registrar tiempo de juego».",
       "placed": "Colocados",
       "rcb": "FCB",
       "rcbPlus": "FCB+",
