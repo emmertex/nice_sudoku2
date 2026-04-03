@@ -269,6 +269,11 @@ class SudokuApp {
             renderVersionIndicator()
         }
         
+        if (currentScreen == AppScreen.GAME) {
+            matchHintSidebarHeight()
+            applyContainerScaling()
+        }
+        
         // Start timer if on game screen with active game
         if (currentScreen == AppScreen.GAME && currentGame != null) {
             startTimer()

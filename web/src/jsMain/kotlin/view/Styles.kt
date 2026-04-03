@@ -115,7 +115,8 @@ val CSS_STYLES = """
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        transition: width 0.2s ease, transform 0.2s ease;
+        /* Transform is set by JS for viewport fit; animating it caused a brief whole-UI zoom on re-render. */
+        transition: width 0.2s ease;
         transform-origin: center center;
     }
     
@@ -472,6 +473,11 @@ val CSS_STYLES = """
         user-select: none;
     }
     
+    /* Notes mode: rail (outer padding + inter–3×3 gutters) and box lines use accent (matches active ✏️ toggle) */
+    .sudoku-grid-container.notes-mode .sudoku-grid {
+        background: rgba(var(--colour-accent-primary), 0.05);
+    }
+    
     /* Pause overlay */
     .pause-overlay {
         position: absolute;
@@ -768,6 +774,7 @@ val CSS_STYLES = """
         aspect-ratio: 1;
         position: relative;
         z-index: 20;
+        transition: background 0.2s ease;
         /* So cell fonts track the real drawn grid when max-width: 100% shrinks below --grid-size */
         container-type: size;
     }

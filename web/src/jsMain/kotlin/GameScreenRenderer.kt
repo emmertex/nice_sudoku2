@@ -193,7 +193,7 @@ internal fun SudokuApp.renderGameScreen() {
             // Game area
             div("game-area") {
                 // Sudoku grid container with SVG overlay
-                div("sudoku-grid-container ${if (isPaused && trackPlayTime) "paused" else ""}") {
+                div("sudoku-grid-container${if (isPaused && trackPlayTime) " paused" else ""}${if (isNotesMode) " notes-mode" else ""}") {
                     // Sudoku grid
         div("sudoku-grid") {
                         for (row in 0..8) {
@@ -521,12 +521,6 @@ internal fun SudokuApp.renderGameScreen() {
             } // Close sudoku-container
         } // Close sudoku-container-wrapper
     }
-    
-    // Apply scaling after DOM is updated (portrait and landscape / hints sidebar)
-    window.setTimeout({
-        matchHintSidebarHeight()
-        applyContainerScaling()
-    }, 0)
 }
 
 /**

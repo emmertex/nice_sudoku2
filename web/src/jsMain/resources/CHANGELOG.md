@@ -1,3 +1,9 @@
+# v0.9.2 - 2026-04-03
+
+### Fixes
+- Fixed the Zoom/Flash glitch when selecting numbers in the number bar, when the Y axis is the zoom constraint. (render was before DOM, now after).
+- Entire grid gets slight colour change when in "Notes", to save accidential errors by forgetting which mode it is in.
+
 # v0.9.1 - 2026-04-02
 
 ### Fixes
@@ -5,6 +11,7 @@
 - Further improvements to pencil marks on small viewports
 - Pause Menu let's user know it can be disabled in settings
 - Moved Puzzle Name from Title Suffix to it's own Subtitle
+
 
 # v0.9.0 - 2026-04-02
 
