@@ -6,16 +6,15 @@ import domain.*
 
 internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
     when (playMode) {
-        PlayMode.FAST -> {
-            // Select number for highlighting (single selection)
+        PlayMode.PLACE -> {
+            // Single selection - clear and select the new number
             if (num in selectedNumbers1) {
-                // Double click clears selection
                 selectedNumbers1.clear()
             } else {
                 selectedNumbers1.clear()
                 selectedNumbers1.add(num)
             }
-            
+
             // If cell is selected, apply the number
             selectedCell?.let { cellIndex ->
                 val cell = grid.getCell(cellIndex)
@@ -24,7 +23,6 @@ internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
                         val isCandidatePresent = num in cell.displayCandidates
                         val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
                         if (wasMistake) showToast("❌ Wrong candidate removed!")
-                        // Only record elimination if candidate was present (we're removing it)
                         if (isCandidatePresent) {
                             gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
                         }
@@ -39,34 +37,8 @@ internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
                 }
             }
         }
-        PlayMode.CELL_FIRST -> {
-            // In CELL_FIRST mode, clicking a number applies it to the selected cell
-            selectedCell?.let { cellIndex ->
-                val cell = grid.getCell(cellIndex)
-                if (!cell.isGiven && !cell.isSolved) {
-                    if (isNotesMode) {
-                        val isCandidatePresent = num in cell.displayCandidates
-                        val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
-                        if (wasMistake) showToast("❌ Wrong candidate removed!")
-                        // Only record elimination if candidate was present (we're removing it)
-                        if (isCandidatePresent) {
-                            gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
-                        }
-                        gameEngine.toggleCandidate(cellIndex, num)
-                    } else {
-                        val wasMistake = checkMistake(cellIndex, num)
-                        if (wasMistake) showToast("❌ Wrong number!")
-                        gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, num))
-                        gameEngine.setCellValue(cellIndex, num)
-                    }
-                    saveCurrentState()
-                }
-            }
-        }
-        PlayMode.ADVANCED -> {
-            // In advanced mode, this is only used for keyboard input
-            // The dual number pads handle clicking directly
-            // For keyboard: toggle in primary set
+        PlayMode.MULTI_SELECT_NOTES -> {
+            // Multi-selection - toggle numbers
             if (num in selectedNumbers1) {
                 selectedNumbers1.remove(num)
             } else {
@@ -77,87 +49,79 @@ internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
     render()
 }
 
-// Toggle number in primary selection (for advanced mode primary number bar)
-internal fun SudokuApp.togglePrimaryNumber(num: Int) {
-    if (num in selectedNumbers1) {
-        selectedNumbers1.remove(num)
-    } else {
-        selectedNumbers1.add(num)
-    }
-    render()
-}
-
-// Toggle number in secondary selection (for advanced mode secondary number bar)
-internal fun SudokuApp.toggleSecondaryNumber(num: Int) {
-    if (num in selectedNumbers2) {
-        selectedNumbers2.remove(num)
-    } else {
-        selectedNumbers2.add(num)
-    }
-    render()
-}
-
 internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
     val cell = grid.getCell(cellIndex)
-    
-    // In FAST mode with a number selected, apply it to the cell
-    val selectedNum = selectedNumbers1.singleOrNull()
-    if (playMode == PlayMode.FAST && selectedNum != null && !cell.isGiven) {
-        if (isNotesMode) {
-            // Toggle pencil mark
-            if (!cell.isSolved) {
-                val isCandidatePresent = selectedNum in cell.displayCandidates
-                val wasMistake = checkCandidateRemovalMistake(cellIndex, selectedNum, isCandidatePresent)
-                if (wasMistake) showToast("❌ Wrong candidate removed!")
-                // Only record elimination if candidate was present (we're removing it)
-                if (isCandidatePresent) {
-                    gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, selectedNum))
+
+    if (playMode == PlayMode.PLACE) {
+        val selectedNum = selectedNumbers1.singleOrNull()
+        if (selectedNum != null && !cell.isGiven) {
+            if (isNotesMode) {
+                if (!cell.isSolved) {
+                    val isCandidatePresent = selectedNum in cell.displayCandidates
+                    val wasMistake = checkCandidateRemovalMistake(cellIndex, selectedNum, isCandidatePresent)
+                    if (wasMistake) showToast("❌ Wrong candidate removed!")
+                    if (isCandidatePresent) {
+                        gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, selectedNum))
+                    }
+                    gameEngine.toggleCandidate(cellIndex, selectedNum)
+                    saveCurrentState()
                 }
-                gameEngine.toggleCandidate(cellIndex, selectedNum)
+                selectedCell = null
+            } else if (!cell.isSolved) {
+                val wasMistake = checkMistake(cellIndex, selectedNum)
+                if (wasMistake) showToast("❌ Wrong number!")
+                gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, selectedNum))
+                gameEngine.setCellValue(cellIndex, selectedNum)
                 saveCurrentState()
                 selectedCell = null
+            } else {
+                selectedCell = cellIndex
             }
-            selectedCell = null
-        } else if (!cell.isSolved) {
-            val wasMistake = checkMistake(cellIndex, selectedNum)
-            if (wasMistake) showToast("❌ Wrong number!")
-            gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, selectedNum))
-            gameEngine.setCellValue(cellIndex, selectedNum)
-            saveCurrentState()
-            // Auto-deselect cell after setting value in FAST mode
-            selectedCell = null
-        } else {
-            selectedCell = cellIndex
+            render()
+            return
         }
-        render()
-        return
-    }
-    
-    // In CELL_FIRST mode, select the cell and set up highlighting based on its value
-    if (playMode == PlayMode.CELL_FIRST) {
+
         selectedCell = cellIndex
-        selectedNumbers1.clear()
-        
-        // If the cell has a placed number, select it for highlighting
-        if (cell.isSolved && cell.value != null) {
-            selectedNumbers1.add(cell.value!!)
-        }
-        // If cell has no number and highlight mode is RCB_ALL or PENCIL, 
-        // we don't select a number (highlighting will be based on cell position for RCB_SELECTED)
-        
         render()
         return
     }
-    
-    selectedCell = cellIndex
-    render()
+
+    if (playMode == PlayMode.MULTI_SELECT_NOTES) {
+        if (!cell.isGiven && !cell.isSolved && selectedNumbers1.isNotEmpty()) {
+            when (multiSelectAction) {
+                MultiSelectAction.CLEAR_SELECTED -> {
+                    val toRemove = selectedNumbers1.filter { it in cell.displayCandidates }
+                    var hadMistake = false
+                    toRemove.forEach { num ->
+                        if (checkCandidateRemovalMistake(cellIndex, num, true)) hadMistake = true
+                        gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
+                        gameEngine.toggleCandidate(cellIndex, num)
+                    }
+                    if (hadMistake) showToast("❌ Wrong candidate removed!")
+                    if (toRemove.isNotEmpty()) saveCurrentState()
+                }
+                MultiSelectAction.CLEAR_OTHER -> {
+                    val toRemove = cell.displayCandidates.filter { it !in selectedNumbers1 }
+                    var hadMistake = false
+                    toRemove.forEach { num ->
+                        if (checkCandidateRemovalMistake(cellIndex, num, true)) hadMistake = true
+                        gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
+                        gameEngine.toggleCandidate(cellIndex, num)
+                    }
+                    if (hadMistake) showToast("❌ Wrong candidate removed!")
+                    if (toRemove.isNotEmpty()) saveCurrentState()
+                }
+            }
+        }
+        render()
+        return
+    }
 }
 
 /**
  * Check if placing a value is a mistake.
  */
 internal fun SudokuApp.checkMistake(cellIndex: Int, value: Int): Boolean {
-    // Don't check if mistake detection is off
     if (mistakeDetectionMode == MistakeDetectionMode.OFF) return false
 
     val isMistake = GameStateManager.isMistake(solution, cellIndex, value)
@@ -170,23 +134,11 @@ internal fun SudokuApp.checkMistake(cellIndex: Int, value: Int): Boolean {
 
 /**
  * Check if removing a candidate would be a mistake (removing the correct answer).
- * Only counts as mistake if:
- * - Candidate mode is AUTO (disabled in MANUAL mode)
- * - Mistake detection is CANDIDATE mode
- * - The candidate being removed equals the solution for that cell
- * - The candidate is currently present (being removed, not added)
  */
 internal fun SudokuApp.checkCandidateRemovalMistake(cellIndex: Int, candidate: Int, isCurrentlyPresent: Boolean): Boolean {
-    // Disabled in MANUAL candidate mode
     if (candidateMode == CandidateMode.MANUAL) return false
-    
-    // Only check in CANDIDATE mode
     if (mistakeDetectionMode != MistakeDetectionMode.CANDIDATE) return false
-
-    // Only check if we're removing (candidate is currently present)
     if (!isCurrentlyPresent) return false
-
-    // Check if this candidate is the correct answer
     if (solution == null || cellIndex < 0 || cellIndex >= 81) return false
     val correctValue = solution!![cellIndex].digitToIntOrNull() ?: return false
 
@@ -197,4 +149,3 @@ internal fun SudokuApp.checkCandidateRemovalMistake(cellIndex: Int, candidate: I
     }
     return false
 }
-

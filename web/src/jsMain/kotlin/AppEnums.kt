@@ -13,9 +13,13 @@ enum class HighlightMode {
 }
 
 enum class PlayMode {
-    FAST,        // Click number then cell to fill
-    CELL_FIRST,  // Click cell then number to fill
-    ADVANCED     // Click number to highlight, then choose action
+    PLACE,              // Click number then cell to fill (or toggle pencil mark in notes mode)
+    MULTI_SELECT_NOTES  // Select multiple numbers, apply clear action to cells
+}
+
+enum class MultiSelectAction {
+    CLEAR_SELECTED,  // Clear pencil marks of selected numbers from clicked cell
+    CLEAR_OTHER      // Clear pencil marks NOT in selected numbers from clicked cell
 }
 
 enum class MistakeDetectionMode {

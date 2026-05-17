@@ -2352,6 +2352,32 @@ val CSS_STYLES = """
     .action-btn.deselect-btn:hover {
         background: rgba(var(--colour-accent-tertiary), 0.35);
     }
+
+    /* Multi-select notes action buttons */
+    .action-btn.clr-sel-btn {
+        background: rgba(var(--colour-accent-primary), var(--colour-btn-opacity));
+        color: rgb(var(--colour-accent-primary));
+        border: 1px solid rgba(var(--colour-accent-primary), 0.3);
+    }
+    .action-btn.clr-sel-btn:hover { background: rgba(var(--colour-accent-primary), 0.3); }
+    .action-btn.clr-sel-btn.active {
+        background: rgba(var(--colour-accent-primary), 0.5);
+        border-color: rgba(var(--colour-accent-primary), 0.7);
+    }
+
+    .action-btn.clr-oth-btn {
+        background: rgba(var(--colour-accent-warning), 0.15);
+        color: rgb(var(--colour-accent-warning));
+        border: 1px solid rgba(var(--colour-accent-warning), 0.3);
+    }
+    .action-btn.clr-oth-btn:hover { background: rgba(var(--colour-accent-warning), 0.3); }
+    .action-btn.clr-oth-btn.active {
+        background: rgba(var(--colour-accent-warning), 0.45);
+        border-color: rgba(var(--colour-accent-warning), 0.7);
+    }
+
+    /* Multi-select notes mode toggle button */
+    .toggle-btn.multi-notes-btn { letter-spacing: -0.1em; }
     
     /* Dual number pads in advanced mode */
     .number-pad.primary {

@@ -33,8 +33,8 @@ class SudokuApp {
     internal var mistakeDetectionMode = GameStateManager.getMistakeDetectionMode()
     internal var candidateMode = GameStateManager.getCandidateMode()
     internal var trackPlayTime = GameStateManager.getTrackPlayTime()
-    internal var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Primary selected numbers (light blue)
-    internal var selectedNumbers2: MutableSet<Int> = mutableSetOf()  // Secondary selected numbers (light red)
+    internal var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Selected numbers (light blue)
+    internal var multiSelectAction: MultiSelectAction = MultiSelectAction.CLEAR_SELECTED
     
     // Hint system state
     internal var showHints = false  // Whether hint panel is visible

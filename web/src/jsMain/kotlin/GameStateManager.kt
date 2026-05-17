@@ -182,9 +182,13 @@ object GameStateManager {
     fun getPlayMode(): PlayMode {
         return try {
             val name = localStorage[PLAY_MODE_KEY]
-            if (name != null) PlayMode.valueOf(name) else PlayMode.FAST
+            when (name) {
+                "FAST", "CELL_FIRST", "PLACE" -> PlayMode.PLACE
+                "ADVANCED", "MULTI_SELECT_NOTES" -> PlayMode.MULTI_SELECT_NOTES
+                else -> PlayMode.PLACE
+            }
         } catch (e: Exception) {
-            PlayMode.FAST
+            PlayMode.PLACE
         }
     }
     

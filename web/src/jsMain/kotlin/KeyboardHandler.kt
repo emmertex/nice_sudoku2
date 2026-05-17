@@ -51,7 +51,6 @@ class KeyboardHandler {
                 }
                 // Clear selections in game screen
                 app.selectedNumbers1.clear()
-                app.selectedNumbers2.clear()
                 app.selectedCell = null
                 app.render()
                 return true
@@ -161,30 +160,14 @@ class KeyboardHandler {
             if (key.startsWith("F") && key.length == 2) {
                 val fNum = key.substring(1).toIntOrNull()
                 if (fNum != null && fNum in 1..9) {
-                    if (shiftKey) {
-                        // Shift+F1-F9: Set filter digit and toggle filter mode
-                        // For now, just set the number as selected (could add filter mode toggle later)
-                        if (fNum in app.selectedNumbers1) {
-                            app.selectedNumbers1.remove(fNum)
-                        } else {
-                            app.selectedNumbers1.clear()
-                            app.selectedNumbers1.add(fNum)
-                        }
-                        app.selectedNumbers2.clear()
-                        app.render()
-                        return true
+                    if (fNum in app.selectedNumbers1) {
+                        app.selectedNumbers1.remove(fNum)
                     } else {
-                        // F1-F9: Set/change the filtered digit
-                        if (fNum in app.selectedNumbers1) {
-                            app.selectedNumbers1.remove(fNum)
-                        } else {
-                            app.selectedNumbers1.clear()
-                            app.selectedNumbers1.add(fNum)
-                        }
-                        app.selectedNumbers2.clear()
-                        app.render()
-                        return true
+                        if (app.playMode == PlayMode.PLACE) app.selectedNumbers1.clear()
+                        app.selectedNumbers1.add(fNum)
                     }
+                    app.render()
+                    return true
                 }
             }
 
@@ -259,38 +242,6 @@ class KeyboardHandler {
                                 app.saveCurrentState()
                                 app.render()
                                 return true
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Advanced mode: Set primary number with keyboard (only works if exactly one number selected)
-            if (app.playMode == PlayMode.ADVANCED && app.selectedCell != null) {
-                val cell = grid.getCell(app.selectedCell!!)
-                if (!cell.isGiven && !cell.isSolved) {
-                    val singleNum = app.selectedNumbers1.singleOrNull()
-                    when (key.lowercase()) {
-                        "enter", "return" -> {
-                            // Enter: Set primary number if exactly one selected
-                            if (singleNum != null) {
-                                app.gameEngine.recordAction(app.gameEngine.createPlacementAction(app.selectedCell!!, singleNum))
-                                app.gameEngine.setCellValue(app.selectedCell!!, singleNum)
-                                app.saveCurrentState()
-                                app.render()
-                                return true
-                            }
-                        }
-                        "s" -> {
-                            if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                                // S: Set primary number if exactly one selected
-                                if (singleNum != null) {
-                                    app.gameEngine.recordAction(app.gameEngine.createPlacementAction(app.selectedCell!!, singleNum))
-                                    app.gameEngine.setCellValue(app.selectedCell!!, singleNum)
-                                    app.saveCurrentState()
-                                    app.render()
-                                    return true
-                                }
                             }
                         }
                     }

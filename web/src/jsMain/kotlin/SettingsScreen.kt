@@ -64,19 +64,11 @@ internal fun SudokuApp.renderSettings() {
                 p("setting-desc") { +LanguageConfig.getString("ui.settings.highlightModeDesc") }
                 
                 div("mode-options") {
-                    // Filter highlight modes based on play mode
-                    val availableModes = when (playMode) {
-                        PlayMode.FAST, PlayMode.ADVANCED -> listOf(
-                            HighlightMode.PENCIL,
-                            HighlightMode.RCB_ALL,
-                            HighlightMode.PLACED
-                        )
-                        PlayMode.CELL_FIRST -> listOf(
-                            HighlightMode.PLACED,
-                            HighlightMode.RCB_SELECTED,
-                            HighlightMode.RCB_ALL
-                        )
-                    }
+                    val availableModes = listOf(
+                        HighlightMode.PENCIL,
+                        HighlightMode.RCB_ALL,
+                        HighlightMode.PLACED
+                    )
                     
                     for (mode in availableModes) {
                         val isActive = highlightMode == mode
@@ -146,18 +138,15 @@ internal fun SudokuApp.renderSettings() {
             div("section") {
                 h2 { +LanguageConfig.getString("ui.settings.playMode") }
                 p("setting-desc") { +LanguageConfig.getString("ui.settings.playModeDesc") }
-                
+
                 div("mode-options play-modes") {
-                    button(classes = "mode-btn fast ${if (playMode == PlayMode.FAST) "active" else ""}") {
-                        +LanguageConfig.getString("ui.settings.fast")
+                    button(classes = "mode-btn fast ${if (playMode == PlayMode.PLACE) "active" else ""}") {
+                        +"Place"
                         onClickFunction = {
-                            playMode = PlayMode.FAST
-                            GameStateManager.setPlayMode(PlayMode.FAST)
-                            // Clear all state when switching to FAST mode
+                            playMode = PlayMode.PLACE
+                            GameStateManager.setPlayMode(PlayMode.PLACE)
                             selectedNumbers1.clear()
-                            selectedNumbers2.clear()
                             selectedCell = null
-                            // If RCB Selected is active, switch to Pencil
                             if (highlightMode == HighlightMode.RCB_SELECTED) {
                                 highlightMode = HighlightMode.PENCIL
                                 GameStateManager.setHighlightMode(HighlightMode.PENCIL)
@@ -165,29 +154,13 @@ internal fun SudokuApp.renderSettings() {
                             render()
                         }
                     }
-                    button(classes = "mode-btn cell-first ${if (playMode == PlayMode.CELL_FIRST) "active" else ""}") {
-                        +LanguageConfig.getString("ui.settings.cellFirst")
+                    button(classes = "mode-btn advanced ${if (playMode == PlayMode.MULTI_SELECT_NOTES) "active" else ""}") {
+                        +"Multi-Select Notes"
                         onClickFunction = {
-                            playMode = PlayMode.CELL_FIRST
-                            GameStateManager.setPlayMode(PlayMode.CELL_FIRST)
-                            // Clear all state when switching to CELL_FIRST mode
+                            playMode = PlayMode.MULTI_SELECT_NOTES
+                            GameStateManager.setPlayMode(PlayMode.MULTI_SELECT_NOTES)
                             selectedNumbers1.clear()
-                            selectedNumbers2.clear()
                             selectedCell = null
-                            // If Pencil mode is selected, switch to RCB All
-                            if (highlightMode == HighlightMode.PENCIL) {
-                                highlightMode = HighlightMode.RCB_ALL
-                                GameStateManager.setHighlightMode(HighlightMode.RCB_ALL)
-                            }
-                            render()
-                        }
-                    }
-                    button(classes = "mode-btn advanced ${if (playMode == PlayMode.ADVANCED) "active" else ""}") {
-                        +LanguageConfig.getString("ui.settings.advanced")
-                        onClickFunction = {
-                            playMode = PlayMode.ADVANCED
-                            GameStateManager.setPlayMode(PlayMode.ADVANCED)
-                            // If RCB Selected is active, switch to Pencil
                             if (highlightMode == HighlightMode.RCB_SELECTED) {
                                 highlightMode = HighlightMode.PENCIL
                                 GameStateManager.setHighlightMode(HighlightMode.PENCIL)
@@ -196,12 +169,11 @@ internal fun SudokuApp.renderSettings() {
                         }
                     }
                 }
-                
+
                 div("mode-explanation") {
                     +when (playMode) {
-                        PlayMode.FAST -> LanguageConfig.getString("ui.settings.fastDesc")
-                        PlayMode.CELL_FIRST -> LanguageConfig.getString("ui.settings.cellFirstDesc")
-                        PlayMode.ADVANCED -> LanguageConfig.getString("ui.settings.advancedDesc")
+                        PlayMode.PLACE -> "Select a number then click a cell to place it. Toggle ✏ for pencil mark mode."
+                        PlayMode.MULTI_SELECT_NOTES -> "Select multiple numbers, choose Clr Sel or Clr Oth, then click cells to clear pencil marks."
                     }
                 }
             }

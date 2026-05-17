@@ -1,8 +1,22 @@
+# v0.10.0 - 2026-05-18
+
+### Features
+**Multi Select Mode**
+- REMOVED second selection bar in "Advanced Mode"
+- "Advanced Mode" now Multi Select Notes
+- Multi Select Notes is now Action -> Cell order, as it is with Place and Notes modes
+- Multi Select Mode has 2 sub-modes, clear all selected notes, or clear all but selected notes
+
+### Fixes
+- Pause Screen was blocking menu on some web browsers, this should no longer happen.
+
+
 # v0.9.2 - 2026-04-03
 
 ### Fixes
 - Fixed the Zoom/Flash glitch when selecting numbers in the number bar, when the Y axis is the zoom constraint. (render was before DOM, now after).
 - Entire grid gets slight colour change when in "Notes", to save accidential errors by forgetting which mode it is in.
+
 
 # v0.9.1 - 2026-04-02
 
