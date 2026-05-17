@@ -130,6 +130,7 @@ val CSS_STYLES = """
         margin-bottom: 4px;
         flex-shrink: 0;
         position: relative;
+        z-index: 200;
     }
     
     /* Position back button to the left */
@@ -481,10 +482,7 @@ val CSS_STYLES = """
     /* Pause overlay */
     .pause-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: rgba(0, 0, 0, 0.3);
         backdrop-filter: blur(2px);
         display: flex;
@@ -492,8 +490,6 @@ val CSS_STYLES = """
         justify-content: center;
         z-index: 100;
         cursor: pointer;
-        transform: translateZ(0);
-        will-change: opacity;
         animation: fadeIn 0.3s ease;
     }
     
