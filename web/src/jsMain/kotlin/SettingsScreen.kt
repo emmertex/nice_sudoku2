@@ -22,7 +22,7 @@ internal fun SudokuApp.renderSettings() {
                 }
                 h1 { +LanguageConfig.getString("ui.settings.title") }
             }
-            
+
             // Navigation section
             div("section") {
                 h2 { +LanguageConfig.getString("ui.settings.navigation") }
@@ -57,19 +57,19 @@ internal fun SudokuApp.renderSettings() {
                     }
                 }
             }
-            
+
             // Highlight Mode section
             div("section") {
                 h2 { +LanguageConfig.getString("ui.settings.highlightMode") }
                 p("setting-desc") { +LanguageConfig.getString("ui.settings.highlightModeDesc") }
-                
+
                 div("mode-options") {
                     val availableModes = listOf(
                         HighlightMode.PENCIL,
                         HighlightMode.RCB_ALL,
                         HighlightMode.PLACED
                     )
-                    
+
                     for (mode in availableModes) {
                         val isActive = highlightMode == mode
                         button(classes = "mode-btn ${if (isActive) "active" else ""}") {
@@ -87,7 +87,7 @@ internal fun SudokuApp.renderSettings() {
                         }
                     }
                 }
-                
+
                 div("mode-explanation") {
                     +when (highlightMode) {
                         HighlightMode.PLACED -> LanguageConfig.getString("ui.modes.placedDescription")
@@ -97,7 +97,7 @@ internal fun SudokuApp.renderSettings() {
                     }
                 }
             }
-            
+
             // Theme section
             div("section") {
                 h2 { +LanguageConfig.getString("ui.settings.theme") }
@@ -132,57 +132,12 @@ internal fun SudokuApp.renderSettings() {
                     }
                 }
             }
-            
 
-            // Play Mode section
-            div("section") {
-                h2 { +LanguageConfig.getString("ui.settings.playMode") }
-                p("setting-desc") { +LanguageConfig.getString("ui.settings.playModeDesc") }
-
-                div("mode-options play-modes") {
-                    button(classes = "mode-btn fast ${if (playMode == PlayMode.PLACE) "active" else ""}") {
-                        +"Place"
-                        onClickFunction = {
-                            playMode = PlayMode.PLACE
-                            GameStateManager.setPlayMode(PlayMode.PLACE)
-                            selectedNumbers1.clear()
-                            selectedCell = null
-                            if (highlightMode == HighlightMode.RCB_SELECTED) {
-                                highlightMode = HighlightMode.PENCIL
-                                GameStateManager.setHighlightMode(HighlightMode.PENCIL)
-                            }
-                            render()
-                        }
-                    }
-                    button(classes = "mode-btn advanced ${if (playMode == PlayMode.MULTI_SELECT_NOTES) "active" else ""}") {
-                        +"Multi-Select Notes"
-                        onClickFunction = {
-                            playMode = PlayMode.MULTI_SELECT_NOTES
-                            GameStateManager.setPlayMode(PlayMode.MULTI_SELECT_NOTES)
-                            selectedNumbers1.clear()
-                            selectedCell = null
-                            if (highlightMode == HighlightMode.RCB_SELECTED) {
-                                highlightMode = HighlightMode.PENCIL
-                                GameStateManager.setHighlightMode(HighlightMode.PENCIL)
-                            }
-                            render()
-                        }
-                    }
-                }
-
-                div("mode-explanation") {
-                    +when (playMode) {
-                        PlayMode.PLACE -> "Select a number then click a cell to place it. Toggle ✏ for pencil mark mode."
-                        PlayMode.MULTI_SELECT_NOTES -> "Select multiple numbers, choose Clr Sel or Clr Oth, then click cells to clear pencil marks."
-                    }
-                }
-            }
-            
             // Candidate Mode section
             div("section") {
                 h2 { +LanguageConfig.getString("ui.settings.candidateMode") }
                 p("setting-desc") { +LanguageConfig.getString("ui.settings.candidateModeDesc") }
-                
+
                 div("mode-options") {
                     button(classes = "mode-btn ${if (candidateMode == CandidateMode.AUTO) "active" else ""}") {
                         +LanguageConfig.getString("ui.settings.auto")
@@ -248,7 +203,7 @@ internal fun SudokuApp.renderSettings() {
                         }
                     }
                 }
-                
+
                 div("mode-explanation") {
                     +when (candidateMode) {
                         CandidateMode.AUTO -> LanguageConfig.getString("ui.settings.autoDesc")
@@ -256,12 +211,12 @@ internal fun SudokuApp.renderSettings() {
                     }
                 }
             }
-            
+
             // Mistake Detection section
             div("section") {
                 h2 { +LanguageConfig.getString("ui.settings.mistakeDetection") }
                 p("setting-desc") { +LanguageConfig.getString("ui.settings.mistakeDetectionDesc") }
-                
+
                 div("mode-options") {
                     button(classes = "mode-btn ${if (mistakeDetectionMode == MistakeDetectionMode.OFF) "active" else ""}") {
                         +LanguageConfig.getString("ui.settings.off")
@@ -288,7 +243,7 @@ internal fun SudokuApp.renderSettings() {
                         }
                     }
                 }
-                
+
                 div("mode-explanation") {
                     +when (mistakeDetectionMode) {
                         MistakeDetectionMode.OFF -> LanguageConfig.getString("ui.settings.offDesc")
@@ -348,7 +303,7 @@ internal fun SudokuApp.renderSettings() {
                 div("mode-options language-options") {
                     val availableLanguages = LanguageConfig.getAvailableLanguages()
                     val currentLang = LanguageConfig.currentLanguage
-                    
+
                     for (lang in availableLanguages) {
                         val isActive = currentLang == lang.code
                         button(classes = "mode-btn ${if (isActive) "active" else ""}") {
@@ -367,4 +322,3 @@ internal fun SudokuApp.renderSettings() {
         }
     }
 }
-

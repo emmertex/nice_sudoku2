@@ -93,26 +93,12 @@ internal fun SudokuApp.renderGameScreen() {
                     }
                     // Show current mode indicators and selected numbers
                     div("mode-indicators") {
-                        span("mode-badge highlight-mode") {
-                            +when (highlightMode) {
-                                HighlightMode.PLACED -> "Placed"
-                                HighlightMode.RCB_SELECTED -> "RCB"
-                                HighlightMode.RCB_ALL -> "RCB+"
-                                HighlightMode.PENCIL -> "✏️️"
-                            }
-                        }
                         // Help button - opens button help modal
                         button(classes = "help-btn") {
                             +"?"
                             onClickFunction = {
                                 showButtonHelpModal = true
                                 render()
-                            }
-                        }
-                        span("mode-badge play-mode ${if (playMode == PlayMode.MULTI_SELECT_NOTES) "advanced" else "fast"}") {
-                            +when (playMode) {
-                                PlayMode.PLACE -> "Place"
-                                PlayMode.MULTI_SELECT_NOTES -> "Notes+"
                             }
                         }
                         // Selection info inline with mode badges
@@ -396,7 +382,7 @@ internal fun SudokuApp.applyContainerScaling() {
     val availableHeight = (appElement?.clientHeight ?: window.innerHeight).toDouble()
 
     val scaleX = availableWidth / containerWidth
-    val scaleY = availableHeight / containerHeight
+    val scaleY = ((availableHeight*2 + containerHeight) / 3) / containerHeight
     val scale = minOf(scaleX, scaleY, 1.0)
 
     val layoutEpsilon = 1e-6
@@ -411,7 +397,7 @@ internal fun SudokuApp.applyContainerScaling() {
         wrapper.style.justifyContent = "flex-start"
         wrapper.style.alignItems = "flex-start"
         container.style.transform = "scale($scale)"
-        container.style.transformOrigin = "top left"
+        container.style.transformOrigin = "top"
     } else {
         container.style.transform = ""
         container.style.transformOrigin = ""

@@ -7,20 +7,20 @@ val CSS_STYLES = """
         margin: 0;
         padding: 0;
     }
-    
+
     /* Touch support fixes for Firefox and other browsers */
     html {
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     button, .cell {
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
         user-select: none;
         -webkit-user-select: none;
     }
-    
+
     :root {
         /* Base size calculations - scales with viewport */
         --grid-size: min(90vw, 90vh - 200px, 900px);
@@ -71,12 +71,12 @@ val CSS_STYLES = """
         --sudoku-box-border-w: 0px;
         --sudoku-box-border-opacity: 0.65;
     }
-    
+
     html, body {
         height: 100%;
         overflow: hidden;
     }
-    
+
     body {
         font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         background: var(--gradient-bg);
@@ -87,7 +87,7 @@ val CSS_STYLES = """
         align-items: center;
         padding: clamp(8px, 2vmin, 20px);
     }
-    
+
     #app {
         width: 100%;
         height: 100%;
@@ -95,7 +95,7 @@ val CSS_STYLES = """
         justify-content: center;
         align-items: center;
     }
-    
+
     .sudoku-container-wrapper {
         width: 100%;
         height: 100%;
@@ -104,12 +104,12 @@ val CSS_STYLES = """
         align-items: center;
         overflow: hidden;
     }
-    
+
     .sudoku-container {
         background: rgba(var(--colour-accent-desat), 0.05);
         backdrop-filter: blur(10px);
-        border-radius: clamp(12px, 3vmin, 24px);
-        padding: clamp(12px, 3vmin, 24px);
+        border-radius: clamp(6px, 3vmin, 12px);
+        padding: clamp(6px, 3vmin, 12px);
         box-shadow: 0 25px 50px -12px rgba(var(--colour-shadow), var(--colour-shadow-opacity));
         width: min(100%, calc(var(--grid-size) + 48px));
         display: flex;
@@ -117,14 +117,14 @@ val CSS_STYLES = """
         overflow: hidden;
         /* Transform is set by JS for viewport fit; animating it caused a brief whole-UI zoom on re-render. */
         transition: width 0.2s ease;
-        transform-origin: center center;
+        transform-origin: top center;
     }
-    
+
     /* Expand container when hints sidebar is shown in landscape */
     .sudoku-container.hints-expanded {
         width: min(100%, calc(var(--grid-size) + 380px));
     }
-    
+
     .header {
         text-align: center;
         margin-bottom: 4px;
@@ -132,7 +132,7 @@ val CSS_STYLES = """
         position: relative;
         z-index: 200;
     }
-    
+
     /* Position back button to the left */
     .header .back-btn {
         position: absolute;
@@ -140,14 +140,14 @@ val CSS_STYLES = """
         top: 50%;
         transform: translateY(-50%);
     }
-    
+
     .nav-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: clamp(6px, 1.5vmin, 12px);
     }
-    
+
     .nav-btn, .back-btn {
         padding: clamp(6px, 1.5vmin, 12px) clamp(8px, 2vmin, 16px);
         border: none;
@@ -163,7 +163,7 @@ val CSS_STYLES = """
     .nav-btn:hover, .back-btn:hover {
         background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
     }
-    
+
     .header h1 {
         font-size: clamp(1rem, calc(1rem + 1.8vmin), 1.8rem);
         font-weight: 700;
@@ -211,7 +211,7 @@ val CSS_STYLES = """
         text-decoration: underline;
         text-underline-offset: 0.15em;
     }
-    
+
     .game-info {
         display: flex;
         justify-content: space-between;
@@ -220,7 +220,7 @@ val CSS_STYLES = """
         padding-left: 6px;
         padding-right: 6px;
     }
-    
+
     .game-info span {
         align-content: center;
         font-size: clamp(0.6rem, calc(var(--cell-size) * 0.13), min(1rem, calc(var(--cell-size) * 0.20)));
@@ -232,13 +232,13 @@ val CSS_STYLES = """
         background: rgba(var(--colour-bg-tertiary), 0.2);
         color: rgba(var(--colour-text-primary), 0.7);
     }
-    
+
     .category {
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
-    
+
     .category.beginner { background:  rgba(30, 30, 108, 0.8); color: rgb(142, 141, 201); }
     .category.easy { background:  rgba(14, 64, 77, 0.8); color: rgb(141, 186, 203); }
     .category.medium { background: rgba(16, 82, 16, 0.8); color: rgb(141, 200, 141); }
@@ -246,14 +246,14 @@ val CSS_STYLES = """
     .category.hard { background: rgba(80, 58, 16, 0.8); color: rgb(192, 173, 139); }
     .category.expert { background: rgba(80, 17, 17, 0.8); color: rgb(250, 182, 182); }
     .category.diabolical {background: rgba(37, 33, 33, 0.8); color: rgb(255, 88, 88); }
-    
+
     /* Timer container and pause button */
     .timer-container {
         display: flex !important;
         align-items: center;
         gap: 4px;
     }
-    
+
     .pause-btn {
         padding: 2px 6px;
         background: rgba(var(--colour-accent), 0.2);
@@ -265,17 +265,17 @@ val CSS_STYLES = """
         transition: all 0.2s ease;
         line-height: 1;
     }
-    
+
     .pause-btn:hover {
         background: rgba(var(--colour-accent), 0.3);
         border-color: rgba(var(--colour-accent), 0.5);
         transform: scale(1.05);
     }
-    
+
     .pause-btn:active {
         transform: scale(0.95);
     }
-    
+
     /* Info button in puzzle list */
     .info-btn {
         padding: 4px 8px;
@@ -287,13 +287,13 @@ val CSS_STYLES = """
         font-size: 0.9em;
         transition: all 0.2s ease;
     }
-    
+
     .info-btn:hover {
         background: rgba(var(--colour-accent-info), 0.2);
         border-color: rgb(var(--colour-accent-info));
         color: rgb(var(--colour-accent-info));
     }
-    
+
     /* Puzzle title in list */
     .puzzle-title, .puzzle-title-link {
         font-weight: 500;
@@ -303,39 +303,39 @@ val CSS_STYLES = """
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    
+
     .puzzle-title-link {
         color: rgb(var(--colour-accent-info));
         text-decoration: none;
     }
-    
+
     .puzzle-title-link:hover {
         text-decoration: underline;
     }
-    
+
     /* Puzzle info modal */
     .puzzle-info-modal {
         max-width: 450px;
     }
-    
+
     .puzzle-info-modal h2 {
         text-align: center;
         margin-bottom: clamp(16px, 3vmin, 24px);
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .puzzle-info-modal h3 {
         margin: clamp(12px, 2vmin, 16px) 0 clamp(8px, 1.5vmin, 12px);
         color: rgba(var(--colour-text-primary), 0.8);
         font-size: 0.95em;
     }
-    
+
     .info-grid {
         display: flex;
         flex-direction: column;
         gap: clamp(8px, 1.5vmin, 12px);
     }
-    
+
     .info-row {
         display: flex;
         justify-content: space-between;
@@ -344,47 +344,47 @@ val CSS_STYLES = """
         background: rgba(var(--colour-bg-tertiary), 0.3);
         border-radius: 6px;
     }
-    
+
     .info-row.full-width {
         flex-direction: column;
         align-items: flex-start;
         gap: clamp(6px, 1.2vmin, 10px);
     }
-    
+
     .info-label {
         color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.9em;
     }
-    
+
     .info-value {
         color: rgb(var(--colour-text-primary));
         font-weight: 500;
     }
-    
+
     .info-value.description {
         font-weight: 400;
         line-height: 1.5;
         margin: 0;
     }
-    
+
     .info-value.puzzle-id {
         font-family: monospace;
         font-size: 0.85em;
     }
-    
+
     .info-value.link {
         color: rgb(var(--colour-accent-info));
         text-decoration: none;
     }
-    
+
     .info-value.link:hover {
         text-decoration: underline;
     }
-    
+
     .info-section {
         margin-top: clamp(8px, 1.5vmin, 12px);
     }
-    
+
     .techniques-list {
         display: flex;
         flex-direction: column;
@@ -393,25 +393,25 @@ val CSS_STYLES = """
         border-radius: 6px;
         padding: clamp(8px, 1.5vmin, 12px);
     }
-    
+
     .technique-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 4px 0;
     }
-    
+
     .technique-name {
         color: rgba(var(--colour-text-primary), 0.8);
         font-size: 0.9em;
     }
-    
+
     .technique-count {
         color: rgb(var(--colour-accent-info));
         font-weight: 600;
         font-size: 0.85em;
     }
-    
+
     .modal-actions {
         display: flex;
         gap: clamp(8px, 1.5vmin, 12px);
@@ -420,7 +420,7 @@ val CSS_STYLES = """
         padding-top: clamp(12px, 2vmin, 16px);
         border-top: 1px solid rgba(var(--colour-border), 0.2);
     }
-    
+
     .modal-actions button {
         padding: clamp(10px, 2vmin, 14px) clamp(20px, 4vmin, 32px);
         border-radius: clamp(6px, 1.5vmin, 10px);
@@ -429,28 +429,28 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.2s ease;
     }
-    
+
     .modal-actions .close-btn {
         background: rgba(var(--colour-bg-tertiary), 0.5);
         border: 1px solid rgba(var(--colour-border), 0.3);
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .modal-actions .close-btn:hover {
         background: rgba(var(--colour-bg-tertiary), 0.8);
     }
-    
+
     .modal-actions .play-btn {
         background: rgba(var(--colour-accent-success), 0.4);
         border: none;
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .modal-actions .play-btn:hover {
         background: rgb(var(--colour-accent-success));
         transform: translateY(-2px);
     }
-    
+
     .game-area {
         display: flex;
         flex-direction: column;
@@ -458,7 +458,7 @@ val CSS_STYLES = """
         flex: 1;
         min-height: 0;
     }
-    
+
     /* Grid container for SVG overlay positioning */
     .sudoku-grid-container {
         position: relative;
@@ -466,16 +466,16 @@ val CSS_STYLES = """
         max-width: 100%;
         margin: 0 auto;
     }
-    
+
     /* Blur effect when paused */
     .sudoku-grid-container.paused .sudoku-grid {
         filter: blur(8px);
         pointer-events: none;
         user-select: none;
     }
-    
+
     /* Notes mode background removed - indication is now shown via number bar and candidate slashes */
-    
+
     /* Pause overlay */
     .pause-overlay {
         position: absolute;
@@ -489,7 +489,7 @@ val CSS_STYLES = """
         cursor: pointer;
         animation: fadeIn 0.3s ease;
     }
-    
+
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -498,26 +498,26 @@ val CSS_STYLES = """
             opacity: 1;
         }
     }
-    
+
     .pause-message {
         text-align: center;
         color: rgba(var(--colour-text-primary), 0.95);
         user-select: none;
     }
-    
+
     .pause-icon {
         font-size: clamp(3rem, 8vmin, 5rem);
         margin-bottom: 1rem;
         opacity: 0.9;
     }
-    
+
     .pause-text {
         font-size: clamp(1.5rem, 4vmin, 2.5rem);
         font-weight: 700;
         letter-spacing: 0.2em;
         margin-bottom: 0.5rem;
     }
-    
+
     .pause-subtext {
         font-size: clamp(0.9rem, 2vmin, 1.2rem);
         opacity: 0.7;
@@ -537,7 +537,7 @@ val CSS_STYLES = """
         background: rgba(var(--colour-bg-tertiary), 0.45);
         border: 1px solid rgba(var(--colour-accent-desat), 0.25);
     }
-    
+
     @keyframes pulse {
         0%, 100% {
             opacity: 0.5;
@@ -546,7 +546,7 @@ val CSS_STYLES = """
             opacity: 0.9;
         }
     }
-    
+
     /* SVG overlay container for chain lines */
     .chain-lines-container {
         position: absolute;
@@ -557,7 +557,7 @@ val CSS_STYLES = """
         pointer-events: none;
         z-index: 10;
     }
-    
+
     /* SVG overlay for chain lines */
     .chain-lines-overlay {
         position: absolute;
@@ -568,62 +568,62 @@ val CSS_STYLES = """
         pointer-events: none;
         z-index: 10;
     }
-    
+
     .board-chain-line {
         fill: none;
         stroke-width: 10;
         stroke-linecap: round;
         filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
     }
-    
+
     .board-chain-line.strong-link {
         stroke: rgb(var(--colour-accent-success));
         stroke-width: 10;
     }
-    
+
     .board-chain-line.weak-link {
         stroke: rgb(var(--colour-accent-warning));
         stroke-dasharray: 5 15;
     }
-    
+
     .board-candidate-highlight {
         opacity: 0.5;
         filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
     }
-    
+
     .board-candidate-highlight.group-on {
         fill: rgba(193, 155, 249, 0.8);
     }
-    
+
     .board-candidate-highlight.group-off {
         fill: rgba(123, 249, 155, 0.8);
     }
-    
+
     .board-candidate-highlight.group-als {
         fill: rgba(249, 200, 123, 0.8);
     }
-    
+
     .board-candidate-highlight.group-default {
         fill: rgba(var(--colour-accent-info), 0.6);
     }
-    
+
     /* SVG highlight states for interactive chain notation */
     .board-chain-line.svg-line-highlight {
         stroke-width: 10 !important;
         filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) !important;
     }
-    
+
     .board-candidate-highlight.svg-highlight {
         r: 18;
         opacity: 1;
         filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) !important;
     }
-    
+
     /* Interactive chain notation styles */
     .interactive-description {
         line-height: 1.6;
     }
-    
+
     .chain-cell-ref {
         background: rgba(var(--colour-accent-info), 0.2);
         padding: 2px 4px;
@@ -633,12 +633,12 @@ val CSS_STYLES = """
         font-family: 'JetBrains Mono', 'Fira Code', monospace;
         font-size: 0.9em;
     }
-    
+
     .chain-cell-ref:hover {
         background: rgba(var(--colour-accent-info), 0.5);
         box-shadow: 0 0 8px rgba(var(--colour-accent-info), 0.5);
     }
-    
+
     .chain-link-ref {
         padding: 2px 6px;
         border-radius: 4px;
@@ -647,37 +647,37 @@ val CSS_STYLES = """
         font-weight: 600;
         font-size: 0.85em;
     }
-    
+
     .chain-link-strong {
         background: rgba(var(--colour-accent-success-text), 0.2);
         color: rgb(var(--colour-accent-success));
     }
-    
+
     .chain-link-strong:hover {
         background: rgba(var(--colour-accent-success-text), 0.5);
         box-shadow: 0 0 8px rgba(var(--colour-accent-success), 0.5);
     }
-    
+
     .chain-link-weak {
         background: rgba(var(--colour-accent-warning-text), 0.2);
         color: rgb(var(--colour-accent-warning));
     }
-    
+
     .chain-link-weak:hover {
         background: rgba(var(--colour-accent-warning-text), 0.5);
         box-shadow: 0 0 8px rgba(var(--colour-accent-warning), 0.5);
     }
-    
+
     .chain-text, .desc-text {
         /* Normal text styling */
     }
-    
+
     /* Interactive reference base styles */
     .interactive-ref {
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     /* Simple cell reference: R5C6 */
     .cell-ref {
         background: rgba(var(--colour-accent-info), 0.2);
@@ -686,12 +686,12 @@ val CSS_STYLES = """
         font-family: 'JetBrains Mono', 'Fira Code', monospace;
         font-size: 0.9em;
     }
-    
+
     .cell-ref:hover, .cell-ref.ref-hovered {
         background: rgba(var(--colour-accent-info), 0.5);
         box-shadow: 0 0 6px rgba(var(--colour-accent-info), 0.4);
     }
-    
+
     /* Digit reference: {5, 7, 8} */
     .digit-ref {
         background: rgba(var(--colour-accent-secondary), 0.2);
@@ -701,13 +701,13 @@ val CSS_STYLES = """
         font-size: 0.9em;
         color: rgb(var(--colour-accent-secondary));
     }
-    
+
     .digit-ref:hover, .digit-ref.ref-hovered {
         background: rgba(var(--colour-accent-secondary), 0.5);
         box-shadow: 0 0 6px rgba(var(--colour-accent-secondary), 0.4);
         color: white;
     }
-    
+
     /* House reference: Row 5, Column 7, Box 3 */
     .house-ref {
         background: rgba(var(--colour-accent-warning), 0.15);
@@ -715,45 +715,45 @@ val CSS_STYLES = """
         border-radius: 4px;
         font-weight: 500;
     }
-    
+
     .house-ref:hover, .house-ref.ref-hovered {
         background: rgba(var(--colour-accent-warning), 0.4);
         box-shadow: 0 0 6px rgba(var(--colour-accent-warning), 0.4);
     }
-    
+
     /* Hover highlights on grid */
     .cell.hover-highlight-cell {
         box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-info), 0.8) !important;
         background: rgba(var(--colour-accent-info), 0.15) !important;
     }
-    
+
     .cell.hover-highlight-house {
         background: rgba(var(--colour-accent-warning), 0.2) !important;
     }
-    
+
     .cell.hover-highlight-digit-cell {
         box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-secondary), 0.8) !important;
     }
-    
+
     .candidate.hover-highlight-digit {
         background: rgba(var(--colour-accent-secondary), 0.6) !important;
         color: white !important;
         border-radius: 50%;
         font-weight: bold;
     }
-    
+
     /* Cell highlight from chain interaction */
     .cell.chain-node-highlight {
         box-shadow: inset 0 0 0 3px rgba(var(--colour-accent-info), 0.8), 0 0 12px rgba(var(--colour-accent-info), 0.6) !important;
     }
-    
+
     .candidate.chain-candidate-highlight {
         background: rgba(var(--colour-accent-info), 0.7) !important;
         color: white !important;
         border-radius: 50%;
         font-weight: bold;
     }
-    
+
     .sudoku-grid {
         background: rgba(var(--sudoku-grid-rail-rgb), var(--sudoku-grid-rail-alpha));
         border-radius: clamp(6px, 1.5vmin, 12px);
@@ -771,13 +771,13 @@ val CSS_STYLES = """
         /* So cell fonts track the real drawn grid when max-width: 100% shrinks below --grid-size */
         container-type: size;
     }
-    
+
     .sudoku-row {
         display: flex;
         gap: clamp(1px, 0.25vmin, 2px);
         flex: 1;
     }
-    
+
     .cell {
         aspect-ratio: 1;
         flex: 1;
@@ -823,7 +823,7 @@ val CSS_STYLES = """
     html.theme-epaper .cell.box-top {
         border-top-width: calc(1px + var(--sudoku-box-border-w));
     }
-    
+
     .cell-value {
         /* Scales with cell; max tracks cell too (old 2rem cap blocked growth on large grids) */
         font-size: clamp(0.42rem, calc(var(--cell-size) * 0.56), min(5rem, calc(var(--cell-size) * 0.72)));
@@ -835,7 +835,7 @@ val CSS_STYLES = """
     .cell.solved .cell-value { color: rgba(var(--colour-text-primary), 0.8); }
     .cell:not(.given):not(.solved) .cell-value { color: rgb(var(--colour-accent-secondary)); }
     .cell.mistake .cell-value { color: rgb(var(--colour-accent-error)); }
-    
+
     .candidates {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -844,7 +844,7 @@ val CSS_STYLES = """
         height: 100%;
         padding: clamp(1px, 0.25vmin, 2px);
     }
-    
+
     .candidate {
         font-size: clamp(calc(var(--cell-size) * 0.115), calc(var(--cell-size) * 0.24), min(2rem, calc(var(--cell-size) * 0.36)));
         color: rgba(var(--colour-text-primary), 0.85);
@@ -854,7 +854,7 @@ val CSS_STYLES = """
         position: relative;
         z-index: 20;
     }
-    
+
     .candidate.hidden { visibility: hidden; }
 
     @supports (font-size: clamp(1px, 5cqmin, 10px)) {
@@ -865,67 +865,67 @@ val CSS_STYLES = """
             font-size: clamp(1.15cqmin, 2.65cqmin, min(2rem, 3.6cqmin));
         }
     }
-    
+
     /* Hint highlighting for cells */
     .cell.hint-cover-area {
         background: rgba(var(--colour-accent-info), 0.2);
     }
-    
+
     .cell.hint-solved-cell {
         background: rgba(var(--colour-accent-success), 0.3);
     }
-    
+
     .cell.hint-step-highlight {
         background: rgba(var(--colour-accent-warning), 0.3);
         box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-warning), 0.6);
     }
-    
+
     /* Hint highlighting for candidates */
     .candidate.hint-elimination {
         color: rgb(var(--colour-accent-error));
         font-weight: bold;
         text-decoration: line-through;
     }
-    
+
     .candidate.hint-matching-not-eliminated {
         color: rgb(var(--colour-accent-info));
         font-weight: bold;
     }
-    
+
     .candidate.hint-solved {
         color: rgb(var(--colour-accent-success-text));
         font-weight: bold;
         background: rgba(var(--colour-accent-success), 0.3);
         border-radius: 2px;
     }
-    
+
     /* New explanation step highlighting */
     .cell.hint-region-highlight {
         background: rgba(var(--colour-accent-info), 0.15);
     }
-    
+
     .cell.hint-cell-warning {
         background: rgba(var(--colour-accent-warning), 0.35);
         box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-warning), 0.7);
     }
-    
+
     .cell.hint-cell-target {
         background: rgba(var(--colour-accent-success), 0.35);
         box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-success), 0.7);
     }
-    
+
     .cell.hint-cell-primary {
         background: rgba(var(--colour-accent-info), 0.35);
         box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-info), 0.7);
     }
-    
+
     .candidate.hint-candidate-target {
         color: rgb(var(--colour-accent-success-text));
         font-weight: bold;
         background: rgba(var(--colour-accent-success), 1.0);
         border-radius: 2px;
     }
-    
+
     .candidate.hint-candidate-elimination {
         color: rgb(var(--colour-accent-error-text));
         font-weight: bold;
@@ -933,21 +933,21 @@ val CSS_STYLES = """
         background: rgba(var(--colour-accent-error), 1.0);
         border-radius: 2px;
     }
-    
+
     .candidate.hint-candidate-highlight {
         color: rgb(var(--colour-accent-warning-text));
         font-weight: bold;
         background: rgba(var(--colour-accent-warning), 1.0);
         border-radius: 2px;
     }
-    
+
     .candidate.hint-candidate-info {
         color: rgb(var(--colour-accent-info-text));
         font-weight: bold;
         background: rgba(var(--colour-accent-info), 1.0);
         border-radius: 2px;
     }
-    
+
     .controls {
         display: flex;
         gap: clamp(4px, 1vmin, 8px);
@@ -955,7 +955,7 @@ val CSS_STYLES = """
         flex-wrap: wrap;
         flex-shrink: 0;
     }
-    
+
     .toggle-btn, .undo-btn, .hint-btn, .solve-btn {
         padding: clamp(6px, 1.5vmin, 12px) clamp(10px, 2.5vmin, 20px);
         border: none;
@@ -987,12 +987,12 @@ val CSS_STYLES = """
         background: rgba(var(--colour-accent-info), 0.4);
         animation: pulse 1.5s ease-in-out infinite;
     }
-    
+
     @keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.6; }
     }
-    
+
     /* Hint System Styles */
     .main-content {
         display: flex;
@@ -1000,7 +1000,7 @@ val CSS_STYLES = """
         flex: 1;
         min-height: 0;
     }
-    
+
     .main-content.landscape-hints {
         flex-direction: row;
         gap: clamp(10px, 2vmin, 20px);
@@ -1008,12 +1008,12 @@ val CSS_STYLES = """
         min-height: 0;
         overflow: hidden;
     }
-    
+
     .main-content.landscape-hints .game-area {
         flex: 0 0 auto;
         /* Don't shrink the game area - let the container expand instead */
     }
-    
+
     /* Landscape Hint Sidebar */
     .hint-sidebar {
         flex: 1;
@@ -1027,7 +1027,7 @@ val CSS_STYLES = """
         flex-direction: column;
         overflow: hidden;
     }
-    
+
     .hint-sidebar-header {
         display: flex;
         align-items: center;
@@ -1035,18 +1035,18 @@ val CSS_STYLES = """
         margin-bottom: clamp(8px, 1.5vmin, 16px);
         flex-shrink: 0;
     }
-    
+
     .hint-sidebar-header h3 {
         margin: 0;
         font-size: clamp(0.9rem, calc(0.8rem + 0.5vmin), 1.1rem);
         color: rgb(var(--colour-accent-warning));
     }
-    
+
     .hint-count {
         color: rgba(var(--colour-text-primary), 0.5);
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.9rem);
     }
-    
+
     .hint-list {
         flex: 1;
         overflow-y: auto;
@@ -1054,7 +1054,7 @@ val CSS_STYLES = """
         flex-direction: column;
         gap: clamp(6px, 1vmin, 12px);
     }
-    
+
     .hint-item {
         background: rgba(var(--colour-bg-tertiary), 0.15);
         border-radius: clamp(6px, 1vmin, 10px);
@@ -1073,20 +1073,20 @@ val CSS_STYLES = """
         border-color: rgb(var(--colour-accent-primary));
         overflow: visible;
     }
-    
+
     .hint-item.expanded {
         background: rgba(var(--colour-accent-primary), 0.3);
         border-color: rgb(var(--colour-accent-primary));
         overflow: visible;
     }
-    
+
     .hint-item-header {
         padding: clamp(8px, 1.5vmin, 14px);
         display: flex;
         flex-direction: column;
         gap: clamp(4px, 0.8vmin, 8px);
     }
-    
+
     .hint-item-content {
         flex: 1;
     }
@@ -1104,7 +1104,7 @@ val CSS_STYLES = """
         line-height: 1.3;
         word-break: break-word;
     }
-    
+
     .hint-item-expanded {
         padding: clamp(8px, 1.5vmin, 14px);
         padding-top: 0;
@@ -1114,7 +1114,7 @@ val CSS_STYLES = """
         flex-direction: column;
         gap: clamp(8px, 1.2vmin, 12px);
     }
-    
+
     /* Inline Explanation Styles */
     .inline-explanation {
         padding: clamp(8px, 1.5vmin, 14px);
@@ -1122,13 +1122,13 @@ val CSS_STYLES = """
         border-top: 1px solid rgba(var(--colour-text-primary), 0.1);
         margin-top: clamp(4px, 0.8vmin, 8px);
     }
-    
+
     .explanation-collapse-row {
         display: flex;
         justify-content: flex-end;
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
-    
+
     .explanation-collapse-btn {
         padding: clamp(4px, 0.6vmin, 6px) clamp(8px, 1.2vmin, 12px);
         border: none;
@@ -1140,11 +1140,11 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     .explanation-collapse-btn:hover {
         background: rgba(var(--colour-accent-warning), 0.3);
     }
-    
+
     .inline-eureka {
         background: rgba(var(--colour-bg-tertiary), 0.15);
         border-radius: clamp(4px, 0.6vmin, 6px);
@@ -1154,29 +1154,29 @@ val CSS_STYLES = """
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
         overflow-x: auto;
     }
-    
+
     .eureka-label {
         color: rgba(var(--colour-text-primary), 1.0);
     }
-    
+
     .eureka-notation {
         color: rgb(var(--colour-accent-warning));
     }
-    
+
     .inline-step {
         background: rgba(var(--colour-bg-tertiary), 0.2);
         border-radius: clamp(6px, 1vmin, 10px);
         padding: clamp(8px, 1.2vmin, 12px);
         margin-bottom: clamp(8px, 1.2vmin, 12px);
     }
-    
+
     .step-header {
         display: flex;
         align-items: center;
         gap: clamp(6px, 1vmin, 10px);
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
-    
+
     .step-number {
         background: rgba(var(--colour-accent-info), 0.3);
         color: rgb(var(--colour-accent-info));
@@ -1185,26 +1185,26 @@ val CSS_STYLES = """
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
         font-weight: 600;
     }
-    
+
     .step-title {
         font-size: clamp(0.7rem, calc(0.65rem + 0.35vmin), 0.9rem);
         font-weight: 600;
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .step-description {
         color: rgba(var(--colour-text-primary), 0.8);
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.8rem);
         line-height: 1.4;
     }
-    
+
     .inline-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
         gap: clamp(6px, 1vmin, 10px);
     }
-    
+
     .inline-nav-btn {
         padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
@@ -1216,21 +1216,21 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     .inline-nav-btn:hover:not(.disabled) {
         background: rgba(var(--colour-accent-info), 0.3);
     }
-    
+
     .inline-nav-btn.disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
-    
+
     .step-indicator {
         color: rgba(var(--colour-text-primary), 0.6);
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
     }
-    
+
     /* Full Explanation View (replaces list in landscape sidebar) */
     .explanation-view {
         display: flex;
@@ -1238,7 +1238,7 @@ val CSS_STYLES = """
         height: 100%;
         gap: clamp(8px, 1.5vmin, 14px);
     }
-    
+
     .explanation-view-header {
         display: flex;
         align-items: center;
@@ -1246,7 +1246,7 @@ val CSS_STYLES = """
         gap: clamp(8px, 1.2vmin, 12px);
         flex-shrink: 0;
     }
-    
+
     .explanation-back-btn {
         padding: clamp(6px, 1vmin, 10px) clamp(10px, 1.5vmin, 14px);
         border: none;
@@ -1258,11 +1258,11 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     .explanation-back-btn:hover {
         background: rgba(var(--colour-text-primary), 0.2);
     }
-    
+
     .hint-position-badge {
         background: rgba(var(--colour-accent-warning), 0.2);
         color: rgb(var(--colour-accent-warning));
@@ -1271,7 +1271,7 @@ val CSS_STYLES = """
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
         font-weight: 600;
     }
-    
+
     .explanation-technique-info {
         background: rgba(var(--colour-accent-warning), 0.15);
         border-radius: clamp(6px, 1vmin, 10px);
@@ -1279,20 +1279,20 @@ val CSS_STYLES = """
         border-left: 3px solid rgb(var(--colour-accent-warning));
         flex-shrink: 0;
     }
-    
+
     .explanation-technique-name {
         font-size: clamp(0.8rem, calc(0.75rem + 0.4vmin), 1rem);
         font-weight: 700;
         color: rgb(var(--colour-accent-warning));
         margin-bottom: clamp(4px, 0.6vmin, 8px);
     }
-    
+
     .explanation-technique-desc {
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
         color: rgba(var(--colour-text-primary), 0.8);
         line-height: 1.4;
     }
-    
+
     .explanation-eureka {
         background: rgba(var(--colour-bg-tertiary), 0.3);
         border-radius: clamp(4px, 0.6vmin, 6px);
@@ -1302,7 +1302,7 @@ val CSS_STYLES = """
         overflow-x: auto;
         flex-shrink: 0;
     }
-    
+
     .explanation-step-content {
         flex: 1;
         background: rgba(var(--colour-bg-tertiary), 0.2);
@@ -1310,20 +1310,20 @@ val CSS_STYLES = """
         padding: clamp(10px, 1.5vmin, 16px);
         overflow-y: auto;
     }
-    
+
     .explanation-step-content .step-header {
         display: flex;
         align-items: center;
         gap: clamp(8px, 1.2vmin, 12px);
         margin-bottom: clamp(8px, 1.2vmin, 12px);
     }
-    
+
     .explanation-step-content .step-description {
         color: rgba(var(--colour-text-primary), 0.85);
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.85rem);
         line-height: 1.5;
     }
-    
+
     .explanation-nav {
         display: flex;
         justify-content: space-between;
@@ -1331,7 +1331,7 @@ val CSS_STYLES = """
         gap: clamp(8px, 1.2vmin, 12px);
         flex-shrink: 0;
     }
-    
+
     .explanation-nav-btn {
         padding: clamp(6px, 1vmin, 10px) clamp(12px, 1.8vmin, 18px);
         border: none;
@@ -1343,22 +1343,22 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     .explanation-nav-btn:hover:not(.disabled) {
         background: rgba(var(--colour-accent-info), 0.3);
     }
-    
+
     .explanation-nav-btn.disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
-    
+
     .hint-empty {
         text-align: center;
         color: rgba(var(--colour-text-primary), 0.5);
         padding: clamp(16px, 3vmin, 32px);
     }
-    
+
     .hint-loading-subtitle {
         font-size: 0.85em;
         margin-top: 8px;
@@ -1382,7 +1382,7 @@ val CSS_STYLES = """
     .hint-close-btn:hover {
         background: rgba(var(--colour-accent-error), 0.4);
     }
-    
+
     /* Portrait Hint Card */
     .hint-card {
         background: rgba(var(--colour-bg-tertiary), 0.1);
@@ -1392,7 +1392,7 @@ val CSS_STYLES = """
         overflow-y: auto;
         box-sizing: border-box;
     }
-    
+
     .hint-card-header {
         display: flex;
         align-items: center;
@@ -1400,7 +1400,7 @@ val CSS_STYLES = """
         gap: clamp(6px, 1vmin, 12px);
         margin-bottom: clamp(8px, 1.5vmin, 16px);
     }
-    
+
     .hint-nav-btn {
         padding: clamp(6px, 1vmin, 10px) clamp(10px, 2vmin, 16px);
         border: none;
@@ -1412,21 +1412,21 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     .hint-nav-btn:hover:not(.disabled) {
         background: rgba(var(--colour-accent-warning), 0.3);
     }
-    
+
     .hint-nav-btn.disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
-    
+
     .hint-position {
         color: rgba(var(--colour-text-primary), 0.6);
         font-size: clamp(0.7rem, calc(0.65rem + 0.3vmin), 0.9rem);
     }
-    
+
     .hint-close-btn-small {
         padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
@@ -1438,31 +1438,31 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     .hint-close-btn-small:hover {
         background: rgba(var(--colour-accent-error), 0.3);
     }
-    
+
     .hint-content {
         padding: clamp(8px, 1.5vmin, 16px);
         background: rgba(var(--colour-bg-tertiary), 0.05);
         border-radius: clamp(6px, 1vmin, 10px);
     }
-    
+
     .hint-content .hint-technique {
         margin-bottom: clamp(6px, 1vmin, 12px);
     }
-    
+
     .hint-content.hint-empty {
         text-align: center;
         color: rgba(var(--colour-text-primary), 0.5);
     }
-    
+
     /* Hint item with explain button */
     .hint-item-content {
         flex: 1;
     }
-    
+
     .hint-explain-btn {
         margin-top: clamp(6px, 1vmin, 10px);
         padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 14px);
@@ -1477,12 +1477,12 @@ val CSS_STYLES = """
         display: block;
         width: 100%;
     }
-    
+
     .hint-explain-btn:hover {
         background: rgba(var(--colour-accent-info), 0.4);
         transform: translateY(-1px);
     }
-    
+
     /* Compact hint card header */
     .hint-card-header-compact {
         display: flex;
@@ -1492,7 +1492,7 @@ val CSS_STYLES = """
         border-bottom: 1px solid rgba(var(--colour-text-primary), 0.1);
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
-    
+
     .hint-title-area {
         flex: 1;
         display: flex;
@@ -1501,7 +1501,7 @@ val CSS_STYLES = """
         min-width: 0;
         overflow: hidden;
     }
-    
+
     .hint-technique-compact {
         color: rgb(var(--colour-accent-warning));
         font-weight: 600;
@@ -1510,13 +1510,13 @@ val CSS_STYLES = """
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    
+
     .hint-position-small {
         color: rgba(var(--colour-text-primary), 0.5);
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
         white-space: nowrap;
     }
-    
+
     .hint-nav-btn-small {
         padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
@@ -1529,16 +1529,16 @@ val CSS_STYLES = """
         transition: all 0.15s ease;
         white-space: nowrap;
     }
-    
+
     .hint-nav-btn-small:hover:not(.disabled) {
         background: rgba(var(--colour-accent-warning), 0.3);
     }
-    
+
     .hint-nav-btn-small.disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
-    
+
     .hint-collapse-btn-small {
         padding: clamp(3px, 0.6vmin, 6px) clamp(6px, 1vmin, 10px);
         border: none;
@@ -1550,27 +1550,27 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     .hint-collapse-btn-small:hover {
         background: rgba(var(--colour-accent-info), 0.3);
     }
-    
+
     .hint-content-compact {
         padding: clamp(4px, 0.8vmin, 8px);
     }
-    
+
     .hint-content-compact .hint-description {
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
         color: rgba(var(--colour-text-primary), 0.8);
         line-height: 1.4;
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
-    
+
     /* Compact inline explanation */
     .inline-explanation-compact {
         padding: clamp(4px, 0.8vmin, 8px);
     }
-    
+
     .inline-explanation-compact .inline-eureka {
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
         margin-bottom: clamp(4px, 0.8vmin, 8px);
@@ -1578,14 +1578,14 @@ val CSS_STYLES = """
         background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(3px, 0.5vmin, 6px);
     }
-    
+
     .step-header-compact {
         display: flex;
         align-items: center;
         gap: clamp(6px, 1vmin, 10px);
         margin-bottom: clamp(4px, 0.8vmin, 8px);
     }
-    
+
     .step-nav-btn-small {
         padding: clamp(2px, 0.4vmin, 4px) clamp(4px, 0.8vmin, 8px);
         border: none;
@@ -1599,16 +1599,16 @@ val CSS_STYLES = """
         white-space: nowrap;
         flex-shrink: 0;
     }
-    
+
     .step-nav-btn-small:hover:not(.disabled) {
         background: rgba(var(--colour-accent-info), 0.3);
     }
-    
+
     .step-nav-btn-small.disabled {
         opacity: 0.4;
         cursor: not-allowed;
     }
-    
+
     .step-badge {
         background: rgba(var(--colour-accent-info), 0.3);
         color: rgb(var(--colour-accent-info));
@@ -1618,7 +1618,7 @@ val CSS_STYLES = """
         font-weight: 600;
         white-space: nowrap;
     }
-    
+
     .step-header-compact .step-title {
         font-weight: 600;
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
@@ -1626,13 +1626,13 @@ val CSS_STYLES = """
         flex: 1;
         min-width: 0;
     }
-    
+
     .inline-explanation-compact .step-description {
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.85rem);
         line-height: 1.5;
         color: rgba(var(--colour-text-primary), 0.8);
     }
-    
+
     .inline-explanation-compact .inline-nav {
         display: flex;
         align-items: center;
@@ -1642,14 +1642,14 @@ val CSS_STYLES = """
         padding-top: clamp(6px, 1vmin, 10px);
         border-top: 1px solid rgba(var(--colour-text-primary), 0.1);
     }
-    
+
     .number-pad {
         display: grid;
         grid-template-columns: repeat(9, 1fr);
         gap: clamp(3px, 0.75vmin, 6px);
         flex-shrink: 0;
     }
-    
+
     .num-btn {
         aspect-ratio: 1;
         border: none;
@@ -1661,10 +1661,10 @@ val CSS_STYLES = """
         background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .num-btn:hover { background: rgba(var(--colour-accent-desat), 0.25); transform: scale(1.05); }
     .num-btn:active { transform: scale(0.95); }
-    
+
     .status {
         text-align: center;
         padding: clamp(6px, 1.5vmin, 12px);
@@ -1672,7 +1672,7 @@ val CSS_STYLES = """
         font-size: clamp(0.7rem, calc(0.65rem + 0.4vmin), 0.9rem);
         flex-shrink: 0;
     }
-    
+
     .toast {
         position: fixed;
         bottom: clamp(60px, 15vh, 120px);
@@ -1686,38 +1686,38 @@ val CSS_STYLES = """
         animation: fadeIn 0.2s ease;
         z-index: 100;
     }
-    
+
     @keyframes fadeIn {
         from { opacity: 0; transform: translateX(-50%) translateY(10px); }
         to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
-    
+
     /* Browser styles */
     .browser, .import-export, .settings {
         max-height: 100%;
         overflow-y: auto;
     }
-    
+
     .browser .section, .import-export .section {
         background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(6px, 1.5vmin, 12px);
         padding: clamp(10px, 2.5vmin, 20px);
         margin-bottom: clamp(10px, 2.5vmin, 20px);
     }
-    
+
     .section h2 {
         color: rgb(var(--colour-text-primary));
         font-size: clamp(0.85rem, calc(0.8rem + 0.5vmin), 1.1rem);
         margin-bottom: clamp(8px, 2vmin, 16px);
     }
-    
+
     .category-tabs {
         display: flex;
         gap: clamp(4px, 1vmin, 8px);
         margin-bottom: clamp(8px, 2vmin, 16px);
         flex-wrap: wrap;
     }
-    
+
     .tab-btn {
         padding: clamp(6px, 1.5vmin, 12px) clamp(10px, 2.5vmin, 20px);
         border: none;
@@ -1735,7 +1735,7 @@ val CSS_STYLES = """
         background: rgba(var(--colour-accent-primary), 0.4);
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .puzzle-list, .game-list {
         display: flex;
         flex-direction: column;
@@ -1743,7 +1743,7 @@ val CSS_STYLES = """
         max-height: 300px;
         overflow-y: auto;
     }
-    
+
     .puzzle-item, .game-item {
         display: flex;
         align-items: center;
@@ -1757,7 +1757,7 @@ val CSS_STYLES = """
     .puzzle-item:hover, .game-item:hover {
         background: rgba(var(--colour-bg-tertiary), 0.2);
     }
-    
+
     .puzzle-item.completed { opacity: 0.6; }
 
     .puzzle-item-selected {
@@ -1879,27 +1879,27 @@ val CSS_STYLES = """
     .save-metadata-btn:hover, .reset-puzzle-btn:hover {
         background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
     }
-    
+
     .puzzle-num {
         color: rgba(var(--colour-text-primary), 0.5);
         font-size: 0.8rem;
         width: 30px;
     }
-    
+
     .difficulty {
         color: rgb(var(--colour-accent-warning));
         font-size: 0.8rem;
     }
-    
+
     .status {
         font-size: 0.75rem;
         padding: 2px 6px;
         border-radius: 4px;
     }
-    
+
     .status.completed { background: rgba(var(--colour-accent-success), 1.0); color: rgb(var(--colour-accent-success-text)); }
     .status.progress { background: rgba(var(--colour-accent-warning), 1.0); color: rgb(var(--colour-accent-warning-text)); }
-    
+
     /* Game item text elements */
     .game-item .progress {
         color: rgba(var(--colour-text-primary), 0.8);
@@ -1915,40 +1915,40 @@ val CSS_STYLES = """
         color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.75rem;
     }
-    
+
     .game-item .hints {
         color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.75rem;
     }
-    
+
     .game-title {
         color: rgb(var(--colour-accent-info));
         font-weight: 600;
         font-size: 0.85rem;
         cursor: pointer;
     }
-    
+
     .game-title:hover {
         text-decoration: underline;
     }
-    
+
     .puzzle-title {
         color: rgb(var(--colour-text-primary));
         font-weight: 600;
         font-size: 0.85rem;
     }
-    
+
     .puzzle-title-link {
         color: rgb(var(--colour-accent-info));
         font-weight: 600;
         font-size: 0.85rem;
         text-decoration: none;
     }
-    
+
     .puzzle-title-link:hover {
         text-decoration: underline;
     }
-    
+
     .info-btn {
         padding: 2px 8px;
         border: none;
@@ -1959,12 +1959,12 @@ val CSS_STYLES = """
         color: rgb(var(--colour-accent-info));
         transition: all 0.15s ease;
     }
-    
+
     .info-btn:hover {
         background: rgba(var(--colour-accent-info), 0.3);
         transform: scale(1.05);
     }
-    
+
     .play-btn, .resume-btn {
         margin-left: auto;
         padding: 6px 12px;
@@ -1982,19 +1982,19 @@ val CSS_STYLES = """
         background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
         transform: translateY(-1px);
     }
-    
+
     /* Import/Export styles */
     .export-option {
         margin-bottom: 12px;
     }
-    
+
     .export-option label {
         display: block;
         color: rgba(var(--colour-text-primary), 0.7);
         font-size: 0.8rem;
         margin-bottom: 4px;
     }
-    
+
     .export-row {
         display: flex;
         gap: 8px;
@@ -2036,7 +2036,7 @@ val CSS_STYLES = """
         line-height: 1.45;
         max-width: 52rem;
     }
-    
+
     .export-field {
         flex: 1;
         padding: 8px 12px;
@@ -2047,7 +2047,7 @@ val CSS_STYLES = """
         font-family: monospace;
         font-size: 0.75rem;
     }
-    
+
     .copy-btn, .paste-btn, .load-btn {
         background: rgba(var(--colour-accent-desat), var(--colour-btn-opacity));
         color: rgba(var(--colour-text-primary), 0.8);
@@ -2061,16 +2061,16 @@ val CSS_STYLES = """
     }
 
     .copy-btn:hover, .paste-btn:hover, .load-btn:hover
-    {         
+    {
         background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
     }
-    
+
     .hint {
         color: rgba(var(--colour-text-primary), 0.5);
         font-size: 0.75rem;
         margin-bottom: 8px;
     }
-    
+
     .hint a,
     .hint a:visited,
     .hint a:hover,
@@ -2079,12 +2079,12 @@ val CSS_STYLES = """
         text-decoration: none;
         transition: opacity 0.15s ease;
     }
-    
+
     .hint a:hover {
         opacity: 0.8;
         text-decoration: underline;
     }
-    
+
     .import-field {
         width: 100%;
         height: 80px;
@@ -2098,16 +2098,16 @@ val CSS_STYLES = """
         resize: none;
         margin-bottom: 12px;
     }
-    
+
     .import-actions {
         display: flex;
         gap: 8px;
     }
-    
-    
+
+
     /* Highlight styles */
     .cell.highlight-primary { background: rgba(var(--colour-accent-primary), 0.3); } /* Light blue */
-    .theme-epaper .cell.highlight-primary { 
+    .theme-epaper .cell.highlight-primary {
         background-image: repeating-linear-gradient( var(--stripe-angle), var(--stripe-color), var(--stripe-color) 3px, transparent 3px, transparent var(--stripe-size) );
         --stripe-color: rgba(var(--colour-bg-primary), 0.25);
         --stripe-size: 6px;
@@ -2119,7 +2119,7 @@ val CSS_STYLES = """
     .cell.highlight-primary:hover { background: rgba(var(--colour-accent-primary), 0.4); }
     .cell.highlight-secondary:hover { background: rgba(var(--colour-accent-secondary), 0.4); }
     .cell.highlight-both:hover { background: rgba(var(--colour-accent-tertiary), 0.4); }
-    
+
     /* All candidates covered - striped/hashed pattern (easy to customize) */
     .cell.all-candidates-covered {
         --stripe-color: rgba(var(--colour-accent-warning), 0.25);
@@ -2135,36 +2135,36 @@ val CSS_STYLES = """
     }
     /* Combine with existing highlight colors */
     .cell.all-candidates-covered.highlight-primary {
-        background: 
+        background:
             repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
             rgba(var(--colour-accent-primary), 0.3);
     }
     .cell.all-candidates-covered.highlight-secondary {
-        background: 
+        background:
             repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
             rgba(var(--colour-accent-secondary), 0.3);
     }
     .cell.all-candidates-covered.highlight-both {
-        background: 
+        background:
             repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
             rgba(var(--colour-accent-tertiary), 0.3);
     }
-    
+
     /* Hint cell highlighting - new system */
-    .cell.hint-cover-area { 
+    .cell.hint-cover-area {
         background: rgba(var(--colour-accent-primary), 0.3); /* Light blue for cover area */
     }
-    .cell.hint-cover-area:hover { 
-        background: rgba(var(--colour-accent-primary), 0.4); 
+    .cell.hint-cover-area:hover {
+        background: rgba(var(--colour-accent-primary), 0.4);
     }
-    .cell.hint-solved-cell { 
+    .cell.hint-solved-cell {
         background: rgba(var(--colour-accent-success), 0.45); /* Stronger green for solution cell */
         box-shadow: inset 0 0 0 2px rgba(var(--colour-accent-success), 0.8);
     }
-    .cell.hint-solved-cell:hover { 
-        background: rgba(var(--colour-accent-success), 0.55); 
+    .cell.hint-solved-cell:hover {
+        background: rgba(var(--colour-accent-success), 0.55);
     }
-    
+
     /* Number button selection states */
     .num-btn.primary {
         background: rgba(var(--colour-accent-primary), 0.5);
@@ -2188,7 +2188,7 @@ val CSS_STYLES = """
     .num-btn.both:hover {
         background: rgba(206, 147, 216, 0.6);
     }
-    
+
     /* Pencil mark highlighting - color coded */
     .candidate.pencil-highlight-primary {
         color: rgb(var(--colour-accent-primary-text));
@@ -2215,7 +2215,7 @@ val CSS_STYLES = """
         text-decoration: line-through;
         font-weight: bold;
     }
-    
+
     /* Hint candidate highlighting */
     .candidate.hint-elimination {
         color: rgb(var(--colour-accent-error)); /* Red number */
@@ -2239,13 +2239,13 @@ val CSS_STYLES = """
         border-radius: 2px;
         box-shadow: 0 0 0 1px rgba(var(--colour-accent-success), 0.5);
     }
-    
+
     /* Mode indicators in header */
     .mode-indicators {
         display: flex;
         gap: 6px;
     }
-    
+
     .mode-badge {
         font-size: clamp(0.55rem, calc(var(--cell-size) * 0.12), min(0.95rem, calc(var(--cell-size) * 0.19)));
         padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 8px);
@@ -2254,13 +2254,13 @@ val CSS_STYLES = """
         color: rgba(var(--colour-text-primary), 0.7);
         font-weight: 600;
     }
-    
+
     .mode-badge.highlight-mode { background: rgba(var(--colour-accent-primary), 0.3); color: rgb(var(--colour-accent-primary)); }
     .mode-badge.play-mode.fast { background: rgba(var(--colour-accent-success), 0.3); color: rgb(var(--colour-accent-success)); }
     .mode-badge.play-mode.advanced { background: rgba(var(--colour-accent-warning), 0.3); color: rgb(var(--colour-accent-warning)); }
     .mode-badge.clickable { cursor: pointer; transition: all 0.15s ease; }
     .mode-badge.clickable:hover { transform: scale(1.05); filter: brightness(1.1); }
-    
+
     /* Selected number badges - inline with mode indicators */
     .selected-num {
         font-size: clamp(0.55rem, calc(var(--cell-size) * 0.12), min(0.95rem, calc(var(--cell-size) * 0.19)));
@@ -2269,10 +2269,10 @@ val CSS_STYLES = """
         border-radius: clamp(2px, 0.5vmin, 4px);
         line-height: 1.2;
     }
-    
+
     .selected-num.primary { background: rgba(var(--colour-accent-primary), 0.4); color: rgb(var(--colour-accent-primary)); }
     .selected-num.secondary { background: rgba(var(--colour-accent-secondary), 0.4); color: rgb(var(--colour-accent-secondary)); }
-    
+
     /* Advanced mode action buttons - compact */
     .advanced-actions {
         display: flex;
@@ -2280,7 +2280,7 @@ val CSS_STYLES = """
         justify-content: center;
         flex-shrink: 0;
     }
-    
+
     .action-btn {
         padding: clamp(4px, 1vmin, 8px) clamp(8px, 2vmin, 14px);
         border: none;
@@ -2290,7 +2290,7 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.15s ease;
     }
-    
+
     /* Set buttons - primary (blue) and secondary (red) */
     .action-btn.set-btn.primary {
         background: rgba(var(--colour-accent-primary), 0.3);
@@ -2352,7 +2352,7 @@ val CSS_STYLES = """
     .action-btn.clear-btn:hover {
         background: rgba(var(--colour-bg-tertiary), 0.3);
     }
-    
+
     /* Deselect cell button */
     .action-btn.deselect-btn {
         background: rgba(var(--colour-accent-tertiary), 0.2);
@@ -2387,7 +2387,7 @@ val CSS_STYLES = """
 
     /* Multi-select notes mode toggle button */
     .toggle-btn.multi-notes-btn { letter-spacing: -0.1em; }
-    
+
     /* Dual number pads in advanced mode */
     .number-pad.primary {
         margin-bottom: clamp(4px, 1vmin, 8px);
@@ -2395,7 +2395,7 @@ val CSS_STYLES = """
     .number-pad.secondary {
         margin-top: clamp(2px, 0.5vmin, 4px);
     }
-    
+
     /* Settings screen styles */
     .settings .section {
         background: rgba(var(--colour-bg-tertiary), 0.1);
@@ -2409,19 +2409,19 @@ val CSS_STYLES = """
         font-size: 1rem;
         margin-bottom: 8px;
     }
-    
+
     .setting-desc {
         color: rgba(var(--colour-text-primary), 0.5);
         font-size: 0.75rem;
         margin-bottom: 12px;
     }
-    
+
     .nav-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: clamp(6px, 1.5vmin, 12px);
     }
-    
+
     .settings-nav-btn {
         padding: clamp(10px, 2.5vmin, 20px);
         border: none;
@@ -2438,14 +2438,14 @@ val CSS_STYLES = """
         background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
         transform: translateY(-2px);
     }
-    
+
     .mode-options {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: clamp(4px, 1vmin, 8px);
         margin-bottom: clamp(8px, 2vmin, 16px);
     }
-    
+
     .mode-btn {
         padding: clamp(8px, 2vmin, 16px) clamp(10px, 2.5vmin, 20px);
         border: none;
@@ -2461,19 +2461,19 @@ val CSS_STYLES = """
     .mode-btn:hover {
         background: rgba(var(--colour-accent-desat), var(--colour-btn-hover-opacity));
     }
-    
+
     .mode-btn.active {
         background: rgba(var(--colour-accent-primary), 0.4);
         color: rgb(var(--colour-text-primary));
         box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-primary));
     }
-    
+
     .play-modes .mode-btn.fast.active {
         background: rgba(var(--colour-accent-success), 0.4);
         color: rgb(var(--colour-text-primary));
         box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-success));
     }
-    
+
     .play-modes .mode-btn.advanced.active {
         background: rgba(var(--colour-accent-warning), 0.4);
         color: rgb(var(--colour-text-primary));
@@ -2511,7 +2511,7 @@ val CSS_STYLES = """
         color: rgb(0, 0, 0);
         box-shadow: inset 0 0 0 2px rgb(153, 153, 153);
     }
-    
+
     .mode-explanation {
         background: rgba(var(--colour-bg-primary), 0.2);
         border-radius: 6px;
@@ -2520,14 +2520,14 @@ val CSS_STYLES = """
         color: rgba(var(--colour-text-primary), 0.6);
         line-height: 1.4;
     }
-    
+
     .highlight-info .color-legend {
         display: flex;
         flex-direction: column;
         gap: 8px;
         margin-bottom: 12px;
     }
-    
+
     .legend-item {
         display: flex;
         align-items: center;
@@ -2535,17 +2535,17 @@ val CSS_STYLES = """
         font-size: 0.8rem;
         color: rgba(var(--colour-text-primary), 0.7);
     }
-    
+
     .color-box {
         width: 24px;
         height: 24px;
         border-radius: 4px;
     }
-    
+
     .color-box.primary { background: rgba(var(--colour-accent-primary), 0.5); }
     .color-box.secondary { background: rgba(var(--colour-accent-secondary), 0.5); }
     .color-box.both { background: rgba(206, 147, 216, 0.5); }
-    
+
     /* Responsive adjustments - with clamp() above, these are mostly for edge cases */
     @media (max-width: 400px) {
         :root {
@@ -2555,7 +2555,7 @@ val CSS_STYLES = """
         .controls { gap: 4px; }
         .toggle-btn, .undo-btn, .hint-btn { padding: 6px 10px; }
     }
-    
+
     @media (max-height: 600px) {
         :root {
             --grid-size: min(90vw, 75vh - 120px);
@@ -2563,7 +2563,7 @@ val CSS_STYLES = """
         .game-info { margin-top: 4px; }
         .game-area { gap: 8px; }
     }
-    
+
     /* Landscape orientation on mobile */
     @media (max-height: 500px) and (orientation: landscape) {
         :root {
@@ -2578,14 +2578,14 @@ val CSS_STYLES = """
         .header { width: 100%; }
         .sudoku-grid { margin: 0; }
     }
-    
+
     /* Large screens */
     @media (min-width: 1200px) and (min-height: 900px) {
         :root {
             --grid-size: min(70vh, 1050px);
         }
     }
-    
+
     /* Modal styles */
     .modal-overlay {
         position: fixed;
@@ -2601,12 +2601,12 @@ val CSS_STYLES = """
         padding: clamp(16px, 4vmin, 32px);
         animation: fadeInOverlay 0.2s ease;
     }
-    
+
     @keyframes fadeInOverlay {
         from { opacity: 0; }
         to { opacity: 1; }
     }
-    
+
     .modal-content {
         background: var(--gradient-bg);
         border-radius: clamp(12px, 3vmin, 24px);
@@ -2620,12 +2620,12 @@ val CSS_STYLES = """
         border: 1px solid rgba(var(--colour-border), 0.1);
         animation: slideUp 0.3s ease;
     }
-    
+
     @keyframes slideUp {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    
+
     .modal-close {
         position: absolute;
         top: clamp(12px, 2vmin, 20px);
@@ -2648,7 +2648,7 @@ val CSS_STYLES = """
         background: rgba(var(--colour-accent-error), 0.4);
         transform: scale(1.1);
     }
-    
+
     .about-modal h1 {
         color: rgb(var(--colour-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
@@ -2673,46 +2673,46 @@ val CSS_STYLES = """
         padding-bottom: clamp(16px, 3vmin, 24px);
         border-bottom: 1px solid rgba(var(--colour-border), 0.2);
     }
-    
+
     .about-section {
         margin-bottom: clamp(16px, 3vmin, 24px);
     }
-    
+
     .about-section h3 {
         color: rgb(var(--colour-accent-warning));
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
-    
+
     .about-section p {
         color: rgba(var(--colour-text-primary), 0.7);
         font-size: clamp(0.8rem, calc(0.7rem + 0.35vmin), 0.95rem);
         line-height: 1.5;
         margin-bottom: clamp(4px, 0.8vmin, 8px);
     }
-    
+
     .about-section a {
         color: rgb(var(--colour-accent-primary));
         text-decoration: none;
         transition: color 0.15s ease;
     }
-    
+
     .about-section a:hover {
         color: rgb(var(--colour-accent-info));
         text-decoration: underline;
     }
-    
+
     .about-section strong {
         color: rgb(var(--colour-accent-info));
     }
-    
+
     .help-modal h1 {
         color: rgb(var(--colour-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
-    
+
     .help-intro {
         color: rgba(var(--colour-text-primary), 0.8);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
@@ -2722,11 +2722,11 @@ val CSS_STYLES = """
         padding-bottom: clamp(16px, 3vmin, 24px);
         border-bottom: 1px solid rgba(var(--colour-border), 0.2);
     }
-    
+
     .help-section {
         margin-bottom: clamp(20px, 4vmin, 32px);
     }
-    
+
     .help-section h2 {
         color: rgb(var(--colour-accent-warning));
         font-size: clamp(1.1rem, calc(1rem + 0.5vmin), 1.4rem);
@@ -2735,18 +2735,18 @@ val CSS_STYLES = """
         border-bottom: 1px solid rgba(var(--colour-border), 0.2);
         padding-bottom: clamp(8px, 1.5vmin, 12px);
     }
-    
+
     .help-section h2:first-of-type {
         margin-top: 0;
     }
-    
+
     .help-section h3 {
         color: rgb(var(--colour-accent-info));
         font-size: clamp(0.95rem, calc(0.85rem + 0.4vmin), 1.15rem);
         margin-bottom: clamp(8px, 1.5vmin, 12px);
         margin-top: clamp(12px, 2vmin, 16px);
     }
-    
+
     .help-section ul,
     .help-section ol,
     .help-section p {
@@ -2756,11 +2756,11 @@ val CSS_STYLES = """
         margin-bottom: clamp(12px, 2vmin, 16px);
         padding-left: clamp(20px, 4vmin, 30px);
     }
-    
+
     .help-section li {
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
-    
+
     .help-section ul ul,
     .help-section ul ol,
     .help-section ol ul,
@@ -2768,54 +2768,54 @@ val CSS_STYLES = """
         margin-top: clamp(6px, 1vmin, 10px);
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
-    
+
     .help-section strong {
         color: rgb(var(--colour-accent-info));
         font-weight: 600;
     }
-    
-    
+
+
     /* Completion modal styles */
     .completion-modal {
         max-width: 400px;
         text-align: center;
     }
-    
+
     .completion-icon {
         font-size: clamp(3rem, calc(2.5rem + 3vmin), 5rem);
         margin-bottom: clamp(8px, 2vmin, 16px);
     }
-    
+
     .completion-modal h1 {
         color: rgb(var(--colour-accent-success));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
     }
-    
+
     .completion-content p {
         color: rgba(var(--colour-text-primary), 0.8);
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
         margin-bottom: clamp(16px, 3vmin, 24px);
     }
-    
+
     .completion-stats {
         display: flex;
         justify-content: center;
         gap: clamp(16px, 3vmin, 32px);
         margin-bottom: clamp(20px, 4vmin, 32px);
     }
-    
+
     .completion-stats .stat {
         display: flex;
         flex-direction: column;
         align-items: center;
         gap: 4px;
     }
-    
+
     .completion-stats .stat-icon {
         font-size: clamp(1.5rem, calc(1.2rem + 1vmin), 2rem);
     }
-    
+
     .completion-stats .stat-label {
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.8rem);
         color: rgba(var(--colour-text-primary), 0.5);
@@ -2827,13 +2827,13 @@ val CSS_STYLES = """
         font-weight: 700;
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .completion-actions {
         display: flex;
         justify-content: center;
         gap: clamp(8px, 2vmin, 16px);
     }
-    
+
     .completion-actions button {
         padding: clamp(10px, 2vmin, 14px) clamp(20px, 4vmin, 32px);
         border: none;
@@ -2843,7 +2843,7 @@ val CSS_STYLES = """
         cursor: pointer;
         transition: all 0.2s ease;
     }
-    
+
     .completion-actions .close-btn {
         background: rgba(var(--colour-bg-tertiary), 0.2);
         color: rgba(var(--colour-text-primary), 0.8);
@@ -2852,24 +2852,24 @@ val CSS_STYLES = """
     .completion-actions .close-btn:hover {
         background: rgba(var(--colour-bg-tertiary), 0.3);
     }
-    
+
     .completion-actions .next-btn {
         background: rgba(var(--colour-accent-success), 0.8);
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .completion-actions .next-btn:hover {
         background: rgb(var(--colour-accent-success));
         transform: translateY(-2px);
     }
-    
+
     /* Number pad completed button style */
     .num-btn.completed {
         opacity: 0.3;
         pointer-events: none;
         visibility: hidden;
     }
-    
+
     /* Category header with toggle */
     .category-header {
         display: flex;
@@ -2879,7 +2879,7 @@ val CSS_STYLES = """
         gap: clamp(8px, 2vmin, 16px);
         margin-bottom: clamp(8px, 2vmin, 12px);
     }
-    
+
     /* Hide completed toggle */
     .toggle-label {
         display: flex;
@@ -2890,20 +2890,20 @@ val CSS_STYLES = """
         cursor: pointer;
         white-space: nowrap;
     }
-    
+
     .toggle-checkbox {
         width: 16px;
         height: 16px;
         cursor: pointer;
         accent-color: rgb(var(--colour-accent-primary));
     }
-    
+
     /* Completion stats in puzzle list */
     .completion-stats {
         font-size: clamp(0.65rem, calc(0.6rem + 0.25vmin), 0.75rem);
         color: rgba(var(--colour-text-primary), 0.5);
     }
-    
+
     /* Delete button for saved games */
     .delete-btn {
         padding: clamp(4px, 1vmin, 8px) clamp(8px, 2vmin, 12px);
@@ -2915,11 +2915,11 @@ val CSS_STYLES = """
         color: rgb(var(--colour-accent-error));
         transition: all 0.15s ease;
     }
-    
+
     .delete-btn:hover {
         background: rgba(var(--colour-accent-error), 0.4);
     }
-    
+
     /* Empty message for custom puzzles */
     .empty-message {
         padding: clamp(16px, 3vmin, 24px);
@@ -2928,7 +2928,7 @@ val CSS_STYLES = """
         font-size: clamp(0.8rem, calc(0.75rem + 0.3vmin), 0.95rem);
         line-height: 1.5;
     }
-    
+
     /* Version indicator - fixed position bottom left */
     .version-indicator {
         position: fixed;
@@ -2948,19 +2948,19 @@ val CSS_STYLES = """
         color: rgba(var(--colour-text-primary), 0.7);
         background: rgba(var(--colour-bg-tertiary), 0.2);
     }
-    
+
     /* Version modal styles */
     .version-modal {
         max-width: 600px;
     }
-    
+
     .version-modal h1 {
         color: rgb(var(--colour-accent-primary));
         font-size: clamp(1.5rem, calc(1.3rem + 1vmin), 2rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
-    
+
     .changelog-content {
         color: rgba(var(--colour-text-primary), 0.85);
         font-size: clamp(0.85rem, calc(0.75rem + 0.4vmin), 1rem);
@@ -2969,7 +2969,7 @@ val CSS_STYLES = """
         overflow-y: auto;
         padding-right: 8px;
     }
-    
+
     .changelog-content h2.changelog-version {
         color: rgb(var(--colour-accent-info));
         font-size: clamp(1.1rem, calc(1rem + 0.5vmin), 1.3rem);
@@ -2978,43 +2978,43 @@ val CSS_STYLES = """
         padding-bottom: clamp(6px, 1vmin, 10px);
         border-bottom: 1px solid rgba(var(--colour-border), 0.2);
     }
-    
+
     .changelog-content h2.changelog-version:first-child {
         margin-top: 0;
     }
-    
+
     .changelog-content h3.changelog-section {
         color: rgb(var(--colour-accent-warning));
         font-size: clamp(0.95rem, calc(0.85rem + 0.4vmin), 1.1rem);
         margin-top: clamp(12px, 2vmin, 16px);
         margin-bottom: clamp(6px, 1vmin, 10px);
     }
-    
+
     .changelog-content ul {
         margin: 0 0 clamp(8px, 1.5vmin, 12px) 0;
         padding-left: clamp(16px, 3vmin, 24px);
     }
-    
+
     .changelog-content li {
         margin-bottom: clamp(4px, 0.8vmin, 8px);
         color: rgba(var(--colour-text-primary), 0.8);
     }
-    
+
     .changelog-content li.changelog-subitem {
         color: rgba(var(--colour-text-primary), 0.6);
         font-size: 0.95em;
         margin-left: 16px;
     }
-    
+
     .changelog-content strong {
         color: rgb(var(--colour-accent-error));
     }
-    
+
     .changelog-content del {
         color: rgba(var(--colour-text-primary), 0.4);
         text-decoration: line-through;
     }
-    
+
     .changelog-content code {
         background: rgba(var(--colour-bg-primary), 0.5);
         padding: 2px 6px;
@@ -3022,11 +3022,11 @@ val CSS_STYLES = """
         font-family: 'Monaco', 'Consolas', monospace;
         font-size: 0.9em;
     }
-    
+
     .changelog-content p {
         margin-bottom: clamp(8px, 1.5vmin, 12px);
     }
-    
+
     .version-actions {
         display: flex;
         justify-content: center;
@@ -3034,7 +3034,7 @@ val CSS_STYLES = """
         padding-top: clamp(12px, 2vmin, 16px);
         border-top: 1px solid rgba(var(--colour-border), 0.2);
     }
-    
+
     .version-actions .close-btn {
         padding: clamp(10px, 2vmin, 14px) clamp(24px, 5vmin, 40px);
         border: none;
@@ -3046,12 +3046,12 @@ val CSS_STYLES = """
         color: rgb(var(--colour-text-primary));
         transition: all 0.2s ease;
     }
-    
+
     .version-actions .close-btn:hover {
         background: rgb(var(--colour-accent-info));
         transform: translateY(-2px);
     }
-    
+
     /* Help button in mode indicators */
     .help-btn {
         width: clamp(20px, 4vmin, 28px);
@@ -3069,28 +3069,28 @@ val CSS_STYLES = """
         justify-content: center;
         flex-shrink: 0;
     }
-    
+
     .help-btn:hover {
         background: rgba(var(--colour-accent-info), 0.5);
         transform: scale(1.1);
     }
-    
+
     /* Button Help Modal Styles */
     .button-help-modal {
         max-width: 550px;
     }
-    
+
     .button-help-modal h1 {
         color: rgb(var(--colour-accent-primary));
         font-size: clamp(1.3rem, calc(1.1rem + 1vmin), 1.8rem);
         margin-bottom: clamp(12px, 2vmin, 20px);
         text-align: center;
     }
-    
+
     .button-help-modal .help-section {
         margin-bottom: clamp(16px, 3vmin, 24px);
     }
-    
+
     .button-help-modal .help-section h2 {
         color: rgb(var(--colour-accent-warning));
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.1rem);
@@ -3098,13 +3098,13 @@ val CSS_STYLES = """
         padding-bottom: clamp(6px, 1vmin, 10px);
         border-bottom: 1px solid rgba(var(--colour-border), 0.2);
     }
-    
+
     .button-help-grid {
         display: flex;
         flex-direction: column;
         gap: clamp(8px, 1.5vmin, 12px);
     }
-    
+
     .button-help-item {
         display: flex;
         align-items: flex-start;
@@ -3114,11 +3114,11 @@ val CSS_STYLES = """
         border-radius: clamp(6px, 1vmin, 10px);
         transition: all 0.15s ease;
     }
-    
+
     .button-help-item:hover {
         background: rgba(var(--colour-bg-tertiary), 0.25);
     }
-    
+
     .button-help-icon {
         flex-shrink: 0;
         min-width: clamp(36px, 7vmin, 50px);
@@ -3131,144 +3131,144 @@ val CSS_STYLES = """
         background: rgba(var(--colour-bg-tertiary), 0.3);
         color: rgb(var(--colour-text-primary));
     }
-    
+
     .button-help-icon.badge {
         padding: clamp(4px, 0.8vmin, 6px) clamp(6px, 1.2vmin, 10px);
         font-size: clamp(0.65rem, calc(0.6rem + 0.35vmin), 0.8rem);
         font-weight: 600;
         min-width: auto;
     }
-    
+
     .button-help-icon.badge.highlight-mode {
         background: rgba(var(--colour-accent-primary), 0.3);
         color: rgb(var(--colour-accent-primary));
     }
-    
+
     .button-help-icon.badge.play-mode.fast {
         background: rgba(var(--colour-accent-success), 0.3);
         color: rgb(var(--colour-accent-success));
     }
-    
+
     .button-help-icon.badge.category.easy {
         background: rgba(14, 64, 77, 0.8);
         color: rgb(141, 186, 203);
     }
-    
+
     .button-help-icon.badge.primary {
         background: rgba(var(--colour-accent-primary), 0.4);
         color: rgb(var(--colour-accent-primary));
     }
-    
+
     .button-help-icon.badge.secondary {
         background: rgba(var(--colour-accent-secondary), 0.4);
         color: rgb(var(--colour-accent-secondary));
     }
-    
+
     .button-help-icon.btn-preview {
         background: rgba(var(--colour-accent-desat), 0.2);
         padding: clamp(4px, 0.8vmin, 8px) clamp(8px, 1.5vmin, 12px);
         min-width: auto;
     }
-    
+
     .button-help-icon.btn-preview.hint {
         background: rgba(var(--colour-accent-warning), 0.3);
     }
-    
+
     .button-help-icon.btn-preview.deselect {
         background: rgba(var(--colour-accent-tertiary), 0.2);
         color: rgb(var(--colour-accent-tertiary));
         font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
     }
-    
+
     .button-help-icon.btn-preview.set {
         background: rgba(var(--colour-accent-success), 0.3);
         color: rgb(var(--colour-accent-success));
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
     }
-    
+
     .button-help-icon.btn-preview.clr {
         background: rgba(var(--colour-accent-primary), 0.2);
         color: rgb(var(--colour-accent-primary));
         font-size: clamp(0.55rem, calc(0.5rem + 0.3vmin), 0.7rem);
     }
-    
+
     .button-help-icon.btn-preview.clr-other {
         background: rgba(var(--colour-accent-warning), 0.2);
         color: rgb(var(--colour-accent-warning));
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.75rem);
     }
-    
+
     .button-help-icon.number-pad-preview {
         display: flex;
         gap: 2px;
         padding: clamp(4px, 0.8vmin, 8px);
         min-width: auto;
     }
-    
+
     .button-help-icon.number-pad-preview .num {
         background: rgba(var(--colour-accent-desat), 0.15);
         padding: 2px 4px;
         border-radius: 3px;
         font-size: clamp(0.55rem, calc(0.5rem + 0.25vmin), 0.7rem);
     }
-    
+
     .button-help-icon.number-pad-preview .num.dots {
         background: transparent;
         padding: 2px 2px;
     }
-    
+
     .button-help-content {
         flex: 1;
         min-width: 0;
     }
-    
+
     .button-help-name {
         font-weight: 600;
         color: rgb(var(--colour-text-primary));
         font-size: clamp(0.75rem, calc(0.7rem + 0.35vmin), 0.9rem);
         margin-bottom: 2px;
     }
-    
+
     .button-help-desc {
         color: rgba(var(--colour-text-primary), 0.7);
         font-size: clamp(0.65rem, calc(0.6rem + 0.3vmin), 0.8rem);
         line-height: 1.4;
     }
-    
+
     .button-help-modal .tip-section {
         background: rgba(var(--colour-accent-info), 0.1);
         border-radius: clamp(8px, 1.5vmin, 12px);
         padding: clamp(12px, 2vmin, 18px);
         border-left: 3px solid rgb(var(--colour-accent-info));
     }
-    
+
     .button-help-modal .tip-section h2 {
         color: rgb(var(--colour-accent-info));
         border-bottom: none;
         margin-bottom: clamp(6px, 1vmin, 10px);
         padding-bottom: 0;
     }
-    
+
     .button-help-modal .tip-text {
         color: rgba(var(--colour-text-primary), 0.85);
         font-size: clamp(0.75rem, calc(0.7rem + 0.35vmin), 0.9rem);
         line-height: 1.5;
         margin: 0;
     }
-    
+
     .button-help-modal .link-section {
         text-align: center;
         padding: clamp(10px, 2vmin, 16px);
         background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(6px, 1vmin, 10px);
     }
-    
+
     .button-help-modal .help-link-text {
         color: rgba(var(--colour-text-primary), 0.7);
         font-size: clamp(0.75rem, calc(0.7rem + 0.35vmin), 0.9rem);
         margin: 0;
     }
-    
+
     .button-help-modal .help-link {
         color: rgb(var(--colour-accent-info));
         cursor: pointer;
@@ -3276,12 +3276,12 @@ val CSS_STYLES = """
         transition: all 0.15s ease;
         text-decoration: none;
     }
-    
+
     .button-help-modal .help-link:hover {
         text-decoration: underline;
         color: rgb(var(--colour-accent-primary));
     }
-    
+
     .button-help-actions {
         display: flex;
         justify-content: center;
@@ -3289,7 +3289,7 @@ val CSS_STYLES = """
         padding-top: clamp(12px, 2vmin, 16px);
         border-top: 1px solid rgba(var(--colour-border), 0.2);
     }
-    
+
     .button-help-actions .close-btn {
         padding: clamp(10px, 2vmin, 14px) clamp(24px, 5vmin, 40px);
         border: none;
@@ -3301,7 +3301,7 @@ val CSS_STYLES = """
         color: rgb(var(--colour-text-primary));
         transition: all 0.2s ease;
     }
-    
+
     .button-help-actions .close-btn:hover {
         background: rgb(var(--colour-accent-info));
         transform: translateY(-2px);

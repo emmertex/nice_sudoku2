@@ -79,22 +79,12 @@ internal fun SudokuApp.renderHelpModal() {
                 
                 div("help-section") {
                     h2 { +LanguageConfig.getString("ui.help.numberEntry") }
-                    
+
                     h3 { +LanguageConfig.getString("ui.help.basicEntry") }
                     ul {
                         li {
                             strong { +LanguageConfig.getString("ui.help.numberKeys") }
                             +LanguageConfig.getString("ui.help.numberKeysDesc")
-                            ul {
-                                li {
-                                    strong { +LanguageConfig.getString("ui.help.fastMode") }
-                                    +LanguageConfig.getString("ui.help.fastModeDesc")
-                                }
-                                li {
-                                    strong { +LanguageConfig.getString("ui.help.advancedMode") }
-                                    +LanguageConfig.getString("ui.help.advancedModeDesc")
-                                }
-                            }
                         }
                     }
                     
@@ -174,19 +164,6 @@ internal fun SudokuApp.renderHelpModal() {
                         }
                     }
                     
-                    h3 { +LanguageConfig.getString("ui.help.advancedModeActions") }
-                    ul {
-                        li {
-                            strong { +LanguageConfig.getString("ui.help.enter") }
-                            +LanguageConfig.getString("ui.help.or")
-                            strong { +LanguageConfig.getString("ui.help.s") }
-                            +LanguageConfig.getString("ui.help.enterDesc")
-                        }
-                        li {
-                            strong { +LanguageConfig.getString("ui.help.deselectButton") }
-                            +LanguageConfig.getString("ui.help.deselectButtonDesc")
-                        }
-                    }
                 }
                 
                 div("help-section") {
@@ -218,14 +195,27 @@ internal fun SudokuApp.renderHelpModal() {
                 }
                 
                 div("help-section") {
-                    h2 { +LanguageConfig.getString("ui.help.modeSwitching") }
+                    h2 { +"Play Modes" }
+
+                    h3 { +"Placement Mode" }
+                    p { +"Select a number from the number bar (it appears bold when selected), then click a cell to place it." }
+
+                    h3 { +"✏️ Pencil / Notes Mode" }
                     ul {
+                        li { +"Toggle with the ✏️ button or the N key" }
+                        li { +"When active, matching candidates in cells show a slash — clicking a cell removes that candidate" }
+                    }
+
+                    h3 { +"✏️✏️ Multi-Select Notes Mode" }
+                    ul {
+                        li { +"Toggle with the ✏️✏️ button. Select multiple numbers from the number bar to choose which candidates to target." }
                         li {
-                            strong { +LanguageConfig.getString("ui.help.nMode") }
-                            +LanguageConfig.getString("ui.help.nModeDesc")
-                            ul {
-                                li { +LanguageConfig.getString("ui.help.whenEnabled") }
-                            }
+                            strong { +"Clr Sel:" }
+                            +" Remove the selected numbers as candidates from the clicked cell"
+                        }
+                        li {
+                            strong { +"Clr Oth:" }
+                            +" Remove all candidates EXCEPT the selected numbers from the clicked cell"
                         }
                     }
                 }
@@ -236,41 +226,7 @@ internal fun SudokuApp.renderHelpModal() {
                         li { +LanguageConfig.getString("ui.help.shortcutsDisabled") }
                         li { +LanguageConfig.getString("ui.help.hodokuConventions") }
                         li { +LanguageConfig.getString("ui.help.fullyPlayable") }
-                        li { +LanguageConfig.getString("ui.help.shortcutsVary") }
-                        li {
-                            +LanguageConfig.getString("ui.help.f1f9Note")
-                        }
-                    }
-                }
-                
-                div("help-section") {
-                    h2 { +LanguageConfig.getString("ui.help.playModeDifferences") }
-                    
-                    h3 { +LanguageConfig.getString("ui.help.fastModeDetails") }
-                    ul {
-                        li { +LanguageConfig.getString("ui.help.fastModeDetail1") }
-                        li { +LanguageConfig.getString("ui.help.fastModeDetail2") }
-                        li { +LanguageConfig.getString("ui.help.fastModeDetail3") }
-                        li { +LanguageConfig.getString("ui.help.fastModeDetail4") }
-                    }
-                    
-                    h3 { +LanguageConfig.getString("ui.help.cellFirstMode") }
-                    ul {
-                        li { +LanguageConfig.getString("ui.help.cellFirstDetail1") }
-                        li { +LanguageConfig.getString("ui.help.cellFirstDetail2") }
-                        li { +LanguageConfig.getString("ui.help.cellFirstDetail3") }
-                        li { +LanguageConfig.getString("ui.help.cellFirstDetail4") }
-                    }
-                    
-                    h3 { +LanguageConfig.getString("ui.help.advancedModeDetails") }
-                    ul {
-                        li { +LanguageConfig.getString("ui.help.advancedDetail1") }
-                        li { +LanguageConfig.getString("ui.help.advancedDetail2") }
-                        li { +LanguageConfig.getString("ui.help.advancedDetail3") }
-                        li { +LanguageConfig.getString("ui.help.advancedDetail4") }
-                        li { +LanguageConfig.getString("ui.help.advancedDetail5") }
-                        li { +LanguageConfig.getString("ui.help.advancedDetail6") }
-                        li { +LanguageConfig.getString("ui.help.advancedDetail7") }
+                        li { +LanguageConfig.getString("ui.help.f1f9Note") }
                     }
                 }
                 
