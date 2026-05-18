@@ -556,6 +556,16 @@ private fun FlowContent.renderCell(
                         " pencil-highlight-primary"
                     } else ""
 
+                    val pencilRemovalClass = when {
+                        // Notes mode: slash on candidates that would be removed (selected and exist in cell)
+                        app.playMode == PlayMode.PLACE && app.isNotesMode && inPrimary && n in cell.displayCandidates -> " pencil-removal"
+                        // Multiselect CLEAR_SELECTED: slash on selected candidates that exist
+                        app.playMode == PlayMode.MULTI_SELECT_NOTES && app.multiSelectAction == MultiSelectAction.CLEAR_SELECTED && inPrimary && n in cell.displayCandidates -> " pencil-removal"
+                        // Multiselect CLEAR_OTHER: slash on non-selected candidates that exist (when selection is non-empty)
+                        app.playMode == PlayMode.MULTI_SELECT_NOTES && app.multiSelectAction == MultiSelectAction.CLEAR_OTHER && app.selectedNumbers1.isNotEmpty() && !inPrimary && n in cell.displayCandidates -> " pencil-removal"
+                        else -> ""
+                    }
+
                     // Hint-specific pencil mark highlighting
                     val isElimination = n in eliminationDigitsForThisCell
                     val isMatchingButNotEliminated = n in matchingButNotEliminatedDigits
@@ -571,6 +581,7 @@ private fun FlowContent.renderCell(
                         append("candidate")
                         if (n !in cell.displayCandidates) append(" hidden")
                         append(pencilHighlightClass)
+                        append(pencilRemovalClass)
                         // coloured candidates from explanation step take priority
                         when (colouredCandidateType) {
                             "target" -> append(" hint-candidate-target")  // Green

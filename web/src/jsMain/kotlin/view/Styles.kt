@@ -474,10 +474,7 @@ val CSS_STYLES = """
         user-select: none;
     }
     
-    /* Notes mode: rail (outer padding + inter–3×3 gutters) and box lines use accent (matches active ✏️ toggle) */
-    .sudoku-grid-container.notes-mode .sudoku-grid {
-        background: rgba(var(--colour-accent-primary), 0.05);
-    }
+    /* Notes mode background removed - indication is now shown via number bar and candidate slashes */
     
     /* Pause overlay */
     .pause-overlay {
@@ -842,6 +839,7 @@ val CSS_STYLES = """
     .candidates {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
         width: 100%;
         height: 100%;
         padding: clamp(1px, 0.25vmin, 2px);
@@ -1390,6 +1388,9 @@ val CSS_STYLES = """
         background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
+        max-height: 32vh;
+        overflow-y: auto;
+        box-sizing: border-box;
     }
     
     .hint-card-header {
@@ -2168,6 +2169,7 @@ val CSS_STYLES = """
     .num-btn.primary {
         background: rgba(var(--colour-accent-primary), 0.5);
         box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-primary));
+        font-weight: 900;
     }
     .num-btn.primary:hover {
         background: rgba(var(--colour-accent-primary), 0.6);
@@ -2205,6 +2207,13 @@ val CSS_STYLES = """
         font-weight: bold;
         background: rgba(var(--colour-accent-warning), 0.8);
         border-radius: 2px;
+    }
+
+    /* Slash indicator: shows candidate will be removed on click */
+    .candidate.pencil-removal {
+        color: rgb(var(--colour-accent-error));
+        text-decoration: line-through;
+        font-weight: bold;
     }
     
     /* Hint candidate highlighting */

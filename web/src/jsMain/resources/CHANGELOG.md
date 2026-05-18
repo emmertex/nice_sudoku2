@@ -1,3 +1,19 @@
+# v0.10.1 - 2026-05-19
+
+### Features
+
+**In order to help avoid being in the wrong mode and not noticing, the action that will be performed is shown in each of the cells. **
+- In Placement mode, the candidate number selected in the number bar is bolded.
+- In Pencil/Note mode, there will be a slash through the numbers being removed
+- In multiselect mode, the same, all numbers removed will have a slash through them
+- The lightened background in Pencil mode no longer happens, the indication is the numbers only.
+
+### Fixes
+
+- When on mobile devices, and opening hints, the UI became too small, with much too large margain on the right and bottom.
+- Notes favored vertical orientation too much.
+
+
 # v0.10.0 - 2026-05-18
 
 ### Features
