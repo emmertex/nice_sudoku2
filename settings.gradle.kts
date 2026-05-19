@@ -1,6 +1,5 @@
 pluginManagement {
     repositories {
-        google()
         mavenCentral()
         gradlePluginPortal()
     }
@@ -8,7 +7,6 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
-        google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
@@ -17,10 +15,7 @@ dependencyResolutionManagement {
 rootProject.name = "nice-sudoku2"
 
 include(":shared")
-include(":android")
 include(":web")
 include(":backend")
 include(":scripts")
-
-// iOS project will be handled separately via Xcode
 

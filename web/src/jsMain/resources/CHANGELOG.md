@@ -12,6 +12,8 @@
 
 - When on mobile devices, and opening hints, the UI became too small, with much too large margain on the right and bottom.
 - Notes favored vertical orientation too much.
+- Lots of cleanup of UI inconsistancies, updates of hints, and alike.
+- Removal of dead code.
 
 
 # v0.10.0 - 2026-05-18

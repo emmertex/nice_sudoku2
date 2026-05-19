@@ -203,7 +203,17 @@ class KeyboardHandler {
             when (key.lowercase()) {
                 "n" -> {
                     if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
-                        app.isNotesMode = !app.isNotesMode
+                        if (app.isNotesMode) {
+                            app.isNotesMode = false
+                        } else {
+                            app.isNotesMode = true
+                            if (app.playMode == PlayMode.MULTI_SELECT_NOTES) {
+                                app.playMode = PlayMode.PLACE
+                                GameStateManager.setPlayMode(app.playMode)
+                                app.selectedNumbers1.clear()
+                                app.selectedCell = null
+                            }
+                        }
                         app.render()
                         return true
                     }

@@ -187,16 +187,25 @@ internal fun SudokuApp.renderGameScreen() {
                 // Controls row - Notes, Multi-select Notes, Undo, Hint, and actions
                 div("controls") {
                     // Notes toggle (pencil marks) - only relevant in Place mode
-                    if (playMode == PlayMode.PLACE) {
                         button(classes = "toggle-btn ${if (isNotesMode) "active" else ""}") {
-                            +if (isNotesMode) "✏️ ON" else "✏️"
+                            +"✏️"
                             attributes["title"] = "Toggle pencil mark mode"
                             onClickFunction = {
-                                isNotesMode = !isNotesMode
+                                if (isNotesMode) {
+                                    isNotesMode = false
+                                } else {
+                                    isNotesMode = true
+                                    if (playMode == PlayMode.MULTI_SELECT_NOTES) {
+                                        playMode = PlayMode.PLACE
+                                        GameStateManager.setPlayMode(playMode)
+                                        selectedNumbers1.clear()
+                                        selectedCell = null
+                                    }
+                                }
                                 render()
                             }
                         }
-                    }
+
 
                     // Multi-select notes mode toggle button (2 pencil marks)
                     button(classes = "toggle-btn multi-notes-btn ${if (playMode == PlayMode.MULTI_SELECT_NOTES) "active" else ""}") {
@@ -205,6 +214,7 @@ internal fun SudokuApp.renderGameScreen() {
                         onClickFunction = {
                             playMode = if (playMode == PlayMode.MULTI_SELECT_NOTES) PlayMode.PLACE else PlayMode.MULTI_SELECT_NOTES
                             GameStateManager.setPlayMode(playMode)
+                            isNotesMode = false
                             selectedNumbers1.clear()
                             selectedCell = null
                             if (highlightMode == HighlightMode.RCB_SELECTED) {

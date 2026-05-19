@@ -26,47 +26,13 @@ internal fun SudokuApp.renderButtonHelpModal() {
                         render()
                     }
                 }
-                
+
                 h1 { +LanguageConfig.getString("ui.buttonHelp.title") }
-                
-                // Top Bar Icons Section
-                div("help-section") {
-                    h2 { +LanguageConfig.getString("ui.buttonHelp.topBar") }
-                    
-                    div("button-help-grid") {
-                        // Menu button
-                        div("button-help-item") {
-                            div("button-help-icon") { +"☰" }
-                            div("button-help-content") {
-                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.menuBtn") }
-                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.menuBtnDesc") }
-                            }
-                        }
-                        
-                        // Highlight mode badge
-                        div("button-help-item") {
-                            div("button-help-icon badge highlight-mode") { +"RCB" }
-                            div("button-help-content") {
-                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.highlightMode") }
-                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.highlightModeDesc") }
-                            }
-                        }
-                        
-                        // Play mode badge
-                        div("button-help-item") {
-                            div("button-help-icon badge play-mode fast") { +"Fast" }
-                            div("button-help-content") {
-                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.playMode") }
-                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.playModeDesc") }
-                            }
-                        }
-                    }
-                }
-                
+
                 // Game Info Row Section
                 div("help-section") {
                     h2 { +LanguageConfig.getString("ui.buttonHelp.gameInfo") }
-                    
+
                     div("button-help-grid") {
                         // Category badge
                         div("button-help-item") {
@@ -76,7 +42,7 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.categoryDesc") }
                             }
                         }
-                        
+
                         // Difficulty
                         div("button-help-item") {
                             div("button-help-icon") { +"★ 2.5" }
@@ -85,7 +51,7 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.difficultyDesc") }
                             }
                         }
-                        
+
                         // Timer
                         div("button-help-item") {
                             div("button-help-icon") { +"⏱ 5:23" }
@@ -94,7 +60,7 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.timerDesc") }
                             }
                         }
-                        
+
                         // Pause button
                         div("button-help-item") {
                             div("button-help-icon btn-preview") { +"⏸" }
@@ -103,7 +69,7 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.pauseBtnDesc") }
                             }
                         }
-                        
+
                         // Mistakes
                         div("button-help-item") {
                             div("button-help-icon") { +"❌ 0" }
@@ -112,7 +78,7 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.mistakesDesc") }
                             }
                         }
-                        
+
                         // Hints used
                         div("button-help-item") {
                             div("button-help-icon") { +"💡 0" }
@@ -123,11 +89,11 @@ internal fun SudokuApp.renderButtonHelpModal() {
                         }
                     }
                 }
-                
+
                 // Control Buttons Section
                 div("help-section") {
                     h2 { +LanguageConfig.getString("ui.buttonHelp.controls") }
-                    
+
                     div("button-help-grid") {
                         // Notes toggle
                         div("button-help-item") {
@@ -137,7 +103,14 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.notesBtnDesc") }
                             }
                         }
-                        
+                        // Multi Select toggle
+                        div("button-help-item") {
+                            div("button-help-icon btn-preview") { +"✏️✏️" }
+                            div("button-help-content") {
+                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.notes2Btn") }
+                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.notes2BtnDesc") }
+                            }
+                        }
                         // Undo
                         div("button-help-item") {
                             div("button-help-icon btn-preview") { +"↶" }
@@ -146,7 +119,7 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.undoBtnDesc") }
                             }
                         }
-                        
+
                         // Hint
                         div("button-help-item") {
                             div("button-help-icon btn-preview hint") { +"💡" }
@@ -155,7 +128,7 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.hintBtnDesc") }
                             }
                         }
-                        
+
                         // Clear selection (X)
                         div("button-help-item") {
                             div("button-help-icon btn-preview") { +"✕" }
@@ -166,15 +139,15 @@ internal fun SudokuApp.renderButtonHelpModal() {
                         }
                     }
                 }
-                
+
                 // Number Pads Section
                 div("help-section") {
                     h2 { +LanguageConfig.getString("ui.buttonHelp.numberPads") }
-                    
+
                     div("button-help-grid") {
                         // Number buttons
                         div("button-help-item") {
-                            div("button-help-icon number-pad-preview") { 
+                            div("button-help-icon number-pad-preview") {
                                 span("num") { +"1" }
                                 span("num") { +"2" }
                                 span("num dots") { +"..." }
@@ -185,78 +158,34 @@ internal fun SudokuApp.renderButtonHelpModal() {
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.numberBtnsDesc") }
                             }
                         }
-                        
-                        // Primary row (Advanced mode)
-                        div("button-help-item") {
-                            div("button-help-icon badge primary") { +"1,5" }
-                            div("button-help-content") {
-                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.primaryRow") }
-                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.primaryRowDesc") }
-                            }
-                        }
-                        
-                        // Secondary row (Advanced mode)
-                        div("button-help-item") {
-                            div("button-help-icon badge secondary") { +"3,7" }
-                            div("button-help-content") {
-                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.secondaryRow") }
-                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.secondaryRowDesc") }
-                            }
-                        }
                     }
                 }
-                
-                // Advanced Mode Actions Section
+
+                // Multi Select Mode Actions Section
                 div("help-section") {
                     h2 { +LanguageConfig.getString("ui.buttonHelp.advancedActions") }
-                    
-                    div("button-help-grid") {
-                        // Deselect
-                        div("button-help-item") {
-                            div("button-help-icon btn-preview deselect") { +"Deselect" }
-                            div("button-help-content") {
-                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.deselectBtn") }
-                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.deselectBtnDesc") }
-                            }
-                        }
-                        
-                        // Set buttons
-                        div("button-help-item") {
-                            div("button-help-icon btn-preview set") { +"Set 5" }
-                            div("button-help-content") {
-                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.setBtn") }
-                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.setBtnDesc") }
-                            }
-                        }
-                        
+
+
                         // Clear pencil marks
                         div("button-help-item") {
-                            div("button-help-icon btn-preview clr") { +"Clr 3,7" }
+                            div("button-help-icon btn-preview clr") { +"Clr Sel" }
                             div("button-help-content") {
                                 div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.clrBtn") }
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.clrBtnDesc") }
                             }
                         }
-                        
+
                         // Clear other
                         div("button-help-item") {
-                            div("button-help-icon btn-preview clr-other") { +"Clr ✕" }
+                            div("button-help-icon btn-preview clr-other") { +"Clr Oth" }
                             div("button-help-content") {
                                 div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.clrOtherBtn") }
                                 div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.clrOtherBtnDesc") }
                             }
                         }
-                    }
+
                 }
-                
-                // Quick tip about mode switching
-                div("help-section tip-section") {
-                    h2 { +LanguageConfig.getString("ui.buttonHelp.quickTip") }
-                    p("tip-text") {
-                        +LanguageConfig.getString("ui.buttonHelp.quickTipText")
-                    }
-                }
-                
+
                 // Link to full help modal
                 div("help-section link-section") {
                     p("help-link-text") {
@@ -272,7 +201,7 @@ internal fun SudokuApp.renderButtonHelpModal() {
                         }
                     }
                 }
-                
+
                 // Close button
                 div("button-help-actions") {
                     button(classes = "close-btn") {
@@ -287,4 +216,3 @@ internal fun SudokuApp.renderButtonHelpModal() {
         }
     }
 }
-
