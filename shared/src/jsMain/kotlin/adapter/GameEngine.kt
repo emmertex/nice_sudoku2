@@ -19,6 +19,8 @@ actual class GameEngine actual constructor() {
     
     private var grid: SudokuGrid = SudokuGrid.empty()
     private var currentMatches: Map<String, List<TechniqueMatchInfo>> = emptyMap()
+    // Incremented on every hint request so out-of-order async responses can be discarded
+    private var hintRequestGeneration: Int = 0
     private var selectedTechniqueKey: String? = null
     private var currentPuzzleString: String? = null  // Keep track of original puzzle
     
@@ -235,14 +237,16 @@ actual class GameEngine actual constructor() {
      * This ensures simpler techniques are shown before advanced ones.
      */
     private fun findTechniquesWithFallback() {
+        val generation = ++hintRequestGeneration
         MainScope().launch {
             onLoadingStateChanged?.invoke(true)
             val puzzleStr = getCurrentStateString(grid)
-            
+
             try {
                 // First try basic techniques
                 val basicMatches = fetchTechniques(puzzleStr, basicOnly = true)
-                
+                if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
+
                 if (basicMatches.isNotEmpty()) {
                     currentMatches = filterAndLimitHints(basicMatches)
                     println("JS: Found ${currentMatches.values.flatten().size} basic technique matches (filtered)")
@@ -252,6 +256,7 @@ actual class GameEngine actual constructor() {
                     // No basic techniques found, try all techniques
                     println("JS: No basic techniques found, searching all techniques...")
                     val allMatches = fetchTechniques(puzzleStr, basicOnly = false)
+                    if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
                     currentMatches = filterAndLimitHints(allMatches)
                     println("JS: Found ${currentMatches.values.flatten().size} advanced technique matches (filtered)")
                     onLoadingStateChanged?.invoke(false)
@@ -259,13 +264,14 @@ actual class GameEngine actual constructor() {
                 }
             } catch (e: Exception) {
                 println("JS: Backend unavailable for findTechniques: ${e.message}")
+                if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
                 findLocalBasicTechniques()
                 onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
             }
         }
     }
-    
+
     /**
      * Filter hints: max 3 per technique, max 10 total, ordered by difficulty
      */
@@ -373,26 +379,29 @@ actual class GameEngine actual constructor() {
     }
     
     private fun findTechniquesAsync(basicOnly: Boolean) {
+        val generation = ++hintRequestGeneration
         MainScope().launch {
             onLoadingStateChanged?.invoke(true)
             // Use current grid state (including user-solved cells) for accurate hints
             val puzzleStr = getCurrentStateString(grid)
-            
+
             try {
                 val rawMatches = fetchTechniques(puzzleStr, basicOnly)
+                if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
                 currentMatches = filterAndLimitHints(rawMatches)
                 println("JS: Found ${currentMatches.values.flatten().size} technique matches from backend (filtered)")
                 onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
             } catch (e: Exception) {
                 println("JS: Backend unavailable for findTechniques: ${e.message}")
+                if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
                 findLocalBasicTechniques()
                 onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
             }
         }
     }
-    
+
     private fun gridToPuzzleString(grid: SudokuGrid): String {
         return grid.cells.map { cell ->
             if (cell.isGiven && cell.value != null) cell.value.toString() else "0"
@@ -434,7 +443,7 @@ actual class GameEngine actual constructor() {
     }
     
     actual fun applyBasicTechniques() {
-        val firstMatch = currentMatches.values.flatten().firstOrNull()
+        val firstMatch = getHints().firstOrNull()
         if (firstMatch != null) {
             applyTechniqueById(firstMatch.id)
         }
@@ -644,7 +653,10 @@ actual class GameEngine actual constructor() {
      * Get all current technique matches as a flat list
      */
     fun getHints(): List<TechniqueMatchInfo> {
-        return currentMatches.values.flatten()
+        // Re-validate against the current grid: the grid may have changed since these
+        // matches were fetched (e.g. the user applied one hint from a multi-hint list, or
+        // candidates auto-updated), making some eliminations already-done and the hint stale.
+        return filterInvalidHints(currentMatches).values.flatten()
     }
     
     // ===== Action Stack (Undo) =====
