@@ -1,3 +1,13 @@
+# v0.10.2 - 2026-05-21
+
+### Bug Fixe
+- Hints not valid, as pencil notes were already removed. - Very rare.
+  - Potentially the Grid changed after the fetch
+  - Potentially out of order async response
+  - So the hint will be re-validated at display time
+  - If the hint is invalid, it will be refetched, and the display updated.
+  - This may cause the wrong hint to be displayed for a short period of time.
+
 # v0.10.1 - 2026-05-19
 
 ### Features
