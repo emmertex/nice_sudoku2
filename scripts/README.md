@@ -64,6 +64,46 @@ cd ..
    - `diabolical.json`
    - `extreme.json`
 
+## Curating the in-game collection (cleanup_puzzles.py)
+
+`generate_puzzles.sh` fills the generation pool in `scripts/puzzles/`. To turn that
+pool into the curated, metadata-stamped files the game ships
+(`web/src/jsMain/resources/puzzles/`), use `cleanup_puzzles.py`.
+
+Rebuild every tier at once:
+
+```bash
+python3 scripts/cleanup_puzzles.py --all \
+    --pool-dir scripts/puzzles \
+    --out-dir  web/src/jsMain/resources/puzzles
+```
+
+Per-tier behaviour (`TIERS` table in the script):
+
+- Beginner / Easy / Medium -> top **200** by quality
+- Tough -> top **100** by quality
+- Hard / Expert / Diabolical -> **all available**, in quality order
+
+For every tier the existing in-game puzzles are kept verbatim (same order, same
+IDs); the remaining slots are filled with the highest-quality *new* pool puzzles.
+Each puzzle is then (re)scored, given a fine-grained difficulty, and stamped with
+collection metadata (author / contact / description / title).
+
+### Quality metric
+
+`quality` (0-10, shown to players) is **orthogonal to difficulty** — difficulty
+says how hard, quality says how *nice* a puzzle is for its tier. It is an
+**absolute** composite (it does not depend on the rest of the batch), weighting:
+
+- **Variety** (0.30) — distinct techniques in the solve path
+- **Balance** (0.20) — Shannon entropy of the move distribution
+- **Signature** (0.25) — recurrence of the tier's hallmark (hardest) techniques
+- **Anti-grind** (0.15) — penalty for solves dominated by naked-single filler
+- **Elegance** (0.10) — 180° givens symmetry + givens economy
+
+Weights and thresholds are named constants at the top of the script. A pure
+naked-single grind scores ~1; a varied, well-balanced puzzle scores ~8.
+
 ## Output Format
 
 Each puzzle file contains a JSON array of puzzles:
@@ -76,7 +116,12 @@ Each puzzle file contains a JSON array of puzzles:
       "difficulty": 12.5,
       "givens": "530070000600195000098000060800060003400803001700020006060000280000419005000080079",
       "solution": "534678912672195348198342567859761423426853791713924856961537284287419635345286179",
-      "title": null
+      "techniques": {"Naked Singles": 40, "Hidden Singles": 13},
+      "quality": 7.6,
+      "title": "Easy #1",
+      "author": "Emmertex",
+      "authorContact": "sudoku.emmertex.com",
+      "description": "Nice Sudoku - Included Puzzle Collection"
     }
   ]
 }
@@ -86,7 +131,9 @@ Each puzzle file contains a JSON array of puzzles:
 - `difficulty`: Normalized score from 0-100
 - `givens`: 81-character string (0 = empty, 1-9 = given)
 - `solution`: 81-character solved puzzle string
-- `title`: Optional title (null for auto-generated puzzles)
+- `techniques`: technique name -> count needed to solve
+- `quality`: composite 0-10 niceness score (see above)
+- `title` / `author` / `authorContact` / `description`: collection metadata
 
 ## Notes
 

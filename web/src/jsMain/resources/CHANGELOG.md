@@ -1,7 +1,24 @@
+# v0.10.3 - 2026-06-05
+
+### Bug Fix
+- That damn pause overlay -- again. 
+
+### Features
+- More puzzles
+  - From 25 to 200 puzzles on Beginner, Easy and Medium
+  - from 25 to 100 puzzles on Tough, Hard and Expert
+  - from 24 to xx on Diabolical.
+  - All Original
+    - As before, generated with qwing, with minor tweaks.
+    - All solved using solver, to rate difficulty and quality.
+    - Select the best only, about 3% of puzzles generated are kept and included.
+
+
+
 # v0.10.2 - 2026-05-21
 
-### Bug Fixe
-- Hints not valid, as pencil notes were already removed. - Very rare.
+### Bug Fix
+- **Hints not valid, as pencil notes were already removed. - Very rare.**
   - Potentially the Grid changed after the fetch
   - Potentially out of order async response
   - So the hint will be re-validated at display time

@@ -8,6 +8,7 @@ import view.*
 import domain.*
 import helpers.importExport.*
 import i18n.LanguageConfig
+import kotlin.js.Date
 
 
 class SudokuApp {
@@ -112,7 +113,11 @@ class SudokuApp {
             }
         })
         
-        // Fix for Firefox touch support - convert touchend to click
+        // Fix for Firefox touch support - convert touchend to click.
+        // We dispatch our own (untrusted) click; the browser still fires a
+        // trailing "ghost" click for the same tap. Track when we synthesize so
+        // the buster below can swallow that ghost.
+        var lastSynthClickTime = 0.0
         document.addEventListener("touchend", { event ->
             val touchEvent = event.asDynamic()
             val target = touchEvent.target as? HTMLElement
@@ -121,10 +126,27 @@ class SudokuApp {
                 val clickable = target.closest("button, .cell") as? HTMLElement
                 if (clickable != null) {
                     event.preventDefault()
+                    lastSynthClickTime = Date.now()
                     clickable.click()
                 }
             }
         }, js("{ passive: false }"))
+
+        // Ghost-click buster: when a handler re-renders the whole screen
+        // (innerHTML = ""), the browser's trailing trusted click from the same
+        // tap can land on a freshly-rendered element at the same coordinates
+        // (e.g. tapping "Menu" opens Settings, then the ghost click hits the
+        // Settings "Back" button and bounces straight back to the paused game).
+        // Swallow any trusted click that arrives right after our synthetic one.
+        document.addEventListener("click", { event ->
+            val clickEvent = event.asDynamic()
+            val trusted = (clickEvent.isTrusted as? Boolean) ?: true
+            if (trusted && Date.now() - lastSynthClickTime < 700.0) {
+                event.preventDefault()
+                event.stopPropagation()
+                clickEvent.stopImmediatePropagation()
+            }
+        }, js("{ capture: true }"))
         
         // Global event delegation for chain notation interactions
         setupChainInteractionDelegation()

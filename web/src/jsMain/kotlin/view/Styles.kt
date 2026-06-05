@@ -476,10 +476,15 @@ val CSS_STYLES = """
 
     /* Notes mode background removed - indication is now shown via number bar and candidate slashes */
 
-    /* Pause overlay */
+    /* Pause overlay — strictly scoped to the grid only (its offset parent is
+       .sudoku-grid-container, which contains only the grid). It must never
+       cover the header/menu or the controls row, so navigation stays reachable
+       while paused. */
     .pause-overlay {
         position: absolute;
         inset: 0;
+        max-width: 100%;
+        max-height: 100%;
         background: rgba(0, 0, 0, 0.3);
         backdrop-filter: blur(2px);
         display: flex;
