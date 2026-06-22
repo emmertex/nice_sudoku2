@@ -7,6 +7,13 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
+data class CacheInfoResponse(
+    val databaseFileSizeBytes: Long,
+    val databaseFileSizeMB: Double,
+    val note: String
+)
+
+@Serializable
 data class CellDto(
     val index: Int,
     val value: Int? = null,

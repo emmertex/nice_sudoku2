@@ -95,11 +95,6 @@ import dto.*
                 endoIdx = endofins.nextSetBit(endoIdx + 1)
             }
 
-            println("DEBUG Kite extract: digit=$digit")
-            println("  fins=$finCells -> ${finCells.map { formatCellName(it) }}")
-            println("  endofins=$endofinCells -> ${endofinCells.map { formatCellName(it) }}")
-            println("  eliminations=$eliminationCells -> ${eliminationCells.map { formatCellName(it) }}")
-
             // Identify which fin is in the row and which is in the column
             // rowFin: in row rowIndex, but NOT in column colIndex (outside box in that row)
             // colFin: in column colIndex, but NOT in row rowIndex (outside box in that column)
@@ -154,8 +149,6 @@ import dto.*
                 cellsWithCandidateInBox.addAll(fishCells)
             }
 
-            println("DEBUG: Box cells with candidate $digit: ${cellsWithCandidateInBox.map { formatCellName(it) }}")
-
             val rowCellsInBox = if (rowFin != null && rowIndex != null) {
                 // Cells in the row, inside the box, WITH the candidate (verified from grid), but NOT the rowFin or intersection
                 rowCells.filter { cell ->
@@ -198,8 +191,6 @@ import dto.*
                 // rowCellsInBox and colCellsInBox are already filtered to only include cells with the candidate
                 val rowCellInBox = rowCellsInBox.firstOrNull()
 
-                println("DEBUG: rowCellsInBox candidates=${rowCellsInBox.map { formatCellName(it) }}, selected=${if (rowCellInBox != null) formatCellName(rowCellInBox) else "null"}")
-
                 val colCellInBox = if (colCellsInBox.size > 1 && rowCellInBox != null) {
                     // Pick the colCellInBox that's in the same box as rowCellInBox
                     val rowCellBox = (rowCellInBox / 27) * 3 + ((rowCellInBox % 9) / 3)
@@ -210,8 +201,6 @@ import dto.*
                 } else {
                     colCellsInBox.firstOrNull()
                 }
-
-                println("DEBUG: colCellsInBox candidates=${colCellsInBox.map { formatCellName(it) }}, selected=${if (colCellInBox != null) formatCellName(colCellInBox) else "null"}")
 
                 // Strong link in the row (between kite endpoint and cell in box)
                 if (rowCellInBox != null) {
@@ -430,8 +419,6 @@ import dto.*
                 // If we can't parse, fall back to fishCells
                 cellsWithCandidateInBox.addAll(fishCells)
             }
-
-            println("DEBUG: Box cells with candidate $digit: ${cellsWithCandidateInBox.map { formatCellName(it) }}")
 
         // Get all cells in the row and column
         val rowCells = if (rowIndex != null) getSectorCells(rowIndex) else emptyList()

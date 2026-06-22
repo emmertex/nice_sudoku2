@@ -1,0 +1,31 @@
+# Nice Sudoku — full stack (Ktor backend + Kotlin/JS frontend behind nginx).
+#
+#   docker compose up -d --build
+#   open http://localhost:8080
+#
+services:
+  backend:
+    build:
+      context: .
+      target: backend
+    environment:
+      PORT: "8181"
+    volumes:
+      # Persist the SQLite response cache across restarts (regenerable).
+      - sudoku-cache:/app/data
+    expose:
+      - "8181"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      target: web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  sudoku-cache:

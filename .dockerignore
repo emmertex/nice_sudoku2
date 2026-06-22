@@ -1,0 +1,34 @@
+# Keep the build context small and reproducible — the image builds from source
+# inside the gradle stage, so host build outputs must not leak in.
+
+.git
+.gitignore
+
+# Gradle / Kotlin build outputs and caches
+.gradle
+**/build
+**/.kotlin
+kotlin-js-store
+*.klib
+
+# Node (pulled in by the Kotlin/JS toolchain during the build)
+**/node_modules
+
+# Runtime data — never bake the cache DB into an image
+backend/data
+
+# IDE / OS / editor cruft
+.idea
+.vscode
+*.iml
+.DS_Store
+
+# Logs and stray local artifacts
+*.log
+main.erc
+
+# Docker / Nix tooling not needed inside the build
+shell.nix
+
+# NOTE: shared/libs/StormDoku.jar is intentionally NOT ignored — it is a
+# checked-in dependency the backend links against.

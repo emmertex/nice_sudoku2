@@ -11,7 +11,8 @@
     </root>
 
     <logger name="io.ktor" level="INFO"/>
-    <logger name="service" level="DEBUG"/>
+    <!-- Set to DEBUG to trace cache hits/misses and per-request technique detail. -->
+    <logger name="service" level="INFO"/>
 </configuration>
 
 
