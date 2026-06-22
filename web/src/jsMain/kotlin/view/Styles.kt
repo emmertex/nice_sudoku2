@@ -22,9 +22,19 @@ val CSS_STYLES = """
     }
 
     :root {
-        /* Base size calculations - scales with viewport */
-        --grid-size: min(90vw, 90vh - 200px, 900px);
-        --cell-size: calc(var(--grid-size) / 9.5);
+        /* Upper bound on board width. The actual board size is fit-by-construction:
+           it's the largest square that fits the leftover space in .board-area (see
+           .sudoku-grid-container). This var only caps it and sizes the card width;
+           it deliberately has NO height term — height is handled by flex, not guesswork. */
+        --grid-size: min(92vw, 900px);
+        /* Authoritative board edge length, computed once per layout by applyBoardSize()
+           in JS from viewport + mode (sidebar / card-below) + the square number-pad.
+           The board, controls, number pad and game-area column all size from this so
+           they stay aligned; the fallback keeps things sane before JS first runs. */
+        --board-size: min(92vw, 90vh, 900px);
+        /* Width of the landscape hint sidebar (mirrored as a constant in applyBoardSize). */
+        --hint-sidebar-w: clamp(240px, 28vw, 340px);
+        --cell-size: calc(var(--board-size) / 9.5);
         --font-scale: min(1, var(--grid-size) / 400);
 
         /* Theme colours - these are set dynamically by JavaScript */
@@ -111,18 +121,21 @@ val CSS_STYLES = """
         border-radius: clamp(6px, 3vmin, 12px);
         padding: clamp(6px, 3vmin, 12px);
         box-shadow: 0 25px 50px -12px rgba(var(--colour-shadow), var(--colour-shadow-opacity));
-        width: min(100%, calc(var(--grid-size) + 48px));
+        width: min(100%, calc(var(--board-size) + 48px));
+        /* Fill the viewport height so the inner flex column has room to distribute:
+           the board area (flex:1) centres the board, no JS scaling involved. */
+        height: 100%;
+        max-height: 100%;
+        min-height: 0;
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        /* Transform is set by JS for viewport fit; animating it caused a brief whole-UI zoom on re-render. */
         transition: width 0.2s ease;
-        transform-origin: top center;
     }
 
-    /* Expand container when hints sidebar is shown in landscape */
+    /* Widen the card to fit the sidebar alongside the board in landscape. */
     .sudoku-container.hints-expanded {
-        width: min(100%, calc(var(--grid-size) + 380px));
+        width: min(100%, calc(var(--board-size) + var(--hint-sidebar-w) + 20px + 48px));
     }
 
     .header {
@@ -456,15 +469,39 @@ val CSS_STYLES = """
         flex-direction: column;
         gap: clamp(8px, 2vmin, 16px);
         flex: 1;
+        /* Column is exactly the board width, so the number pad and controls line
+           up with the board, and (in landscape) the sidebar takes the remainder. */
+        width: var(--board-size);
+        max-width: 100%;
+        min-width: 0;
         min-height: 0;
     }
 
-    /* Grid container for SVG overlay positioning */
+    /* Flexible region that holds the board and centres it. Takes all space left
+       over after the controls, number pad and (in portrait) the hint card; the
+       board is the largest square that fits inside it. */
+    .board-area {
+        flex: 1 1 auto;
+        min-height: 0;
+        min-width: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    /* Grid container = the board square (also the offset parent for the SVG and
+       pause overlays). Sized from --board-size; the max-* clamps are a safety net
+       so it can never overflow .board-area even if the JS estimate is slightly off. */
     .sudoku-grid-container {
         position: relative;
-        width: var(--grid-size);
+        aspect-ratio: 1 / 1;
+        width: var(--board-size);
+        /* Height comes from aspect-ratio (not pinned), so if a max-* clamp bites the
+           board stays square instead of distorting. */
         max-width: 100%;
-        margin: 0 auto;
+        max-height: 100%;
+        margin: 0;
     }
 
     /* Blur effect when paused */
@@ -766,14 +803,12 @@ val CSS_STYLES = """
         display: flex;
         flex-direction: column;
         gap: clamp(1px, 0.25vmin, 2px);
-        width: var(--grid-size);
-        max-width: 100%;
-        margin: 0 auto;
-        aspect-ratio: 1;
+        width: 100%;
+        height: 100%;
         position: relative;
         z-index: 20;
         transition: background 0.2s ease;
-        /* So cell fonts track the real drawn grid when max-width: 100% shrinks below --grid-size */
+        /* Cell fonts track the real drawn grid via cqmin units (see @supports below). */
         container-type: size;
     }
 
@@ -1002,6 +1037,7 @@ val CSS_STYLES = """
     .main-content {
         display: flex;
         flex-direction: column;
+        align-items: center;
         flex: 1;
         min-height: 0;
     }
@@ -1009,22 +1045,25 @@ val CSS_STYLES = """
     .main-content.landscape-hints {
         flex-direction: row;
         gap: clamp(10px, 2vmin, 20px);
-        align-items: flex-start;
+        align-items: stretch;
         min-height: 0;
         overflow: hidden;
     }
 
     .main-content.landscape-hints .game-area {
+        /* Board column is a fixed width (--board-size, already reduced by the
+           sidebar in applyBoardSize); the sidebar fills the remaining width. */
         flex: 0 0 auto;
-        /* Don't shrink the game area - let the container expand instead */
+        align-self: stretch;
     }
 
-    /* Landscape Hint Sidebar */
+    /* Landscape Hint Sidebar — a normal flex child; align-items:stretch on the
+       row makes it match the game-area height automatically (no JS height-match). */
     .hint-sidebar {
-        flex: 1;
-        min-width: 200px;
-        max-width: 320px;
-        align-self: stretch;
+        flex: 1 1 auto;
+        width: var(--hint-sidebar-w);
+        min-width: var(--hint-sidebar-w);
+        min-height: 0;
         background: rgba(var(--colour-bg-tertiary), 0.1);
         border-radius: clamp(8px, 2vmin, 16px);
         padding: clamp(10px, 2vmin, 20px);
@@ -2551,43 +2590,23 @@ val CSS_STYLES = """
     .color-box.secondary { background: rgba(var(--colour-accent-secondary), 0.5); }
     .color-box.both { background: rgba(206, 147, 216, 0.5); }
 
-    /* Responsive adjustments - with clamp() above, these are mostly for edge cases */
+    /* Responsive adjustments. The board now fits by construction (flex + square),
+       so these only tweak ergonomics on small screens — no --grid-size overrides. */
     @media (max-width: 400px) {
-        :root {
-            --grid-size: min(95vw, 85vh - 180px);
-        }
         .mode-indicators { display: none; }
         .controls { gap: 4px; }
         .toggle-btn, .undo-btn, .hint-btn { padding: 6px 10px; }
     }
 
     @media (max-height: 600px) {
-        :root {
-            --grid-size: min(90vw, 75vh - 120px);
-        }
         .game-info { margin-top: 4px; }
         .game-area { gap: 8px; }
     }
 
-    /* Landscape orientation on mobile */
-    @media (max-height: 500px) and (orientation: landscape) {
-        :root {
-            --grid-size: min(50vw, 70vh);
-        }
-        .sudoku-container {
-            flex-direction: row;
-            flex-wrap: wrap;
-            max-width: 100%;
-            width: auto;
-        }
-        .header { width: 100%; }
-        .sudoku-grid { margin: 0; }
-    }
-
-    /* Large screens */
+    /* Large screens — allow a bigger board than the default cap. */
     @media (min-width: 1200px) and (min-height: 900px) {
         :root {
-            --grid-size: min(70vh, 1050px);
+            --grid-size: min(92vw, 1050px);
         }
     }
 

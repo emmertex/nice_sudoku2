@@ -52,7 +52,7 @@ internal fun SudokuApp.renderGameScreen() {
 
     appRoot.append {
         div("sudoku-container-wrapper") {
-            val containerClass = if (showHints && isLandscape) "sudoku-container hints-expanded" else "sudoku-container"
+            val containerClass = if (showHints && useHintSidebar) "sudoku-container hints-expanded" else "sudoku-container"
             div(containerClass) {
             // Header with nav
             div("header") {
@@ -137,13 +137,15 @@ internal fun SudokuApp.renderGameScreen() {
 
             // Get current explanation step if showing explanation OR if in portrait mode with hints
             // In portrait mode, hints always show explanations inline
-            val currentExplanationStep = if (selectedHint != null && (showExplanation || (showHints && !isLandscape))) {
+            val currentExplanationStep = if (selectedHint != null && (showExplanation || (showHints && !useHintSidebar))) {
                 selectedHint.explanationSteps.getOrNull(explanationStepIndex)
             } else null
 
-            div("main-content ${if (showHints && isLandscape) "landscape-hints" else ""}") {
+            div("main-content ${if (showHints && useHintSidebar) "landscape-hints" else ""}") {
             // Game area
             div("game-area") {
+                // Board area: flexes to fill leftover space and centres the square board
+                div("board-area") {
                 // Sudoku grid container with SVG overlay
                 div("sudoku-grid-container${if (isPaused && trackPlayTime) " paused" else ""}${if (isNotesMode) " notes-mode" else ""}") {
                     // Sudoku grid
@@ -183,6 +185,7 @@ internal fun SudokuApp.renderGameScreen() {
                         }
                     }
                 }
+                } // Close board-area
 
                 // Controls row - Notes, Multi-select Notes, Undo, Hint, and actions
                 div("controls") {
@@ -330,13 +333,13 @@ internal fun SudokuApp.renderGameScreen() {
                 }
 
                 // Portrait hint navigation (below number pad)
-                    if (showHints && !isLandscape && hints.isNotEmpty()) {
+                    if (showHints && !useHintSidebar && hints.isNotEmpty()) {
                         renderPortraitHintCard(this@renderGameScreen, hints, selectedHint)
                     }
             }
 
             // Landscape hint sidebar (right of game area)
-                if (showHints && isLandscape) {
+                if (showHints && useHintSidebar) {
                     renderLandscapeHintSidebar(this@renderGameScreen, hints, selectedHint)
                 }
             } // Close main-content div
@@ -351,95 +354,36 @@ internal fun SudokuApp.renderGameScreen() {
 }
 
 /**
- * Calculate and apply scale transform to fit container within #app.
- * Wrapper is sized to the *visual* bounds (layout × scale) so flex layout matches what you see
- * and wide-aspect / landscape + hint sidebars still shrink when content is taller than the viewport.
+ * Compute the board edge length for the current viewport and hint layout, and
+ * publish it as the --board-size CSS variable. The grid, number pad, controls and
+ * game-area column all size from this, so it replaces the old measure-then-scale
+ * pipeline (applyContainerScaling) with a single deterministic calculation — no
+ * transform, no wrapper juggling, no re-measure round-trip.
+ *
+ * The estimate is intentionally a touch conservative; the CSS max-width/max-height
+ * on .sudoku-grid-container is a safety net that clamps the board to its area if so.
  */
-internal fun SudokuApp.applyContainerScaling() {
-    if (currentScreen != AppScreen.GAME) return
+internal fun SudokuApp.applyBoardSize() {
+    val root = document.documentElement as? HTMLElement ?: return
+    val w = window.innerWidth.toDouble()
+    val h = window.innerHeight.toDouble()
 
-    val wrapper = document.querySelector(".sudoku-container-wrapper") as? HTMLElement
-    val container = document.querySelector(".sudoku-container") as? HTMLElement
+    // Horizontal room taken by the sidebar (mirrors --hint-sidebar-w + the 20px gap).
+    val sidebar = if (showHints && useHintSidebar) (0.28 * w).coerceIn(240.0, 340.0) + 20.0 else 0.0
+    // Vertical room taken by the portrait hint card (mirrors its max-height: 32vh).
+    val cardBelow = if (showHints && !useHintSidebar) 0.32 * h else 0.0
 
-    if (wrapper == null || container == null) return
+    val outerPad = 56.0   // body + card padding/margins
+    val chromeV = 180.0   // header + game-info + controls + gaps (board itself excluded)
 
-    val originalMaxHeight = container.style.maxHeight
-    val originalHeight = container.style.height
-    val originalWrapperHeight = wrapper.style.height
-    val originalWrapperWidth = wrapper.style.width
+    val availW = w - sidebar - outerPad
+    // The number pad sits below the board with square buttons, so its height ≈ board/9.
+    // Solve board + board/9 + chrome ≤ availableHeight  ⇒  board ≤ availableHeight / (1 + 1/9).
+    val availH = h - chromeV - cardBelow - outerPad
+    val boardByHeight = availH / (1.0 + 1.0 / 9.0)
 
-    container.style.maxHeight = "none"
-    container.style.height = "auto"
-    container.style.transform = "scale(1)"
-    container.style.transformOrigin = ""
-    wrapper.style.height = "auto"
-    wrapper.style.width = "auto"
-
-    val _reflow = container.offsetHeight
-
-    val containerWidth = container.scrollWidth.toDouble()
-    val containerHeight = container.scrollHeight.toDouble()
-
-    container.style.maxHeight = originalMaxHeight
-    container.style.height = originalHeight
-    wrapper.style.height = originalWrapperHeight
-    wrapper.style.width = originalWrapperWidth
-
-    if (containerWidth < 1.0 || containerHeight < 1.0) return
-
-    val appElement = document.getElementById("app") as? HTMLElement
-    val availableWidth = (appElement?.clientWidth ?: window.innerWidth).toDouble()
-    val availableHeight = (appElement?.clientHeight ?: window.innerHeight).toDouble()
-
-    val scaleX = availableWidth / containerWidth
-    val scaleY = ((availableHeight*2 + containerHeight) / 3) / containerHeight
-    val scale = minOf(scaleX, scaleY, 1.0)
-
-    val layoutEpsilon = 1e-6
-    if (scale < 1.0 - layoutEpsilon) {
-        val visualWidth = containerWidth * scale
-        val visualHeight = containerHeight * scale
-        wrapper.style.width = "${visualWidth}px"
-        wrapper.style.height = "${visualHeight}px"
-        wrapper.style.setProperty("flex-shrink", "0")
-        wrapper.style.setProperty("overflow", "hidden")
-        wrapper.style.display = "flex"
-        wrapper.style.justifyContent = "flex-start"
-        wrapper.style.alignItems = "flex-start"
-        container.style.transform = "scale($scale)"
-        container.style.transformOrigin = "top"
-    } else {
-        container.style.transform = ""
-        container.style.transformOrigin = ""
-        wrapper.style.width = "100%"
-        wrapper.style.height = "100%"
-        wrapper.style.removeProperty("flex-shrink")
-        wrapper.style.removeProperty("overflow")
-        wrapper.style.display = ""
-        wrapper.style.justifyContent = ""
-        wrapper.style.alignItems = ""
-    }
-}
-
-/**
- * Match the hint sidebar height to the game area height in landscape mode.
- * This prevents the sidebar from causing the parent container to expand vertically.
- */
-internal fun SudokuApp.matchHintSidebarHeight() {
-    // Only apply when hints are shown in landscape mode
-    val mainContent = document.querySelector(".main-content.landscape-hints") as? HTMLElement
-    if (mainContent == null) return
-
-    val gameArea = document.querySelector(".main-content.landscape-hints .game-area") as? HTMLElement
-    val hintSidebar = document.querySelector(".hint-sidebar") as? HTMLElement
-
-    if (gameArea == null || hintSidebar == null) return
-
-    // Get the game area's height
-    val gameAreaHeight = gameArea.offsetHeight
-
-    // Set the sidebar to match the game area height
-    hintSidebar.style.height = "${gameAreaHeight}px"
+    val board = minOf(availW, boardByHeight, 900.0).coerceAtLeast(180.0)
+    root.style.setProperty("--board-size", "${board}px")
 }
 
 private fun FlowContent.renderCell(

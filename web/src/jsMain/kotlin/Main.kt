@@ -40,7 +40,7 @@ class SudokuApp {
     // Hint system state
     internal var showHints = false  // Whether hint panel is visible
     internal var selectedHintIndex: Int = 0  // Currently selected hint in the list
-    internal var isLandscape = false  // Responsive layout detection
+    internal var useHintSidebar = false  // Place hints in a right-hand sidebar (vs a card below)
     internal var isBackendAvailable = false  // Whether hint system can be used
     internal var expandedHintIndex: Int? = null  // Which hint is expanded in landscape mode (null = none)
     internal var isLoadingHints = false  // Whether backend is currently processing hints
@@ -151,24 +151,21 @@ class SudokuApp {
         // Global event delegation for chain notation interactions
         setupChainInteractionDelegation()
         
-        // Set up orientation/aspect ratio detection for responsive hint layout
-        val mediaQuery = window.matchMedia("(min-aspect-ratio: 4/3)")
-        isLandscape = mediaQuery.matches
-        mediaQuery.addEventListener("change", { event ->
-            val mql = event.asDynamic()
-            isLandscape = mql.matches as Boolean
-            if (showHints) render()  // Re-render if hints are showing
-        })
-        
-        // Set up window resize listener for container scaling
+        // Decide hint placement (sidebar vs card-below) from available space.
+        useHintSidebar = computeUseHintSidebar()
+
+        // Re-evaluate placement on resize. The board itself fits via pure CSS now,
+        // so JS only needs to re-render when the sidebar/below decision actually flips.
         var resizeTimeout: Int? = null
         window.addEventListener("resize", {
-            // Debounce resize events
             resizeTimeout?.let { window.clearTimeout(it) }
             resizeTimeout = window.setTimeout({
                 if (currentScreen == AppScreen.GAME) {
-                    matchHintSidebarHeight()
-                    applyContainerScaling()
+                    val next = computeUseHintSidebar()
+                    val flipped = next != useHintSidebar
+                    useHintSidebar = next
+                    // A full re-render re-runs applyBoardSize; otherwise just resize the board.
+                    if (flipped && showHints) render() else applyBoardSize()
                 }
             }, 100)
         })
@@ -291,17 +288,35 @@ class SudokuApp {
             renderVersionIndicator()
         }
         
+        // Size the board for the current viewport + hint layout (sets --board-size).
         if (currentScreen == AppScreen.GAME) {
-            matchHintSidebarHeight()
-            applyContainerScaling()
+            applyBoardSize()
         }
-        
+
         // Start timer if on game screen with active game
         if (currentScreen == AppScreen.GAME && currentGame != null) {
             startTimer()
         }
     }
-    
+
+    /**
+     * Decide whether hints belong in a right-hand sidebar (true) or a card below
+     * the board (false). The rule is about *room*, not viewport aspect ratio:
+     * place the board as it would sit in the below layout (limited by leftover
+     * height), and use a sidebar only if that leaves enough horizontal slack for
+     * a usable one. This is correct at every aspect ratio, unlike a fixed cutoff.
+     */
+    private fun computeUseHintSidebar(): Boolean {
+        val w = window.innerWidth.toDouble()
+        val h = window.innerHeight.toDouble()
+        // Approx. non-board chrome stacked with the board in the below layout
+        // (header + controls + number pad + gaps/padding).
+        val chrome = 240.0
+        val boardIfBelow = minOf(w, h - chrome)
+        val slack = w - boardIfBelow
+        return slack >= 300.0  // ~ sidebar min width (240–340) + gap
+    }
+
     private fun startTimer() {
         // Clear existing timer if any
         stopTimer()
