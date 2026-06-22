@@ -1,4 +1,3 @@
-#!/bin/bash
 
 # Script to generate sudoku puzzles with difficulty grading
 # Requires:
@@ -16,7 +15,7 @@
 # Parse arguments
 API_URL="http://localhost:8181"
 INPUT_FILE=""
-PARALLELISM="8"  # Default 8 parallel workers
+PARALLELISM="4"  # Default 8 parallel workers
 
 for arg in "$@"; do
     if [[ "$arg" == http* ]]; then
@@ -82,4 +81,3 @@ if [ -n "$INPUT_FILE" ]; then
 else
     ./gradlew :scripts:run -PapiUrl="$API_URL" -Pparallelism="$PARALLELISM"
 fi
-

@@ -656,7 +656,7 @@ fun main(args: Array<String>) = runBlocking {
         if (file.exists()) {
             try {
                 val content = file.readText()
-                val puzzleFile = Json.decodeFromString<PuzzleFile>(content)
+                val puzzleFile = json.decodeFromString<PuzzleFile>(content)
                 puzzlesByCategory[category]!!.addAll(puzzleFile.puzzles)
                 nextIds[category]!!.set((puzzleFile.puzzles.maxOfOrNull { it.puzzleId } ?: 0) + 1)
                 // Collect all existing puzzle strings for cache

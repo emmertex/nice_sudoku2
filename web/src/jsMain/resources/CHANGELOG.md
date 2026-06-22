@@ -6,12 +6,11 @@
 ### Features
 - More puzzles
   - From 25 to 200 puzzles on Beginner, Easy and Medium
-  - from 25 to 100 puzzles on Tough, Hard and Expert
-  - from 24 to xx on Diabolical.
+  - from 25 to 100 puzzles on Tough
+  - from 25 to 64 on Hard 
+  - from 25 to 67 on Expert
+  - from 24 to 30 on Diabolical
   - All Original
-    - As before, generated with qwing, with minor tweaks.
-    - All solved using solver, to rate difficulty and quality.
-    - Select the best only, about 3% of puzzles generated are kept and included.
 
 
 
