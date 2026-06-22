@@ -1,3 +1,30 @@
+# v1.0.0 - 2026-06-21
+
+### This shall be v1 - A nice sudoku app.
+- Weeks of no complaints or issues
+- Now fully running in docker, so, so can you
+  - Just clone the repo, and run `docker compose up` to run locally
+  - Be warned, solving complex puzzles needs a lot, several GB of RAM, and a lot of CPU
+  - That is why I host the solver, and cache it.  So the cache will grow too!
+  - Don't think it tiny, this project is heavy!
+
+### Announcing Carbon - A nice todo app.
+- https://carbon.etx.sx
+- The right blend of Todo and GTD
+- Todo apps were always too simple
+- GTD apps were too busy and complex
+- All were too expensive
+- Carbon is a free, fully offline app in your browser
+- BUT
+- Run your own sync server and it is so much more
+  - Just configure your .env and run with docker
+  - Share and collaborate with family, friends, colleagues
+  - Link to your LLM to have it help in comments
+  - OR link AI Agent, have it perform real world tasks and manage assigned tasks.
+  - Designed to work with Home Assistant and Hermes/OpenClaw.
+  - SKILLS.md, websocket server, and systemd service included for your Agent.
+
+
 # v0.10.3 - 2026-06-05
 
 ### Bug Fix
