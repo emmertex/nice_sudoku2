@@ -36,7 +36,11 @@
       "placedDescription": "Resalta las celdas con números colocados que coinciden",
       "rcbSelectedDescription": "Resalta la Fila, Columna y Bloque de la celda seleccionada",
       "rcbAllDescription": "Resalta todas las Filas/Columnas/Bloques que contienen el número",
-      "pencilDescription": "Resalta las celdas con marcas de lápiz que coinciden"
+      "pencilDescription": "Resalta las celdas con marcas de lápiz que coinciden",
+      "place": "Place",
+      "multiSelectNotes": "Multi-Select Notes",
+      "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
+      "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
     },
     "techniques": {
       "title": "Técnicas"
@@ -322,7 +326,24 @@
       "tip3H": "H",
       "tip3Desc": "para acceder a pistas y aprender nuevas técnicas de resolución",
       "tip4": "Escape",
-      "tip4Desc": "es tu tecla universal de \"retroceso\": úsala para volver al juego desde cualquier pantalla o modal"
+      "tip4Desc": "es tu tecla universal de \"retroceso\": úsala para volver al juego desde cualquier pantalla o modal",
+      "deleteBackspace": "Delete / Backspace",
+      "deleteBackspaceDesc": ": Clear the selected cell (placed value or all pencil marks; cannot clear givens)",
+      "ctrlZ": "Ctrl + Z / Cmd + Z",
+      "ctrlZDesc": ": Undo your last action (placements, clears, and candidate eliminations)",
+      "playModes": "Play Modes",
+      "placeMode": "Place Mode",
+      "placeModeDesc": "Select a number from the number bar, then click a cell to place it.",
+      "notesModeTitle": "Notes / Pencil Mode",
+      "notesModeDetail1": "Toggle with the Notes button or the N key",
+      "notesModeDetail2": "When active, matching candidates show a slash — clicking a cell removes that candidate",
+      "multiNotesModeTitle": "Multi-Select Notes Mode",
+      "multiNotesModeDetail1": "Toggle with the Multi-Select Notes button. Select multiple numbers to choose which candidates to target.",
+      "multiNotesClrSel": "Clr Sel: Remove the selected numbers as candidates from the clicked cell",
+      "multiNotesClrOth": "Clr Oth: Remove all candidates EXCEPT the selected numbers from the clicked cell",
+      "tip5": "Use",
+      "tip5Delete": "Delete / Backspace",
+      "tip5Desc": "to erase a misplaced digit in the selected cell"
     },
     "gameScreen": {
       "menu": "☰ Menú",
@@ -334,7 +355,9 @@
       "rcbPlus": "FCB+",
       "fast": "Rápido",
       "cell": "Celda",
-      "adv": "Avan"
+      "adv": "Avan",
+      "paused": "Paused",
+      "clickToResume": "Click to resume"
     },
     "buttonHelp": {
       "title": "Referencia Rápida",
@@ -387,7 +410,11 @@
       "quickTipText": "¡Toca la insignia Rápido/Avan en la cabecera para alternar rápidamente entre los modos Rápido y Avanzado sin abrir ajustes!",
       "moreHelp": "Para atajos de teclado y ayuda detallada, consulta la",
       "keyboardShortcuts": "Guía de Ayuda Completa →",
-      "gotIt": "¡Entendido!"
+      "gotIt": "¡Entendido!",
+      "notes2Btn": "Multi-Select Notes Mode",
+      "notes2BtnDesc": "Like notes mode, but allows selecting multiple numbers, for removing multiple candidates at the same time.",
+      "eraseBtn": "Erase",
+      "eraseBtnDesc": "Clear the selected cell (keyboard: Delete or Backspace)"
     },
     "hints": {
       "overview": "Resumen",
@@ -395,6 +422,10 @@
       "solution": "Solución",
       "remove": "Eliminar",
       "from": "de"
+    },
+    "toasts": {
+      "wrongNumber": "Wrong number!",
+      "wrongCandidate": "Wrong candidate removed!"
     }
   },
   "hints": {

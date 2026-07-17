@@ -120,6 +120,15 @@ internal fun SudokuApp.renderButtonHelpModal() {
                             }
                         }
 
+                        // Erase
+                        div("button-help-item") {
+                            div("button-help-icon btn-preview") { +"⌫" }
+                            div("button-help-content") {
+                                div("button-help-name") { +LanguageConfig.getString("ui.buttonHelp.eraseBtn") }
+                                div("button-help-desc") { +LanguageConfig.getString("ui.buttonHelp.eraseBtnDesc") }
+                            }
+                        }
+
                         // Hint
                         div("button-help-item") {
                             div("button-help-icon btn-preview hint") { +"💡" }

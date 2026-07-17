@@ -37,35 +37,39 @@ val CSS_STYLES = """
         --cell-size: calc(var(--board-size) / 9.5);
         --font-scale: min(1, var(--grid-size) / 400);
 
-        /* Theme colours - these are set dynamically by JavaScript */
-        --colour-bg-primary: 26, 26, 46;
-        --colour-bg-secondary: 22, 33, 62;
-        --colour-bg-tertiary: 15, 52, 96;
+        /* Theme colours — defaults match DARK (applyTheme overwrites at runtime) */
+        --colour-bg-primary: 5, 5, 5;
+        --colour-bg-secondary: 26, 26, 26;
+        --colour-bg-tertiary: 100, 100, 100;
+        --colour-accent: 100, 181, 246;
         --colour-accent-primary: 100, 181, 246;
-        --colour-accent-primary-text: 255,255,255;
+        --colour-accent-primary-text: 0, 0, 0;
         --colour-accent-secondary: 255, 82, 82;
         --colour-accent-tertiary: 255, 193, 7;
+        --colour-accent-both: 255, 193, 7;
         --colour-text-primary: 255, 255, 255;
         --colour-text-secondary: 204, 204, 204;
         --colour-text-tertiary: 136, 136, 136;
-        --colour-grid-yes: 76, 175, 80;
-        --colour-grid-neutral: 158, 158, 158;
-        --colour-grid-no: 244, 67, 54;
+        --colour-grid-yes: 96, 255, 96;
+        --colour-grid-neutral: 64, 64, 64;
+        --colour-grid-no: 255, 96, 96;
         /* Derived colours */
-        --colour-accent-success: 76, 175, 80;
-        --colour-accent-success-text: 255, 255, 255;
+        --colour-accent-success: 96, 255, 96;
+        --colour-accent-success-text: 0, 0, 0;
         --colour-accent-info: 100, 181, 246;
-        --colour-accent-info-text: 255, 255, 255;
+        --colour-accent-info-text: 0, 0, 0;
         --colour-accent-warning: 255, 193, 7;
-        --colour-accent-warning-text: 255, 255, 255;
-        --colour-accent-error: 244, 67, 54;
-        --colour-accent-error-text: 255, 255, 255;
-        --colour-border: 22, 33, 62;
+        --colour-accent-warning-text: 0, 0, 0;
+        --colour-accent-error: 255, 96, 96;
+        --colour-accent-error-text: 0, 0, 0;
+        --colour-border: 26, 26, 26;
         --colour-shadow: 0, 0, 0;
         --colour-shadow-opacity: 0.5;
         --epaper-invert-selection: 0;
         --colour-accent-desat: 255, 255, 255;
-        --gradient-bg: linear-gradient(135deg, rgb(26,26,46) 0%, rgb(22,33,62) 50%, rgb(15,52,96) 100%);
+        --colour-btn-opacity: 0.2;
+        --colour-btn-hover-opacity: 0.35;
+        --gradient-bg: linear-gradient(135deg, rgb(5, 5, 5) 0%, rgb(26, 26, 26) 100%);
 
         /*
          * 3×3 block separation (gutters show .sudoku-grid background = rail below).
@@ -88,7 +92,7 @@ val CSS_STYLES = """
     }
 
     body {
-        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         background: var(--gradient-bg);
         min-height: 100vh;
         min-height: 100dvh; /* Dynamic viewport height for mobile */
@@ -96,6 +100,24 @@ val CSS_STYLES = """
         justify-content: center;
         align-items: center;
         padding: clamp(8px, 2vmin, 20px);
+    }
+
+    /* Keyboard focus rings for interactive controls */
+    button:focus-visible,
+    a:focus-visible,
+    .cell:focus-visible,
+    .mode-btn:focus-visible,
+    .nav-btn:focus-visible,
+    .toggle-btn:focus-visible,
+    .num-btn:focus-visible,
+    .action-btn:focus-visible,
+    .help-btn:focus-visible,
+    .pause-btn:focus-visible,
+    .erase-btn:focus-visible,
+    .undo-btn:focus-visible,
+    .hint-btn:focus-visible {
+        outline: 2px solid rgb(var(--colour-accent-primary));
+        outline-offset: 2px;
     }
 
     #app {
@@ -252,13 +274,13 @@ val CSS_STYLES = """
         letter-spacing: 0.05em;
     }
 
-    .category.beginner { background:  rgba(30, 30, 108, 0.8); color: rgb(142, 141, 201); }
-    .category.easy { background:  rgba(14, 64, 77, 0.8); color: rgb(141, 186, 203); }
-    .category.medium { background: rgba(16, 82, 16, 0.8); color: rgb(141, 200, 141); }
-    .category.tough { background: rgba(98, 81, 19, 0.8); color: rgb(190, 180, 144); }
-    .category.hard { background: rgba(80, 58, 16, 0.8); color: rgb(192, 173, 139); }
-    .category.expert { background: rgba(80, 17, 17, 0.8); color: rgb(250, 182, 182); }
-    .category.diabolical {background: rgba(37, 33, 33, 0.8); color: rgb(255, 88, 88); }
+    .category.beginner { background: rgba(var(--colour-accent-info), 0.25); color: rgb(var(--colour-accent-info)); }
+    .category.easy { background: rgba(var(--colour-accent-info), 0.35); color: rgb(var(--colour-accent-info)); }
+    .category.medium { background: rgba(var(--colour-accent-success), 0.3); color: rgb(var(--colour-accent-success)); }
+    .category.tough { background: rgba(var(--colour-accent-warning), 0.3); color: rgb(var(--colour-accent-warning)); }
+    .category.hard { background: rgba(var(--colour-accent-warning), 0.4); color: rgb(var(--colour-accent-warning)); }
+    .category.expert { background: rgba(var(--colour-accent-error), 0.3); color: rgb(var(--colour-accent-error)); }
+    .category.diabolical { background: rgba(var(--colour-accent-error), 0.45); color: rgb(var(--colour-accent-error)); }
 
     /* Timer container and pause button */
     .timer-container {
@@ -269,8 +291,8 @@ val CSS_STYLES = """
 
     .pause-btn {
         padding: 2px 6px;
-        background: rgba(var(--colour-accent), 0.2);
-        border: 1px solid rgba(var(--colour-accent), 0.3);
+        background: rgba(var(--colour-accent-primary), 0.2);
+        border: 1px solid rgba(var(--colour-accent-primary), 0.3);
         border-radius: 4px;
         color: rgba(var(--colour-text-primary), 0.8);
         cursor: pointer;
@@ -280,8 +302,8 @@ val CSS_STYLES = """
     }
 
     .pause-btn:hover {
-        background: rgba(var(--colour-accent), 0.3);
-        border-color: rgba(var(--colour-accent), 0.5);
+        background: rgba(var(--colour-accent-primary), 0.3);
+        border-color: rgba(var(--colour-accent-primary), 0.5);
         transform: scale(1.05);
     }
 
@@ -522,7 +544,7 @@ val CSS_STYLES = """
         inset: 0;
         max-width: 100%;
         max-height: 100%;
-        background: rgba(0, 0, 0, 0.3);
+        background: rgba(var(--colour-shadow), 0.3);
         backdrop-filter: blur(2px);
         display: flex;
         align-items: center;
@@ -615,7 +637,7 @@ val CSS_STYLES = """
         fill: none;
         stroke-width: 10;
         stroke-linecap: round;
-        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+        filter: drop-shadow(0 0 2px rgba(var(--colour-shadow), var(--colour-shadow-opacity)));
     }
 
     .board-chain-line.strong-link {
@@ -630,19 +652,19 @@ val CSS_STYLES = """
 
     .board-candidate-highlight {
         opacity: 0.5;
-        filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.3));
+        filter: drop-shadow(0 0 3px rgba(var(--colour-shadow), calc(var(--colour-shadow-opacity) * 0.6)));
     }
 
     .board-candidate-highlight.group-on {
-        fill: rgba(193, 155, 249, 0.8);
+        fill: rgba(var(--colour-accent-info), 0.8);
     }
 
     .board-candidate-highlight.group-off {
-        fill: rgba(123, 249, 155, 0.8);
+        fill: rgba(var(--colour-accent-success), 0.8);
     }
 
     .board-candidate-highlight.group-als {
-        fill: rgba(249, 200, 123, 0.8);
+        fill: rgba(var(--colour-accent-warning), 0.8);
     }
 
     .board-candidate-highlight.group-default {
@@ -652,13 +674,13 @@ val CSS_STYLES = """
     /* SVG highlight states for interactive chain notation */
     .board-chain-line.svg-line-highlight {
         stroke-width: 10 !important;
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) !important;
+        filter: drop-shadow(0 0 8px rgba(var(--colour-text-primary), 0.9)) !important;
     }
 
     .board-candidate-highlight.svg-highlight {
         r: 18;
         opacity: 1;
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9)) !important;
+        filter: drop-shadow(0 0 8px rgba(var(--colour-text-primary), 0.9)) !important;
     }
 
     /* Interactive chain notation styles */
@@ -871,8 +893,14 @@ val CSS_STYLES = """
         color: rgb(var(--colour-text-primary));
     }
 
-    .cell.given .cell-value { color: rgba(var(--colour-text-primary), 0.95); }
-    .cell.solved .cell-value { color: rgba(var(--colour-text-primary), 0.8); }
+    .cell.given .cell-value {
+        color: rgb(var(--colour-text-primary));
+        font-weight: 700;
+    }
+    .cell.solved .cell-value {
+        color: rgb(var(--colour-accent-primary));
+        font-weight: 600;
+    }
     .cell:not(.given):not(.solved) .cell-value { color: rgb(var(--colour-accent-secondary)); }
     .cell.mistake .cell-value { color: rgb(var(--colour-accent-error)); }
 
@@ -996,7 +1024,7 @@ val CSS_STYLES = """
         flex-shrink: 0;
     }
 
-    .toggle-btn, .undo-btn, .hint-btn, .solve-btn {
+    .toggle-btn, .undo-btn, .hint-btn, .erase-btn {
         padding: clamp(6px, 1.5vmin, 12px) clamp(10px, 2.5vmin, 20px);
         border: none;
         border-radius: clamp(6px, 1.5vmin, 12px);
@@ -1008,7 +1036,7 @@ val CSS_STYLES = """
         color: rgba(var(--colour-text-primary), 0.8);
     }
 
-    .toggle-btn:hover, .undo-btn:hover, .hint-btn:hover, .solve-btn:hover {
+    .toggle-btn:hover, .undo-btn:hover, .hint-btn:hover, .erase-btn:hover {
         background: rgba(var(--colour-accent-desat), 0.3);
         transform: translateY(-1px);
     }
@@ -1016,6 +1044,7 @@ val CSS_STYLES = """
     .toggle-btn.active { background: rgb(var(--colour-accent-secondary)); color: rgb(var(--colour-text-primary)); }
     .undo-btn { background: rgba(var(--colour-accent-desat), 0.4); color: rgba(var(--colour-text-primary), 0.8); }
     .undo-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    .erase-btn { background: rgba(var(--colour-accent-desat), 0.25); color: rgba(var(--colour-text-primary), 0.85); }
     .hint-btn { background: rgba(var(--colour-accent-warning), 0.4); color: rgb(var(--colour-accent-warning-text)); }
     .hint-btn.active { background: rgb(var(--colour-accent-warning)); color: rgb(var(--colour-bg-primary)); }
     .hint-btn.disabled {
@@ -2150,19 +2179,15 @@ val CSS_STYLES = """
 
 
     /* Highlight styles */
-    .cell.highlight-primary { background: rgba(var(--colour-accent-primary), 0.3); } /* Light blue */
+    .cell.highlight-primary { background: rgba(var(--colour-accent-primary), 0.3); }
     .theme-epaper .cell.highlight-primary {
         background-image: repeating-linear-gradient( var(--stripe-angle), var(--stripe-color), var(--stripe-color) 3px, transparent 3px, transparent var(--stripe-size) );
         --stripe-color: rgba(var(--colour-bg-primary), 0.25);
         --stripe-size: 6px;
         --stripe-angle: 225deg;
     }
-    .cell.highlight-secondary { background: rgba(var(--colour-accent-secondary), 0.3); } /* Light red */
-    .cell.highlight-both { background: rgba(var(--colour-accent-tertiary), 0.3); } /* Light purple */
 
     .cell.highlight-primary:hover { background: rgba(var(--colour-accent-primary), 0.4); }
-    .cell.highlight-secondary:hover { background: rgba(var(--colour-accent-secondary), 0.4); }
-    .cell.highlight-both:hover { background: rgba(var(--colour-accent-tertiary), 0.4); }
 
     /* All candidates covered - striped/hashed pattern (easy to customize) */
     .cell.all-candidates-covered {
@@ -2182,16 +2207,6 @@ val CSS_STYLES = """
         background:
             repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
             rgba(var(--colour-accent-primary), 0.3);
-    }
-    .cell.all-candidates-covered.highlight-secondary {
-        background:
-            repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
-            rgba(var(--colour-accent-secondary), 0.3);
-    }
-    .cell.all-candidates-covered.highlight-both {
-        background:
-            repeating-linear-gradient(var(--stripe-angle), var(--stripe-color), var(--stripe-color) 2px, transparent 2px, transparent var(--stripe-size)),
-            rgba(var(--colour-accent-tertiary), 0.3);
     }
 
     /* Hint cell highlighting - new system */
@@ -2218,19 +2233,12 @@ val CSS_STYLES = """
     .num-btn.primary:hover {
         background: rgba(var(--colour-accent-primary), 0.6);
     }
-    .num-btn.secondary {
-        background: rgba(var(--colour-accent-secondary), 0.5);
-        box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-secondary));
-    }
-    .num-btn.secondary:hover {
-        background: rgba(var(--colour-accent-secondary), 0.6);
-    }
     .num-btn.both {
-        background: rgba(206, 147, 216, 0.5);
-        box-shadow: inset 0 0 0 2px rgb(206, 147, 216);
+        background: rgba(var(--colour-accent-both), 0.5);
+        box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-both));
     }
     .num-btn.both:hover {
-        background: rgba(206, 147, 216, 0.6);
+        background: rgba(var(--colour-accent-both), 0.6);
     }
 
     /* Pencil mark highlighting - color coded */
@@ -2240,16 +2248,10 @@ val CSS_STYLES = """
         background: rgba(var(--colour-accent-primary), 0.6);
         border-radius: 2px;
     }
-    .candidate.pencil-highlight-secondary {
-        color: rgb(var(--colour-accent-primary-text));
-        font-weight: bold;
-        background: rgba(var(--colour-accent-secondary), 0.6);
-        border-radius: 2px;
-    }
     .candidate.pencil-highlight-both {
         color: rgb(var(--colour-accent-primary-text));
         font-weight: bold;
-        background: rgba(var(--colour-accent-warning), 0.8);
+        background: rgba(var(--colour-accent-both), 0.8);
         border-radius: 2px;
     }
 
@@ -2290,21 +2292,6 @@ val CSS_STYLES = """
         gap: 6px;
     }
 
-    .mode-badge {
-        font-size: clamp(0.55rem, calc(var(--cell-size) * 0.12), min(0.95rem, calc(var(--cell-size) * 0.19)));
-        padding: clamp(2px, 0.5vmin, 4px) clamp(4px, 1vmin, 8px);
-        border-radius: clamp(2px, 0.5vmin, 4px);
-        background: rgba(var(--colour-bg-tertiary), 0.15);
-        color: rgba(var(--colour-text-primary), 0.7);
-        font-weight: 600;
-    }
-
-    .mode-badge.highlight-mode { background: rgba(var(--colour-accent-primary), 0.3); color: rgb(var(--colour-accent-primary)); }
-    .mode-badge.play-mode.fast { background: rgba(var(--colour-accent-success), 0.3); color: rgb(var(--colour-accent-success)); }
-    .mode-badge.play-mode.advanced { background: rgba(var(--colour-accent-warning), 0.3); color: rgb(var(--colour-accent-warning)); }
-    .mode-badge.clickable { cursor: pointer; transition: all 0.15s ease; }
-    .mode-badge.clickable:hover { transform: scale(1.05); filter: brightness(1.1); }
-
     /* Selected number badges - inline with mode indicators */
     .selected-num {
         font-size: clamp(0.55rem, calc(var(--cell-size) * 0.12), min(0.95rem, calc(var(--cell-size) * 0.19)));
@@ -2315,15 +2302,6 @@ val CSS_STYLES = """
     }
 
     .selected-num.primary { background: rgba(var(--colour-accent-primary), 0.4); color: rgb(var(--colour-accent-primary)); }
-    .selected-num.secondary { background: rgba(var(--colour-accent-secondary), 0.4); color: rgb(var(--colour-accent-secondary)); }
-
-    /* Advanced mode action buttons - compact */
-    .advanced-actions {
-        display: flex;
-        gap: clamp(4px, 1vmin, 8px);
-        justify-content: center;
-        flex-shrink: 0;
-    }
 
     .action-btn {
         padding: clamp(4px, 1vmin, 8px) clamp(8px, 2vmin, 14px);
@@ -2335,32 +2313,7 @@ val CSS_STYLES = """
         transition: all 0.15s ease;
     }
 
-    /* Set buttons - primary (blue) and secondary (red) */
-    .action-btn.set-btn.primary {
-        background: rgba(var(--colour-accent-primary), 0.3);
-        color: rgb(var(--colour-accent-primary));
-    }
-    .action-btn.set-btn.primary:hover {
-        background: rgba(var(--colour-accent-primary), 0.5);
-    }
-
-    .action-btn.set-btn.secondary {
-        background: rgba(var(--colour-accent-secondary), 0.3);
-        color: rgb(var(--colour-accent-secondary));
-    }
-    .action-btn.set-btn.secondary:hover {
-        background: rgba(var(--colour-accent-secondary), 0.5);
-    }
-
-    .action-btn.set-btn.both {
-        background: rgba(var(--colour-accent-warning), 0.3);
-        color: rgb(var(--colour-accent-warning));
-    }
-    .action-btn.set-btn.both:hover {
-        background: rgba(var(--colour-accent-warning), 0.5);
-    }
-
-    /* Clear pencil mark buttons - primary (blue) and secondary (red) */
+    /* Clear pencil mark buttons */
     .action-btn.clr-btn.primary {
         background: rgba(var(--colour-accent-primary), var(--colour-btn-opacity));
         color: rgb(var(--colour-accent-primary));
@@ -2368,15 +2321,6 @@ val CSS_STYLES = """
     }
     .action-btn.clr-btn.primary:hover {
         background: rgba(var(--colour-accent-primary), 0.3);
-    }
-
-    .action-btn.clr-btn.secondary {
-        background: rgba(var(--colour-accent-secondary), 0.15);
-        color: rgb(var(--colour-accent-secondary));
-        border: 1px solid rgba(var(--colour-accent-secondary), 0.3);
-    }
-    .action-btn.clr-btn.secondary:hover {
-        background: rgba(var(--colour-accent-secondary), 0.3);
     }
 
     .action-btn.clr-btn.other {
@@ -2395,15 +2339,6 @@ val CSS_STYLES = """
     }
     .action-btn.clear-btn:hover {
         background: rgba(var(--colour-bg-tertiary), 0.3);
-    }
-
-    /* Deselect cell button */
-    .action-btn.deselect-btn {
-        background: rgba(var(--colour-accent-tertiary), 0.2);
-        color: rgb(var(--colour-accent-tertiary));
-    }
-    .action-btn.deselect-btn:hover {
-        background: rgba(var(--colour-accent-tertiary), 0.35);
     }
 
     /* Multi-select notes action buttons */
@@ -2432,12 +2367,8 @@ val CSS_STYLES = """
     /* Multi-select notes mode toggle button */
     .toggle-btn.multi-notes-btn { letter-spacing: -0.1em; }
 
-    /* Dual number pads in advanced mode */
     .number-pad.primary {
         margin-bottom: clamp(4px, 1vmin, 8px);
-    }
-    .number-pad.secondary {
-        margin-top: clamp(2px, 0.5vmin, 4px);
     }
 
     /* Settings screen styles */
@@ -2532,28 +2463,10 @@ val CSS_STYLES = """
         margin-bottom: clamp(8px, 2vmin, 16px);
     }
 
-    .theme-btn.dark.active {
-        background: rgba(0, 0, 0, 0.4);
-        color: rgb(255, 255, 255);
-        box-shadow: inset 0 0 0 2px rgb(51, 51, 51);
-    }
-
-    .theme-btn.blue.active {
-        background: rgba(26, 26, 46, 0.4);
-        color: rgb(255, 255, 255);
-        box-shadow: inset 0 0 0 2px rgb(22, 33, 62);
-    }
-
-    .theme-btn.light.active {
-        background: rgba(248, 249, 250, 0.4);
-        color: rgb(33, 37, 41);
-        box-shadow: inset 0 0 0 2px rgb(222, 226, 230);
-    }
-
-    .theme-btn.epaper.active {
-        background: rgba(248, 248, 248, 0.4);
-        color: rgb(0, 0, 0);
-        box-shadow: inset 0 0 0 2px rgb(153, 153, 153);
+    .theme-btn.active {
+        background: rgba(var(--colour-bg-secondary), 0.85);
+        color: rgb(var(--colour-text-primary));
+        box-shadow: inset 0 0 0 2px rgb(var(--colour-accent-primary));
     }
 
     .mode-explanation {
@@ -2588,14 +2501,15 @@ val CSS_STYLES = """
 
     .color-box.primary { background: rgba(var(--colour-accent-primary), 0.5); }
     .color-box.secondary { background: rgba(var(--colour-accent-secondary), 0.5); }
-    .color-box.both { background: rgba(206, 147, 216, 0.5); }
+    .color-box.both { background: rgba(var(--colour-accent-both), 0.5); }
 
     /* Responsive adjustments. The board now fits by construction (flex + square),
        so these only tweak ergonomics on small screens — no --grid-size overrides. */
     @media (max-width: 400px) {
-        .mode-indicators { display: none; }
+        /* Keep selected digit + help; only tighten spacing */
+        .mode-indicators { gap: 4px; }
         .controls { gap: 4px; }
-        .toggle-btn, .undo-btn, .hint-btn { padding: 6px 10px; }
+        .toggle-btn, .undo-btn, .hint-btn, .erase-btn { padding: 6px 10px; }
     }
 
     @media (max-height: 600px) {

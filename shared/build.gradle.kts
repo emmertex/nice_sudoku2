@@ -1,6 +1,5 @@
 plugins {
     kotlin("multiplatform")
-    kotlin("plugin.compose")
     kotlin("plugin.serialization")
 }
 
@@ -19,12 +18,6 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.compose.runtime:runtime:1.7.3")
-                implementation("org.jetbrains.compose.foundation:foundation:1.7.3")
-                implementation("org.jetbrains.compose.material3:material3:1.7.3")
-                implementation("org.jetbrains.compose.ui:ui:1.7.3")
-                implementation("org.jetbrains.compose.components:components-resources:1.7.3")
-
                 // Kotlinx
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
@@ -46,7 +39,6 @@ kotlin {
 
         val jsMain by getting {
             dependencies {
-                implementation("org.jetbrains.compose.html:html-core:1.7.3")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.9.0")
             }
         }

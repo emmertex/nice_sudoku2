@@ -105,6 +105,9 @@ actual class GameEngine actual constructor() {
             // This preserves manual eliminations the user has made
             if (value != null) {
                 grid = removeCandidateFromPeers(grid, cellIndex, value)
+            } else {
+                // Clearing a value: recalculate so peers regain the digit as a candidate
+                grid = calculateAllCandidates(grid)
             }
             
             // Sync with backend
@@ -680,6 +683,17 @@ actual class GameEngine actual constructor() {
         val col = cellIndex % 9 + 1
         return "R${row}C${col}=$value"
     }
+
+    /**
+     * Create an action string for clearing a placed value.
+     * Undo restores [previousValue].
+     * @return Notation string (e.g., "R1C5#7")
+     */
+    fun createClearAction(cellIndex: Int, previousValue: Int): String {
+        val row = cellIndex / 9 + 1
+        val col = cellIndex % 9 + 1
+        return "R${row}C${col}#$previousValue"
+    }
     
     /**
      * Create an action string for a candidate elimination.
@@ -719,12 +733,15 @@ actual class GameEngine actual constructor() {
         
         // Parse the action
         // Placement format: R{row}C{col}={value}
+        // Clear format: R{row}C{col}#{previousValue}
         // Elimination format: R{row}C{col}<>{candidate}
         
         val placementRegex = Regex("""R(\d)C(\d)=(\d)""")
+        val clearRegex = Regex("""R(\d)C(\d)#(\d)""")
         val eliminationRegex = Regex("""R(\d)C(\d)<>(\d)""")
         
         val placementMatch = placementRegex.matchEntire(action)
+        val clearMatch = clearRegex.matchEntire(action)
         val eliminationMatch = eliminationRegex.matchEntire(action)
         
         when {
@@ -739,6 +756,20 @@ actual class GameEngine actual constructor() {
                     grid = grid.withCellValue(cellIndex, null)
                     // Recalculate candidates after removing a value
                     grid = calculateAllCandidates(grid)
+                }
+                return true
+            }
+            clearMatch != null -> {
+                // Undo a clear: restore the previous value
+                val row = clearMatch.groupValues[1].toInt() - 1
+                val col = clearMatch.groupValues[2].toInt() - 1
+                val value = clearMatch.groupValues[3].toInt()
+                val cellIndex = row * 9 + col
+
+                val cell = grid.getCell(cellIndex)
+                if (!cell.isGiven) {
+                    grid = grid.withCellValue(cellIndex, value)
+                    grid = removeCandidateFromPeers(grid, cellIndex, value)
                 }
                 return true
             }

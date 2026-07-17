@@ -1,6 +1,6 @@
 # Keyboard Shortcuts
 
-This document describes all keyboard shortcuts available in Nice Sudoku. The shortcuts follow standard conventions similar to HoDoKu, making the game fully playable from the keyboard.
+This document describes all keyboard shortcuts available in Nice Sudoku. The shortcuts follow conventions similar to HoDoKu, making the game fully playable from the keyboard.
 
 ## Navigation
 
@@ -14,85 +14,69 @@ This document describes all keyboard shortcuts available in Nice Sudoku. The sho
 
 ## Number Entry
 
-### Basic Entry
-- **1-9**: Enter numbers based on play mode:
-  - **Fast Mode**: Selects the number for highlighting. If a cell is selected, applies the number to that cell
-  - **Cell First Mode**: Applies the number to the selected cell. Cell must be selected first
-  - **Advanced Mode**: Sets number highlighting (primary/secondary). Pressing the same number again clears the selection
+### Place Mode
+- **1-9**: Select a number on the number bar. If a cell is selected, place that number (or toggle a pencil mark when Notes mode is on)
+- Click a cell with a number already selected to place it in Place mode
 
 ### Candidate Entry (Pencil Marks)
 - **Ctrl + 1-9**: Toggle pencil mark candidate in the selected cell
 - **Space**: If a number is selected (filter), toggle its candidate in the selected cell
-- **N**: Toggle notes/pencil mode on/off
+- **N**: Toggle notes/pencil mode on/off (switches out of Multi-Select Notes if needed)
 
 ## Editing
 
-- **Delete** or **Backspace**: Clear the value in the selected cell (cannot clear given cells)
+- **Delete** or **Backspace**: Clear the selected cell (placed value or all pencil marks; cannot clear given cells)
+- **Ctrl + Z** / **Cmd + Z**: Undo the last action
 - **Escape**: Clear all selections (selected numbers and cell)
 
 ## Filters and Highlighting
 
 - **F1-F9**: Set/change the filtered (selected) digit for highlighting
-- **Shift + F1-F9**: Set/change the filtered digit (future: toggle filter mode)
 
 ## Game Actions
 
 ### Hint System
 - **H**: Toggle hint panel (show/hide available solving techniques)
-  - Requires backend connection to be available
+  - Requires backend connection and Auto candidate mode
   - When hints are visible:
     - **Arrow Up/Down**: Navigate through available hints
     - **Page Up**: Jump to first hint
     - **Page Down**: Jump to last hint
-
-### Advanced Mode Actions
-- **Enter** or **S**: Set the primary selected number in the selected cell (when in Advanced mode)
 
 ## Screen Navigation
 
 - **M**: Open Menu/Settings screen
 - **B**: Open Puzzle Browser screen
 - **I**: Open Import/Export screen
-- **Escape**: 
-  - Close modals (About, etc.)
+- **Escape**:
+  - Close modals (About, Help, etc.)
   - Close hint panel
   - Return to Game screen from any other screen
   - Clear selections in Game screen
 
-## Mode Switching
+## Play Modes
 
-- **N**: Toggle Notes/Pencil mode
-  - When enabled, number entry adds/removes pencil marks instead of values
+### Place Mode
+- Select a number, then click a cell to place it
+- With Notes (✏️) on, the same flow toggles pencil marks instead
+- Number keys select the digit and apply it when a cell is already selected
+
+### Multi-Select Notes Mode (✏️✏️)
+- Select one or more numbers on the number bar
+- Choose **Clr Sel** (clear selected candidates) or **Clr Oth** (clear all other candidates)
+- Click a cell to apply the chosen clear action
 
 ## Notes
 
 1. All shortcuts are disabled when typing in input fields or text areas to prevent conflicts
 2. Keyboard shortcuts follow HoDoKu conventions for consistency with standard Sudoku software
 3. The game is fully playable using only keyboard input
-4. Some shortcuts may vary slightly in behavior between Fast and Advanced play modes
-5. **F1-F9 keys**: Some browsers use F-keys for developer tools (e.g., F12) or other functions. If a browser shortcut conflicts, you may need to disable the browser's shortcut or use number keys 1-9 instead for filtering
-
-## Play Mode Differences
-
-### Fast Mode
-- Number keys select numbers for highlighting first
-- If a cell is selected, the number is immediately applied
-- Quick, streamlined input for faster solving
-
-### Cell First Mode
-- Click a cell first to select it
-- Then click a number to fill that cell
-- Highlighting is based on the selected cell's value
-
-### Advanced Mode
-- Number keys primarily control highlighting
-- Use action buttons or Enter/S to set values
-- Supports two-number highlighting for complex solving techniques
+4. **F1-F9 keys**: Some browsers use F-keys for developer tools (e.g., F12) or other functions. If a browser shortcut conflicts, you may need to disable the browser's shortcut or use number keys 1-9 instead for filtering
 
 ## Tips
 
 - Use **Ctrl + Arrow Keys** to quickly jump between unsolved cells
 - Use **F1-F9** for quick number filtering and highlighting
 - Use **H** to access hints and learn new solving techniques
+- Use **Delete** / **Backspace** to erase a misplaced digit
 - **Escape** is your universal "go back" key - use it to return to the game from any screen or modal
-

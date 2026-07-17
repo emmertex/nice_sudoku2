@@ -1,4 +1,5 @@
 import domain.*
+import i18n.LanguageConfig
 
 /**
  * Extension functions for handling user input in SudokuApp.
@@ -22,14 +23,14 @@ internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
                     if (isNotesMode) {
                         val isCandidatePresent = num in cell.displayCandidates
                         val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
-                        if (wasMistake) showToast("❌ Wrong candidate removed!")
+                        if (wasMistake) showToast(LanguageConfig.getString("ui.toasts.wrongCandidate"))
                         if (isCandidatePresent) {
                             gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
                         }
                         gameEngine.toggleCandidate(cellIndex, num)
                     } else {
                         val wasMistake = checkMistake(cellIndex, num)
-                        if (wasMistake) showToast("❌ Wrong number!")
+                        if (wasMistake) showToast(LanguageConfig.getString("ui.toasts.wrongNumber"))
                         gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, num))
                         gameEngine.setCellValue(cellIndex, num)
                     }
@@ -49,6 +50,35 @@ internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
     render()
 }
 
+/**
+ * Clear the selected cell: erase a placed value, or all pencil marks if empty.
+ * Undoable. Given cells cannot be erased.
+ */
+internal fun SudokuApp.handleErase(grid: SudokuGrid) {
+    val cellIndex = selectedCell ?: return
+    val cell = grid.getCell(cellIndex)
+    if (cell.isGiven) return
+
+    if (cell.isSolved && cell.value != null) {
+        val previous = cell.value!!
+        gameEngine.recordAction(gameEngine.createClearAction(cellIndex, previous))
+        gameEngine.setCellValue(cellIndex, null)
+        saveCurrentState()
+        render()
+        return
+    }
+
+    if (!cell.isSolved && cell.displayCandidates.isNotEmpty()) {
+        val toRemove = cell.displayCandidates.toList()
+        toRemove.forEach { num ->
+            gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
+            gameEngine.toggleCandidate(cellIndex, num)
+        }
+        saveCurrentState()
+        render()
+    }
+}
+
 internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
     val cell = grid.getCell(cellIndex)
 
@@ -59,7 +89,7 @@ internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
                 if (!cell.isSolved) {
                     val isCandidatePresent = selectedNum in cell.displayCandidates
                     val wasMistake = checkCandidateRemovalMistake(cellIndex, selectedNum, isCandidatePresent)
-                    if (wasMistake) showToast("❌ Wrong candidate removed!")
+                    if (wasMistake) showToast(LanguageConfig.getString("ui.toasts.wrongCandidate"))
                     if (isCandidatePresent) {
                         gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, selectedNum))
                     }
@@ -69,7 +99,7 @@ internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
                 selectedCell = null
             } else if (!cell.isSolved) {
                 val wasMistake = checkMistake(cellIndex, selectedNum)
-                if (wasMistake) showToast("❌ Wrong number!")
+                if (wasMistake) showToast(LanguageConfig.getString("ui.toasts.wrongNumber"))
                 gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, selectedNum))
                 gameEngine.setCellValue(cellIndex, selectedNum)
                 saveCurrentState()
@@ -97,7 +127,7 @@ internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
                         gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
                         gameEngine.toggleCandidate(cellIndex, num)
                     }
-                    if (hadMistake) showToast("❌ Wrong candidate removed!")
+                    if (hadMistake) showToast(LanguageConfig.getString("ui.toasts.wrongCandidate"))
                     if (toRemove.isNotEmpty()) saveCurrentState()
                 }
                 MultiSelectAction.CLEAR_OTHER -> {
@@ -108,7 +138,7 @@ internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
                         gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
                         gameEngine.toggleCandidate(cellIndex, num)
                     }
-                    if (hadMistake) showToast("❌ Wrong candidate removed!")
+                    if (hadMistake) showToast(LanguageConfig.getString("ui.toasts.wrongCandidate"))
                     if (toRemove.isNotEmpty()) saveCurrentState()
                 }
             }

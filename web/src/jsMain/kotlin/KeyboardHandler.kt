@@ -171,6 +171,22 @@ class KeyboardHandler {
                 }
             }
 
+            // Ctrl/Cmd+Z: Undo
+            if ((ctrlKey || metaKey) && key.lowercase() == "z" && !shiftKey) {
+                if (app.gameEngine.canUndo()) {
+                    app.gameEngine.undoLastAction()
+                    app.saveCurrentState()
+                    app.render()
+                    return true
+                }
+            }
+
+            // Delete / Backspace: erase selected cell
+            if (key == "Delete" || key == "Backspace") {
+                app.handleErase(grid)
+                return true
+            }
+
             // Handle number keys 1-9
             val num = key.toIntOrNull()
             if (num != null && num in 1..9) {
@@ -181,7 +197,7 @@ class KeyboardHandler {
                         if (!cell.isGiven && !cell.isSolved) {
                             val isCandidatePresent = num in cell.displayCandidates
                             val wasMistake = app.checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
-                            if (wasMistake) app.showToast("❌ Wrong candidate removed!")
+                            if (wasMistake) app.showToast(i18n.LanguageConfig.getString("ui.toasts.wrongCandidate"))
                             // Only record elimination if candidate was present (we're removing it)
                             if (isCandidatePresent) {
                                 app.gameEngine.recordAction(app.gameEngine.createEliminationAction(cellIndex, num))
@@ -243,7 +259,7 @@ class KeyboardHandler {
                             if (!cell.isGiven && !cell.isSolved) {
                                 val isCandidatePresent = num in cell.displayCandidates
                                 val wasMistake = app.checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
-                                if (wasMistake) app.showToast("❌ Wrong candidate removed!")
+                                if (wasMistake) app.showToast(i18n.LanguageConfig.getString("ui.toasts.wrongCandidate"))
                                 // Only record elimination if candidate was present (we're removing it)
                                 if (isCandidatePresent) {
                                     app.gameEngine.recordAction(app.gameEngine.createEliminationAction(cellIndex, num))

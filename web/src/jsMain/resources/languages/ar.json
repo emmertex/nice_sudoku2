@@ -36,7 +36,11 @@
       "placedDescription": "تمييز الخلايا التي تحتوي على أرقام موضوعة متطابقة",
       "rcbSelectedDescription": "تمييز صف وعمود ومربع الخلية المحددة",
       "rcbAllDescription": "تمييز كل الصفوف/الأعمدة/المربعات التي تحتوي على الرقم",
-      "pencilDescription": "تمييز الخلايا التي تحتوي على علامات قلم رصاص متطابقة"
+      "pencilDescription": "تمييز الخلايا التي تحتوي على علامات قلم رصاص متطابقة",
+      "place": "Place",
+      "multiSelectNotes": "Multi-Select Notes",
+      "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
+      "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
     },
     "techniques": {
       "title": "التقنيات"
@@ -322,7 +326,24 @@
       "tip3H": "H",
       "tip3Desc": "للوصول إلى التلميحات وتعلم تقنيات حل جديدة",
       "tip4": "Escape",
-      "tip4Desc": "هو مفتاح \"الرجوع\" العالمي - استخدمه للعودة إلى اللعبة من أي شاشة أو نافذة منبثقة"
+      "tip4Desc": "هو مفتاح \"الرجوع\" العالمي - استخدمه للعودة إلى اللعبة من أي شاشة أو نافذة منبثقة",
+      "deleteBackspace": "Delete / Backspace",
+      "deleteBackspaceDesc": ": Clear the selected cell (placed value or all pencil marks; cannot clear givens)",
+      "ctrlZ": "Ctrl + Z / Cmd + Z",
+      "ctrlZDesc": ": Undo your last action (placements, clears, and candidate eliminations)",
+      "playModes": "Play Modes",
+      "placeMode": "Place Mode",
+      "placeModeDesc": "Select a number from the number bar, then click a cell to place it.",
+      "notesModeTitle": "Notes / Pencil Mode",
+      "notesModeDetail1": "Toggle with the Notes button or the N key",
+      "notesModeDetail2": "When active, matching candidates show a slash — clicking a cell removes that candidate",
+      "multiNotesModeTitle": "Multi-Select Notes Mode",
+      "multiNotesModeDetail1": "Toggle with the Multi-Select Notes button. Select multiple numbers to choose which candidates to target.",
+      "multiNotesClrSel": "Clr Sel: Remove the selected numbers as candidates from the clicked cell",
+      "multiNotesClrOth": "Clr Oth: Remove all candidates EXCEPT the selected numbers from the clicked cell",
+      "tip5": "Use",
+      "tip5Delete": "Delete / Backspace",
+      "tip5Desc": "to erase a misplaced digit in the selected cell"
     },
     "gameScreen": {
       "menu": "☰ القائمة",
@@ -334,7 +355,9 @@
       "rcbPlus": "RCB+",
       "fast": "سريع",
       "cell": "خلية",
-      "adv": "متقدم"
+      "adv": "متقدم",
+      "paused": "Paused",
+      "clickToResume": "Click to resume"
     },
     "buttonHelp": {
       "title": "مرجع سريع",
@@ -387,7 +410,11 @@
       "quickTipText": "اضغط على شارة سريع/متقدم في الرأس للتبديل السريع بين الأوضاع بدون فتح الإعدادات!",
       "moreHelp": "لاختصارات لوحة المفاتيح والمساعدة المفصلة، راجع",
       "keyboardShortcuts": "دليل المساعدة الكامل →",
-      "gotIt": "فهمت!"
+      "gotIt": "فهمت!",
+      "notes2Btn": "Multi-Select Notes Mode",
+      "notes2BtnDesc": "Like notes mode, but allows selecting multiple numbers, for removing multiple candidates at the same time.",
+      "eraseBtn": "Erase",
+      "eraseBtnDesc": "Clear the selected cell (keyboard: Delete or Backspace)"
     },
     "hints": {
       "overview": "نظرة عامة",
@@ -395,6 +422,10 @@
       "solution": "الحل",
       "remove": "إزالة",
       "from": "من"
+    },
+    "toasts": {
+      "wrongNumber": "Wrong number!",
+      "wrongCandidate": "Wrong candidate removed!"
     }
   },
   "hints": {

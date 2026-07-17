@@ -36,7 +36,11 @@
       "placedDescription": "मिलान वाले रखे हुए नंबरों वाले सेलों को हाइलाइट करता है",
       "rcbSelectedDescription": "चयनित सेल की पंक्ति, कॉलम, बॉक्स को हाइलाइट करता है",
       "rcbAllDescription": "नंबर वाले सभी पंक्ति/कॉलम/बॉक्स को हाइलाइट करता है",
-      "pencilDescription": "मिलान वाले पेंसिल चिह्नों वाले सेलों को हाइलाइट करता है"
+      "pencilDescription": "मिलान वाले पेंसिल चिह्नों वाले सेलों को हाइलाइट करता है",
+      "place": "Place",
+      "multiSelectNotes": "Multi-Select Notes",
+      "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
+      "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
     },
     "techniques": {
       "title": "तकनीक"
@@ -322,7 +326,24 @@
       "tip3H": "H",
       "tip3Desc": "संकेतों तक पहुंचने और नई समाधान तकनीकें सीखने के लिए",
       "tip4": "एस्केप",
-      "tip4Desc": "आपकी सार्वभौमिक \"वापस जाएं\" कुंजी है - इसका उपयोग किसी भी स्क्रीन या मोडल से गेम पर लौटने के लिए करें"
+      "tip4Desc": "आपकी सार्वभौमिक \"वापस जाएं\" कुंजी है - इसका उपयोग किसी भी स्क्रीन या मोडल से गेम पर लौटने के लिए करें",
+      "deleteBackspace": "Delete / Backspace",
+      "deleteBackspaceDesc": ": Clear the selected cell (placed value or all pencil marks; cannot clear givens)",
+      "ctrlZ": "Ctrl + Z / Cmd + Z",
+      "ctrlZDesc": ": Undo your last action (placements, clears, and candidate eliminations)",
+      "playModes": "Play Modes",
+      "placeMode": "Place Mode",
+      "placeModeDesc": "Select a number from the number bar, then click a cell to place it.",
+      "notesModeTitle": "Notes / Pencil Mode",
+      "notesModeDetail1": "Toggle with the Notes button or the N key",
+      "notesModeDetail2": "When active, matching candidates show a slash — clicking a cell removes that candidate",
+      "multiNotesModeTitle": "Multi-Select Notes Mode",
+      "multiNotesModeDetail1": "Toggle with the Multi-Select Notes button. Select multiple numbers to choose which candidates to target.",
+      "multiNotesClrSel": "Clr Sel: Remove the selected numbers as candidates from the clicked cell",
+      "multiNotesClrOth": "Clr Oth: Remove all candidates EXCEPT the selected numbers from the clicked cell",
+      "tip5": "Use",
+      "tip5Delete": "Delete / Backspace",
+      "tip5Desc": "to erase a misplaced digit in the selected cell"
     },
     "gameScreen": {
       "menu": "☰ मेनू",
@@ -334,7 +355,9 @@
       "rcbPlus": "RCB+",
       "fast": "तेज",
       "cell": "सेल",
-      "adv": "एडवांस"
+      "adv": "एडवांस",
+      "paused": "Paused",
+      "clickToResume": "Click to resume"
     },
     "buttonHelp": {
       "title": "त्वरित संदर्भ",
@@ -387,7 +410,11 @@
       "quickTipText": "सेटिंग्स खोले बिना तेज और एडवांस मोड के बीच जल्दी से टॉगल करने के लिए हेडर में तेज/एडवांस बैज पर टैप करें!",
       "moreHelp": "कीबोर्ड शॉर्टकट और विस्तृत सहायता के लिए देखें",
       "keyboardShortcuts": "पूर्ण सहायता गाइड →",
-      "gotIt": "समझ गया!"
+      "gotIt": "समझ गया!",
+      "notes2Btn": "Multi-Select Notes Mode",
+      "notes2BtnDesc": "Like notes mode, but allows selecting multiple numbers, for removing multiple candidates at the same time.",
+      "eraseBtn": "Erase",
+      "eraseBtnDesc": "Clear the selected cell (keyboard: Delete or Backspace)"
     },
     "hints": {
       "overview": "अवलोकन",
@@ -395,6 +422,10 @@
       "solution": "समाधान",
       "remove": "हटाएं",
       "from": "से"
+    },
+    "toasts": {
+      "wrongNumber": "Wrong number!",
+      "wrongCandidate": "Wrong candidate removed!"
     }
   },
   "hints": {

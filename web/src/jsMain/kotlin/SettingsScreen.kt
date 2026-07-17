@@ -67,6 +67,7 @@ internal fun SudokuApp.renderSettings() {
                     val availableModes = listOf(
                         HighlightMode.PENCIL,
                         HighlightMode.RCB_ALL,
+                        HighlightMode.RCB_SELECTED,
                         HighlightMode.PLACED
                     )
 

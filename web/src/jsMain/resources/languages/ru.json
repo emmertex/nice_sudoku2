@@ -36,7 +36,11 @@
       "placedDescription": "Подсвечивает ячейки с совпадающими размещенными числами",
       "rcbSelectedDescription": "Подсвечивает строку, столбец и блок выбранной ячейки",
       "rcbAllDescription": "Подсвечивает все строки/столбцы/блоки, содержащие число",
-      "pencilDescription": "Подсвечивает ячейки с совпадающими пометками карандашом"
+      "pencilDescription": "Подсвечивает ячейки с совпадающими пометками карандашом",
+      "place": "Place",
+      "multiSelectNotes": "Multi-Select Notes",
+      "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
+      "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
     },
     "techniques": {
       "title": "Техники"
@@ -322,7 +326,24 @@
       "tip3H": "H",
       "tip3Desc": "для доступа к подсказкам и изучения новых техник решения",
       "tip4": "Escape",
-      "tip4Desc": " - ваша универсальная клавиша \"назад\" - используйте ее для возврата в игру с любого экрана или модального окна"
+      "tip4Desc": " - ваша универсальная клавиша \"назад\" - используйте ее для возврата в игру с любого экрана или модального окна",
+      "deleteBackspace": "Delete / Backspace",
+      "deleteBackspaceDesc": ": Clear the selected cell (placed value or all pencil marks; cannot clear givens)",
+      "ctrlZ": "Ctrl + Z / Cmd + Z",
+      "ctrlZDesc": ": Undo your last action (placements, clears, and candidate eliminations)",
+      "playModes": "Play Modes",
+      "placeMode": "Place Mode",
+      "placeModeDesc": "Select a number from the number bar, then click a cell to place it.",
+      "notesModeTitle": "Notes / Pencil Mode",
+      "notesModeDetail1": "Toggle with the Notes button or the N key",
+      "notesModeDetail2": "When active, matching candidates show a slash — clicking a cell removes that candidate",
+      "multiNotesModeTitle": "Multi-Select Notes Mode",
+      "multiNotesModeDetail1": "Toggle with the Multi-Select Notes button. Select multiple numbers to choose which candidates to target.",
+      "multiNotesClrSel": "Clr Sel: Remove the selected numbers as candidates from the clicked cell",
+      "multiNotesClrOth": "Clr Oth: Remove all candidates EXCEPT the selected numbers from the clicked cell",
+      "tip5": "Use",
+      "tip5Delete": "Delete / Backspace",
+      "tip5Desc": "to erase a misplaced digit in the selected cell"
     },
     "gameScreen": {
       "menu": "☰ Меню",
@@ -334,7 +355,9 @@
       "rcbPlus": "РСБ+",
       "fast": "Быстрый",
       "cell": "Ячейка",
-      "adv": "Продвинутый"
+      "adv": "Продвинутый",
+      "paused": "Paused",
+      "clickToResume": "Click to resume"
     },
     "buttonHelp": {
       "title": "Краткий справочник",
@@ -387,7 +410,11 @@
       "quickTipText": "Нажмите на значок Быстрый/Продвинутый в заголовке для быстрого переключения режимов без открытия настроек!",
       "moreHelp": "Для клавиатурных сокращений и подробной справки см.",
       "keyboardShortcuts": "Полное руководство →",
-      "gotIt": "Понятно!"
+      "gotIt": "Понятно!",
+      "notes2Btn": "Multi-Select Notes Mode",
+      "notes2BtnDesc": "Like notes mode, but allows selecting multiple numbers, for removing multiple candidates at the same time.",
+      "eraseBtn": "Erase",
+      "eraseBtnDesc": "Clear the selected cell (keyboard: Delete or Backspace)"
     },
     "hints": {
       "overview": "Обзор",
@@ -395,6 +422,10 @@
       "solution": "Решение",
       "remove": "Удалить",
       "from": "из"
+    },
+    "toasts": {
+      "wrongNumber": "Wrong number!",
+      "wrongCandidate": "Wrong candidate removed!"
     }
   },
   "hints": {

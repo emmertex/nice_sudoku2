@@ -48,7 +48,6 @@ internal fun SudokuApp.renderGameScreen() {
 
     // Compute highlights
     val primaryCells = getPrimaryHighlightCells(grid)
-    val secondaryCells = emptySet<Int>()
 
     appRoot.append {
         div("sudoku-container-wrapper") {
@@ -59,7 +58,8 @@ internal fun SudokuApp.renderGameScreen() {
                 div("nav-row") {
                     // Single menu button that opens settings
                     button(classes = "nav-btn menu-btn") {
-                        +"☰ Menu"
+                        +LanguageConfig.getString("ui.gameScreen.menu")
+                        attributes["aria-label"] = LanguageConfig.getString("ui.buttonHelp.menuBtn")
                         onClickFunction = {
                             prepareLeaveGameScreen()
                             currentScreen = AppScreen.SETTINGS
@@ -96,12 +96,13 @@ internal fun SudokuApp.renderGameScreen() {
                         // Help button - opens button help modal
                         button(classes = "help-btn") {
                             +"?"
+                            attributes["aria-label"] = LanguageConfig.getString("ui.settings.help")
                             onClickFunction = {
                                 showButtonHelpModal = true
                                 render()
                             }
                         }
-                        // Selection info inline with mode badges
+                        // Selected digit badge (kept visible on small screens)
                         if (selectedNumbers1.isNotEmpty()) {
                             span("selected-num primary") { +selectedNumbers1.sorted().joinToString(",") }
                         }
@@ -118,6 +119,16 @@ internal fun SudokuApp.renderGameScreen() {
                             if (trackPlayTime) {
                                 button(classes = "pause-btn") {
                                     +(if (isPaused) "▶" else "⏸")
+                                    attributes["aria-label"] = if (isPaused) {
+                                        LanguageConfig.getString("ui.puzzleBrowser.resume")
+                                    } else {
+                                        LanguageConfig.getString("ui.buttonHelp.pauseBtn")
+                                    }
+                                    attributes["title"] = if (isPaused) {
+                                        LanguageConfig.getString("ui.puzzleBrowser.resume")
+                                    } else {
+                                        LanguageConfig.getString("ui.buttonHelp.pauseBtn")
+                                    }
                                     onClickFunction = {
                                         togglePause()
                                     }
@@ -150,14 +161,15 @@ internal fun SudokuApp.renderGameScreen() {
                 div("sudoku-grid-container${if (isPaused && trackPlayTime) " paused" else ""}${if (isNotesMode) " notes-mode" else ""}") {
                     // Sudoku grid
         div("sudoku-grid") {
+                        attributes["role"] = "grid"
+                        attributes["aria-label"] = LanguageConfig.getString("ui.gameScreen.title")
                         for (row in 0..8) {
                             div("sudoku-row") {
                                 for (col in 0..8) {
                                     val cellIndex = row * 9 + col
                                     val cell = grid.getCell(cellIndex)
                                     val isPrimary = cellIndex in primaryCells
-                                    val isSecondary = cellIndex in secondaryCells
-                        renderCell(this@renderGameScreen, cellIndex, cell, isPrimary, isSecondary, grid, selectedHint, currentExplanationStep)
+                        renderCell(this@renderGameScreen, cellIndex, cell, isPrimary, grid, selectedHint, currentExplanationStep)
                                 }
                             }
                         }
@@ -176,8 +188,8 @@ internal fun SudokuApp.renderGameScreen() {
                             }
                             div("pause-message") {
                                 div("pause-icon") { +"⏸" }
-                                div("pause-text") { +"PAUSED" }
-                                div("pause-subtext") { +"Click to resume" }
+                                div("pause-text") { +LanguageConfig.getString("ui.gameScreen.paused") }
+                                div("pause-subtext") { +LanguageConfig.getString("ui.gameScreen.clickToResume") }
                                 div("pause-notification") {
                                     +LanguageConfig.getString("ui.gameScreen.pauseNotification")
                                 }
@@ -192,7 +204,8 @@ internal fun SudokuApp.renderGameScreen() {
                     // Notes toggle (pencil marks) - only relevant in Place mode
                         button(classes = "toggle-btn ${if (isNotesMode) "active" else ""}") {
                             +"✏️"
-                            attributes["title"] = "Toggle pencil mark mode"
+                            attributes["title"] = LanguageConfig.getString("ui.buttonHelp.notesBtnDesc")
+                            attributes["aria-label"] = LanguageConfig.getString("ui.buttonHelp.notesBtn")
                             onClickFunction = {
                                 if (isNotesMode) {
                                     isNotesMode = false
@@ -213,7 +226,8 @@ internal fun SudokuApp.renderGameScreen() {
                     // Multi-select notes mode toggle button (2 pencil marks)
                     button(classes = "toggle-btn multi-notes-btn ${if (playMode == PlayMode.MULTI_SELECT_NOTES) "active" else ""}") {
                         +"✏️✏️"
-                        attributes["title"] = "Multi-select notes mode"
+                        attributes["title"] = LanguageConfig.getString("ui.buttonHelp.notes2BtnDesc")
+                        attributes["aria-label"] = LanguageConfig.getString("ui.buttonHelp.notes2Btn")
                         onClickFunction = {
                             playMode = if (playMode == PlayMode.MULTI_SELECT_NOTES) PlayMode.PLACE else PlayMode.MULTI_SELECT_NOTES
                             GameStateManager.setPlayMode(playMode)
@@ -228,9 +242,19 @@ internal fun SudokuApp.renderGameScreen() {
                         }
                     }
 
+                    button(classes = "erase-btn") {
+                        +"⌫"
+                        attributes["title"] = LanguageConfig.getString("ui.buttonHelp.eraseBtnDesc")
+                        attributes["aria-label"] = LanguageConfig.getString("ui.buttonHelp.eraseBtn")
+                        onClickFunction = {
+                            handleErase(grid)
+                        }
+                    }
+
                     button(classes = "undo-btn ${if (!gameEngine.canUndo()) "disabled" else ""}") {
                         +"↶"
-                        attributes["title"] = "Undo last action"
+                        attributes["title"] = LanguageConfig.getString("ui.buttonHelp.undoBtnDesc")
+                        attributes["aria-label"] = LanguageConfig.getString("ui.buttonHelp.undoBtn")
                         onClickFunction = {
                             if (gameEngine.canUndo()) {
                                 gameEngine.undoLastAction()
@@ -391,7 +415,6 @@ private fun FlowContent.renderCell(
     cellIndex: Int,
     cell: SudokuCell,
     isPrimaryHighlight: Boolean,
-    isSecondaryHighlight: Boolean,
     grid: SudokuGrid,
     selectedHint: TechniqueMatchInfo? = null,
     currentExplanationStep: ExplanationStepDto? = null
@@ -400,8 +423,11 @@ private fun FlowContent.renderCell(
     val col = cellIndex % 9
     val isSelected = app.selectedCell == cellIndex
 
-    // Check if this cell has a mistake (wrong value vs solution)
-    val hasMistake = if (cell.isSolved && !cell.isGiven && app.solution != null) {
+    // Visual mistake styling only when mistake detection is enabled
+    val hasMistake = if (
+        app.mistakeDetectionMode != MistakeDetectionMode.OFF &&
+        cell.isSolved && !cell.isGiven && app.solution != null
+    ) {
         val correctValue = app.solution!![cellIndex].digitToIntOrNull() ?: 0
         cell.value != correctValue
     } else false
@@ -429,9 +455,7 @@ private fun FlowContent.renderCell(
 
     // Build highlight class
     val highlightClass = when {
-        isPrimaryHighlight && isSecondaryHighlight -> " highlight-both"
         isPrimaryHighlight -> " highlight-primary"
-        isSecondaryHighlight -> " highlight-secondary"
         else -> ""
     }
 
@@ -486,6 +510,9 @@ private fun FlowContent.renderCell(
 
     val solvedClass = if (cell.isSolved && !cell.isGiven) " solved" else ""
     div("cell${if (isSelected) " selected" else ""}${if (cell.isGiven) " given" else ""}$solvedClass${if (hasMistake) " mistake" else ""}$highlightClass$hintClass$coveredClass$boxSepClass") {
+        attributes["role"] = "gridcell"
+        attributes["tabindex"] = if (isSelected) "0" else "-1"
+        attributes["aria-selected"] = if (isSelected) "true" else "false"
         if (cell.isSolved) {
             span("cell-value") { +"${cell.value}" }
         } else if (cell.displayCandidates.isNotEmpty()) {

@@ -109,6 +109,14 @@ internal fun SudokuApp.renderHelpModal() {
                     h2 { +LanguageConfig.getString("ui.help.editing") }
                     ul {
                         li {
+                            strong { +LanguageConfig.getString("ui.help.deleteBackspace") }
+                            +LanguageConfig.getString("ui.help.deleteBackspaceDesc")
+                        }
+                        li {
+                            strong { +LanguageConfig.getString("ui.help.ctrlZ") }
+                            +LanguageConfig.getString("ui.help.ctrlZDesc")
+                        }
+                        li {
                             strong { +LanguageConfig.getString("ui.help.undoButton") }
                             +LanguageConfig.getString("ui.help.undoButtonDesc")
                         }
@@ -125,10 +133,6 @@ internal fun SudokuApp.renderHelpModal() {
                         li {
                             strong { +LanguageConfig.getString("ui.help.f1f9") }
                             +LanguageConfig.getString("ui.help.f1f9Desc")
-                        }
-                        li {
-                            strong { +LanguageConfig.getString("ui.help.shiftF1f9") }
-                            +LanguageConfig.getString("ui.help.shiftF1f9Desc")
                         }
                     }
                 }
@@ -195,28 +199,22 @@ internal fun SudokuApp.renderHelpModal() {
                 }
                 
                 div("help-section") {
-                    h2 { +"Play Modes" }
+                    h2 { +LanguageConfig.getString("ui.help.playModes") }
 
-                    h3 { +"Placement Mode" }
-                    p { +"Select a number from the number bar (it appears bold when selected), then click a cell to place it." }
+                    h3 { +LanguageConfig.getString("ui.help.placeMode") }
+                    p { +LanguageConfig.getString("ui.help.placeModeDesc") }
 
-                    h3 { +"✏️ Pencil / Notes Mode" }
+                    h3 { +LanguageConfig.getString("ui.help.notesModeTitle") }
                     ul {
-                        li { +"Toggle with the ✏️ button or the N key" }
-                        li { +"When active, matching candidates in cells show a slash — clicking a cell removes that candidate" }
+                        li { +LanguageConfig.getString("ui.help.notesModeDetail1") }
+                        li { +LanguageConfig.getString("ui.help.notesModeDetail2") }
                     }
 
-                    h3 { +"✏️✏️ Multi-Select Notes Mode" }
+                    h3 { +LanguageConfig.getString("ui.help.multiNotesModeTitle") }
                     ul {
-                        li { +"Toggle with the ✏️✏️ button. Select multiple numbers from the number bar to choose which candidates to target." }
-                        li {
-                            strong { +"Clr Sel:" }
-                            +" Remove the selected numbers as candidates from the clicked cell"
-                        }
-                        li {
-                            strong { +"Clr Oth:" }
-                            +" Remove all candidates EXCEPT the selected numbers from the clicked cell"
-                        }
+                        li { +LanguageConfig.getString("ui.help.multiNotesModeDetail1") }
+                        li { +LanguageConfig.getString("ui.help.multiNotesClrSel") }
+                        li { +LanguageConfig.getString("ui.help.multiNotesClrOth") }
                     }
                 }
                 
@@ -251,6 +249,11 @@ internal fun SudokuApp.renderHelpModal() {
                         li {
                             strong { +LanguageConfig.getString("ui.help.tip4") }
                             +(" " + LanguageConfig.getString("ui.help.tip4Desc"))
+                        }
+                        li {
+                            +(LanguageConfig.getString("ui.help.tip5") + " ")
+                            strong { +LanguageConfig.getString("ui.help.tip5Delete") }
+                            +(" " + LanguageConfig.getString("ui.help.tip5Desc"))
                         }
                     }
                 }
