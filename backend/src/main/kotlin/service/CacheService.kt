@@ -53,6 +53,11 @@ class CacheService {
      */
     fun storeCachedResponse(endpoint: String, requestJson: String, responseJson: String) {
         try {
+            // Defense in depth: never persist oversized cache keys even if a caller skipped validation.
+            if (requestJson.toByteArray(Charsets.UTF_8).size > 64 * 1024) {
+                logger.warn("Refusing to cache oversized request for {}", endpoint)
+                return
+            }
             val requestHash = generateCacheKey(endpoint, requestJson)
             val createdAt = System.currentTimeMillis()
 
@@ -68,7 +73,9 @@ class CacheService {
                     CacheTable.insert {
                         it[CacheTable.endpoint] = endpoint
                         it[CacheTable.requestHash] = requestHash
-                        it[CacheTable.requestJson] = requestJson
+                        // Do not store the full request body — hash is sufficient for lookup and
+                        // avoids bloating SQLite with large (but still capped) JSON payloads.
+                        it[CacheTable.requestJson] = ""
                         it[CacheTable.responseJson] = responseJson
                         it[CacheTable.createdAt] = createdAt
                     }

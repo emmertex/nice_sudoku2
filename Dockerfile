@@ -33,11 +33,18 @@ WORKDIR /app
 COPY --from=builder /app/backend/build/install/backend/ /app/
 
 # SQLite response cache lives here (CacheDatabase.DEFAULT_DB_PATH = ./data/...).
-RUN mkdir -p /app/data
-VOLUME ["/app/data"]
+# Restrict directory perms and drop root so the DB file is not world-readable.
+RUN groupadd --system sudoku \
+    && useradd --system --gid sudoku --home-dir /app --shell /usr/sbin/nologin sudoku \
+    && mkdir -p /app/data \
+    && chmod 700 /app/data \
+    && chown -R sudoku:sudoku /app
+
+USER sudoku
 
 ENV PORT=8181
 EXPOSE 8181
+VOLUME ["/app/data"]
 
 # The generated launcher runs from WORKDIR, so ./data resolves to /app/data.
 ENTRYPOINT ["/app/bin/backend"]

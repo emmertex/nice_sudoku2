@@ -3,6 +3,12 @@
 #   docker compose up -d --build
 #   open http://localhost:8080
 #
+# TLS: terminate HTTPS at an upstream reverse proxy (e.g. Nginx Proxy Manager)
+# pointing at WEB_PORT. This stack listens on HTTP only for local/dev simplicity.
+#
+# Network: only the web service publishes a host port. The backend is reachable
+# solely on the compose network via `expose` (not `ports`).
+#
 services:
   backend:
     build:
@@ -10,12 +16,19 @@ services:
       target: backend
     environment:
       PORT: "8181"
+      # Comma-separated origins for browser CORS (dev cross-origin / optional).
+      # Same-origin docker/nginx deploys do not need browser CORS.
+      # CORS_ALLOWED_ORIGINS: "https://sudoku.emmertex.com,http://localhost:8081"
+      # API_RATE_LIMIT: "60"
+      # CACHE_MAX_ENTRIES: "50000"
     volumes:
       # Persist the SQLite response cache across restarts (regenerable).
       - sudoku-cache:/app/data
     expose:
       - "8181"
     restart: unless-stopped
+    networks:
+      - sudoku
 
   web:
     build:
@@ -26,6 +39,12 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    networks:
+      - sudoku
 
 volumes:
   sudoku-cache:
+
+networks:
+  sudoku:
+    driver: bridge

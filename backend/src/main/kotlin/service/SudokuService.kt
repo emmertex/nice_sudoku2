@@ -12,6 +12,7 @@ import sudoku.match.TechniqueMatch
 import sudoku.solvingtechClassifier.Technique
 import java.util.concurrent.ConcurrentHashMap
 import java.util.UUID
+import org.slf4j.LoggerFactory
 import service.hint.metadata.missingDescriptionsForPriority
 import service.hint.metadata.getTechniquePriority
 import service.hint.converters.techniqueMatchToDto
@@ -21,21 +22,36 @@ import service.hint.helpers.dtoToBasicGrid
  * Service layer that wraps StormDoku functionality
  */
 class SudokuService {
+
+    private val logger = LoggerFactory.getLogger(SudokuService::class.java)
     
     // Store technique matches by ID for later application
     private val matchCache = ConcurrentHashMap<String, CachedMatch>()
-    
+    private val maxMatchCacheEntries = 1_000
+
     private data class CachedMatch(
             val match: TechniqueMatch,
             val technique: Technique,
             val puzzleString: String,
             val timestamp: Long = System.currentTimeMillis()
         )
+
+    /** Drop expired entries, then evict oldest if over [maxMatchCacheEntries]. */
+    private fun pruneMatchCache() {
+        val cutoff = System.currentTimeMillis() - 5 * 60 * 1000
+        matchCache.entries.removeIf { it.value.timestamp < cutoff }
+        if (matchCache.size <= maxMatchCacheEntries) return
+        val overflow = matchCache.size - maxMatchCacheEntries
+        matchCache.entries
+            .sortedBy { it.value.timestamp }
+            .take(overflow)
+            .forEach { matchCache.remove(it.key) }
+    }
     
     init {
         val missingDescriptions = missingDescriptionsForPriority()
         if (missingDescriptions.isNotEmpty()) {
-            println("WARN: Missing descriptions for techniques: ${missingDescriptions.joinToString(", ")}")
+            logger.warn("Missing descriptions for techniques: {}", missingDescriptions.joinToString(", "))
         }
     }
     /**
@@ -49,9 +65,8 @@ class SudokuService {
             val basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
             val sbrcGrid = SBRCGrid(basicGrid)
             
-            // Clear old cache entries
-            val cutoff = System.currentTimeMillis() - 5 * 60 * 1000
-            matchCache.entries.removeIf { it.value.timestamp < cutoff }
+            // Clear old cache entries / enforce size cap
+            pruneMatchCache()
             
             // TIER 1: Try basic techniques first (very fast)
             var matches = FindBasics.invoke(sbrcGrid, false)
@@ -104,10 +119,10 @@ class SudokuService {
                 searchTimeMs = elapsed
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error("Failed to find hint", e)
             HintResponse(
                 success = false,
-                error = "Failed to find hint: ${e.message}",
+                error = "Failed to find hint",
                 searchTimeMs = System.currentTimeMillis() - startTime
             )
         }
@@ -228,10 +243,10 @@ class SudokuService {
                 error = "Hit iteration limit"
             )
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error("Failed to grade puzzle", e)
             GradePuzzleResponse(
                 success = false,
-                error = "Failed to grade puzzle: ${e.message}",
+                error = "Failed to grade puzzle",
                 searchTimeMs = System.currentTimeMillis() - startTime
             )
         }
@@ -246,7 +261,8 @@ class SudokuService {
             val gridDto = basicGridToDto(basicGrid)
             LoadPuzzleResponse(success = true, grid = gridDto)
         } catch (e: Exception) {
-            LoadPuzzleResponse(success = false, error = "Failed to parse puzzle: ${e.message}")
+            logger.warn("Failed to parse puzzle", e)
+            LoadPuzzleResponse(success = false, error = "Failed to parse puzzle")
         }
     }
     
@@ -287,7 +303,8 @@ class SudokuService {
             basicGrid.cleanUpCandidates()
             SetCellResponse(success = true, grid = basicGridToDto(basicGrid))
         } catch (e: Exception) {
-            SetCellResponse(success = false, error = "Failed to set cell: ${e.message}")
+            logger.warn("Failed to set cell", e)
+            SetCellResponse(success = false, error = "Failed to set cell")
         }
     }
     
@@ -316,7 +333,8 @@ class SudokuService {
                 )
             }
         } catch (e: Exception) {
-            SolveResponse(success = false, error = "Failed to solve: ${e.message}")
+            logger.warn("Failed to solve grid", e)
+            SolveResponse(success = false, error = "Failed to solve")
         }
     }
     
@@ -346,7 +364,8 @@ class SudokuService {
                 )
             }
         } catch (e: Exception) {
-            SolveFromPuzzleResponse(success = false, error = "Failed to solve: ${e.message}")
+            logger.warn("Failed to solve puzzle", e)
+            SolveFromPuzzleResponse(success = false, error = "Failed to solve")
         }
     }
     
@@ -358,9 +377,8 @@ class SudokuService {
             val basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
             val sbrcGrid = SBRCGrid(basicGrid)
             
-            // Clear old cache entries (older than 5 minutes)
-            val cutoff = System.currentTimeMillis() - 5 * 60 * 1000
-            matchCache.entries.removeIf { it.value.timestamp < cutoff }
+            // Clear old cache entries / enforce size cap
+            pruneMatchCache()
             
             val matches: Map<Technique, List<TechniqueMatch>> = if (basicOnly) {
                 FindBasics.invoke(sbrcGrid, false)
@@ -403,8 +421,8 @@ class SudokuService {
                 totalMatches = totalMatches
             )
         } catch (e: Exception) {
-            e.printStackTrace()
-            FindTechniquesResponse(success = false, error = "Failed to find techniques: ${e.message}")
+            logger.error("Failed to find techniques from puzzle", e)
+            FindTechniquesResponse(success = false, error = "Failed to find techniques")
         }
     }
     
@@ -424,9 +442,8 @@ class SudokuService {
                 }
             }
             
-            // Clear old cache entries (older than 5 minutes)
-            val cutoff = System.currentTimeMillis() - 5 * 60 * 1000
-            matchCache.entries.removeIf { it.value.timestamp < cutoff }
+            // Clear old cache entries / enforce size cap
+            pruneMatchCache()
             
             val matches: Map<Technique, List<TechniqueMatch>> = if (request.basicOnly) {
                 FindBasics.invoke(sbrcGrid, false)
@@ -471,8 +488,8 @@ class SudokuService {
                 totalMatches = totalMatches
             )
         } catch (e: Exception) {
-            e.printStackTrace()
-            FindTechniquesResponse(success = false, error = "Failed to find techniques: ${e.message}")
+            logger.error("Failed to find techniques from grid", e)
+            FindTechniquesResponse(success = false, error = "Failed to find techniques")
         }
     }
     
@@ -508,7 +525,8 @@ class SudokuService {
             
             ApplyTechniqueResponse(success = true, grid = basicGridToDto(basicGrid))
         } catch (e: Exception) {
-            ApplyTechniqueResponse(success = false, error = "Failed to apply technique: ${e.message}")
+            logger.warn("Failed to apply technique", e)
+            ApplyTechniqueResponse(success = false, error = "Failed to apply technique")
         }
     }
 }
