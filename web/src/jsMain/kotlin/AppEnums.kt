@@ -32,3 +32,9 @@ enum class CandidateMode {
     AUTO,        // Auto-calculate candidates, enable hints and error detection
     MANUAL       // Start with blank pencil marks, disable hints and error detection
 }
+
+enum class HintPlacement {
+    AUTO,     // Decide from available space (sidebar when there's room, card below otherwise)
+    SIDEBAR,  // Always place hints in a right-hand sidebar
+    BELOW     // Always place hints in a card below the board
+}

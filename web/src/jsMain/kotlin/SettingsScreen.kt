@@ -213,6 +213,56 @@ internal fun SudokuApp.renderSettings() {
                 }
             }
 
+            // Hint Placement section
+            div("section") {
+                h2 { +LanguageConfig.getString("ui.settings.hintPlacement") }
+                p("setting-desc") { +LanguageConfig.getString("ui.settings.hintPlacementDesc") }
+
+                div("mode-options") {
+                    button(classes = "mode-btn ${if (hintPlacement == HintPlacement.AUTO) "active" else ""}") {
+                        +LanguageConfig.getString("ui.settings.hintPlacementAuto")
+                        onClickFunction = {
+                            if (hintPlacement != HintPlacement.AUTO) {
+                                hintPlacement = HintPlacement.AUTO
+                                GameStateManager.setHintPlacement(HintPlacement.AUTO)
+                                useHintSidebar = resolveUseHintSidebar()
+                                render()
+                            }
+                        }
+                    }
+                    button(classes = "mode-btn ${if (hintPlacement == HintPlacement.SIDEBAR) "active" else ""}") {
+                        +LanguageConfig.getString("ui.settings.hintPlacementSide")
+                        onClickFunction = {
+                            if (hintPlacement != HintPlacement.SIDEBAR) {
+                                hintPlacement = HintPlacement.SIDEBAR
+                                GameStateManager.setHintPlacement(HintPlacement.SIDEBAR)
+                                useHintSidebar = resolveUseHintSidebar()
+                                render()
+                            }
+                        }
+                    }
+                    button(classes = "mode-btn ${if (hintPlacement == HintPlacement.BELOW) "active" else ""}") {
+                        +LanguageConfig.getString("ui.settings.hintPlacementBelow")
+                        onClickFunction = {
+                            if (hintPlacement != HintPlacement.BELOW) {
+                                hintPlacement = HintPlacement.BELOW
+                                GameStateManager.setHintPlacement(HintPlacement.BELOW)
+                                useHintSidebar = resolveUseHintSidebar()
+                                render()
+                            }
+                        }
+                    }
+                }
+
+                div("mode-explanation") {
+                    +when (hintPlacement) {
+                        HintPlacement.AUTO -> LanguageConfig.getString("ui.settings.hintPlacementAutoDesc")
+                        HintPlacement.SIDEBAR -> LanguageConfig.getString("ui.settings.hintPlacementSideDesc")
+                        HintPlacement.BELOW -> LanguageConfig.getString("ui.settings.hintPlacementBelowDesc")
+                    }
+                }
+            }
+
             // Mistake Detection section
             div("section") {
                 h2 { +LanguageConfig.getString("ui.settings.mistakeDetection") }

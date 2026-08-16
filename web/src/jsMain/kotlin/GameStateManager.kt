@@ -8,6 +8,7 @@ import org.w3c.dom.set
 import view.Theme
 import MistakeDetectionMode
 import CandidateMode
+import HintPlacement
 
 /**
  * Manages game state persistence in localStorage
@@ -25,6 +26,7 @@ object GameStateManager {
     private const val MISTAKE_DETECTION_KEY = "nice_sudoku_mistake_detection"
     private const val CANDIDATE_MODE_KEY = "nice_sudoku_candidate_mode"
     private const val TRACK_PLAY_TIME_KEY = "nice_sudoku_track_play_time"
+    private const val HINT_PLACEMENT_KEY = "nice_sudoku_hint_placement"
     
     private val json = Json { 
         ignoreUnknownKeys = true
@@ -326,6 +328,29 @@ object GameStateManager {
             localStorage[TRACK_PLAY_TIME_KEY] = if (enabled) "true" else "false"
         } catch (e: Exception) {
             console.log("Error saving track play time preference: ${e.message}")
+        }
+    }
+
+    /**
+     * Get hint placement preference (default: AUTO - decided from available space).
+     */
+    fun getHintPlacement(): HintPlacement {
+        return try {
+            val name = localStorage[HINT_PLACEMENT_KEY]
+            if (name != null) HintPlacement.valueOf(name) else HintPlacement.AUTO
+        } catch (e: Exception) {
+            HintPlacement.AUTO
+        }
+    }
+
+    /**
+     * Set hint placement preference.
+     */
+    fun setHintPlacement(placement: HintPlacement) {
+        try {
+            localStorage[HINT_PLACEMENT_KEY] = placement.name
+        } catch (e: Exception) {
+            console.log("Error saving hint placement preference: ${e.message}")
         }
     }
     

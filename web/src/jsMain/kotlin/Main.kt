@@ -33,6 +33,7 @@ class SudokuApp {
     internal var currentTheme = GameStateManager.getTheme()
     internal var mistakeDetectionMode = GameStateManager.getMistakeDetectionMode()
     internal var candidateMode = GameStateManager.getCandidateMode()
+    internal var hintPlacement = GameStateManager.getHintPlacement()
     internal var trackPlayTime = GameStateManager.getTrackPlayTime()
     internal var selectedNumbers1: MutableSet<Int> = mutableSetOf()  // Selected numbers (light blue)
     internal var multiSelectAction: MultiSelectAction = MultiSelectAction.CLEAR_SELECTED
@@ -151,8 +152,9 @@ class SudokuApp {
         // Global event delegation for chain notation interactions
         setupChainInteractionDelegation()
         
-        // Decide hint placement (sidebar vs card-below) from available space.
-        useHintSidebar = computeUseHintSidebar()
+        // Resolve hint placement (sidebar vs card-below) from the user's preference
+        // and, in Auto mode, from available space.
+        useHintSidebar = resolveUseHintSidebar()
 
         // Re-evaluate placement on resize. The board itself fits via pure CSS now,
         // so JS only needs to re-render when the sidebar/below decision actually flips.
@@ -161,7 +163,7 @@ class SudokuApp {
             resizeTimeout?.let { window.clearTimeout(it) }
             resizeTimeout = window.setTimeout({
                 if (currentScreen == AppScreen.GAME) {
-                    val next = computeUseHintSidebar()
+                    val next = resolveUseHintSidebar()
                     val flipped = next != useHintSidebar
                     useHintSidebar = next
                     // A full re-render re-runs applyBoardSize; otherwise just resize the board.
@@ -296,6 +298,20 @@ class SudokuApp {
         // Start timer if on game screen with active game
         if (currentScreen == AppScreen.GAME && currentGame != null) {
             startTimer()
+        }
+    }
+
+    /**
+     * Resolve where the hint panel belongs (right-hand sidebar vs. a card below
+     * the board) from the user's Hint Placement preference. AUTO decides from
+     * available space via [computeUseHintSidebar]; SIDEBAR and BELOW force a
+     * fixed layout.
+     */
+    internal fun resolveUseHintSidebar(): Boolean {
+        return when (hintPlacement) {
+            HintPlacement.SIDEBAR -> true
+            HintPlacement.BELOW -> false
+            HintPlacement.AUTO -> computeUseHintSidebar()
         }
     }
 
