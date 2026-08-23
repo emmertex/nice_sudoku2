@@ -562,6 +562,9 @@
             "step1": {
                 "title": "Understand Almost Locked Sets",
                 "description": "An **Almost Locked Set** (ALS) is a group of cells that's 'almost' solved. Here's the key idea: if you have N cells containing exactly N+1 different candidates, then removing just ONE candidate would 'lock' the remaining candidates to those cells. For example: 3 cells with candidates {1,2,3,4} = almost locked. Remove any one digit, and the other 3 digits MUST go in those 3 cells. This {{alsType}} technique uses {{numALS}} Almost Locked Sets that share 'connecting digits' - digits that can only be in one ALS or the other, linking them together."
+            },
+            "step2": {
+                "title": "Identify {{alsName}}"
             }
         },
         "als_identify": {
@@ -699,6 +702,26 @@
         "unique_rectangle_elim_type2": {
             "step1": {
                 "description": "Remove {{digits}} from {{cells}}. These cells see both UR corners that share the extra candidate."
+            }
+        },
+        "unique_rectangle_elim_type3": {
+            "step1": {
+                "description": "Remove {{digits}} from {{cells}}. In Type 3, the corners' extra candidates form a naked subset with other cells in the same house, which locks the base digits into the floor corners and breaks the deadly pattern."
+            }
+        },
+        "unique_rectangle_elim_type4": {
+            "step1": {
+                "description": "Remove {{digits}} from {{cells}}. In Type 4, one UR digit is locked into two opposite corners by a strong link, so the other UR digit cannot sit in those corners."
+            }
+        },
+        "unique_rectangle_elim_type5": {
+            "step1": {
+                "description": "Remove {{digits}} from {{cells}}. In Type 5, a strong link on a diagonal forces one UR digit into one of the two linked corners, breaking the deadly pattern."
+            }
+        },
+        "unique_rectangle_elim_type6": {
+            "step1": {
+                "description": "Remove {{digits}} from {{cells}}. In Type 6, strong links on both diagonals lock the same digit into two opposite corners, forcing the other digit out of them."
             }
         },
         "empty_rectangle": {

@@ -159,6 +159,7 @@ import sudoku.match.TechniqueMatch
         ))
         
         val typeKey = if (type > 0) "unique_rectangle_type$type" else "unique_rectangle_generic"
+        val elimTypeKey = if (type > 0) "unique_rectangle_elim_type$type" else "unique_rectangle_generic"
         
         steps.add(ExplanationStepDto(
             stepNumber = 2,
@@ -184,7 +185,7 @@ import sudoku.match.TechniqueMatch
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
                 title = hintKey("unique_rectangle", 3, "title"),
-                description = hintKey("unique_rectangle_elim_type$type", 1, "description",
+                description = hintKey(elimTypeKey, 1, "description",
                     "digits" to eliminatedDigits,
                     "cells" to eliminationNames
                 ),

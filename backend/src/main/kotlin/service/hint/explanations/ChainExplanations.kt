@@ -222,7 +222,7 @@ import dto.*
                 
                 steps.add(ExplanationStepDto(
                     stepNumber = stepNum++,
-                    title = hintKey("als", stepNum - 1, "title",
+                    title = hintKey("als", 2, "title",
                         "alsName" to alsName
                     ),
                     description = hintKey("als_identify", 1, "description",
