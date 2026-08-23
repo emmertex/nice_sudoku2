@@ -4,7 +4,7 @@
 > This file is the *what/where/how to ship it* breakdown, phased so each phase fits a
 > fresh context well under ~200k tokens.
 >
-> **Status:** Phase 1 (EN-fallback resolver + `check_hint_keys.py` / routing-pin guardrails), Phase 2 (ALS per-set titles + UR elimination types 3–6, type-0→generic guard) and Phase 3 (Sue-de-Coq / Forcing Chains / Nishio / ChainLike hardcoded→key-based, XY-Chain text rewritten weak-link-only) are implemented and verified (`check_hint_keys.py` green, `:backend`/`:shared` tests green, `HintKeyResolutionTest` added). Phases 4–10 pending.
+> **Status:** Phase 1 (EN-fallback resolver + `check_hint_keys.py` / routing-pin guardrails), Phase 2 (ALS per-set titles + UR elimination types 3–6, type-0→generic guard), Phase 3 (Sue-de-Coq / Forcing Chains / Nishio / ChainLike hardcoded→key-based, XY-Chain text rewritten weak-link-only) and Phase 4 (fish s1 valid count claim + combined base/cover type + per-sector names; finned/sashimi “cells that see the fin” + empty-fin guard) are implemented and verified (`check_hint_keys.py` green, `:backend`/`:shared` tests green, `HintKeyResolutionTest` extended with 6 fish/finned cases). Phases 5–10 pending.
 >
 > **Decisions already made with the owner:**
 > - New/changed hint keys are **authored in `en.json` only**. The other 10 locales are
@@ -250,6 +250,19 @@ is factually right.
 ---
 
 ## Phase 4 — Fish & Finned text accuracy (gap 4, 5, 9-partial)
+
+> ✅ **Done.** `generateFishSteps` s1 no longer claims the digit “appears in exactly N
+> lines” — it states the valid claim (within the base lines, the digit occurs only in the
+> cover lines). Base/cover type text is derived from the *whole* sector set via the new
+> `describeSectorTypeText` (a Franken row+box base reads “rows and boxes”), and sector
+> names use each sector's real type via `formatSectorName`. Finned/Sashimi s2/s3 no longer
+> claim eliminations are “restricted to {{boxName}} (where the fin is)” — they reference
+> cells that *see the fin*; and s1 now falls back to a `descriptionNoFin` template when
+> the fin list can't be extracted, so “The fin is at:” never renders empty. Verified:
+> `check_hint_keys.py` green (fish-family unused-var warnings dropped, 0 new), `:backend`
+> tests green, and 6 new `HintKeyResolutionTest` cases (mixed-base type text, per-sector
+> names, empty-fin guard, reworded-fish-s1 render, “see the fin” content, en+non-en
+> resolve).
 
 **Goal:** fix the two most-cited *inaccurate* text clusters (fish s1 count claim; finned
 "box" over-claim) plus the Franken base/cover mislabel and the empty-fin guard.

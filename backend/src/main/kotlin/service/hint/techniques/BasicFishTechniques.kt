@@ -183,30 +183,18 @@ import dto.*
             // Fallback if reflection fails
         }
 
-        // Determine base and cover types
-        val baseType = if (baseIndices.isNotEmpty()) getSectorType(baseIndices.first()) else null
-        val coverType = if (coverIndices.isNotEmpty()) getSectorType(coverIndices.first()) else null
-
-        val baseTypeText = when (baseType) {
-            "row" -> "rows"
-            "column" -> "columns"
-            "box" -> "boxes"
-            else -> "lines"
-        }
-
-        val coverTypeText = when (coverType) {
-            "row" -> "rows"
-            "column" -> "columns"
-            "box" -> "boxes"
-            else -> "lines"
-        }
+        // Determine base and cover types from the *whole* sector set, so a mixed
+        // base (e.g. a Franken fish's row + box) reads "rows and boxes" rather than
+        // being labelled by its first sector's type only.
+        val baseTypeText = describeSectorTypeText(baseIndices)
+        val coverTypeText = describeSectorTypeText(coverIndices)
 
         // Build region highlighting: base = primary (blue), cover = primary (blue)
         val baseRegions = baseIndices.map { idx ->
-            ColouredRegionDto(baseType ?: "row", idx % 9, "primary")
+            ColouredRegionDto(getSectorType(idx), idx % 9, "primary")
         }
         val coverRegions = coverIndices.map { idx ->
-            ColouredRegionDto(coverType ?: "row", idx % 9, "primary")
+            ColouredRegionDto(getSectorType(idx), idx % 9, "primary")
         }
         val allRegions = baseRegions + coverRegions
 
@@ -235,24 +223,9 @@ import dto.*
 
         val eliminationCandidates = eliminationCandidates(eliminations)
 
-        // Build base line names
-        val baseNames = baseIndices.map { idx ->
-            when (baseType) {
-                "row" -> "Row ${idx % 9 + 1}"
-                "column" -> "Column ${idx % 9 + 1}"
-                "box" -> "Box ${idx % 9 + 1}"
-                else -> "Line ${idx + 1}"
-            }
-        }.joinToString(" and ")
-
-        val coverNames = coverIndices.map { idx ->
-            when (coverType) {
-                "row" -> "Row ${idx % 9 + 1}"
-                "column" -> "Column ${idx % 9 + 1}"
-                "box" -> "Box ${idx % 9 + 1}"
-                else -> "Line ${idx + 1}"
-            }
-        }.joinToString(" and ")
+        // Build base/cover sector names using each sector's real type.
+        val baseNames = baseIndices.map { formatSectorName(it) }.joinToString(" and ")
+        val coverNames = coverIndices.map { formatSectorName(it) }.joinToString(" and ")
 
         // Determine the fish technique key based on pattern name
         val fishKey = when {
@@ -272,7 +245,6 @@ import dto.*
                 description = hintKey(fishKey, 1, "description",
                     "baseNames" to baseNames,
                     "digit" to digit.toString(),
-                    "baseCount" to baseIndices.size.toString(),
                     "baseTypeText" to baseTypeText,
                     "coverNames" to coverNames,
                     "coverTypeText" to coverTypeText
@@ -548,9 +520,7 @@ import dto.*
             }
         } catch (e: Exception) {}
 
-        val baseType = if (baseIndices.isNotEmpty()) getSectorType(baseIndices.first()) else "row"
-        val baseTypeText = if (baseType == "row") "rows" else "columns"
-        val coverTypeText = if (baseType == "row") "columns" else "rows"
+        val coverTypeText = describeSectorTypeText(coverIndices)
 
         // Get cells
         val baseCells = baseIndices.flatMap { getSectorCells(it) }
@@ -571,13 +541,8 @@ import dto.*
             (cell / 27) * 3 + ((cell % 9) / 3)
         } else -1
 
-        val baseNames = baseIndices.map { idx ->
-            if (baseType == "row") "Row ${idx % 9 + 1}" else "Column ${idx % 9 + 1}"
-        }.joinToString(", ")
-
-        val coverNames = coverIndices.map { idx ->
-            if (baseType == "row") "Column ${idx % 9 + 1}" else "Row ${idx % 9 + 1}"
-        }.joinToString(", ")
+        val baseNames = baseIndices.map { formatSectorName(it) }.joinToString(", ")
+        val coverNames = coverIndices.map { formatSectorName(it) }.joinToString(", ")
 
         // Build visual elements
         val patternCandidates = patternCells.map { cell ->
@@ -589,36 +554,45 @@ import dto.*
         val finColouredCells = finCellsList.map { ColouredCellDto(it, "warning") }
 
         val finCellNames = finCellsList.map { formatCellName(it) }.joinToString(", ")
-        val finDescription = if (isSashimi) "Sashimi fin" else "fin"
 
         val finnedKey = if (isSashimi) "sashimi_fish" else "finned_fish"
+
+        // s1: name the fin if we could extract it; otherwise use a variant that drops
+        // the "fin is at:" clause, so an empty fin list never renders a dangling
+        // "The fin is at:" with nothing after it.
+        val s1Description = if (finCellNames.isEmpty()) {
+            hintKey(finnedKey, 1, "descriptionNoFin",
+                "fishType" to fishType,
+                "baseNames" to baseNames,
+                "digit" to digit.toString(),
+                "coverNames" to coverNames
+            )
+        } else {
+            hintKey(finnedKey, 1, "description",
+                "fishType" to fishType,
+                "baseNames" to baseNames,
+                "digit" to digit.toString(),
+                "coverNames" to coverNames,
+                "finCells" to finCellNames
+            )
+        }
 
         steps.add(ExplanationStepDto(
             stepNumber = 1,
             title = hintKey(finnedKey, 1, "title",
                 "fishType" to fishType
             ),
-            description = hintKey(finnedKey, 1, "description",
-                "fishType" to fishType,
-                "baseNames" to baseNames,
-                "digit" to digit.toString(),
-                "coverNames" to coverNames,
-                "finCells" to finCellNames,
-                "isSashimi" to isSashimi.toString()
-            ),
+            description = s1Description,
             highlightCells = patternCells + finCellsList,
             colouredCells = finColouredCells,
             colouredCandidates = patternCandidates + finCandidates
         ))
 
-        val boxName = if (finBox >= 0) "Box ${finBox + 1}" else "the fin's box"
-
         steps.add(ExplanationStepDto(
             stepNumber = 2,
             title = hintKey(finnedKey, 2, "title"),
             description = hintKey(finnedKey, 2, "description",
-                "digit" to digit.toString(),
-                "boxName" to boxName
+                "digit" to digit.toString()
             ),
             highlightCells = finCellsList,
             colouredCells = finColouredCells,
@@ -634,7 +608,6 @@ import dto.*
                 stepNumber = 3,
                 title = hintKey(finnedKey, 3, "title"),
                 description = hintKey(finnedKey, 3, "description",
-                    "boxName" to boxName,
                     "coverTypeText" to coverTypeText,
                     "digit" to digit.toString(),
                     "cells" to eliminationNames

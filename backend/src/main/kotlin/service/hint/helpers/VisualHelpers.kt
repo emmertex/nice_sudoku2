@@ -65,3 +65,32 @@ import service.hint.helpers.eliminationCandidates
         }
     }
 
+    /**
+     * Human-readable name for a sector, using its real type (row/column/box) so a
+     * mixed sector set (e.g. a Franken fish's row + box) is named correctly per sector.
+     */
+    fun formatSectorName(sectorIndex: Int): String {
+        return when (getSectorType(sectorIndex)) {
+            "row" -> "Row ${sectorIndex % 9 + 1}"
+            "column" -> "Column ${sectorIndex % 9 + 1}"
+            "box" -> "Box ${sectorIndex % 9 + 1}"
+            else -> "Line ${sectorIndex + 1}"
+        }
+    }
+
+    /**
+     * Describe a *set* of sectors by type. A uniform set reads "rows"/"columns"/"boxes";
+     * a mixed set (e.g. a Franken fish's row + box base) reads "rows and boxes" instead
+     * of being labelled by its first sector only.
+     */
+    fun describeSectorTypeText(sectorIndices: List<Int>): String {
+        if (sectorIndices.isEmpty()) return "lines"
+        val plural = mapOf("row" to "rows", "column" to "columns", "box" to "boxes")
+        val words = sectorIndices
+            .map { getSectorType(it) }
+            .distinct()
+            .mapNotNull { plural[it] ?: "lines" }
+            .distinct()
+        return words.joinToString(" and ")
+    }
+

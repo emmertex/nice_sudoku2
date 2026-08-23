@@ -741,7 +741,7 @@
         "x_wing": {
             "step1": {
                 "title": "Identify the X-Wing pattern",
-                "description": "In {{baseNames}}, digit {{digit}} appears in exactly {{baseCount}} {{baseTypeText}}. These candidates line up perfectly in {{coverNames}}. Because {{digit}} must be placed in one of these positions in each base {{baseTypeText}}, it locks {{digit}} into the highlighted {{baseTypeText}}."
+                "description": "In {{baseNames}}, digit {{digit}} appears only in cells that also lie in {{coverNames}}. Within these {{baseTypeText}}, {{digit}} has no other place to go, so it is locked into the cover {{coverTypeText}}."
             },
             "step2": {
                 "title": "Eliminate from cover {{coverTypeText}}",
@@ -755,7 +755,7 @@
         "swordfish": {
             "step1": {
                 "title": "Identify the Swordfish pattern",
-                "description": "In {{baseNames}}, digit {{digit}} appears in exactly three {{baseTypeText}}. These candidates align across three {{coverTypeText}}: {{coverNames}}. The swordfish pattern locks {{digit}} into these base {{baseTypeText}}."
+                "description": "In {{baseNames}}, digit {{digit}} appears only in cells that also lie in {{coverNames}}. Within these {{baseTypeText}}, {{digit}} has no other place to go, so it is locked into the cover {{coverTypeText}}."
             },
             "step2": {
                 "title": "Eliminate from cover {{coverTypeText}}",
@@ -769,7 +769,7 @@
         "jellyfish": {
             "step1": {
                 "title": "Identify the Jellyfish pattern",
-                "description": "In {{baseNames}}, digit {{digit}} appears in exactly four {{baseTypeText}}. These candidates align across four {{coverTypeText}}: {{coverNames}}. The jellyfish pattern locks {{digit}} into these base {{baseTypeText}}."
+                "description": "In {{baseNames}}, digit {{digit}} appears only in cells that also lie in {{coverNames}}. Within these {{baseTypeText}}, {{digit}} has no other place to go, so it is locked into the cover {{coverTypeText}}."
             },
             "step2": {
                 "title": "Eliminate from cover {{coverTypeText}}",
@@ -783,7 +783,7 @@
         "basic_fish": {
             "step1": {
                 "title": "Identify the pattern",
-                "description": "Digit {{digit}} candidates align on base {{baseTypeText}} ({{baseNames}}) and cover {{coverTypeText}} ({{coverNames}}) to form this pattern."
+                "description": "Digit {{digit}} appears only in the base {{baseTypeText}} ({{baseNames}}) at cells that also lie in the cover {{coverTypeText}} ({{coverNames}}). Within the base {{baseTypeText}}, {{digit}} has no other place to go, so it is locked into the cover {{coverTypeText}}."
             },
             "step2": {
                 "title": "Eliminate from cover {{coverTypeText}}",
@@ -810,30 +810,32 @@
         },
         "finned_fish": {
             "step1": {
-                "title": "Find the Finned Pattern",
-                "description": "This is a **Finned {{fishType}}**. Let's start with the basic pattern: Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there's an extra cell (or cells) that doesn't fit - that's the 'fin'. The fin is at: {{finCells}} (shown in yellow)."
+                "title": "Find the Finned {{fishType}}",
+                "description": "This is a **Finned {{fishType}}**. Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there is an extra cell (or cells) that doesn't fit the pattern: that is the 'fin'. The fin is at: {{finCells}} (shown in yellow).",
+                "descriptionNoFin": "This is a **Finned {{fishType}}**. Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there is an extra cell (or cells) that doesn't fit the pattern: that is the 'fin'."
             },
             "step2": {
                 "title": "Understand the Fin's Effect",
-                "description": "The fin changes what we can eliminate. Here's the logic: **If the fin is TRUE** (has {{digit}}): The normal fish pattern applies to the rest, but we can only eliminate from cells that ALSO see the fin. **If the fin is FALSE**: Then {{digit}} must be somewhere else in the fish pattern, and the normal fish eliminations would apply. Either way, any cell that sees both the fin AND the fish pattern can be eliminated! This means eliminations are restricted to {{boxName}} (where the fin is)."
+                "description": "The fin changes what we can eliminate. Here is the logic: **If the fin is TRUE** (has {{digit}}): the normal fish pattern applies to the rest, but we can only eliminate from cells that also see the fin. **If the fin is FALSE**: then {{digit}} must be somewhere else in the fish pattern, so the normal fish eliminations apply. Either way, only cells that see the fin can be eliminated."
             },
             "step3": {
                 "title": "Eliminate Where Fin and Fish Meet",
-                "description": "Cells that can see the fin AND are in the fish's cover lines can be eliminated. These cells are in {{boxName}} (so they see the fin) and also in one of the cover {{coverTypeText}} (so the fish pattern affects them). Remove {{digit}} from: {{cells}}."
+                "description": "Cells that see the fin and lie in the fish's cover {{coverTypeText}} can be eliminated. Remove {{digit}} from: {{cells}}."
             }
         },
         "sashimi_fish": {
             "step1": {
-                "title": "Find the Finned Pattern",
-                "description": "This is a **Finned {{fishType}}**. Let's start with the basic pattern: Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there's an extra cell (or cells) that doesn't fit - that's the 'Sashimi fin'. The fin is at: {{finCells}} (shown in yellow). In a Sashimi variant, the fish would be incomplete without the fin - the fin is actually 'filling in' for a missing base cell."
+                "title": "Find the Finned {{fishType}}",
+                "description": "This is a **Finned {{fishType}}** (the Sashimi variant). Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there is an extra cell (or cells) that doesn't fit the pattern: that is the 'Sashimi fin'. The fin is at: {{finCells}} (shown in yellow). In a Sashimi variant, the fish would be incomplete without the fin: it is filling in for a missing base cell.",
+                "descriptionNoFin": "This is a **Finned {{fishType}}** (the Sashimi variant). Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there is an extra cell (or cells) that doesn't fit the pattern: that is the 'Sashimi fin'. In a Sashimi variant, the fish would be incomplete without the fin: it is filling in for a missing base cell."
             },
             "step2": {
                 "title": "Understand the Fin's Effect",
-                "description": "The fin changes what we can eliminate. Here's the logic: **If the fin is TRUE** (has {{digit}}): The normal fish pattern applies to the rest, but we can only eliminate from cells that ALSO see the fin. **If the fin is FALSE**: Then {{digit}} must be somewhere else in the fish pattern, and the normal fish eliminations would apply. Either way, any cell that sees both the fin AND the fish pattern can be eliminated! This means eliminations are restricted to {{boxName}} (where the fin is)."
+                "description": "The fin changes what we can eliminate. Here is the logic: **If the fin is TRUE** (has {{digit}}): the normal fish pattern applies to the rest, but we can only eliminate from cells that also see the fin. **If the fin is FALSE**: then {{digit}} must be somewhere else in the fish pattern, so the normal fish eliminations apply. Either way, only cells that see the fin can be eliminated."
             },
             "step3": {
                 "title": "Eliminate Where Fin and Fish Meet",
-                "description": "Cells that can see the fin AND are in the fish's cover lines can be eliminated. These cells are in {{boxName}} (so they see the fin) and also in one of the cover {{coverTypeText}} (so the fish pattern affects them). Remove {{digit}} from: {{cells}}."
+                "description": "Cells that see the fin and lie in the fish's cover {{coverTypeText}} can be eliminated. Remove {{digit}} from: {{cells}}."
             }
         },
         "xy_wing": {
