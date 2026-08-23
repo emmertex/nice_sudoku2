@@ -31,7 +31,13 @@ object LanguageManager {
     private val json = Json { ignoreUnknownKeys = true }
     private var languageData: JsonObject? = null
     private var currentLanguage: String = "en"
-    
+
+    // English fallback cache — a standalone copy of en.json, loaded once. Kept
+    // separate from `languageData` so looking it up never clobbers the active
+    // locale (see `enFallback()`).
+    private var enFallbackData: JsonObject? = null
+    private var enFallbackLoaded = false
+
     /**
      * List of supported language codes
      * When adding a new language, add its code here
@@ -46,7 +52,7 @@ object LanguageManager {
         // Use absolute path to avoid issues with URL-based language prefixes
         val path = "/languages/$language.json"
         val content = ResourceLoader.loadResource(path)
-        
+
         return if (content != null) {
             try {
                 languageData = json.parseToJsonElement(content).jsonObject
@@ -63,43 +69,84 @@ object LanguageManager {
 
     /**
      * Get a string by key path (e.g., "ui.game.solved")
-     * Supports nested keys separated by dots
+     * Supports nested keys separated by dots.
+     *
+     * Resolution order:
+     *  1. The currently loaded locale.
+     *  2. English (`en.json`) — so any key that exists only in the English file
+     *     still renders correctly under every other locale.
+     *  3. `"[key]"` — only for keys missing from *both* locales (truly broken).
      */
     fun getString(key: String): String {
         if (languageData == null) {
             // Try to load default language if not loaded
             loadLanguage("en")
         }
-        
+
+        // 1. Current locale
+        languageData?.let { locale ->
+            resolveKeyInObject(locale, key)?.let { return it }
+        }
+
+        // 2. English fallback
+        enFallback()?.let { en ->
+            resolveKeyInObject(en, key)?.let { return it }
+        }
+
+        // 3. Missing from both locales
+        return "[$key]"
+    }
+
+    /**
+     * Navigate a dot-separated key path through a JSON object tree.
+     * Returns the leaf string value, or null if any segment is absent or the
+     * path passes through a non-object node.
+     */
+    private fun resolveKeyInObject(root: JsonObject, key: String): String? {
         val keys = key.split(".")
-        var current: JsonObject? = languageData
-        
+        var current: JsonObject? = root
+
         for (i in keys.indices) {
-            val keyPart = keys[i]
-            val element = current?.get(keyPart)
-            
-            if (element == null) {
-                // Return the key if not found
-                return "[$key]"
-            }
-            
+            val element = current?.get(keys[i]) ?: return null
+
             if (i == keys.size - 1) {
                 // Last key - return the string value
                 return element.toString().trim('"')
             } else {
                 // Navigate deeper
-                current = element.jsonObject
+                current = element as? JsonObject ?: return null
             }
         }
-        
-        return "[$key]"
+
+        return null
+    }
+
+    /**
+     * Load (once) and cache the English language file as a standalone object.
+     *
+     * Deliberately does *not* call `loadLanguage("en")` — that would clobber
+     * `currentLanguage`. Instead it reads `/languages/en.json` into a separate
+     * `JsonObject` and resolves against it. Cached so repeated lookups are cheap.
+     */
+    private fun enFallback(): JsonObject? {
+        if (enFallbackLoaded) return enFallbackData
+        enFallbackLoaded = true
+
+        val content = ResourceLoader.loadResource("/languages/en.json") ?: return null
+        return try {
+            enFallbackData = json.parseToJsonElement(content).jsonObject
+            enFallbackData
+        } catch (e: Exception) {
+            println("Failed to parse EN fallback: ${e.message}")
+            null
+        }
     }
 
     /**
      * Get current language code
      */
     fun getCurrentLanguage(): String = currentLanguage
-    
+
     /**
      * Get the native name of the current language (from languageName field)
      */
@@ -107,7 +154,7 @@ object LanguageManager {
         val langName = languageData?.get("languageName")
         return langName?.jsonPrimitive?.content ?: currentLanguage.uppercase()
     }
-    
+
     /**
      * Get list of available languages with their native names
      */
@@ -122,7 +169,7 @@ object LanguageManager {
             }
         }
     }
-    
+
     /**
      * Get the native name for a specific language code
      */
@@ -131,12 +178,12 @@ object LanguageManager {
         if (code == currentLanguage && languageData != null) {
             return languageData?.get("languageName")?.jsonPrimitive?.content
         }
-        
+
         // Otherwise, load and parse just the languageName field
         // Use absolute path to avoid issues with URL-based language prefixes
         val path = "/languages/$code.json"
         val content = ResourceLoader.loadResource(path) ?: return null
-        
+
         return try {
             val parsed = json.parseToJsonElement(content).jsonObject
             parsed["languageName"]?.jsonPrimitive?.content
@@ -145,4 +192,3 @@ object LanguageManager {
         }
     }
 }
-
