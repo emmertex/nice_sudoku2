@@ -551,7 +551,8 @@
             },
             "step2": {
                 "title": "Follow the Logic",
-                "description": "Let's follow the chain step by step:\n\n{{chainSteps}}\n\nThe chain endpoints are critical - any cell that can 'see' both endpoints cannot have the target candidate."
+                "description": "Let's follow the chain step by step:\n\n{{chainSteps}}\n\nThe chain endpoints are critical - any cell that can 'see' both endpoints cannot have the target candidate.",
+                "descriptionLong": "This is a long chain ({{nodeCount}} links), so we won't list every step. The chain endpoints are critical - any cell that can 'see' both endpoints cannot have the target candidate."
             },
             "step3": {
                 "title": "Make the Elimination",
@@ -587,7 +588,7 @@
         "x_cycle": {
             "step1": {
                 "title": "Find the X-Cycle",
-                "description": "An X-Cycle is a chain of cells that loops back to where it started. This cycle has {{cycleSize}} nodes involving digit {{digit}} at cells: {{cells}}. The key is that the chain alternates between 'strong links' (solid lines) and 'weak links' (dashed lines). Strong link = if one is false, the other must be true. Weak link = both cannot be true at the same time. Because the chain forms a complete loop, certain candidates MUST be eliminated to avoid a contradiction."
+                "description": "An X-Cycle is a chain of cells that loops back to where it started. This cycle has {{cycleSize}} nodes{{digitClause}} at cells: {{cells}}. The key is that the chain alternates between 'strong links' (solid lines) and 'weak links' (dashed lines). Strong link = if one is false, the other must be true. Weak link = both cannot be true at the same time. Because the chain forms a complete loop, certain candidates MUST be eliminated to avoid a contradiction."
             },
             "step2": {
                 "title": "Understand the Cycle Logic"
@@ -626,7 +627,7 @@
             },
             "step3": {
                 "title": "Make the Elimination",
-                "description": "Based on the coloring analysis: The cell(s) at {{cells}} either see both colors (Color Trap) or are part of a color that contradicts itself (Color Wrap). Remove the candidate(s) from: {{cells}}."
+                "description": "Based on the coloring analysis: The cell(s) at {{cells}} either see both colors (Color Trap) or are part of a color that contradicts itself (Color Wrap). Remove {{digit}} from: {{cells}}."
             }
         },
         "generic": {
@@ -990,6 +991,26 @@
             "step3": {
                 "title": "Make the Elimination",
                 "description": "Based on the chain logic, remove {{digits}} from {{cells}}."
+            }
+        },
+        "x_cycle_generic": {
+            "step1": {
+                "title": "Find the Cycle Pattern",
+                "description": "This {{techniqueName}} creates a loop of cells connected by alternating strong and weak links{{digitClause}}. Strong links (solid) mean: if one is false, the other is true. Weak links (dashed) mean: both cannot be true together. \n\nThe complete loop creates a logical constraint that forces eliminations."
+            },
+            "step2": {
+                "title": "Apply the Cycle Logic",
+                "description": "Following the cycle's alternating links reveals that {{digit}} cannot be in certain cells. \n\nRemove {{digit}} from: {{cells}}."
+            }
+        },
+        "coloring_generic": {
+            "step1": {
+                "title": "Understand Colouring",
+                "description": "Colouring colors candidates along strong links. Start with a candidate as 'Green'; every candidate connected by a strong link becomes 'Yellow', and so on. A strong link exists when a digit appears exactly twice in a row, column or box, or when a cell has only two candidates. \n\nOne color is entirely TRUE, the other entirely FALSE."
+            },
+            "step2": {
+                "title": "Apply Color Logic",
+                "description": "Cells that see both colors cannot have the candidate (Color Trap). Or if same-color cells see each other, that color is false (Color Wrap). \n\nRemove the candidate(s) from: {{cells}}."
             }
         }
     },

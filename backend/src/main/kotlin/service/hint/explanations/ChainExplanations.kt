@@ -107,17 +107,16 @@ import dto.*
         } else {
             ""
         }
-        
+        val isLong = nodes.size > 6
+        val s2Description = if (isLong) {
+            hintKey("aic", 2, "descriptionLong", "nodeCount" to nodes.size.toString())
+        } else {
+            hintKey("aic", 2, "description", "chainSteps" to chainSteps)
+        }
         steps.add(ExplanationStepDto(
             stepNumber = 2,
             title = hintKey("aic", 2, "title"),
-            description = hintKey("aic", 2, "description",
-                "nodeCount" to nodes.size.toString(),
-                "startDesc" to startDesc,
-                "endDesc" to endDesc,
-                "chainSteps" to chainSteps,
-                "isLong" to (nodes.size > 6).toString()
-            ),
+            description = s2Description,
             highlightCells = allChainCells,
             lines = lines,
             groups = groups,

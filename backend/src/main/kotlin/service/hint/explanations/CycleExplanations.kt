@@ -19,6 +19,13 @@ import dto.*
             val (lines, groups, _) = service.hint.techniques.extractAICVisualData(match)
             val chain = match.chain
             val nodes = chain.nodes
+            // Digits actually involved in the cycle (derived from the chain nodes, never a fabricated 0)
+            val cycleDigits = nodes.map { it.digit() + 1 }.distinct().sorted()
+            val digitClause = when {
+                cycleDigits.isEmpty() -> ""
+                cycleDigits.size == 1 -> " involving digit ${cycleDigits.first()}"
+                else -> " involving digits " + cycleDigits.joinToString(", ")
+            }
             
             // Extract all cells in the cycle
             val cycleCells = nodes.flatMap { dirNode -> 
@@ -41,7 +48,7 @@ import dto.*
                 title = hintKey("x_cycle", 1, "title"),
                 description = hintKey("x_cycle", 1, "description",
                     "cycleSize" to cycleSize.toString(),
-                    "digit" to digit.toString(),
+                    "digitClause" to digitClause,
                     "cells" to cellNamesText
                 ),
                 highlightCells = cycleCells,
@@ -60,7 +67,7 @@ import dto.*
                 stepNumber = 2,
                 title = hintKey("x_cycle", 2, "title"),
                 description = hintKey(if (isNiceLoop) "x_cycle_nice_loop" else "x_cycle_discontinuous", 1, "description",
-                    "digit" to digit.toString()
+                    "digit" to cycleDigits.joinToString(", ")
                 ),
                 highlightCells = cycleCells,
                 lines = lines,
@@ -75,13 +82,14 @@ import dto.*
             if (eliminations.isNotEmpty()) {
                 val eliminationCells = eliminations.flatMap { it.cells }.distinct()
                 val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+                val elimDigits = eliminations.map { it.digit }.distinct().sorted()
 
                 steps.add(ExplanationStepDto(
                     stepNumber = 3,
                     title = hintKey("x_cycle", 3, "title"),
                     description = hintKey("x_cycle", 3, "description",
                         "cells" to eliminationNames,
-                        "digit" to digit.toString()
+                        "digit" to elimDigits.joinToString(", ")
                     ),
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations) + groups.flatMap { g ->
@@ -98,14 +106,16 @@ import dto.*
         // Fallback for non-AICMatch
         val eliminationCells = eliminations.flatMap { it.cells }
         
+        val fbDigitClause = if (digit != 0) " on digit $digit" else ""
+
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = "Find the X-Cycle Pattern",
-                description = "This $techniqueName creates a loop of cells connected by alternating strong and weak links on digit $digit. " +
-                    "Strong links (solid) mean: if one is false, the other is true. " +
-                    "Weak links (dashed) mean: both cannot be true together. " +
-                    "\n\nThe complete loop creates a logical constraint that forces eliminations.",
+                title = hintKey("x_cycle_generic", 1, "title"),
+                description = hintKey("x_cycle_generic", 1, "description",
+                    "techniqueName" to techniqueName,
+                    "digitClause" to fbDigitClause
+                ),
                 highlightCells = eliminationCells
             )
         )
@@ -115,9 +125,11 @@ import dto.*
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Apply the Cycle Logic",
-                    description = "Following the cycle's alternating links reveals that $digit cannot be in certain cells. " +
-                        "\n\nRemove $digit from: $eliminationNames.",
+                    title = hintKey("x_cycle_generic", 2, "title"),
+                    description = hintKey("x_cycle_generic", 2, "description",
+                        "digit" to digit.toString(),
+                        "cells" to eliminationNames
+                    ),
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)
                 )
@@ -197,12 +209,14 @@ import dto.*
             if (eliminations.isNotEmpty()) {
                 val eliminationCells = eliminations.flatMap { it.cells }.distinct()
                 val eliminationNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
+                val elimDigits = eliminations.map { it.digit }.distinct().sorted()
 
                 steps.add(ExplanationStepDto(
                     stepNumber = 3,
                     title = hintKey("coloring", 3, "title"),
                     description = hintKey("coloring", 3, "description",
-                        "cells" to eliminationNames
+                        "cells" to eliminationNames,
+                        "digit" to elimDigits.joinToString(", ")
                     ),
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations) + groups.flatMap { g ->
@@ -220,23 +234,11 @@ import dto.*
         // Fallback for non-AICMatch
         val eliminationCells = eliminations.flatMap { it.cells }
         
-        val step1Title = if (is3DMedusa) "3D Medusa Colouring" else "Simple Colouring"
-        val step1Description = if (is3DMedusa) {
-            "3D Medusa colors multiple digits connected by strong links. " +
-            "Start with one candidate as 'Green', alternate to 'Yellow' along strong links. " +
-            "Strong links exist between: cells with only 2 candidates, or digits appearing exactly twice in a house. " +
-            "\n\nOne color is entirely TRUE, the other entirely FALSE."
-        } else {
-            "Simple Colouring works on digit $digit. Color cells alternately along strong links " +
-            "(where $digit appears exactly twice in a row/column/box). " +
-            "\n\nOne color is entirely TRUE, the other entirely FALSE."
-        }
-
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
-                title = step1Title,
-                description = step1Description,
+                title = hintKey("coloring_generic", 1, "title"),
+                description = hintKey("coloring_generic", 1, "description"),
                 highlightCells = eliminationCells
             )
         )
@@ -246,10 +248,10 @@ import dto.*
             steps.add(
                 ExplanationStepDto(
                     stepNumber = 2,
-                    title = "Apply Color Logic",
-                    description = "Cells that see both colors cannot have the candidate (Color Trap). " +
-                        "Or if same-color cells see each other, that color is false (Color Wrap). " +
-                        "\n\nRemove candidate(s) from: $eliminationNames.",
+                    title = hintKey("coloring_generic", 2, "title"),
+                    description = hintKey("coloring_generic", 2, "description",
+                        "cells" to eliminationNames
+                    ),
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)
                 )

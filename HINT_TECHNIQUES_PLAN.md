@@ -4,7 +4,7 @@
 > This file is the *what/where/how to ship it* breakdown, phased so each phase fits a
 > fresh context well under ~200k tokens.
 >
-> **Status:** Phase 1 (EN-fallback resolver + `check_hint_keys.py` / routing-pin guardrails), Phase 2 (ALS per-set titles + UR elimination types 3–6, type-0→generic guard), Phase 3 (Sue-de-Coq / Forcing Chains / Nishio / ChainLike hardcoded→key-based, XY-Chain text rewritten weak-link-only) and Phase 4 (fish s1 valid count claim + combined base/cover type + per-sector names; finned/sashimi “cells that see the fin” + empty-fin guard) are implemented and verified (`check_hint_keys.py` green, `:backend`/`:shared` tests green, `HintKeyResolutionTest` extended with 6 fish/finned cases). Phases 5–10 pending.
+> **Status:** Phase 1 (EN-fallback resolver + `check_hint_keys.py` / routing-pin guardrails), Phase 2 (ALS per-set titles + UR elimination types 3–6, type-0→generic guard), Phase 3 (Sue-de-Coq / Forcing Chains / Nishio / ChainLike hardcoded→key-based, XY-Chain text rewritten weak-link-only), Phase 4 (fish s1 valid count claim + combined base/cover type + per-sector names; finned/sashimi “cells that see the fin” + empty-fin guard) and Phase 5 (colouring s3 names the digit; AIC long-chain s2 no dangling intro; X-Cycle digit guard + plural-safe; localized non-AICMatch colouring/cycle fallbacks) are implemented and verified (`check_hint_keys.py` green, `:backend`/`:shared` tests green, `HintKeyResolutionTest` extended with 6 Phase-5 cases, `RoutingPinTest` now allows the new `coloring_generic` fallback family). Phases 6–10 pending.
 >
 > **Decisions already made with the owner:**
 > - New/changed hint keys are **authored in `en.json` only**. The other 10 locales are
@@ -298,6 +298,22 @@ template edits via python. **≈ 30k.** Safe.
 ---
 
 ## Phase 5 — Colouring, Cycle & chain-edge accuracy (gap 3-fallback, 6, 7, 9-partial)
+
+> ✅ **Done.** `coloring.step3` now names the eliminated digit(s) (`{{digit}}`), passed
+> from `generateColouringSteps` as the distinct elimination digits (plural-safe for 3D
+> Medusa's multi-digit eliminations). The AIC long-chain s2 no longer dangles "Let's follow
+> the chain step by step:" over an empty `{{chainSteps}}` — the generator branches on
+> `nodes.size > 6` to pick a new `aic.step2.descriptionLong` variant. X-Cycles s1 derives
+> its digit(s) from the *chain nodes* (never a fabricated `digit 0`): an unknown set omits
+> the clause, one digit reads "involving digit N", several "involving digits N, M". The
+> non-`AICMatch` colouring/cycle fallbacks (which also serve the `Hidden XY (Type 1)` path)
+> are now localized to new `coloring_generic` / `x_cycle_generic` keys instead of hardcoded
+> English. Verified: `check_hint_keys.py` green (0 errors, 0 new warnings; the `aic.step2`
+> `isLong` unused-var warning is resolved), `:backend`/`:shared` tests green, and 6 new
+> `HintKeyResolutionTest` Phase-5 cases (coloring s3 digit + plural, x-cycle s1 guard +
+> plural, long-AIC s2 no intro, localized colouring/cycle fallbacks render). `RoutingPinTest`
+> now allows the `coloring_generic` family (the colouring fallback is reachable with a
+> non-AICMatch).
 
 **Goal:** fix the colouring s3 digit gap, the AIC long-chain dangling intro, the X-Cycles
 "digit 0" fabrication, and localize the non-`AICMatch` colouring/cycle fallbacks.

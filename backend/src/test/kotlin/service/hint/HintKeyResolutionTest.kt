@@ -4,6 +4,8 @@ import dto.EliminationDto
 import i18n.HintStringInterpolation
 import i18n.LanguageConfig
 import service.hint.explanations.generateUniqueRectangleSteps
+import service.hint.explanations.generateColouringSteps
+import service.hint.explanations.generateCycleSteps
 import sudoku.match.SubsetMatch
 import java.util.BitSet
 import kotlin.test.Test
@@ -193,5 +195,97 @@ class HintKeyResolutionTest {
         for (locale in listOf("en", "de")) {
             for (k in keys) assertResolves(locale, k)
         }
+    }
+
+    // --- Phase 5: colouring, cycle & chain-edge accuracy (gaps 6, 7, 9; non-AICMatch fallbacks) ---
+
+    @Test
+    fun `phase5 coloring s3 names the eliminated digit`() {
+        LanguageConfig.setLanguage("en")
+        val rendered = HintStringInterpolation.interpolate(
+            "{{hints.coloring.step3.description|digit=7|cells=R1C1, R1C2}}"
+        )
+        assertTrue(!isMissingMarker(rendered), "coloring s3 rendered as a missing-key marker: $rendered")
+        assertTrue(rendered.contains("Remove 7 from"), "coloring s3 must name the digit: $rendered")
+        assertTrue(!rendered.contains("{{"), "coloring s3 left an unresolved placeholder: $rendered")
+    }
+
+    @Test
+    fun `phase5 coloring s3 is plural-safe for multiple digits`() {
+        LanguageConfig.setLanguage("en")
+        val rendered = HintStringInterpolation.interpolate(
+            "{{hints.coloring.step3.description|digit=3, 7|cells=R1C1, R1C2}}"
+        )
+        assertTrue(rendered.contains("Remove 3, 7 from"), "coloring s3 should list both digits: $rendered")
+        assertTrue(!rendered.contains("{{"), "coloring s3 left an unresolved placeholder: $rendered")
+    }
+
+    @Test
+    fun `phase5 x-cycle s1 guards the digit clause and is plural-safe`() {
+        LanguageConfig.setLanguage("en")
+        // Unknown digit set -> empty clause -> no fabricated "digit 0".
+        val noDigit = HintStringInterpolation.interpolate(
+            "{{hints.x_cycle.step1.description|cycleSize=6|digitClause=|cells=R1C1, R1C2}}"
+        )
+        assertTrue(!noDigit.contains("digit 0"), "x-cycle s1 must not fabricate 'digit 0': $noDigit")
+        assertTrue(!noDigit.contains("{{"), "x-cycle s1 left an unresolved placeholder: $noDigit")
+
+        val single = HintStringInterpolation.interpolate(
+            "{{hints.x_cycle.step1.description|cycleSize=6|digitClause= involving digit 7|cells=R1C1, R1C2}}"
+        )
+        assertTrue(single.contains("involving digit 7"), "x-cycle s1 should name the single digit: $single")
+
+        val multi = HintStringInterpolation.interpolate(
+            "{{hints.x_cycle.step1.description|cycleSize=7|digitClause= involving digits 3, 7|cells=R1C1}}"
+        )
+        assertTrue(multi.contains("involving digits 3, 7"), "x-cycle s1 should be plural-safe: $multi")
+    }
+
+    @Test
+    fun `phase5 long aic s2 drops the dangling step-by-step intro`() {
+        LanguageConfig.setLanguage("en")
+        // Long chain (>6 nodes) -> the generator picks descriptionLong, which must not
+        // keep the "step by step:" intro that would dangle over an empty {{chainSteps}}.
+        val long = HintStringInterpolation.interpolate(
+            "{{hints.aic.step2.descriptionLong|nodeCount=12}}"
+        )
+        assertTrue(!long.contains("step by step"), "long AIC s2 must not keep the step-by-step intro: $long")
+        assertTrue(long.contains("12"), "long AIC s2 should state the link count: $long")
+        assertTrue(!long.contains("{{"), "long AIC s2 left an unresolved placeholder: $long")
+
+        val short = HintStringInterpolation.interpolate(
+            "{{hints.aic.step2.description|chainSteps=If 5 is NOT in R1C1, then 5 MUST be in R1C9}}"
+        )
+        assertTrue(short.contains("step by step"), "short AIC s2 should keep the step-by-step intro: $short")
+        assertTrue(short.contains("If 5 is NOT in R1C1"), "short AIC s2 should list the chain steps: $short")
+    }
+
+    @Test
+    fun `phase5 non-AICMatch colouring fallback is localized and resolves`() {
+        LanguageConfig.setLanguage("en")
+        val steps = generateColouringSteps("Simple Colouring", dummyMatch, dummyEliminations)
+        val s1 = steps.first { it.stepNumber == 1 }
+        assertTrue(s1.description.contains("coloring_generic"), "expected the generic colouring fallback: ${s1.description}")
+        val rendered = HintStringInterpolation.interpolate(s1.description)
+        assertTrue(!isMissingMarker(rendered), "colouring fallback s1 rendered as a missing-key marker: $rendered")
+        assertTrue(!rendered.contains("{{"), "colouring fallback s1 left an unresolved placeholder: $rendered")
+    }
+
+    @Test
+    fun `phase5 non-AICMatch cycle fallback guards the digit and localizes`() {
+        LanguageConfig.setLanguage("en")
+        // No eliminations -> digit unknown -> the digit clause is omitted (no "digit 0").
+        val noElim = generateCycleSteps("X-Cycle", dummyMatch, emptyList())
+        val s1 = noElim.first { it.stepNumber == 1 }
+        assertTrue(s1.description.contains("x_cycle_generic"), "expected the generic cycle fallback: ${s1.description}")
+        val rendered = HintStringInterpolation.interpolate(s1.description)
+        assertTrue(!rendered.contains("digit 0"), "cycle fallback s1 must not fabricate 'digit 0': $rendered")
+        assertTrue(!rendered.contains("{{"), "cycle fallback s1 left an unresolved placeholder: $rendered")
+
+        // With an elimination -> the digit clause is present.
+        val withElim = generateCycleSteps("X-Cycle", dummyMatch, dummyEliminations)
+        val s1b = withElim.first { it.stepNumber == 1 }
+        val renderedB = HintStringInterpolation.interpolate(s1b.description)
+        assertTrue(renderedB.contains("digit 7"), "cycle fallback s1 should name the digit when known: $renderedB")
     }
 }

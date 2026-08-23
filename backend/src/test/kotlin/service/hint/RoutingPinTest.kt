@@ -60,7 +60,7 @@ class RoutingPinTest {
     )
     private val fishFamilies = setOf("x_wing", "swordfish", "jellyfish", "basic_fish")
     private val wingFamilies = setOf("xy_wing", "xyz_wing", "wxyz_wing", "w_wing", "generic_wing")
-    private val coloringFamilies = setOf("simple_coloring", "3d_medusa", "coloring")
+    private val coloringFamilies = setOf("simple_coloring", "3d_medusa", "coloring", "coloring_generic")
 
     /** Map of solver enum name -> the hint families its technique may legitimately emit. */
     private val expected: Map<String, Set<String>> = mapOf(
