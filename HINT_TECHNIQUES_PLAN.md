@@ -4,7 +4,7 @@
 > This file is the *what/where/how to ship it* breakdown, phased so each phase fits a
 > fresh context well under ~200k tokens.
 >
-> **Status:** Phase 1 (EN-fallback resolver + `check_hint_keys.py` / routing-pin guardrails) and Phase 2 (ALS per-set titles + UR elimination types 3–6, type-0→generic guard) are implemented and verified (`check_hint_keys.py` green, `:backend` tests green, `HintKeyResolutionTest` added). Phases 3–10 pending.
+> **Status:** Phase 1 (EN-fallback resolver + `check_hint_keys.py` / routing-pin guardrails), Phase 2 (ALS per-set titles + UR elimination types 3–6, type-0→generic guard) and Phase 3 (Sue-de-Coq / Forcing Chains / Nishio / ChainLike hardcoded→key-based, XY-Chain text rewritten weak-link-only) are implemented and verified (`check_hint_keys.py` green, `:backend`/`:shared` tests green, `HintKeyResolutionTest` added). Phases 4–10 pending.
 >
 > **Decisions already made with the owner:**
 > - New/changed hint keys are **authored in `en.json` only**. The other 10 locales are
@@ -190,6 +190,21 @@ multi-ALS hint (ALS-XY/XZ) and a UR type-3+ hint; confirm no `[…]`. `:backend`
 ---
 
 ## Phase 3 — Diabolical hardcoded→localized + XY-Chain rewrite (gap 3, 3b, V3)
+
+> ✅ **Done.** The four hardcoded generators now emit key-based steps: `generateSueDeCoqSteps`
+> → `hints.sue_de_coq.*` (ELI5 prose kept verbatim; s3 takes `{{digits}}`/`{{cells}}`);
+> `generateForcingChainSteps` → `hints.forcing_chains.*` with the s1 text fixed so it no
+> longer claims the highlighted (elimination) cells are the starting cell;
+> `generateNishioSteps` → `hints.nishio.*` with s1 now naming the assumed candidate
+> (`{{digits}}` in `{{cells}}`) instead of only implying it via the eliminations.
+> `generateChainLikeSteps` was rewritten **first** — the XY-Chain text no longer claims
+> strong links (XY-chains are weak-link-only) — then localized: the generator branches on
+> whether the name contains "XY" to pick `hints.xy_chain.*` vs `hints.generic_chain.*`
+> (the latter covers ALS-Chain, Alternating Inference Chains, X - Chains, Kraken Chains,
+> …). The "deeper Sue-de-Coq identify-the-ALSs" improvement stays flagged as a later
+> optional pass (thinness is accepted). Verified: `check_hint_keys.py` green (0 errors,
+> no new warnings), `:backend`/`:shared` tests green, and a render sweep of the four
+> techniques (no `[…]`, no leftover `{{var}}`, XY-Chain text factually correct).
 
 **Goal:** convert the untranslated diabolical-tier steps to key-based steps and fix the
 **incorrect** XY-Chain text. This is the biggest "content" phase but is one file + EN keys.

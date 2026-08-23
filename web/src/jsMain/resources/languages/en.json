@@ -919,6 +919,76 @@
                 "title": "Make the elimination",
                 "description": "Since {{cells}} can see both green cells, we know {{digit}} cannot go there. Eliminate {{digit}} from: {{cells}}."
             }
+        },
+        "sue_de_coq": {
+            "step1": {
+                "title": "Find the Box-Line Intersection",
+                "description": "Sue-de-Coq is a powerful technique that works on the intersection of a box and a line (row or column). Here's the key insight: \n\nLook at where a box and a line overlap (2-3 cells). Count the candidates in these intersection cells - let's say there are N candidates. Now look for 'almost locked sets' (ALS) in the rest of the box AND the rest of the line that share some of these candidates. \n\nIf the candidates 'partition' correctly between the intersection and these ALS cells, we can make eliminations!"
+            },
+            "step2": {
+                "title": "Understand the Partition",
+                "description": "The partition works like this: \n\nImagine the candidates in the intersection split into groups. Some candidates are 'claimed' by the ALS in the line, others by the ALS in the box. Together, these claims account for all the candidates in the intersection. \n\nThis means: any cell OUTSIDE these groups that shares a house with them cannot have the partitioned candidates. They're fully accounted for!"
+            },
+            "step3": {
+                "title": "Eliminate Outside the Partition",
+                "description": "Based on the partition, these candidates are 'locked' within the Sue-de-Coq structure. \n\nRemove {{digits}} from {{cells}}. These cells see the structure but aren't part of it."
+            }
+        },
+        "forcing_chains": {
+            "step1": {
+                "title": "The What-If Idea",
+                "description": "A forcing chain starts from a cell with 2 (or more) candidates and asks: 'What happens if each candidate is true?' \n\nWe explore BOTH possibilities like branching paths: • Branch A: Assume candidate X is true, follow the consequences... • Branch B: Assume candidate Y is true, follow the consequences... \n\nThe highlighted cells are where the branching pays off: if every branch leads to the SAME conclusion about them, that conclusion MUST be true - because one of the starting candidates must be correct!"
+            },
+            "step2": {
+                "title": "Both Paths Converge",
+                "description": "Following both branches through chains of logical deductions, we find that they converge on a common result. \n\nThis is like two roads that start in different directions but both lead to the same destination. No matter which starting candidate is correct, the destination is certain. \n\nThe common conclusion is: {{digits}} cannot be in {{cells}}."
+            },
+            "step3": {
+                "title": "Apply the Forced Conclusion",
+                "description": "Since both branches agree on this conclusion, we can apply it with certainty. \n\nRemove {{digits}} from {{cells}}."
+            }
+        },
+        "nishio": {
+            "step1": {
+                "title": "Make an Assumption",
+                "description": "Nishio is a 'what if' technique. We pick a candidate and assume it's TRUE, then follow the chain of consequences to see what happens. \n\nIt's like a detective saying: 'Let's assume the butler did it. If that were true, then X would happen, then Y would happen...' \n\nHere we assume {{digits}} is true in {{cells}}. If following this chain leads to an IMPOSSIBLE situation (a contradiction), then our assumption was wrong - the candidate cannot be true!"
+            },
+            "step2": {
+                "title": "Find the Contradiction",
+                "description": "We assumed {{digits}} is true in {{cells}} and followed the logic: \n\nAs we trace through the consequences (eliminating candidates, forcing placements), we eventually reach an impossible state - perhaps a cell with no candidates, or a digit that can't go anywhere in a house, or a cell that must have two different values. \n\nThis contradiction proves our assumption was wrong!"
+            },
+            "step3": {
+                "title": "Eliminate the Impossible",
+                "description": "Since assuming {{digits}} leads to a contradiction, it cannot be true. \n\nRemove {{digits}} from {{cells}}."
+            }
+        },
+        "xy_chain": {
+            "step1": {
+                "title": "Follow the Weak-Link Chain",
+                "description": "An XY-chain is a chain of bivalue cells connected by WEAK links only - there are no strong links at all. \n\nThink of it like dominoes: each cell has exactly two candidates. When one candidate is false, the other in that cell must be true, which in turn forces what must be true in the next cell of the chain, and so on... \n\nFollowing the chain from one end to the other proves the conclusion at the far end: a candidate there cannot be true."
+            },
+            "step2": {
+                "title": "Reach the Conclusion",
+                "description": "By following the chain from start to finish, we can prove that a candidate must be eliminated. \n\nThe chain's endpoints show that {{digits}} cannot be in {{cells}} - it would create a contradiction."
+            },
+            "step3": {
+                "title": "Make the Elimination",
+                "description": "Based on the chain logic, remove {{digits}} from {{cells}}."
+            }
+        },
+        "generic_chain": {
+            "step1": {
+                "title": "Follow the Chain",
+                "description": "This technique works by connecting candidates in a logical chain that alternates between strong and weak links. \n\nThink of it like dominoes: if this candidate is true, then that one must be false, which means this other one must be true, and so on... \n\nThe chain uses two types of connections: • Strong links (solid): if one is false, the other is true • Weak links (dashed): both cannot be true at the same time"
+            },
+            "step2": {
+                "title": "Reach the Conclusion",
+                "description": "By following the chain from start to finish, we can prove that certain candidates must be eliminated. \n\nThe chain's endpoints (or the logic along the way) show that {{digits}} cannot be in {{cells}} - it would create a contradiction."
+            },
+            "step3": {
+                "title": "Make the Elimination",
+                "description": "Based on the chain logic, remove {{digits}} from {{cells}}."
+            }
         }
     },
     "backend": {
