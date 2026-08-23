@@ -537,7 +537,8 @@
             },
             "step2": {
                 "title": "Find the Exception Cell",
-                "description": "Now look at {{cell}} - this cell is special! While all the other unsolved cells have exactly two candidates, this one has THREE (or more). This is the 'plus one' in BUG+1. This extra candidate is the key to solving the puzzle. If we removed this extra candidate, we'd have the deadly BUG pattern with multiple solutions. Therefore, the extra candidate MUST be the true value of this cell!"
+                "description": "Now look at {{cell}} - this cell is special! While all the other unsolved cells have exactly two candidates, this one has THREE (or more). This is the 'plus one' in BUG+1. This extra candidate is the key to solving the puzzle. If we removed this extra candidate, we'd have the deadly BUG pattern with multiple solutions. Therefore, the extra candidate MUST be the true value of this cell!",
+                "descriptionGeneric": "Now look for the exception cell! While all the other unsolved cells have exactly two candidates, one special cell will have THREE (or more). This is the key to solving the puzzle! The 'extra' candidate in that cell is the only thing preventing the puzzle from having multiple solutions."
             },
             "step3": {
                 "title": "Prevent the BUG",

@@ -351,6 +351,8 @@ digit), a long AIC (> 6 nodes, no dangling intro), and an X-Cycle with no elimin
 
 ## Phase 6 — Kite + BUG empty-data guards (gap 9, D1)
 
+> ✅ **Done.** Suppressed Kite's step 2 entirely when `chainDescription` is empty (the empty chain line fallback is gone), avoiding "The kite forms a chain: ." BUG's step 2 now falls back to a new `descriptionGeneric` template in `en.json` when there are no eliminations (target cell unknown), avoiding the fabricated "R1C1" target. The Kite doc note (D1) about "1 or 3 steps" was already updated. Verified: `check_hint_keys.py` green (0 errors, 11 unused-var warnings remaining).
+
 **Goal:** kill the last two fabricated-value edge cases and correct the Kite doc.
 
 **Files:** `techniques/KiteTechniques.kt` (`generateKiteSteps` L278);

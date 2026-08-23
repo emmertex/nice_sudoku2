@@ -14,8 +14,8 @@ import dto.*
         val eliminationDigits = eliminations.map { it.digit }.distinct()
         
         // The target cell is usually the one with the extra candidate (BUG+1)
-        val targetCell = eliminationCells.firstOrNull() ?: 0
-        val targetCellName = formatCellName(targetCell)
+        val targetCell = eliminationCells.firstOrNull()
+        val targetCellName = targetCell?.let { formatCellName(it) } ?: ""
         val eliminationDigitText = eliminationDigits.joinToString(", ")
 
         steps.add(
@@ -28,20 +28,35 @@ import dto.*
             )
         )
         
-        steps.add(
-            ExplanationStepDto(
-                stepNumber = 2,
-                title = hintKey("bug", 2, "title"),
-                description = hintKey("bug", 2, "description",
-                    "cell" to targetCellName
-                ),
-                highlightCells = listOf(targetCell),
-                colouredCells = listOf(ColouredCellDto(targetCell, "warning")),
-                colouredCandidates = eliminationDigits.map { d ->
-                    ColouredCandidateDto(targetCell / 9, targetCell % 9, d, "target")
-                }
+        if (eliminations.isNotEmpty()) {
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = hintKey("bug", 2, "title"),
+                    description = hintKey("bug", 2, "description",
+                        "cell" to targetCellName
+                    ),
+                    highlightCells = targetCell?.let { listOf(it) } ?: emptyList(),
+                    colouredCells = targetCell?.let { listOf(ColouredCellDto(it, "warning")) } ?: emptyList(),
+                    colouredCandidates = targetCell?.let { tc -> 
+                        eliminationDigits.map { d ->
+                            ColouredCandidateDto(tc / 9, tc % 9, d, "target")
+                        }
+                    } ?: emptyList()
+                )
             )
-        )
+        } else {
+            steps.add(
+                ExplanationStepDto(
+                    stepNumber = 2,
+                    title = hintKey("bug", 2, "title"),
+                    description = hintKey("bug", 2, "descriptionGeneric"),
+                    highlightCells = emptyList(),
+                    colouredCells = emptyList(),
+                    colouredCandidates = emptyList()
+                )
+            )
+        }
 
         // Step 3: Make the elimination/placement
         if (eliminations.isNotEmpty()) {
@@ -54,7 +69,7 @@ import dto.*
                         "cell" to targetCellName
                     ),
                     highlightCells = eliminationCells,
-                    colouredCells = listOf(ColouredCellDto(targetCell, "target")),
+                    colouredCells = listOf(ColouredCellDto(targetCell!!, "target")),
                     colouredCandidates = eliminationCandidates(eliminations)
                 )
             )

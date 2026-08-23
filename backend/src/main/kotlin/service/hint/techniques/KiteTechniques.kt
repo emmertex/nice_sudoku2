@@ -620,23 +620,25 @@ import dto.*
                 }
             }
 
-            steps.add(
-                ExplanationStepDto(
-                    stepNumber = 2,
-                    title = hintKey("kite", 2, "title"),
-                    description = hintKey("kite", 2, "description",
-                        "chain" to chainDescription,
-                        "digit" to digit.toString(),
-                        "kiteNames" to kiteNamesText
-                    ),
-                    highlightCells = kiteCells + eliminationCells,
-                    regions = allRegions,
-                    colouredCells = kiteColouredCells,
-                    colouredCandidates = patternCandidates,
-                    lines = step2Lines,
-                    groups = step2Groups
+            if (chainDescription.isNotEmpty()) {
+                steps.add(
+                    ExplanationStepDto(
+                        stepNumber = 2,
+                        title = hintKey("kite", 2, "title"),
+                        description = hintKey("kite", 2, "description",
+                            "chain" to chainDescription,
+                            "digit" to digit.toString(),
+                            "kiteNames" to kiteNamesText
+                        ),
+                        highlightCells = kiteCells + eliminationCells,
+                        regions = allRegions,
+                        colouredCells = kiteColouredCells,
+                        colouredCandidates = patternCandidates,
+                        lines = step2Lines,
+                        groups = step2Groups
+                    )
                 )
-            )
+            }
 
             // Step 3: Show eliminations - highlight the row and column that form the kite intersection
             val eliminationRegions = eliminationCells.flatMap { cell ->
