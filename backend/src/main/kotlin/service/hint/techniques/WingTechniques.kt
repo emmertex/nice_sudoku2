@@ -3,6 +3,7 @@ package service.hint.techniques
 import sudoku.match.FishMatch
 import service.hint.helpers.*
 import service.hint.helpers.LanguageKeyBuilder.hintKey
+import service.hint.helpers.LanguageKeyBuilder.commonKey
 import service.hint.helpers.formatCellName
 import sudoku.match.TechniqueMatch
 import dto.*
@@ -321,7 +322,10 @@ import dto.*
                     title = hintKey(wingKey, 3, "title",
                         "digit" to targetDigit.toString()
                     ),
-                    description = hintKey(wingKey, 3, "description",
+                    // R3 (Phase 8): one shared s3 for all wing shapes — "both pincers"
+                    // was wrong for W-Wing/WXYZ/generic; elimination cells see the
+                    // wing cells, whatever the shape is.
+                    description = commonKey("wingElimination",
                         "cells" to eliminationNames,
                         "digit" to targetDigit.toString()
                     ),

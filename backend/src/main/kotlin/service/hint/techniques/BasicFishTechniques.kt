@@ -590,8 +590,11 @@ import dto.*
 
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = hintKey(finnedKey, 2, "title"),
-            description = hintKey(finnedKey, 2, "description",
+            // R2 (Phase 8): s2/s3 are shared verbatim with the sashimi variant —
+            // the fin logic is identical, so both families reference the finned_fish
+            // keys; sashimi_fish keeps only its own (different) s1.
+            title = hintKey("finned_fish", 2, "title"),
+            description = hintKey("finned_fish", 2, "description",
                 "digit" to digit.toString()
             ),
             highlightCells = finCellsList,
@@ -606,8 +609,8 @@ import dto.*
 
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
-                title = hintKey(finnedKey, 3, "title"),
-                description = hintKey(finnedKey, 3, "description",
+                title = hintKey("finned_fish", 3, "title"),
+                description = hintKey("finned_fish", 3, "description",
                     "coverTypeText" to coverTypeText,
                     "digit" to digit.toString(),
                     "cells" to eliminationNames

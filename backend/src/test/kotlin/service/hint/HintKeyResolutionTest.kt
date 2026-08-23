@@ -190,7 +190,7 @@ class HintKeyResolutionTest {
             "{{hints.finned_fish.step2.description|digit=5}}",
             "{{hints.finned_fish.step3.description|coverTypeText=columns|digit=5|cells=R1C1, R1C9}}",
             "{{hints.sashimi_fish.step1.descriptionNoFin|fishType=X-Wing|baseNames=Row 2|digit=5|coverNames=Column 3}}",
-            "{{hints.sashimi_fish.step3.description|coverTypeText=columns|digit=5|cells=R1C1}}"
+            "{{hints.finned_fish.step3.description|coverTypeText=columns|digit=5|cells=R1C1}}"
         )
         for (locale in listOf("en", "de")) {
             for (k in keys) assertResolves(locale, k)
@@ -319,5 +319,77 @@ class HintKeyResolutionTest {
         val rendered = HintStringInterpolation.interpolate(s1.description)
         assertTrue(!rendered.contains("{{"), "kite s1 left an unresolved placeholder: $rendered")
         assertTrue(!isMissingMarker(rendered), "kite s1 rendered as missing-key marker: $rendered")
+    }
+
+    // --- Phase 8: redundancy & shared-text consolidation (R1–R4) ---
+
+    @Test
+    fun `phase8 pointing and claiming s1 share one boxLineInteraction key`() {
+        // R1: the two s1 texts were byte-identical; both now resolve through the
+        // single hints.common.boxLineInteraction key so they can't drift.
+        for (locale in listOf("en", "de")) {
+            assertResolves(locale, "{{hints.common.boxLineInteraction|baseHouse=Box 1|digit=5|coverHouse=Row 3}}")
+        }
+        LanguageConfig.setLanguage("en")
+        for (name in listOf("Pointing Candidates", "Claiming Candidates")) {
+            val s1 = service.hint.explanations.generateIntersectionSteps(name, dummyMatch, dummyEliminations)
+                .first { it.stepNumber == 1 }
+            assertTrue(s1.description.contains("boxLineInteraction"),
+                "[$name] s1 must use the shared key, got: ${s1.description}")
+            val rendered = HintStringInterpolation.interpolate(s1.description)
+            assertTrue(!isMissingMarker(rendered), "[$name] s1 rendered as missing-key marker: $rendered")
+            assertTrue(!rendered.contains("{{"), "[$name] s1 left an unresolved placeholder: $rendered")
+        }
+    }
+
+    @Test
+    fun `phase8 sashimi s2 and s3 reuse the shared finned_fish keys`() {
+        // R2: finned_fish and sashimi_fish s2/s3 were verbatim duplicates; the
+        // sashimi generator now emits the finned_fish keys (its s1 stays its own).
+        LanguageConfig.setLanguage("en")
+        val steps = generateFinnedFishSteps("Sashimi X-Wing", dummyMatch, dummyEliminations)
+        val s2 = steps.first { it.stepNumber == 2 }
+        val s3 = steps.first { it.stepNumber == 3 }
+        assertTrue(s2.description.contains("finned_fish.step2"),
+            "sashimi s2 must use the shared finned_fish key: ${s2.description}")
+        assertTrue(s3.description.contains("finned_fish.step3"),
+            "sashimi s3 must use the shared finned_fish key: ${s3.description}")
+        for (s in listOf(s2, s3)) {
+            val rendered = HintStringInterpolation.interpolate(s.description)
+            assertTrue(!isMissingMarker(rendered), "sashimi shared step rendered as missing-key marker: $rendered")
+        }
+    }
+
+    @Test
+    fun `phase8 wing s3 is one shared key and no longer mentions pincers`() {
+        // R3: the five wing families shared an s3 that said "both pincers" (wrong for
+        // W-Wing/WXYZ/generic); all now resolve through the single
+        // hints.common.wingElimination key.
+        for (locale in listOf("en", "de")) {
+            assertResolves(locale, "{{hints.common.wingElimination|cells=R1C1, R1C9|digit=5}}")
+        }
+        LanguageConfig.setLanguage("en")
+        val steps = service.hint.techniques.generateWingSteps("W-Wing", dummyMatch, dummyEliminations)
+        val s3 = steps.first { it.stepNumber == 3 }
+        assertTrue(s3.description.contains("wingElimination"),
+            "wing s3 must use the shared key: ${s3.description}")
+        val rendered = HintStringInterpolation.interpolate(s3.description)
+        assertTrue(!rendered.contains("pincers"), "wing s3 must not claim pincers: $rendered")
+        assertTrue(rendered.contains("see all the relevant wing cells"),
+            "wing s3 must reference the wing cells: $rendered")
+        assertTrue(!isMissingMarker(rendered), "wing s3 rendered as missing-key marker: $rendered")
+    }
+
+    @Test
+    fun `phase8 als_identify s1 no longer repeats the cells-and-candidates phrase`() {
+        // R4: the old text stated "{{cellCount}} cells … with {{digitCount}} candidates"
+        // twice in one sentence; the duplicate is removed.
+        LanguageConfig.setLanguage("en")
+        val rendered = HintStringInterpolation.interpolate(
+            "{{hints.als_identify.step1.description|alsName=ALS A|cellCount=3|cells=R1C1, R1C2, R1C3|digitCount=4|digits=1, 2, 3, 4}}"
+        )
+        assertEquals(1, rendered.split("with 4 candidates").size - 1,
+            "als_identify s1 must state the count once, not twice: $rendered")
+        assertTrue(!rendered.contains("{{"), "als_identify s1 left an unresolved placeholder: $rendered")
     }
 }

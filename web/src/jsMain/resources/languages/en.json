@@ -404,7 +404,9 @@
             "solution": "Solution",
             "remove": "Remove {{digit}} from {{cells}}",
             "place": "Place {{digit}} in {{cell}}",
-            "cellFormat": "R{{row}}C{{col}}"
+            "cellFormat": "R{{row}}C{{col}}",
+            "boxLineInteraction": "In {{baseHouse}}, candidate {{digit}} only appears in cells that also belong to {{coverHouse}}.",
+            "wingElimination": "The cell(s) at {{cells}} can see all the relevant wing cells, so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
         },
         "naked_single": {
             "step1": {
@@ -512,8 +514,7 @@
         },
         "pointing_candidates": {
             "step1": {
-                "title": "Identify the Pointing Candidates",
-                "description": "In {{baseHouse}}, candidate {{digit}} only appears in cells that also belong to {{coverHouse}}."
+                "title": "Identify the Pointing Candidates"
             },
             "step2": {
                 "title": "Eliminate from {{house}}",
@@ -522,8 +523,7 @@
         },
         "claiming_candidates": {
             "step1": {
-                "title": "Identify the Claiming Candidates",
-                "description": "In {{baseHouse}}, candidate {{digit}} only appears in cells that also belong to {{coverHouse}}."
+                "title": "Identify the Claiming Candidates"
             },
             "step2": {
                 "title": "Eliminate from {{house}}",
@@ -571,7 +571,7 @@
         },
         "als_identify": {
             "step1": {
-                "description": "Look at {{alsName}}: {{cellCount}} cells ({{cells}}) with {{digitCount}} candidates {{{digits}}}. This is {{cellCount}} cells with {{digitCount}} candidates - that's 'almost locked' because {{digitCount}} = {{cellCount}} + 1."
+                "description": "Look at {{alsName}}: {{cellCount}} cells ({{cells}}) with {{digitCount}} candidates {{{digits}}} - that's 'almost locked' because {{digitCount}} = {{cellCount}} + 1."
             }
         },
         "als_connecting": {
@@ -830,14 +830,6 @@
                 "title": "Find the Finned {{fishType}}",
                 "description": "This is a **Finned {{fishType}}** (the Sashimi variant). Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there is an extra cell (or cells) that doesn't fit the pattern: that is the 'Sashimi fin'. The fin is at: {{finCells}} (shown in yellow). In a Sashimi variant, the fish would be incomplete without the fin: it is filling in for a missing base cell.",
                 "descriptionNoFin": "This is a **Finned {{fishType}}** (the Sashimi variant). Look at {{baseNames}}. In a normal {{fishType}}, digit {{digit}} would appear only in cells that align with {{coverNames}}. But here, there is an extra cell (or cells) that doesn't fit the pattern: that is the 'Sashimi fin'. In a Sashimi variant, the fish would be incomplete without the fin: it is filling in for a missing base cell."
-            },
-            "step2": {
-                "title": "Understand the Fin's Effect",
-                "description": "The fin changes what we can eliminate. Here is the logic: **If the fin is TRUE** (has {{digit}}): the normal fish pattern applies to the rest, but we can only eliminate from cells that also see the fin. **If the fin is FALSE**: then {{digit}} must be somewhere else in the fish pattern, so the normal fish eliminations apply. Either way, only cells that see the fin can be eliminated."
-            },
-            "step3": {
-                "title": "Eliminate Where Fin and Fish Meet",
-                "description": "Cells that see the fin and lie in the fish's cover {{coverTypeText}} can be eliminated. Remove {{digit}} from: {{cells}}."
             }
         },
         "xy_wing": {
@@ -850,8 +842,7 @@
                 "description": "Since one pincer MUST have {{targetDigitText}}, any cell that can see BOTH pincers cannot have {{targetDigitText}}. It would conflict with whichever pincer ends up with that digit. The solid line shows that one pincer must be true for {{targetDigitText}}."
             },
             "step3": {
-                "title": "Remove {{digit}} from cells that see the pattern",
-                "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+                "title": "Remove {{digit}} from cells that see the pattern"
             }
         },
         "xyz_wing": {
@@ -864,8 +855,7 @@
                 "description": "The three cells form a 'closed group' for {{targetDigitText}}. No matter what happens, {{targetDigitText}} will end up in one of them. Any cell that sees all three is blocked from having {{targetDigitText}}."
             },
             "step3": {
-                "title": "Remove {{digit}} from cells that see the pattern",
-                "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+                "title": "Remove {{digit}} from cells that see the pattern"
             }
         },
         "wxyz_wing": {
@@ -878,8 +868,7 @@
                 "description": "The four cells 'lock' {{targetDigitText}} within their group. Any outside cell that can see all four must give up {{targetDigitText}}."
             },
             "step3": {
-                "title": "Remove {{digit}} from cells that see the pattern",
-                "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+                "title": "Remove {{digit}} from cells that see the pattern"
             }
         },
         "w_wing": {
@@ -892,8 +881,7 @@
                 "description": "Because the two cells are connected by a strong link, their 'other' candidate ({{targetDigitText}}) is restricted. Any cell seeing both green cells would conflict with whichever one ends up with {{targetDigitText}}."
             },
             "step3": {
-                "title": "Remove {{digit}} from cells that see the pattern",
-                "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+                "title": "Remove {{digit}} from cells that see the pattern"
             }
         },
         "generic_wing": {
@@ -906,8 +894,7 @@
                 "description": "The pattern guarantees {{targetDigitText}} appears in one of the highlighted cells, blocking it elsewhere."
             },
             "step3": {
-                "title": "Remove {{digit}} from cells that see the pattern",
-                "description": "The cell(s) at {{cells}} can see both pincers (or all wing cells), so {{digit}} cannot go there. Remove {{digit}} from: {{cells}}."
+                "title": "Remove {{digit}} from cells that see the pattern"
             }
         },
         "kite": {

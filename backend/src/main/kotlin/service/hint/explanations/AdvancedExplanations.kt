@@ -393,7 +393,9 @@ import dto.*
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
                 title = hintKey("pointing_candidates", 1, "title"),
-                description = hintKey("pointing_candidates", 1, "description",
+                // R1 (Phase 8): shared with claiming via hints.common.boxLineInteraction
+                // so the two direction-agnostic s1 texts can't drift apart.
+                description = commonKey("boxLineInteraction",
                     "baseHouse" to baseHouseName,
                     "digit" to digit.toString(),
                     "coverHouse" to coverHouseName
@@ -433,7 +435,9 @@ import dto.*
             steps.add(ExplanationStepDto(
                 stepNumber = 1,
                 title = hintKey("claiming_candidates", 1, "title"),
-                description = hintKey("claiming_candidates", 1, "description",
+                // R1 (Phase 8): shared with pointing via hints.common.boxLineInteraction
+                // so the two direction-agnostic s1 texts can't drift apart.
+                description = commonKey("boxLineInteraction",
                     "baseHouse" to baseHouseName,
                     "digit" to digit.toString(),
                     "coverHouse" to coverHouseName

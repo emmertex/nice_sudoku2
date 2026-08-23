@@ -419,6 +419,8 @@ canonicalized.
 
 ## Phase 8 — Redundancy & shared-text cleanups (R1–R4)
 
+> ✅ **Done.** R1: the byte-identical `pointing_candidates`/`claiming_candidates` s1 descriptions are now one shared `hints.common.boxLineInteraction` key referenced by both `generateIntersectionSteps` branches (family s1 descriptions deleted from `en.json`). R2: the verbatim-duplicate `sashimi_fish` s2/s3 deleted; the sashimi branch of `generateFinnedFishSteps` now emits the `finned_fish` s2/s3 keys (s1 stays its own). R3: the five identical wing s3 descriptions — which wrongly claimed "both pincers" for W-Wing/WXYZ/generic — consolidated into one `hints.common.wingElimination` key phrased "can see all the relevant wing cells", referenced from `generateWingSteps`. R4: `als_identify.step1` no longer states "{{cellCount}} cells … {{digitCount}} candidates" twice (other locales carrying the old text are deferred to the Phase 9 translation pass, per the plan's decision). Verified: `check_hint_keys.py` green (0 errors, same 11 pre-existing warnings), `:backend` tests green (47/47) with 4 new `HintKeyResolutionTest` Phase-8 cases (shared keys resolve under en+de, generators emit the shared keys, no "pincers", count stated once).
+
 **Goal:** remove the duplicated/drift-prone text so a single edit updates every technique that
 shares it. Pure `en.json` + (for R3) one Wing generator tweak.
 
