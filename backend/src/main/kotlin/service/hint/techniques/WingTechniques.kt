@@ -17,12 +17,13 @@ import dto.*
     }
 
     fun detectWingType(techniqueName: String): String {
-        val lower = techniqueName.lowercase()
+        val lower = service.hint.helpers.LanguageKeyBuilder.normalizeTechniqueName(techniqueName)
         return when {
+            lower.contains("uvwxyz") -> "UVWXYZ-Wing"
             lower.contains("wxyz") -> "WXYZ-Wing"
             lower.contains("xyz") -> "XYZ-Wing"
-            lower.contains("w-wing") || lower.contains("w wing") -> "W-Wing"
-            lower.contains("xy") || lower.contains("y-wing") -> "XY-Wing"
+            lower.contains("w_wing") -> "W-Wing"
+            lower.contains("xy") || lower.contains("y_wing") -> "XY-Wing"
             else -> techniqueName
         }
     }

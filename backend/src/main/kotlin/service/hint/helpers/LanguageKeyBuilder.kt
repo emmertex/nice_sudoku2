@@ -42,7 +42,7 @@ object LanguageKeyBuilder {
     /**
      * Normalize technique name to a key format (lowercase, underscores)
      */
-    private fun normalizeTechniqueName(name: String): String {
+    fun normalizeTechniqueName(name: String): String {
         return name.lowercase()
             .replace("-", "_")
             .replace(" ", "_")

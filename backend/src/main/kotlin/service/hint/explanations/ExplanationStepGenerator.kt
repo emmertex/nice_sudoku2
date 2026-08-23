@@ -36,71 +36,71 @@ fun generateExplanationSteps(
     solvedCells: List<SolvedCellDto>,
     puzzleString: String
 ): List<ExplanationStepDto> {
-    val techniqueName = technique.getName()
+    val originalTechniqueName = technique.getName()
+    val techniqueName = service.hint.helpers.LanguageKeyBuilder.normalizeTechniqueName(originalTechniqueName)
     val steps = mutableListOf<ExplanationStepDto>()
     
     when {
-        techniqueName.contains("Single", ignoreCase = true) -> {
-            steps.addAll(generateSingleSteps(techniqueName, match, eliminations, solvedCells))
+        techniqueName.contains("single") -> {
+            steps.addAll(generateSingleSteps(originalTechniqueName, match, eliminations, solvedCells))
         }
-        techniqueName.contains("Pair", ignoreCase = true) || 
-        techniqueName.contains("Triple", ignoreCase = true) ||
-        techniqueName.contains("Quadruple", ignoreCase = true) -> {
-            steps.addAll(generateSubsetSteps(techniqueName, match, eliminations))
+        techniqueName.contains("pair") || 
+        techniqueName.contains("triple") ||
+        techniqueName.contains("quadruple") -> {
+            steps.addAll(generateSubsetSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("Pointing", ignoreCase = true) ||
-        techniqueName.contains("Claiming", ignoreCase = true) ||
-        techniqueName.contains("Box/Line", ignoreCase = true) -> {
-            steps.addAll(generateIntersectionSteps(techniqueName, match, eliminations))
+        techniqueName.contains("pointing") ||
+        techniqueName.contains("claiming") ||
+        techniqueName.contains("box_line") -> {
+            steps.addAll(generateIntersectionSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("2-String Kite", ignoreCase = true) ||
-        (techniqueName.contains("Kite", ignoreCase = true) && !techniqueName.contains("String", ignoreCase = true)) -> {
-            steps.addAll(generateKiteSteps(techniqueName, match, eliminations, puzzleString))
+        techniqueName.contains("kite") -> {
+            steps.addAll(generateKiteSteps(originalTechniqueName, match, eliminations, puzzleString))
         }
-        techniqueName.contains("Skyscraper", ignoreCase = true) -> {
-            steps.addAll(generateSkyscraperSteps(techniqueName, match, eliminations))
+        techniqueName.contains("skyscraper") -> {
+            steps.addAll(generateSkyscraperSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("Finned", ignoreCase = true) || 
-        techniqueName.contains("Sashimi", ignoreCase = true) -> {
-            steps.addAll(generateFinnedFishSteps(techniqueName, match, eliminations))
+        techniqueName.contains("finned") || 
+        techniqueName.contains("sashimi") -> {
+            steps.addAll(generateFinnedFishSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("Fish", ignoreCase = true) ||
-        techniqueName.contains("X-Wing", ignoreCase = true) ||
-        techniqueName.contains("Swordfish", ignoreCase = true) ||
-        techniqueName.contains("Jellyfish", ignoreCase = true) -> {
-            steps.addAll(generateFishSteps(techniqueName, match, eliminations))
+        techniqueName.contains("fish") ||
+        techniqueName.contains("x_wing") ||
+        techniqueName.contains("swordfish") ||
+        techniqueName.contains("jellyfish") -> {
+            steps.addAll(generateFishSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("Wing", ignoreCase = true) -> {
-            steps.addAll(generateWingSteps(techniqueName, match, eliminations))
+        techniqueName.contains("wing") -> {
+            steps.addAll(generateWingSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("Cycle", ignoreCase = true) -> {
-            steps.addAll(generateCycleSteps(techniqueName, match, eliminations))
+        techniqueName.contains("cycle") -> {
+            steps.addAll(generateCycleSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("Colour", ignoreCase = true) ||
-        techniqueName.contains("Color", ignoreCase = true) ||
-        techniqueName.contains("Medusa", ignoreCase = true) -> {
-            steps.addAll(generateColouringSteps(techniqueName, match, eliminations))
+        techniqueName.contains("colour") ||
+        techniqueName.contains("color") ||
+        techniqueName.contains("medusa") -> {
+            steps.addAll(generateColouringSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("Unique Rectangle", ignoreCase = true) -> {
-            steps.addAll(generateUniqueRectangleSteps(techniqueName, match, eliminations))
+        techniqueName.contains("unique_rectangle") -> {
+            steps.addAll(generateUniqueRectangleSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.equals("BUG", ignoreCase = true) || techniqueName.contains("Bivalue", ignoreCase = true) -> {
+        techniqueName == "bug" || techniqueName.contains("bivalue") -> {
             steps.addAll(generateBugSteps(eliminations))
         }
-        techniqueName.contains("Empty Rectangle", ignoreCase = true) -> {
-            steps.addAll(generateEmptyRectangleSteps(techniqueName, match, eliminations))
+        techniqueName.contains("empty_rectangle") -> {
+            steps.addAll(generateEmptyRectangleSteps(originalTechniqueName, match, eliminations))
         }
-        techniqueName.contains("Sue", ignoreCase = true) -> {
+        techniqueName.contains("sue") -> {
             steps.addAll(generateSueDeCoqSteps(eliminations))
         }
-        techniqueName.contains("Forcing", ignoreCase = true) -> {
-            steps.addAll(generateForcingChainSteps(techniqueName, eliminations))
+        techniqueName.contains("forcing") -> {
+            steps.addAll(generateForcingChainSteps(originalTechniqueName, eliminations))
         }
-        techniqueName.contains("Nishio", ignoreCase = true) -> {
+        techniqueName.contains("nishio") -> {
             steps.addAll(generateNishioSteps(eliminations))
         }
-        techniqueName.contains("Chain", ignoreCase = true) -> {
-            steps.addAll(generateChainLikeSteps(techniqueName, eliminations))
+        techniqueName.contains("chain") -> {
+            steps.addAll(generateChainLikeSteps(originalTechniqueName, eliminations))
         }
         match is AICMatch -> {
             steps.addAll(generateChainSteps(techniqueName, match, eliminations))

@@ -146,19 +146,16 @@ class RoutingPinTest {
     // --------------------------------------------------------------------- //
 
     @Test
-    @org.junit.jupiter.api.Disabled("Phase 7: pin holds today via display name; enable after machine-name normalization")
     fun `w_wing routes to w_wing`() {
         assertEquals("w_wing", familyFor("W_WING"))
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Phase 7: pin holds today via display name; enable after machine-name normalization")
     fun `two_string_kite routes to kite`() {
         assertEquals("kite", familyFor("TWO_STRING_KITE_FISH"))
     }
 
     @Test
-    @org.junit.jupiter.api.Disabled("Phase 9/V1: 6-cell wing should not collapse to a 3-cell xyz_wing")
     fun `uvwxyz_wing does not collapse to xyz_wing`() {
         val family = familyFor("UVWXYZ_WING")
         assertTrue(family == null || family != "xyz_wing",

@@ -379,8 +379,9 @@ fully extracted (no empty chain line) and a BUG hint with no eliminations (no `R
 **Checkpoint:** no fabricated cells/empty-chain lines in Kite or BUG; doc corrected.
 
 ---
-
 ## Phase 7 — Routing normalization (gap 10, V1)
+
+> ✅ **Done.** Normalized `techniqueName` at the top of `generateExplanationSteps` (via `LanguageKeyBuilder.normalizeTechniqueName`) before dispatch so underscored machine names (e.g. `W_WING`) route correctly. Simplified Kite's `contains` check now that it matches the normalized name without clashing. Updated `detectWingType` to check for `uvwxyz` before `xyz`, fixing the `UVWXYZ-Wing` V1 misroute to `xyz_wing`. Removed `@Disabled` tags on Phase 7 contract pins in `RoutingPinTest`; all 56 variants route perfectly and the test is 100% green.
 
 **Goal:** make dispatch independent of human vs machine name spelling so Kite, W-Wing and the
 Franken/UVWXYZ family stop silently degrading.

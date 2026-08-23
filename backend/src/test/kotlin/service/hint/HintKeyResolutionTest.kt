@@ -288,4 +288,36 @@ class HintKeyResolutionTest {
         val renderedB = HintStringInterpolation.interpolate(s1b.description)
         assertTrue(renderedB.contains("digit 7"), "cycle fallback s1 should name the digit when known: $renderedB")
     }
+
+    // --- Phase 6: Kite + BUG empty-data guards (gap 9, D1) ---
+
+    @Test
+    fun `phase6 bug s2 uses descriptionGeneric when no eliminations and does not fabricate R1C1`() {
+        LanguageConfig.setLanguage("en")
+        // Empty eliminations means targetCell cannot be determined (null).
+        val steps = service.hint.explanations.generateBugSteps(emptyList())
+        val s2 = steps.first { it.stepNumber == 2 }
+        assertTrue(s2.description.contains("descriptionGeneric"), "expected generic description for unknown target cell: ${s2.description}")
+        val rendered = HintStringInterpolation.interpolate(s2.description)
+        assertTrue(!rendered.contains("R1C1"), "bug s2 generic must not fabricate 'R1C1': $rendered")
+        assertTrue(!rendered.contains("{{"), "bug s2 generic left an unresolved placeholder: $rendered")
+        assertTrue(!isMissingMarker(rendered), "bug s2 generic rendered as missing-key marker: $rendered")
+    }
+
+    @Test
+    fun `phase6 kite s2 is suppressed when chainDescription is empty`() {
+        LanguageConfig.setLanguage("en")
+        // A match with empty base/cover sectors will cause chainDescription to be empty,
+        // so step 2 should not be generated even if there are eliminations.
+        // We can pass a subset match to generateKiteSteps, which will fail the field reflections.
+        val steps = service.hint.techniques.generateKiteSteps("2-String Kite", dummyMatch, dummyEliminations, "")
+        val s2 = steps.firstOrNull { it.stepNumber == 2 }
+        assertTrue(s2 == null, "expected kite step 2 to be suppressed when chain is empty")
+
+        // Step 1 should still exist and render correctly without fabricating data.
+        val s1 = steps.first { it.stepNumber == 1 }
+        val rendered = HintStringInterpolation.interpolate(s1.description)
+        assertTrue(!rendered.contains("{{"), "kite s1 left an unresolved placeholder: $rendered")
+        assertTrue(!isMissingMarker(rendered), "kite s1 rendered as missing-key marker: $rendered")
+    }
 }
