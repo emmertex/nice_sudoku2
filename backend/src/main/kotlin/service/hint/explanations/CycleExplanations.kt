@@ -155,6 +155,11 @@ import dto.*
             val (lines, groups, _) = service.hint.techniques.extractAICVisualData(match)
             val chain = match.chain
             val nodes = chain.nodes
+            // Digits actually involved in the colouring (from the chain nodes —
+            // never a fabricated 0 when there are no eliminations to steal one from).
+            val coloringDigits = nodes.map { it.digit() + 1 }.distinct().sorted()
+            val digitText = coloringDigits.joinToString(", ")
+                .ifEmpty { digit.takeIf { it > 0 }?.toString() ?: "" }
             
             // Extract all cells
             val colouringCells = nodes.flatMap { n -> 
@@ -179,7 +184,7 @@ import dto.*
                 stepNumber = 1,
                 title = hintKey(if (is3DMedusa) "3d_medusa" else "simple_coloring", 1, "title"),
                 description = hintKey(if (is3DMedusa) "3d_medusa" else "simple_coloring", 1, "description",
-                    "digit" to digit.toString(),
+                    "digit" to digitText,
                     "greenCount" to greenCells.size.toString(),
                     "yellowCount" to yellowCells.size.toString()
                 ),

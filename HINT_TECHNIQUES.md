@@ -44,7 +44,7 @@ How steps are built:
 | 10 | Hidden Quadruples (10) | 1–3 | ✅ | same as #7 |
 | 11 | X‑Wing (11) | 1–3 | ✅ | s1 claims the digit "appears in exactly N rows" — generally false (digit may also occur in other lines outside the cover). See [Fish text](#fish-family-text-issues) |
 | 12 | Skyscraper (12) | 2–3 | ✅ | s1–s2 always, s3 if eliminations. Explanation is clear and correct |
-| 13 | 2‑String Kite (13) | **1 or 3** | ✅ | **Doc correction:** step 1 is unconditional; s2–s3 only if eliminations exist (not "3 or 0"). If the kite geometry can't be extracted, s2's `{{chain}}` renders empty. See notes |
+| 13 | 2‑String Kite (13) | **1, or 2–3** | ✅ | **Doc correction:** step 1 is unconditional; the elimination path adds 1–2 more steps. If the kite geometry can't be extracted, the chain step is suppressed and the elimination step renumbers to step 2. See notes |
 | 14 | Finned X‑Wing (14) | 1–3 | ✅ | s2/s3 claim eliminations are restricted to the fin's **box** — inaccurate (restricted to cells *seeing* the fin). See [Finned text](#finnedsashimi-text-issues) |
 | 15 | Sashimi X‑Wing (15) | 1–3 | ✅ | same as #14 |
 | 16 | Simple Colouring (16) | 1–3 | ✅ | AIC path: s3 "Remove the candidate(s)" has no `{{digit}}` placeholder. Non-`AICMatch` path is hardcoded English |
@@ -79,13 +79,13 @@ How steps are built:
 
 ### Kite (13) — notes
 
-- **Step count:** the doc previously said "3 or 0". Verified in `generateKiteSteps()`:
-  step 1 is added unconditionally; steps 2–3 are inside `if (eliminations.isNotEmpty())`.
-  So the real behavior is **1 or 3**.
+- **Step count:** the doc previously said "3 or 0", then "1 or 3". Actual behavior:
+  step 1 is unconditional; the elimination path adds the chain step (only when the kite
+  geometry is extractable) plus the elimination step, which renumbers to `steps.size + 1`.
+  So the hint renders **1, or 2–3 consecutive steps** — never "Step 1" followed by "Step 3".
 - If the kite geometry can't be fully extracted (`rowFinCell`/`colFinCell`/in-box cells
-  missing), s2's `{{chain}}` variable is empty and the line "The kite forms a chain: ."
-  renders with no content. s1/s3 still make sense, so the step is salvageable, but the
-  empty-chain case should either be suppressed or filled from the line data.
+  missing), the chain step is suppressed (Phase 6) instead of rendering
+  "The kite forms a chain: ." with no content.
 
 ### XY‑Chain (25) — notes
 

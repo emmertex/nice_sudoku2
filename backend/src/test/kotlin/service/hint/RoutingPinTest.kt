@@ -172,6 +172,13 @@ class RoutingPinTest {
     }
 
     @Test
+    fun `vwxyz_wing routes to generic_wing not wxyz_wing`() {
+        // "VWXYZ_WING" contains "wxyz"; before the longest-prefix fix it collapsed to
+        // the 4-cell WXYZ-Wing text. It must land on the generic wing keys.
+        assertEquals("generic_wing", familyFor("VWXYZ_WING"))
+    }
+
+    @Test
     fun `phase9 aic_with_als and hidden_xy_typeone fall through to match-type dispatch`() {
         // Neither "AIC_WITH_ALS" nor "HIDDEN_XY_TYPEONE" contain name substrings like
         // "chain" or "wing". They fall through to the `match is AICMatch` check.

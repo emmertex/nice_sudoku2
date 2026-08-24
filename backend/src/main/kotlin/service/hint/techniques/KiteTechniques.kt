@@ -653,7 +653,7 @@ import dto.*
 
             steps.add(
                 ExplanationStepDto(
-                    stepNumber = 3,
+                    stepNumber = steps.size + 1,
                     title = hintKey("kite", 3, "title"),
                     description = hintKey("kite", 3, "description",
                         "cells" to eliminationNames,

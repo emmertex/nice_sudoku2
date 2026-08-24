@@ -182,7 +182,9 @@ import dto.*
         } catch (e: Exception) {
             // Fallback if reflection fails
         }
-        if (digit == 0) return emptyList()
+        // Partial reflection failure (digit read but base/cover not) would render
+        // "Look at ." — emit no steps instead; the frontend hints.common fallback covers it.
+        if (digit == 0 || baseIndices.isEmpty() || coverIndices.isEmpty()) return emptyList()
 
         // Determine base and cover types from the *whole* sector set, so a mixed
         // base (e.g. a Franken fish's row + box) reads "rows and boxes" rather than
@@ -521,7 +523,7 @@ import dto.*
                 idx = coverSecs.nextSetBit(idx + 1)
             }
         } catch (e: Exception) {}
-        if (digit == 0) return emptyList()
+        if (digit == 0 || baseIndices.isEmpty() || coverIndices.isEmpty()) return emptyList()
 
         val coverTypeText = describeSectorTypeText(coverIndices)
 

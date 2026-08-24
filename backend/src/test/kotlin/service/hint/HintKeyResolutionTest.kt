@@ -14,6 +14,7 @@ import service.hint.helpers.describeSectorTypeText
 import service.hint.helpers.formatSectorName
 import service.hint.techniques.generateFinnedFishSteps
 import service.hint.techniques.generateFishSteps
+import sudoku.match.FishMatch
 import kotlin.test.assertEquals
 
 /**
@@ -54,6 +55,24 @@ class HintKeyResolutionTest {
         BitSet().apply { set(0) }             // one sector
     )
     private val dummyEliminations = listOf(EliminationDto(digit = 7, cells = listOf(1, 2, 3)))
+
+    /**
+     * A real StormDoku FishMatch: digit is 0-based; sectors are 0-8 rows,
+     * 9-17 columns, 18-26 boxes (see formatSectorName). The finned generator
+     * now bails out on matches with no extractable base/cover sectors, so the
+     * fish tests must drive it with real fish data.
+     */
+    private fun fishMatch(
+        digit: Int = 6,
+        base: IntArray = intArrayOf(0, 4),
+        cover: IntArray = intArrayOf(9, 12),
+        fins: IntArray = intArrayOf()
+    ) = FishMatch(
+        "X-Wing", digit,
+        BitSet().apply { base.forEach { set(it) } },
+        BitSet().apply { cover.forEach { set(it) } },
+        BitSet().apply { fins.forEach { set(it) } }
+    )
 
     @Test
     fun `gap1 als per-set title resolves in en`() {
@@ -135,12 +154,11 @@ class HintKeyResolutionTest {
     }
 
     @Test
-    fun `phase4 finned s1 suppresses the fin-is-at clause when fins cannot be extracted`() {
-        // A non-fish match has no baseSecs/coverSecs/fins fields, so the finned
-        // generator's reflection fails -> the fin list is empty -> the "fin is at:"
-        // clause must be suppressed (gap 9), never rendered dangling.
+    fun `phase4 finned s1 suppresses the fin-is-at clause when there are no fins`() {
+        // A finned fish whose fin list is empty (real match, no fin cells) must
+        // suppress the "fin is at:" clause (gap 9), never render it dangling.
         LanguageConfig.setLanguage("en")
-        val steps = generateFinnedFishSteps("Finned X-Wing", dummyMatch, dummyEliminations)
+        val steps = generateFinnedFishSteps("Finned X-Wing", fishMatch(), dummyEliminations)
         val s1 = steps.first { it.stepNumber == 1 }
         assertTrue(s1.description.contains("descriptionNoFin"),
             "expected the no-fin s1 variant when the fin list is empty, got: ${s1.description}")
@@ -152,9 +170,20 @@ class HintKeyResolutionTest {
     }
 
     @Test
+    fun `phase4 finned and plain fish return no steps when sectors cannot be extracted`() {
+        // Partial/total reflection failure (non-fish match) must not fabricate
+        // "Look at ." — the generators emit 0 steps and the frontend
+        // hints.common fallback covers the render.
+        assertTrue(generateFinnedFishSteps("Finned X-Wing", dummyMatch, dummyEliminations).isEmpty(),
+            "finned generator must return no steps for a non-fish match")
+        assertTrue(generateFishSteps("X-Wing", dummyMatch, dummyEliminations).isEmpty(),
+            "fish generator must return no steps for a non-fish match")
+    }
+
+    @Test
     fun `phase4 reworded fish s1 renders without the missing-key marker`() {
         LanguageConfig.setLanguage("en")
-        val steps = generateFishSteps("X-Wing", dummyMatch, dummyEliminations)
+        val steps = generateFishSteps("X-Wing", fishMatch(), dummyEliminations)
         val s1 = steps.first { it.stepNumber == 1 }
         val rendered = HintStringInterpolation.interpolate(s1.description)
         assertTrue(!isMissingMarker(rendered),
@@ -169,7 +198,7 @@ class HintKeyResolutionTest {
         // SEE the fin (and lie in a cover line).
         LanguageConfig.setLanguage("en")
         for (name in listOf("Finned X-Wing", "Sashimi X-Wing")) {
-            val steps = generateFinnedFishSteps(name, dummyMatch, dummyEliminations)
+            val steps = generateFinnedFishSteps(name, fishMatch(fins = intArrayOf(2)), dummyEliminations)
             val s2 = steps.first { it.stepNumber == 2 }
             val rendered = HintStringInterpolation.interpolate(s2.description)
             assertTrue(rendered.contains("see the fin"),
@@ -311,9 +340,13 @@ class HintKeyResolutionTest {
         // so step 2 should not be generated even if there are eliminations.
         // We can pass a subset match to generateKiteSteps, which will fail the field reflections.
         val steps = service.hint.techniques.generateKiteSteps("2-String Kite", dummyMatch, dummyEliminations, "")
-        val s2 = steps.firstOrNull { it.stepNumber == 2 }
-        assertTrue(s2 == null, "expected kite step 2 to be suppressed when chain is empty")
-
+        // With the chain step suppressed, no step may reference the kite.step2
+        // template — and the elimination step must renumber to step 2 (never
+        // render "Step 1" followed by "Step 3").
+        assertTrue(steps.none { it.description.contains("kite.step2") },
+            "expected kite step 2 to be suppressed when chain is empty")
+        assertEquals(listOf(1, 2), steps.map { it.stepNumber },
+            "kite steps must be consecutively numbered after suppression: ${steps.map { it.stepNumber }}")
         // Step 1 should still exist and render correctly without fabricating data.
         val s1 = steps.first { it.stepNumber == 1 }
         val rendered = HintStringInterpolation.interpolate(s1.description)
@@ -347,7 +380,7 @@ class HintKeyResolutionTest {
         // R2: finned_fish and sashimi_fish s2/s3 were verbatim duplicates; the
         // sashimi generator now emits the finned_fish keys (its s1 stays its own).
         LanguageConfig.setLanguage("en")
-        val steps = generateFinnedFishSteps("Sashimi X-Wing", dummyMatch, dummyEliminations)
+        val steps = generateFinnedFishSteps("Sashimi X-Wing", fishMatch(fins = intArrayOf(2)), dummyEliminations)
         val s2 = steps.first { it.stepNumber == 2 }
         val s3 = steps.first { it.stepNumber == 3 }
         assertTrue(s2.description.contains("finned_fish.step2"),

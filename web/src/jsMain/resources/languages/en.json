@@ -1092,12 +1092,14 @@
             "XY_CHAINS__TYPE_1": "XY-Chain (Type 1) links bivalue cells; the target digit is eliminated where both ends see.",
             "ALS_CHAIN": "ALS-Chain links multiple almost locked sets in sequence to force eliminations.",
             "SPLIT_WING": "Split-Wing uses a split pattern of candidates to force eliminations.",
-            "STRONG_WING__WINDMILL_": "Strong-Wing (Windmill) uses a windmill pattern of strong links to eliminate candidates.",
             "INVERTED_H_3__WING": "Inverted H(3)-Wing uses an inverted H-shaped pattern with 3 cells to force eliminations.",
             "INVERTED_M_3__WING": "Inverted M(3)-Wing uses an inverted M-shaped pattern with 3 cells to force eliminations.",
             "INVERTED_L_3__WINGS": "Inverted L(3)-Wing uses an inverted L-shaped pattern with 3 cells to force eliminations.",
             "UVWXYZ_WING": "UVWXYZ-Wing (6-cell wing) removes the shared candidate from peers of all six cells.",
-            "HIDDEN_XY__TYPE_1": "Hidden XY (Type 1) uses hidden bivalue cells in an XY-chain pattern to eliminate candidates."
+            "HIDDEN_XY__TYPE_1": "Hidden XY (Type 1) uses hidden bivalue cells in an XY-chain pattern to eliminate candidates.",
+            "STRONG_WING___WINDMILL": "Strong-Wing (Windmill) uses a windmill pattern of strong links to eliminate candidates.",
+            "FORCING_NETS": "Forcing chains explore both outcomes and keep the deduction common to all paths.",
+            "VWXYZ_WING": "VWXYZ-Wing (5-cell wing) removes the shared candidate from peers of all five cells."
         }
     },
     "domain": {

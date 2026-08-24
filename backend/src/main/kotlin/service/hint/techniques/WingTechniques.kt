@@ -16,11 +16,12 @@ import dto.*
     ) {
         val allCells: List<Int> = (pivotCells + pincerCells + otherCells).distinct()
     }
-
     fun detectWingType(techniqueName: String): String {
         val lower = service.hint.helpers.LanguageKeyBuilder.normalizeTechniqueName(techniqueName)
         return when {
+            // Longest prefixes first: "uvwxyz" contains "vwxyz" contains "wxyz"…
             lower.contains("uvwxyz") -> "UVWXYZ-Wing"
+            lower.contains("vwxyz") -> "VWXYZ-Wing"
             lower.contains("wxyz") -> "WXYZ-Wing"
             lower.contains("xyz") -> "XYZ-Wing"
             lower.contains("w_wing") -> "W-Wing"
