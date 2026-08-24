@@ -38,7 +38,10 @@ private val techniquePriority = mapOf(
     "XYZ_WING" to 23, "XYZ Wing" to 23, "XYZ-Wing" to 23,
     "X_CYCLES" to 24, "X-Cycles" to 24, "X-Cycle" to 24,
     "XY_CHAIN" to 25, "XY-Chain" to 25,
+    "XY_CHAINS_TypeONE" to 25,
+    "HIDDEN_XY_TYPEONE" to 25,
     "WXYZ_WING" to 26, "WXYZ Wing" to 26, "WXYZ-Wing" to 26,
+    "UVWXYZ_WING" to 27,
     "JELLYFISH_FISH" to 27, "Jellyfish" to 27,
     "MEDUSA_3D" to 28, "3D Medusa" to 28, "THREE_D_MEDUSA" to 28,
     // EXTREME (29-34): Franken/mutant fish, grouped techniques
@@ -50,14 +53,17 @@ private val techniquePriority = mapOf(
     "FINNED_JELLYFISH_FISH" to 34,
     // DIABOLICAL (35-42): AIC, ALS, Sue-de-Coq, Forcing Chains, Rings
     "AIC" to 35, "Alternating Inference Chains" to 35, "AIC Type 2" to 35,
+    "AIC_TYPE_ONE" to 35, "AIC_TYPE_TWO" to 35, "ALTERNATING_INFERENCE_CHAINS" to 35,
     "ALMOST_LOCKED_SETS" to 36, "Almost Locked Sets" to 36,
     "ALS_XY" to 36, "ALS-XY" to 36,
     "ALS_XZ" to 36, "ALS-XZ" to 36,
+    "AIC_WITH_ALS" to 36,
     "SUE_DE_COQ" to 37, "Sue-de-Coq" to 37,
     "FORCING_CHAINS" to 38, "Forcing Chains" to 38,
     "NISHIO" to 39, "Nishio" to 39,
     "RING" to 40, "Ring" to 40,
     "L_WING" to 41, "L-Wing" to 41, "L(3)-Wing" to 41,
+    "L3_WING" to 41,
     "W_WING" to 19, "W-Wing" to 19,
 )
 
@@ -68,6 +74,8 @@ private fun normalizeTechniqueKey(name: String): String {
         .replace("/", "_")
         .replace("(", "_")
         .replace(")", "_")
+        .replace("+", "_")
+        .replace(":", "_")
 }
 
 fun describeTechnique(name: String): String? {
@@ -86,14 +94,24 @@ fun describeTechnique(name: String): String? {
 }
 
 fun missingDescriptionsForPriority(): List<String> {
-    return techniquePriority.keys
-        .map { normalizeTechniqueKey(it) }
-        .distinct()
-        .filter { 
-            val langKey = "backend.techniques.$it"
-            val langString = LanguageConfig.getString(langKey)
-            langString == "[$langKey]" // Missing if we get the fallback key
+    val result = mutableListOf<String>()
+    for (key in techniquePriority.keys.distinct()) {
+        val langString = LanguageConfig.getString("backend.techniques.${normalizeTechniqueKey(key)}")
+        if (langString == "[backend.techniques.${normalizeTechniqueKey(key)}]") {
+            // If it's a machine name, check if its display name resolves
+            val enumValue = try { sudoku.solvingtechClassifier.Technique.valueOf(key) } catch (e: Exception) { null }
+            if (enumValue != null) {
+                val displayKey = normalizeTechniqueKey(enumValue.getName())
+                val displayString = LanguageConfig.getString("backend.techniques.$displayKey")
+                if (displayString == "[backend.techniques.$displayKey]") {
+                    result.add(key)
+                }
+            } else {
+                result.add(key)
+            }
         }
+    }
+    return result
 }
 
 fun getTechniquePriority(techniqueName: String): Int {

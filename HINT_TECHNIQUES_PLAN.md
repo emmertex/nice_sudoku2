@@ -4,7 +4,7 @@
 > This file is the *what/where/how to ship it* breakdown, phased so each phase fits a
 > fresh context well under ~200k tokens.
 >
-> **Status:** Phase 1 (EN-fallback resolver + `check_hint_keys.py` / routing-pin guardrails), Phase 2 (ALS per-set titles + UR elimination types 3–6, type-0→generic guard), Phase 3 (Sue-de-Coq / Forcing Chains / Nishio / ChainLike hardcoded→key-based, XY-Chain text rewritten weak-link-only), Phase 4 (fish s1 valid count claim + combined base/cover type + per-sector names; finned/sashimi “cells that see the fin” + empty-fin guard) and Phase 5 (colouring s3 names the digit; AIC long-chain s2 no dangling intro; X-Cycle digit guard + plural-safe; localized non-AICMatch colouring/cycle fallbacks) are implemented and verified (`check_hint_keys.py` green, `:backend`/`:shared` tests green, `HintKeyResolutionTest` extended with 6 Phase-5 cases, `RoutingPinTest` now allows the new `coloring_generic` fallback family). Phases 6–10 pending.
+> **Status:** Phase 1 (EN-fallback resolver + `check_hint_keys.py` / routing-pin guardrails), Phase 2 (ALS per-set titles + UR elimination types 3-6, type-0->generic guard), Phase 3 (Sue-de-Coq / Forcing Chains / Nishio / ChainLike hardcoded->key-based, XY-Chain text rewritten weak-link-only), Phase 4 (fish s1 valid count claim + combined base/cover type + per-sector names; finned/sashimi "cells that see the fin" + empty-fin guard), Phase 5 (colouring s3 names the digit; AIC long-chain s2 no dangling intro; X-Cycle digit guard + plural-safe; localized non-AICMatch colouring/cycle fallbacks), Phase 6 (Kite empty-chain + BUG empty-cell fallbacks), Phase 7 (Routing Normalization), Phase 8 (Redundancy & shared-text), and Phase 9 (variants + AIC+ALS + Description/Priority map) are implemented and verified (`check_hint_keys.py` green, `:backend`/`:shared` tests green, `RoutingPinTest` extended).
 >
 > **Decisions already made with the owner:**
 > - New/changed hint keys are **authored in `en.json` only**. The other 10 locales are
@@ -532,9 +532,9 @@ Phase 1  (foundation: EN-fallback + guardrails)   ← everything depends on this
    │
    └─ Phase 7  (routing normalization)            uses Phase-1 routing test
           │
-          ├─ Phase 8  (redundancy cleanups)      after 3/4 (finned text) where noted
-          ├─ Phase 9  (variants + AIC+ALS)       after 5/7 (routing)
-          │
+ +- Phase 8 (redundancy & shared-text) after 4/5/6
+ |
+ +- Phase 9 (variants + AIC+ALS) after 5/7 (routing)
           └─ Phase 10 (final verification)        last, after all
 ```
 

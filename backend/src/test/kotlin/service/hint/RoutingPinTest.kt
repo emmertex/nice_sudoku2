@@ -161,4 +161,24 @@ class RoutingPinTest {
         assertTrue(family == null || family != "xyz_wing",
             "UVWXYZ_WING collapsed to xyz_wing (a 3-cell wing); got $family")
     }
+
+    // --------------------------------------------------------------------- //
+    // Phase 9 pins (gap 9-partial: V1-V4 extra variant routing).
+    // --------------------------------------------------------------------- //
+
+    @Test
+    fun `phase9 uvwxyz_wing routes to generic_wing`() {
+        assertEquals("generic_wing", familyFor("UVWXYZ_WING"))
+    }
+
+    @Test
+    fun `phase9 aic_with_als and hidden_xy_typeone fall through to match-type dispatch`() {
+        // Neither "AIC_WITH_ALS" nor "HIDDEN_XY_TYPEONE" contain name substrings like
+        // "chain" or "wing". They fall through to the `match is AICMatch` check.
+        // Because familyFor() uses a dummy SubsetMatch, they fall all the way to generic.
+        // This proves they are not mis-routed by early substring matches, allowing the
+        // match-type checks (which in reality see an AICMatch) to correctly route them to `aic`.
+        assertEquals("generic", familyFor("AIC_WITH_ALS"))
+        assertEquals("generic", familyFor("HIDDEN_XY_TYPEONE"))
+    }
 }

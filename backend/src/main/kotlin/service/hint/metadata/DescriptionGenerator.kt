@@ -39,7 +39,7 @@ import dto.*
         eliminations: List<EliminationDto>,
         solvedCells: List<SolvedCellDto>
     ): String {
-        val candidates = listOf(technique.name)
+        val candidates = listOf(technique.name, technique.getName())
         for (name in candidates) {
             val desc = describeTechnique(name)
             if (desc != null) return desc
