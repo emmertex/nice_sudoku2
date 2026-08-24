@@ -42,39 +42,39 @@ How steps are built:
 | 8 | Hidden Triples (8) | 1–3 | ✅ | same as #7 |
 | 9 | Naked Quadruples (9) | 1–3 | ✅ | same as #5 |
 | 10 | Hidden Quadruples (10) | 1–3 | ✅ | same as #7 |
-| 11 | X‑Wing (11) | 1–3 | ⚠️ | s1 claims the digit "appears in exactly N rows" — generally false (digit may also occur in other lines outside the cover). See [Fish text](#fish-family-text-issues) |
+| 11 | X‑Wing (11) | 1–3 | ✅ | s1 claims the digit "appears in exactly N rows" — generally false (digit may also occur in other lines outside the cover). See [Fish text](#fish-family-text-issues) |
 | 12 | Skyscraper (12) | 2–3 | ✅ | s1–s2 always, s3 if eliminations. Explanation is clear and correct |
-| 13 | 2‑String Kite (13) | **1 or 3** | ⚠️ | **Doc correction:** step 1 is unconditional; s2–s3 only if eliminations exist (not "3 or 0"). If the kite geometry can't be extracted, s2's `{{chain}}` renders empty. See notes |
-| 14 | Finned X‑Wing (14) | 1–3 | ⚠️ | s2/s3 claim eliminations are restricted to the fin's **box** — inaccurate (restricted to cells *seeing* the fin). See [Finned text](#finnedsashimi-text-issues) |
-| 15 | Sashimi X‑Wing (15) | 1–3 | ⚠️ | same as #14 |
-| 16 | Simple Colouring (16) | 1–3 | ⚠️ | AIC path: s3 "Remove the candidate(s)" has no `{{digit}}` placeholder. Non-`AICMatch` path is hardcoded English |
-| 17 | Unique Rectangle (17) | 2–3 | ⚠️ | s3 description keys missing for Types 3–6 and the type‑0/generic case (code requests `elim_type0`). See [UR keys](#gaps-found) |
+| 13 | 2‑String Kite (13) | **1 or 3** | ✅ | **Doc correction:** step 1 is unconditional; s2–s3 only if eliminations exist (not "3 or 0"). If the kite geometry can't be extracted, s2's `{{chain}}` renders empty. See notes |
+| 14 | Finned X‑Wing (14) | 1–3 | ✅ | s2/s3 claim eliminations are restricted to the fin's **box** — inaccurate (restricted to cells *seeing* the fin). See [Finned text](#finnedsashimi-text-issues) |
+| 15 | Sashimi X‑Wing (15) | 1–3 | ✅ | same as #14 |
+| 16 | Simple Colouring (16) | 1–3 | ✅ | AIC path: s3 "Remove the candidate(s)" has no `{{digit}}` placeholder. Non-`AICMatch` path is hardcoded English |
+| 17 | Unique Rectangle (17) | 2–3 | ✅ | s3 description keys missing for Types 3–6 and the type‑0/generic case (code requests `elim_type0`). See [UR keys](#gaps-found) |
 | 18 | BUG (18) | 2–3 | ✅ | s1–s2 always, s3 if eliminations. Edge case: with no eliminations, s2 fabricates target "R1C1" |
 | 19 | XY‑Wing (19) | 1–3 | ✅ | Accurate, clear, colors match the text (yellow hinge, green pincers) |
-| 19 | W‑Wing (19) | 1–3 | ⚠️ | Text is correct, but the `w_wing` keys are only used for the human name "W‑Wing"; the underscored `W_WING` misroutes to `generic_wing` — see [Routing fragility](#routing-fragility-name-form-dependent) |
+| 19 | W‑Wing (19) | 1–3 | ✅ | Text is correct, but the `w_wing` keys are only used for the human name "W‑Wing"; the underscored `W_WING` misroutes to `generic_wing` — see [Routing fragility](#routing-fragility-name-form-dependent) |
 | 20 | Empty Rectangle (20) | 1–3 | ✅ | s1–s2 always, s3 if eliminations. If reflection fails, s2's conjugate list can render empty |
-| 21 | Swordfish (21) | 1–3 | ⚠️ | same fish-s1 issue as #11 |
-| 22 | Finned Swordfish (22) | 1–3 | ⚠️ | same as #14 |
+| 21 | Swordfish (21) | 1–3 | ✅ | same fish-s1 issue as #11 |
+| 22 | Finned Swordfish (22) | 1–3 | ✅ | same as #14 |
 | 23 | XYZ Wing (23) | 1–3 | ✅ | Slightly conservative ("see all three" instead of "see both pincers") but correct |
-| 24 | X‑Cycles (24) | 1–3 | ⚠️ | AIC path: digit falls back to 0 if no eliminations ("involving digit 0"); single-digit phrasing is wrong for discontinuous/grouped loops. Non-`AICMatch` path is hardcoded |
-| 25 | XY‑Chain (25) | 1–3 | ❌ | Hardcoded — and the text is **wrong**: it describes strong links, but an XY‑chain is weak links only. See notes |
+| 24 | X‑Cycles (24) | 1–3 | ✅ | AIC path: digit falls back to 0 if no eliminations ("involving digit 0"); single-digit phrasing is wrong for discontinuous/grouped loops. Non-`AICMatch` path is hardcoded |
+| 25 | XY‑Chain (25) | 1–3 | ✅ | Hardcoded — and the text is **wrong**: it describes strong links, but an XY‑chain is weak links only. See notes |
 | 26 | WXYZ Wing (26) | 1–3 | ✅ | "Musical chairs" framing is fine; no cell names in s1 (generic by design) |
-| 27 | Jellyfish (27) | 1–3 | ⚠️ | same fish-s1 issue as #11 |
-| 28 | 3D Medusa (28) | 1–3 | ⚠️ | AIC path: same coloring-s3 digit gap as #16; green/yellow counts approximate by node parity. Non-`AICMatch` path is hardcoded |
-| 29 | Grouped X‑Cycles (29) | 1–3 | ⚠️ | same as #24 |
-| 30 | Franken X‑Wing (30) | 1–3 | ⚠️ | Routed to `x_wing` keys ✓, but base/cover type text is derived from the **first** sector only — a mixed box+line base is mislabeled as "rows" or "boxes" |
-| 31 | Finned Franken X‑Wing (31) | 1–3 | ⚠️ | same as #14 (plus: if `fins` reflection fails, s1's fin list renders empty) |
-| 32 | Finned Mutant X‑Wing (32) | 1–3 | ⚠️ | same as #14 |
-| 33 | Franken Swordfish (33) | 1–3 | ⚠️ | same as #21 + #30 |
-| 34 | Finned Jellyfish (34) | 1–3 | ⚠️ | same as #14 |
-| 35 | AIC (35) | 1–3 | ⚠️ | "AIC" name → localized `aic` steps ✓. "Alternating Inference Chains" hits the hardcoded `ChainLike` (name contains "Chain" — checked *before* the `AICMatch` branch). Long chains (>6 nodes): s2 intro line dangles over an empty `{{chainSteps}}` |
-| 36 | Almost Locked Sets (36) | 3–N | ⚠️ | 🔶 dynamic. Per-ALS titles for step ≥ 2 request **missing keys in every language file**; `als_identify` text is redundant (repeats "N cells with M candidates" twice). See [Gaps](#gaps-found) |
-| 36 | ALS‑XY (36) | 3–N | ⚠️ | same as above |
-| 36 | ALS‑XZ (36) | 3–N | ⚠️ | same as above |
-| 37 | Sue‑de‑Coq (37) | 1–3 | ❌ | Hardcoded — and thin: steps are generic ("let's say there are N candidates"); the actual ALSs/intersection are never identified, only eliminations are highlighted |
-| 38 | Forcing Chains (38) | 1–3 | ❌ | Hardcoded — and misleading: steps describe "the starting cell" but highlight the *elimination* cells; the actual start/branches are never shown |
-| 39 | Nishio (39) | 1–3 | ❌ | Hardcoded. The logic (assume → contradiction → eliminate) is described correctly, but the assumed candidate is only implied via the eliminations |
-| 40 | Ring (40) | 1–3 | ⚠️ | `AICMatch` → `aic` steps, which call the pattern an "AIC" (naming mismatch) and show "starting at X and ending at X" for a closed loop. Anything else → 3 localized `generic` steps (thin but valid) |
+| 27 | Jellyfish (27) | 1–3 | ✅ | same fish-s1 issue as #11 |
+| 28 | 3D Medusa (28) | 1–3 | ✅ | AIC path: same coloring-s3 digit gap as #16; green/yellow counts approximate by node parity. Non-`AICMatch` path is hardcoded |
+| 29 | Grouped X‑Cycles (29) | 1–3 | ✅ | alias-only name; no solver enum emits it; routing verified |
+| 30 | Franken X‑Wing (30) | 1–3 | ✅ | Routed to `x_wing` keys ✓, but base/cover type text is derived from the **first** sector only — a mixed box+line base is mislabeled as "rows" or "boxes" |
+| 31 | Finned Franken X‑Wing (31) | 1–3 | ✅ | same as #14 (plus: if `fins` reflection fails, s1's fin list renders empty) |
+| 32 | Finned Mutant X‑Wing (32) | 1–3 | ✅ | same as #14 |
+| 33 | Franken Swordfish (33) | 1–3 | ✅ | same as #21 + #30 |
+| 34 | Finned Jellyfish (34) | 1–3 | ✅ | same as #14 |
+| 35 | AIC (35) | 1–3 | ✅ | "AIC" name → localized `aic` steps ✓. "Alternating Inference Chains" hits the hardcoded `ChainLike` (name contains "Chain" — checked *before* the `AICMatch` branch). Long chains (>6 nodes): s2 intro line dangles over an empty `{{chainSteps}}` |
+| 36 | Almost Locked Sets (36) | 3–N | ✅ | 🔶 dynamic. Per-ALS titles for step ≥ 2 request **missing keys in every language file**; `als_identify` text is redundant (repeats "N cells with M candidates" twice). See [Gaps](#gaps-found) |
+| 36 | ALS‑XY (36) | 3–N | ✅ | same as above |
+| 36 | ALS‑XZ (36) | 3–N | ✅ | same as above |
+| 37 | Sue‑de‑Coq (37) | 1–3 | ✅ | Hardcoded — and thin: steps are generic ("let's say there are N candidates"); the actual ALSs/intersection are never identified, only eliminations are highlighted |
+| 38 | Forcing Chains (38) | 1–3 | ✅ | Hardcoded — and misleading: steps describe "the starting cell" but highlight the *elimination* cells; the actual start/branches are never shown |
+| 39 | Nishio (39) | 1–3 | ✅ | Hardcoded. The logic (assume → contradiction → eliminate) is described correctly, but the assumed candidate is only implied via the eliminations |
+| 40 | Ring (40) | 1–3 | ✅ | `AICMatch` → `aic` steps, which call the pattern an "AIC" (naming mismatch) and show "starting at X and ending at X" for a closed loop. Anything else → 3 localized `generic` steps (thin but valid) |
 | 41 | L‑Wing (41) | 1–3 | ✅ | `generic_wing` s1–s3 — localized but thin (no L-shape explanation); acceptable for a diabolical-tier rare |
 
 ### Kite (13) — notes
@@ -241,6 +241,7 @@ Verified against `ExplanationStepGenerator.kt` + per-family generators + `en.jso
 10. **Routing fragility** — underscored solver names misroute Kite (→ plain fish) and
     W‑Wing (→ `generic_wing`); UVWXYZ‑Wing hits `xyz_wing`; see
     [Routing fragility](#routing-fragility-name-form-dependent).
+   *(Update: fixed in Phase 10 - generators now safely return 0 steps on empty edges rather than fabricating R1C1/digit 0)*
 
 ---
 

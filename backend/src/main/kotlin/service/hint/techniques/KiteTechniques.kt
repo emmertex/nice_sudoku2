@@ -333,6 +333,7 @@ import dto.*
         } catch (e: Exception) {
             // Fallback if reflection fails
         }
+        if (digit == 0) return emptyList()
 
         // Determine base and cover types
         val baseType = if (baseIndices.isNotEmpty()) getSectorType(baseIndices.first()) else null

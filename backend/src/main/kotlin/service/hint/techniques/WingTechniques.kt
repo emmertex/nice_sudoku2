@@ -280,6 +280,7 @@ import dto.*
                     "wingType" to wingType
                 ),
                 description = hintKey(wingKey, 1, "description",
+                    "wingType" to wingType,
                     "pivotName" to pivotName,
                     "pincerNamesText" to pincerNamesText,
                     "targetDigitText" to targetDigitText,

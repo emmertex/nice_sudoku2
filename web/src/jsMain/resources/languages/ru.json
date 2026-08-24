@@ -1,1050 +1,1032 @@
 {
-  "languageName": "Русский",
-  "ui": {
-    "game": {
-      "solved": "🎉 Решено!",
-      "thinking": "Думаю...",
-      "error": "Ошибка:",
-      "goodSudoku": "Хорошее судоку",
-      "pencil": "✏️ Карандаш",
-      "difficulty": "Сложность:",
-      "selection": "Выбор",
-      "primary": "Основной",
-      "secondary": "Вторичный",
-      "cell": "Ячейка",
-      "undo": "Отменить",
-      "findTechniques": "Найти техники",
-      "apply": "Применить",
-      "solve": "Решить",
-      "selected": "Выбрано:",
-      "set": "Установить (Enter)",
-      "remove": "Удалить (Пробел)"
-    },
-    "modes": {
-      "highlightMode": "Режим подсветки",
-      "playMode": "Режим игры",
-      "placed": "Размещено",
-      "rcbSel": "Выбор РСБ",
-      "rcbAll": "Все РСБ",
-      "pencil": "Карандаш",
-      "fast": "Быстрый",
-      "cellFirst": "Сначала ячейка",
-      "advanced": "Продвинутый",
-      "fastDescription": "Нажмите на число → Нажмите на ячейку для заполнения",
-      "cellFirstDescription": "Нажмите на ячейку → Нажмите на число для заполнения",
-      "advancedDescription": "Нажмите на число → Выберите действие",
-      "placedDescription": "Подсвечивает ячейки с совпадающими размещенными числами",
-      "rcbSelectedDescription": "Подсвечивает строку, столбец и блок выбранной ячейки",
-      "rcbAllDescription": "Подсвечивает все строки/столбцы/блоки, содержащие число",
-      "pencilDescription": "Подсвечивает ячейки с совпадающими пометками карандашом",
-      "place": "Place",
-      "multiSelectNotes": "Multi-Select Notes",
-      "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-      "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
-    },
-    "techniques": {
-      "title": "Техники"
-    },
-    "settings": {
-      "title": "Настройки",
-      "back": "← Назад",
-      "navigation": "📁 Навигация",
-      "puzzles": "📚 Пазлы",
-      "importExport": "📋 Импорт/Экспорт",
-      "about": "ℹ️ О программе",
-      "help": "❓ Помощь",
-      "highlightMode": "🎨 Режим подсветки",
-      "highlightModeDesc": "Выберите, как подсвечивать числа при выборе",
-      "theme": "🎨 Тема",
-      "themeDesc": "Выберите визуальную тему",
-      "dark": "🌙 Темная",
-      "blue": "🔵 Синяя",
-      "light": "☀️ Светлая",
-      "ePaper": "📖 Электронная бумага",
-      "darkDesc": "Чистая темная тема с высоким контрастом",
-      "blueDesc": "Классическая синяя градиентная тема",
-      "lightDesc": "Чистая светлая тема",
-      "ePaperDesc": "Высокий контраст для устройств с электронной бумагой",
-      "playMode": "🎮 Режим игры",
-      "playModeDesc": "Выберите стиль ввода",
-      "fast": "⚡ Быстрый",
-      "cellFirst": "🎯 Сначала ячейка",
-      "advanced": "🔧 Продвинутый",
-      "fastDesc": "Нажмите на число, затем на ячейку для заполнения. Быстро и просто.",
-      "cellFirstDesc": "Сначала нажмите на ячейку, затем на число для заполнения. Подсветка зависит от выбранной ячейки.",
-      "advancedDesc": "Две строки чисел для подсветки. Выберите несколько чисел для каждого цвета. Подсвечиваются ячейки со ВСЕМИ выбранными числами. Нажмите на ячейку для кнопок действий.",
-      "candidateMode": "📝 Режим кандидатов",
-      "candidateModeDesc": "Выберите, как управлять пометками карандашом",
-      "auto": "Авто",
-      "manual": "Ручной",
-      "autoDesc": "Автоматически рассчитывать пометки карандашом на основе размещенных чисел. Включены подсказки и обнаружение ошибок.",
-      "manualDesc": "Начните с пустых пометок карандашом. Заполняйте их самостоятельно. Подсказки и обнаружение ошибок в пометках карандашом отключены.",
-      "autoConfirm": "Переключение в автоматический режим сбросит все пометки карандашом в текущем пазле. Продолжить?",
-      "manualConfirm": "Переключение в ручной режим приведет к:\n• Сбросу всех пометок карандашом\n• Отключению подсказок\n• Отключению обнаружения ошибок в пометках карандашом\n\nПродолжить?",
-      "hintPlacement": "Размещение подсказок",
-      "hintPlacementDesc": "Выберите, где отображается панель подсказок",
-      "hintPlacementAuto": "Авто",
-      "hintPlacementAutoDesc": "Подсказки появляются рядом с полем, если есть место, иначе под ним. Раскладка выбирается автоматически по свободному месту.",
-      "hintPlacementSide": "Сбоку",
-      "hintPlacementSideDesc": "Подсказки всегда отображаются в панели рядом с полем.",
-      "hintPlacementBelow": "Снизу",
-      "hintPlacementBelowDesc": "Подсказки всегда отображаются в панели под полем.",
-      "language": "🌐 Язык",
-      "languageDesc": "Выберите предпочитаемый язык",
-      "mistakeDetection": "⚠️ Обнаружение ошибок",
-      "mistakeDetectionDesc": "Выберите, когда обнаруживать и считать ошибки",
-      "trackPlayTime": "⏱ Учитывать время игры",
-      "trackPlayTimeDesc": "Записывать время на головоломке, ставить на паузу при выходе из игры и показывать экран паузы. Выкл.: таймер остаётся на нуле, экрана паузы нет.",
-      "trackPlayTimeOn": "Вкл.",
-      "trackPlayTimeOff": "Выкл.",
-      "trackPlayTimeOnDesc": "Таймер идёт во время игры. При выходе (меню, список пазлов, импорт/экспорт или смена вкладки) время останавливается и поле блокируется до возобновления.",
-      "trackPlayTimeOffDesc": "Таймер показывает ноль и не накапливает время. Нет оверлея паузы и автоматической паузы при выходе.",
-      "off": "Выкл",
-      "placement": "Размещение",
-      "candidate": "Кандидат",
-      "offDesc": "Нет обнаружения ошибок - играйте без обратной связи",
-      "placementDesc": "Предупреждение при размещении неправильного числа в ячейке",
-      "candidateDesc": "Предупреждение о неправильных размещениях И удалении правильных кандидатов"
-    },
-    "modals": {
-      "close": "✕",
-      "about": {
-        "title": "Nice Sudoku",
-        "tagline": "Игра-судоку с открытым исходным кодом для всех платформ от Эндрю Франа",
-        "description": "Предназначена для легкого освоения, а также подходит для самых сложных головоломок от энтузиастов.",
-        "feedback": "💬 Обратная связь",
-        "feedbackText": "Пожалуйста, сообщайте об ошибках, функциях и идеях на GitHub:",
-        "solvers": "🧠 Решатели",
-        "solversText": "Все решатели от StrmCkr через",
-        "uiux": "🎨 UI/UX",
-        "uiuxText": "Дизайн от Эндрю Франа:",
-        "puzzles": "Пазлы",
-        "puzzlesText": "Пазлы, сгенерированные:"
-      },
-      "completion": {
-        "title": "Поздравляем!",
-        "message": "Вы решили пазл!",
-        "time": "Время",
-        "mistakes": "Ошибки",
-        "hints": "Подсказки",
-        "difficulty": "Сложность",
-        "close": "Закрыть",
-        "nextGame": "Следующая игра"
-      },
-      "version": {
-        "title": "Что нового",
-        "gotIt": "Понятно!"
-      },
-      "puzzleInfo": {
-        "title": "Информация о пазле",
-        "titleLabel": "Название:",
-        "author": "Автор:",
-        "contact": "Контакт:",
-        "description": "Описание:",
-        "difficulty": "Сложность:",
-        "category": "Категория:",
-        "quality": "Качество:",
-        "puzzleId": "ID пазла:",
-        "techniquesUsed": "Использованные техники",
-        "close": "Закрыть",
-        "playPuzzle": "Играть в пазл"
-      }
-    },
-    "importExport": {
-      "title": "Импорт / Экспорт",
-      "back": "← Назад",
-      "export": "📤 Экспорт",
-      "import": "📥 Импорт",
-      "originalPuzzle": "Оригинальный пазл (81 символ)",
-      "currentState": "Текущее состояние (81 символ)",
-      "fullState": "Состояние, данные и исключения (891 символ)",
-      "sudokuCoachFormat": "Формат Sudoku Coach",
-      "copy": "Копировать",
-      "copyUrl": "Копировать URL",
-      "importHint": "Вставьте пазл из 81 символа, состояние из 810 символов, полное состояние из 891 символа или",
-      "placeholder": "Вставьте строку пазла сюда...",
-      "pasteFromClipboard": "📋 Вставить из буфера обмена",
-      "loadPuzzle": "Загрузить пазл",
-      "copiedPuzzle": "✓ Пазл скопирован!",
-      "copiedState": "✓ Состояние скопировано!",
-      "copiedFullState": "✓ Полное состояние скопировано!",
-      "copiedSudokuCoach": "✓ Формат Sudoku Coach скопирован!",
-      "copiedPuzzleUrl": "✓ URL пазла скопирован!",
-      "copiedStateUrl": "✓ URL состояния скопирован!",
-      "copiedFullStateUrl": "✓ URL полного состояния скопирован!",
-      "copiedSudokuCoachUrl": "✓ URL формата Sudoku Coach скопирован!",
-      "failedToCopy": "Не удалось скопировать",
-      "failedToCopyUrl": "Не удалось скопировать URL",
-      "failedToReadClipboard": "Не удалось прочитать буфер обмена",
-      "scopeOriginal": "Original puzzle",
-      "scopeCurrent": "Current state",
-      "fmt81": "81 Char (Standard Format)",
-      "fmtCoachComplete": "Complete (Sudoku Coach Compatible)",
-      "fmt729": "729 Char (Standard Pencil)",
-      "fmt891": "891 Char (State, Pencil, Original)",
-      "fmtCoachCurrentFull": "Complete (Sudoku Coach Compatible)",
-      "completeFormatDescription": "Complete (Sudoku Coach Compatible) uses the same format as Sudoku Coach and can include title, author, description, play time, mistakes, and hints used (when exporting current state). Original puzzle in Complete form omits session stats.",
-      "copiedExport": "✓ Copied to clipboard!",
-      "copiedExportUrl": "✓ Copied share URL!"
-    },
-    "puzzleBrowser": {
-      "title": "Браузер пазлов",
-      "puzzleDetails": "Puzzle details",
-      "clearSelection": "Clear selection",
-      "metadataDash": "—",
-      "statsPlayTime": "Play time:",
-      "statsMistakes": "Mistakes:",
-      "statsHints": "Hints:",
-      "resetPuzzle": "Reset puzzle",
-      "saveMetadata": "Save metadata",
-      "metadataSaved": "✓ Metadata saved",
-      "resetDone": "✓ Puzzle reset to givens",
-      "back": "← Назад",
-      "resumeGame": "⏸ Возобновить игру",
-      "newPuzzle": "🎯 Новый пазл",
-      "hideCompleted": "Скрыть завершенные",
-      "loadingPuzzles": "Загрузка пазлов...",
-      "noCustomPuzzles": "Пока нет пользовательских пазлов. Импортируйте пазл со страницы Импорт/Экспорт, чтобы добавить его сюда.",
-      "noPuzzlesAvailable": "Нет доступных пазлов для этой категории.",
-      "resume": "Возобновить",
-      "delete": "🗑️",
-      "deleteTitle": "Удалить сохраненную игру",
-      "gameDeleted": "Игра удалена",
-      "completed": "✓ Завершено",
-      "replay": "Переиграть",
-      "play": "Играть",
-      "deleteCustomPuzzle": "Удалить пользовательский пазл",
-      "customPuzzleDeleted": "Пользовательский пазл удален",
-      "puzzleInfo": "Информация о пазле"
-    },
-    "help": {
-      "title": "Помощь",
-      "welcome": "Добро пожаловать",
-      "welcomeText": "Спасибо за тестирование Nice Sudoku.",
-      "author": "Эндрю Фран",
-      "keyboardShortcuts": "Горячие клавиши",
-      "navigation": "Навигация",
-      "cellSelection": "Выбор ячейки",
-      "arrowKeys": "Клавиши со стрелками (↑ ← ↓ →)",
-      "arrowKeysDesc": ": Перемещать курсор между ячейками",
-      "ctrlArrowKeys": "Ctrl + Клавиши со стрелками",
-      "ctrlArrowKeysDesc": ": Переход к следующей нерешенной ячейке в этом направлении",
-      "home": "Home",
-      "homeDesc": ": Переход к первому столбцу текущей строки",
-      "end": "End",
-      "endDesc": ": Переход к последнему столбцу текущей строки",
-      "ctrlHome": "Ctrl + Home",
-      "ctrlHomeDesc": ": Переход к верхней левой ячейке (ячейка 0)",
-      "ctrlEnd": "Ctrl + End",
-      "ctrlEndDesc": ": Переход к нижней правой ячейке (ячейка 80)",
-      "numberEntry": "Ввод чисел",
-      "basicEntry": "Основной ввод",
-      "numberKeys": "1-9",
-      "numberKeysDesc": ": Ввод чисел в зависимости от режима игры:",
-      "fastMode": "Быстрый режим",
-      "fastModeDesc": ": Выбирает число для подсветки. Если ячейка выбрана, применяет число к этой ячейке",
-      "advancedMode": "Продвинутый режим",
-      "advancedModeDesc": ": Переключает число в основном выборе. Используйте две числовые панели для нажатия (основная=синяя, вторичная=красная)",
-      "candidateEntry": "Ввод кандидатов (пометки карандашом)",
-      "ctrlNumberKeys": "Ctrl + 1-9",
-      "ctrlNumberKeysDesc": ": Переключить кандидата пометки карандашом в выбранной ячейке",
-      "space": "Пробел",
-      "spaceDesc": ": Если число выбрано (фильтр), переключить его кандидата в выбранной ячейке",
-      "n": "N",
-      "nDesc": ": Включить/выключить режим заметок/карандаша",
-      "editing": "Редактирование",
-      "undoButton": "Кнопка отмены (↩)",
-      "undoButtonDesc": ": Отменить последнее действие (размещение и удаление кандидатов)",
-      "escape": "Escape",
-      "escapeDesc": ": Очистить все выборы (выбранные числа и ячейка)",
-      "filters": "Фильтры и подсветка",
-      "f1f9": "F1-F9",
-      "f1f9Desc": ": Установить/изменить отфильтрованную (выбранную) цифру для подсветки",
-      "shiftF1f9": "Shift + F1-F9",
-      "shiftF1f9Desc": ": Установить/изменить отфильтрованную цифру (в будущем: переключить режим фильтра)",
-      "gameActions": "Действия в игре",
-      "hintSystem": "Система подсказок",
-      "h": "H",
-      "hDesc": ": Переключить панель подсказок (показать/скрыть доступные техники решения)",
-      "requiresBackend": "Требуется доступное подключение к бэкэнду",
-      "whenHintsVisible": "Когда подсказки видны:",
-      "arrowUpDown": "Стрелка вверх/вниз",
-      "arrowUpDownDesc": ": Навигация по доступным подсказкам",
-      "pageUp": "Page Up",
-      "pageUpDesc": ": Перейти к первой подсказке",
-      "pageDown": "Page Down",
-      "pageDownDesc": ": Перейти к последней подсказке",
-      "advancedModeActions": "Действия в продвинутом режиме",
-      "enter": "Enter",
-      "or": " или ",
-      "s": "S",
-      "enterDesc": ": Установить значение в выбранной ячейке (работает только при выборе ровно одного числа в основном выборе)",
-      "deselectButton": "Кнопка отмены выбора",
-      "deselectButtonDesc": ": Нажмите, чтобы отменить выбор ячейки и снова показать числовые панели",
-      "screenNavigation": "Навигация по экрану",
-      "m": "M",
-      "mDesc": ": Открыть экран Меню/Настройки",
-      "b": "B",
-      "bDesc": ": Открыть экран браузера пазлов",
-      "i": "I",
-      "iDesc": ": Открыть экран Импорт/Экспорт",
-      "escapeScreen": "Escape",
-      "escapeScreenDesc": ":",
-      "closeModals": "Закрыть модальные окна (О программе и т.д.)",
-      "closeHintPanel": "Закрыть панель подсказок",
-      "returnToGame": "Вернуться на экран игры с любого другого экрана",
-      "clearSelections": "Очистить выборы на экране игры",
-      "modeSwitching": "Переключение режимов",
-      "nMode": "N",
-      "nModeDesc": ": Переключить режим Заметки/Карандаш",
-      "whenEnabled": "При включении ввод чисел добавляет/удаляет пометки карандашом вместо значений",
-      "notes": "Заметки",
-      "shortcutsDisabled": "Все горячие клавиши отключены при вводе в полях ввода или текстовых областях для предотвращения конфликтов",
-      "hodokuConventions": "Горячие клавиши соответствуют соглашениям HoDoKu для совместимости со стандартным программным обеспечением для судоку",
-      "fullyPlayable": "В игру можно полностью играть, используя только клавиатуру",
-      "shortcutsVary": "Некоторые горячие клавиши могут незначительно отличаться по поведению в режимах Быстрый, Сначала ячейка и Продвинутый",
-      "f1f9Note": "Клавиши F1-F9: некоторые браузеры используют F-клавиши для инструментов разработчика (например, F12) или других функций. Если горячая клавиша браузера конфликтует, вам может потребоваться отключить горячую клавишу браузера или использовать вместо нее цифровые клавиши 1-9 для фильтрации",
-      "playModeDifferences": "Различия в режимах игры",
-      "fastModeDetails": "Быстрый режим",
-      "fastModeDetail1": "Цифровые клавиши сначала выбирают числа для подсветки",
-      "fastModeDetail2": "Если ячейка выбрана, число немедленно применяется",
-      "fastModeDetail3": "Быстрый, оптимизированный ввод для более быстрого решения",
-      "fastModeDetail4": "Выбор одного числа для подсветки",
-      "cellFirstMode": "Режим Сначала ячейка",
-      "cellFirstDetail1": "Сначала нажмите на ячейку, чтобы выбрать ее",
-      "cellFirstDetail2": "Затем нажмите на число, чтобы заполнить эту ячейку",
-      "cellFirstDetail3": "Подсветка зависит от значения выбранной ячейки",
-      "cellFirstDetail4": "Идеально подходит для методичного решения ячейка за ячейкой",
-      "advancedModeDetails": "Продвинутый режим",
-      "advancedDetail1": "Две числовые панели: основная (синяя) и вторичная (красная)",
-      "advancedDetail2": "Переключайте несколько чисел на каждой панели - ячейки должны содержать ВСЕ выбранные числа для подсветки",
-      "advancedDetail3": "Когда ячейка выбрана, числовые панели скрываются и появляются кнопки действий",
-      "advancedDetail4": "Используйте кнопку отмены выбора, чтобы снова показать числовые панели",
-      "advancedDetail5": "Используйте кнопки Установить/Очистить для изменения ячеек или Enter/S для выбора одного числа",
-      "advancedDetail6": "Нажмите на значок Быстрый/Ячейка/Продвинутый в заголовке для быстрого переключения режимов",
-      "advancedDetail7": "Поддерживает подсветку двух чисел для сложных техник решения",
-      "tips": "Советы",
-      "tip1": "Используйте",
-      "tip1CtrlArrow": "Ctrl + Клавиши со стрелками",
-      "tip1Desc": "для быстрого перехода между нерешенными ячейками",
-      "tip2": "Используйте",
-      "tip2F1f9": "F1-F9",
-      "tip2Desc": "для быстрой фильтрации и подсветки чисел",
-      "tip3": "Используйте",
-      "tip3H": "H",
-      "tip3Desc": "для доступа к подсказкам и изучения новых техник решения",
-      "tip4": "Escape",
-      "tip4Desc": " - ваша универсальная клавиша \"назад\" - используйте ее для возврата в игру с любого экрана или модального окна",
-      "deleteBackspace": "Delete / Backspace",
-      "deleteBackspaceDesc": ": Clear the selected cell (placed value or all pencil marks; cannot clear givens)",
-      "ctrlZ": "Ctrl + Z / Cmd + Z",
-      "ctrlZDesc": ": Undo your last action (placements, clears, and candidate eliminations)",
-      "playModes": "Play Modes",
-      "placeMode": "Place Mode",
-      "placeModeDesc": "Select a number from the number bar, then click a cell to place it.",
-      "notesModeTitle": "Notes / Pencil Mode",
-      "notesModeDetail1": "Toggle with the Notes button or the N key",
-      "notesModeDetail2": "When active, matching candidates show a slash — clicking a cell removes that candidate",
-      "multiNotesModeTitle": "Multi-Select Notes Mode",
-      "multiNotesModeDetail1": "Toggle with the Multi-Select Notes button. Select multiple numbers to choose which candidates to target.",
-      "multiNotesClrSel": "Clr Sel: Remove the selected numbers as candidates from the clicked cell",
-      "multiNotesClrOth": "Clr Oth: Remove all candidates EXCEPT the selected numbers from the clicked cell",
-      "tip5": "Use",
-      "tip5Delete": "Delete / Backspace",
-      "tip5Desc": "to erase a misplaced digit in the selected cell"
-    },
-    "gameScreen": {
-      "menu": "☰ Меню",
-      "title": "Nice Sudoku",
-      "poweredBy": "На базе StormDoku",
-      "pauseNotification": "Автопаузу можно отключить в настройках, выключив «Учитывать время игры».",
-      "placed": "Размещено",
-      "rcb": "РСБ",
-      "rcbPlus": "РСБ+",
-      "fast": "Быстрый",
-      "cell": "Ячейка",
-      "adv": "Продвинутый",
-      "paused": "Paused",
-      "clickToResume": "Click to resume"
-    },
-    "buttonHelp": {
-      "title": "Краткий справочник",
-      "topBar": "Верхняя панель",
-      "menuBtn": "Кнопка меню",
-      "menuBtnDesc": "Открыть настройки, навигацию и параметры",
-      "highlightMode": "Режим подсветки",
-      "highlightModeDesc": "Показывает текущий стиль подсветки. Нажмите для изменения в настройках.",
-      "playMode": "Режим игры",
-      "playModeDesc": "Показывает режим Быстрый/Ячейка/Продвинутый. Нажмите для переключения Быстрый ↔ Продвинутый.",
-      "gameInfo": "Информация об игре",
-      "category": "Категория",
-      "categoryDesc": "Категория сложности головоломки (от Начинающего до Дьявольского)",
-      "difficulty": "Рейтинг сложности",
-      "difficultyDesc": "Числовая оценка сложности головоломки",
-      "timer": "Таймер",
-      "timerDesc": "Время, потраченное на эту головоломку",
-      "pauseBtn": "Пауза",
-      "pauseBtnDesc": "Приостановить игру и скрыть сетку",
-      "mistakes": "Ошибки",
-      "mistakesDesc": "Количество неправильных размещений",
-      "hintsUsed": "Использовано подсказок",
-      "hintsUsedDesc": "Количество запрошенных подсказок",
-      "controls": "Кнопки управления",
-      "notesBtn": "Режим заметок",
-      "notesBtnDesc": "Переключить режим карандаша/заметок. При активации числа добавляют кандидатов вместо решения ячеек.",
-      "undoBtn": "Отменить",
-      "undoBtnDesc": "Отменить последнее действие (размещение или исключение)",
-      "hintBtn": "Подсказка",
-      "hintBtnDesc": "Показать подсказки и техники решения. Требуется подключение к серверу.",
-      "clearBtn": "Очистить выбор",
-      "clearBtnDesc": "Очистить все выбранные числа (клавиатура: Escape)",
-      "numberPads": "Цифровые панели",
-      "numberBtns": "Кнопки цифр",
-      "numberBtnsDesc": "Нажмите для выбора/размещения чисел. Затемнено, когда все 9 экземпляров размещены.",
-      "primaryRow": "Основной выбор (Синий)",
-      "primaryRowDesc": "В продвинутом режиме: первый ряд выбирает основные числа для синей подсветки",
-      "secondaryRow": "Вторичный выбор (Красный)",
-      "secondaryRowDesc": "В продвинутом режиме: второй ряд выбирает вторичные числа для красной подсветки",
-      "advancedActions": "Действия продвинутого режима",
-      "deselectBtn": "Снять выбор",
-      "deselectBtnDesc": "Снять выбор с ячейки, чтобы снова показать цифровые панели",
-      "setBtn": "Установить",
-      "setBtnDesc": "Разместить выбранное число в текущей ячейке",
-      "clrBtn": "Очистить кандидатов",
-      "clrBtnDesc": "Удалить выбранных кандидатов из текущей ячейки",
-      "clrOtherBtn": "Очистить остальных",
-      "clrOtherBtnDesc": "Удалить всех кандидатов, КРОМЕ выбранных",
-      "quickTip": "💡 Быстрый совет",
-      "quickTipText": "Нажмите на значок Быстрый/Продвинутый в заголовке для быстрого переключения режимов без открытия настроек!",
-      "moreHelp": "Для клавиатурных сокращений и подробной справки см.",
-      "keyboardShortcuts": "Полное руководство →",
-      "gotIt": "Понятно!",
-      "notes2Btn": "Multi-Select Notes Mode",
-      "notes2BtnDesc": "Like notes mode, but allows selecting multiple numbers, for removing multiple candidates at the same time.",
-      "eraseBtn": "Erase",
-      "eraseBtnDesc": "Clear the selected cell (keyboard: Delete or Backspace)"
+    "languageName": "Русский",
+    "ui": {
+        "game": {
+            "solved": "🎉 Решено!",
+            "thinking": "Думаю...",
+            "error": "Ошибка:",
+            "goodSudoku": "Хорошее судоку",
+            "pencil": "✏️ Карандаш",
+            "difficulty": "Сложность:",
+            "selection": "Выбор",
+            "primary": "Основной",
+            "secondary": "Вторичный",
+            "cell": "Ячейка",
+            "undo": "Отменить",
+            "findTechniques": "Найти техники",
+            "apply": "Применить",
+            "solve": "Решить",
+            "selected": "Выбрано:",
+            "set": "Установить (Enter)",
+            "remove": "Удалить (Пробел)"
+        },
+        "modes": {
+            "highlightMode": "Режим подсветки",
+            "playMode": "Режим игры",
+            "placed": "Размещено",
+            "rcbSel": "Выбор РСБ",
+            "rcbAll": "Все РСБ",
+            "pencil": "Карандаш",
+            "fast": "Быстрый",
+            "cellFirst": "Сначала ячейка",
+            "advanced": "Продвинутый",
+            "fastDescription": "Нажмите на число → Нажмите на ячейку для заполнения",
+            "cellFirstDescription": "Нажмите на ячейку → Нажмите на число для заполнения",
+            "advancedDescription": "Нажмите на число → Выберите действие",
+            "placedDescription": "Подсвечивает ячейки с совпадающими размещенными числами",
+            "rcbSelectedDescription": "Подсвечивает строку, столбец и блок выбранной ячейки",
+            "rcbAllDescription": "Подсвечивает все строки/столбцы/блоки, содержащие число",
+            "pencilDescription": "Подсвечивает ячейки с совпадающими пометками карандашом",
+            "place": "Place",
+            "multiSelectNotes": "Multi-Select Notes",
+            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
+            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+        },
+        "techniques": {
+            "title": "Техники"
+        },
+        "settings": {
+            "title": "Настройки",
+            "back": "← Назад",
+            "navigation": "📁 Навигация",
+            "puzzles": "📚 Пазлы",
+            "importExport": "📋 Импорт/Экспорт",
+            "about": "ℹ️ О программе",
+            "help": "❓ Помощь",
+            "highlightMode": "🎨 Режим подсветки",
+            "highlightModeDesc": "Выберите, как подсвечивать числа при выборе",
+            "theme": "🎨 Тема",
+            "themeDesc": "Выберите визуальную тему",
+            "dark": "🌙 Темная",
+            "blue": "🔵 Синяя",
+            "light": "☀️ Светлая",
+            "ePaper": "📖 Электронная бумага",
+            "darkDesc": "Чистая темная тема с высоким контрастом",
+            "blueDesc": "Классическая синяя градиентная тема",
+            "lightDesc": "Чистая светлая тема",
+            "ePaperDesc": "Высокий контраст для устройств с электронной бумагой",
+            "playMode": "🎮 Режим игры",
+            "playModeDesc": "Выберите стиль ввода",
+            "fast": "⚡ Быстрый",
+            "cellFirst": "🎯 Сначала ячейка",
+            "advanced": "🔧 Продвинутый",
+            "fastDesc": "Нажмите на число, затем на ячейку для заполнения. Быстро и просто.",
+            "cellFirstDesc": "Сначала нажмите на ячейку, затем на число для заполнения. Подсветка зависит от выбранной ячейки.",
+            "advancedDesc": "Две строки чисел для подсветки. Выберите несколько чисел для каждого цвета. Подсвечиваются ячейки со ВСЕМИ выбранными числами. Нажмите на ячейку для кнопок действий.",
+            "candidateMode": "📝 Режим кандидатов",
+            "candidateModeDesc": "Выберите, как управлять пометками карандашом",
+            "auto": "Авто",
+            "manual": "Ручной",
+            "autoDesc": "Автоматически рассчитывать пометки карандашом на основе размещенных чисел. Включены подсказки и обнаружение ошибок.",
+            "manualDesc": "Начните с пустых пометок карандашом. Заполняйте их самостоятельно. Подсказки и обнаружение ошибок в пометках карандашом отключены.",
+            "autoConfirm": "Переключение в автоматический режим сбросит все пометки карандашом в текущем пазле. Продолжить?",
+            "manualConfirm": "Переключение в ручной режим приведет к:\n• Сбросу всех пометок карандашом\n• Отключению подсказок\n• Отключению обнаружения ошибок в пометках карандашом\n\nПродолжить?",
+            "hintPlacement": "Размещение подсказок",
+            "hintPlacementDesc": "Выберите, где отображается панель подсказок",
+            "hintPlacementAuto": "Авто",
+            "hintPlacementAutoDesc": "Подсказки появляются рядом с полем, если есть место, иначе под ним. Раскладка выбирается автоматически по свободному месту.",
+            "hintPlacementSide": "Сбоку",
+            "hintPlacementSideDesc": "Подсказки всегда отображаются в панели рядом с полем.",
+            "hintPlacementBelow": "Снизу",
+            "hintPlacementBelowDesc": "Подсказки всегда отображаются в панели под полем.",
+            "language": "🌐 Язык",
+            "languageDesc": "Выберите предпочитаемый язык",
+            "mistakeDetection": "⚠️ Обнаружение ошибок",
+            "mistakeDetectionDesc": "Выберите, когда обнаруживать и считать ошибки",
+            "trackPlayTime": "⏱ Учитывать время игры",
+            "trackPlayTimeDesc": "Записывать время на головоломке, ставить на паузу при выходе из игры и показывать экран паузы. Выкл.: таймер остаётся на нуле, экрана паузы нет.",
+            "trackPlayTimeOn": "Вкл.",
+            "trackPlayTimeOff": "Выкл.",
+            "trackPlayTimeOnDesc": "Таймер идёт во время игры. При выходе (меню, список пазлов, импорт/экспорт или смена вкладки) время останавливается и поле блокируется до возобновления.",
+            "trackPlayTimeOffDesc": "Таймер показывает ноль и не накапливает время. Нет оверлея паузы и автоматической паузы при выходе.",
+            "off": "Выкл",
+            "placement": "Размещение",
+            "candidate": "Кандидат",
+            "offDesc": "Нет обнаружения ошибок - играйте без обратной связи",
+            "placementDesc": "Предупреждение при размещении неправильного числа в ячейке",
+            "candidateDesc": "Предупреждение о неправильных размещениях И удалении правильных кандидатов"
+        },
+        "modals": {
+            "close": "✕",
+            "about": {
+                "title": "Nice Sudoku",
+                "tagline": "Игра-судоку с открытым исходным кодом для всех платформ от Эндрю Франа",
+                "description": "Предназначена для легкого освоения, а также подходит для самых сложных головоломок от энтузиастов.",
+                "feedback": "💬 Обратная связь",
+                "feedbackText": "Пожалуйста, сообщайте об ошибках, функциях и идеях на GitHub:",
+                "solvers": "🧠 Решатели",
+                "solversText": "Все решатели от StrmCkr через",
+                "uiux": "🎨 UI/UX",
+                "uiuxText": "Дизайн от Эндрю Франа:",
+                "puzzles": "Пазлы",
+                "puzzlesText": "Пазлы, сгенерированные:"
+            },
+            "completion": {
+                "title": "Поздравляем!",
+                "message": "Вы решили пазл!",
+                "time": "Время",
+                "mistakes": "Ошибки",
+                "hints": "Подсказки",
+                "difficulty": "Сложность",
+                "close": "Закрыть",
+                "nextGame": "Следующая игра"
+            },
+            "version": {
+                "title": "Что нового",
+                "gotIt": "Понятно!"
+            },
+            "puzzleInfo": {
+                "title": "Информация о пазле",
+                "titleLabel": "Название:",
+                "author": "Автор:",
+                "contact": "Контакт:",
+                "description": "Описание:",
+                "difficulty": "Сложность:",
+                "category": "Категория:",
+                "quality": "Качество:",
+                "puzzleId": "ID пазла:",
+                "techniquesUsed": "Использованные техники",
+                "close": "Закрыть",
+                "playPuzzle": "Играть в пазл"
+            }
+        },
+        "importExport": {
+            "title": "Импорт / Экспорт",
+            "back": "← Назад",
+            "export": "📤 Экспорт",
+            "import": "📥 Импорт",
+            "originalPuzzle": "Оригинальный пазл (81 символ)",
+            "currentState": "Текущее состояние (81 символ)",
+            "fullState": "Состояние, данные и исключения (891 символ)",
+            "sudokuCoachFormat": "Формат Sudoku Coach",
+            "copy": "Копировать",
+            "copyUrl": "Копировать URL",
+            "importHint": "Вставьте пазл из 81 символа, состояние из 810 символов, полное состояние из 891 символа или",
+            "placeholder": "Вставьте строку пазла сюда...",
+            "pasteFromClipboard": "📋 Вставить из буфера обмена",
+            "loadPuzzle": "Загрузить пазл",
+            "copiedPuzzle": "✓ Пазл скопирован!",
+            "copiedState": "✓ Состояние скопировано!",
+            "copiedFullState": "✓ Полное состояние скопировано!",
+            "copiedSudokuCoach": "✓ Формат Sudoku Coach скопирован!",
+            "copiedPuzzleUrl": "✓ URL пазла скопирован!",
+            "copiedStateUrl": "✓ URL состояния скопирован!",
+            "copiedFullStateUrl": "✓ URL полного состояния скопирован!",
+            "copiedSudokuCoachUrl": "✓ URL формата Sudoku Coach скопирован!",
+            "failedToCopy": "Не удалось скопировать",
+            "failedToCopyUrl": "Не удалось скопировать URL",
+            "failedToReadClipboard": "Не удалось прочитать буфер обмена",
+            "scopeOriginal": "Original puzzle",
+            "scopeCurrent": "Current state",
+            "fmt81": "81 Char (Standard Format)",
+            "fmtCoachComplete": "Complete (Sudoku Coach Compatible)",
+            "fmt729": "729 Char (Standard Pencil)",
+            "fmt891": "891 Char (State, Pencil, Original)",
+            "fmtCoachCurrentFull": "Complete (Sudoku Coach Compatible)",
+            "completeFormatDescription": "Complete (Sudoku Coach Compatible) uses the same format as Sudoku Coach and can include title, author, description, play time, mistakes, and hints used (when exporting current state). Original puzzle in Complete form omits session stats.",
+            "copiedExport": "✓ Copied to clipboard!",
+            "copiedExportUrl": "✓ Copied share URL!"
+        },
+        "puzzleBrowser": {
+            "title": "Браузер пазлов",
+            "puzzleDetails": "Puzzle details",
+            "clearSelection": "Clear selection",
+            "metadataDash": "—",
+            "statsPlayTime": "Play time:",
+            "statsMistakes": "Mistakes:",
+            "statsHints": "Hints:",
+            "resetPuzzle": "Reset puzzle",
+            "saveMetadata": "Save metadata",
+            "metadataSaved": "✓ Metadata saved",
+            "resetDone": "✓ Puzzle reset to givens",
+            "back": "← Назад",
+            "resumeGame": "⏸ Возобновить игру",
+            "newPuzzle": "🎯 Новый пазл",
+            "hideCompleted": "Скрыть завершенные",
+            "loadingPuzzles": "Загрузка пазлов...",
+            "noCustomPuzzles": "Пока нет пользовательских пазлов. Импортируйте пазл со страницы Импорт/Экспорт, чтобы добавить его сюда.",
+            "noPuzzlesAvailable": "Нет доступных пазлов для этой категории.",
+            "resume": "Возобновить",
+            "delete": "🗑️",
+            "deleteTitle": "Удалить сохраненную игру",
+            "gameDeleted": "Игра удалена",
+            "completed": "✓ Завершено",
+            "replay": "Переиграть",
+            "play": "Играть",
+            "deleteCustomPuzzle": "Удалить пользовательский пазл",
+            "customPuzzleDeleted": "Пользовательский пазл удален",
+            "puzzleInfo": "Информация о пазле"
+        },
+        "help": {
+            "title": "Помощь",
+            "welcome": "Добро пожаловать",
+            "welcomeText": "Спасибо за тестирование Nice Sudoku.",
+            "author": "Эндрю Фран",
+            "keyboardShortcuts": "Горячие клавиши",
+            "navigation": "Навигация",
+            "cellSelection": "Выбор ячейки",
+            "arrowKeys": "Клавиши со стрелками (↑ ← ↓ →)",
+            "arrowKeysDesc": ": Перемещать курсор между ячейками",
+            "ctrlArrowKeys": "Ctrl + Клавиши со стрелками",
+            "ctrlArrowKeysDesc": ": Переход к следующей нерешенной ячейке в этом направлении",
+            "home": "Home",
+            "homeDesc": ": Переход к первому столбцу текущей строки",
+            "end": "End",
+            "endDesc": ": Переход к последнему столбцу текущей строки",
+            "ctrlHome": "Ctrl + Home",
+            "ctrlHomeDesc": ": Переход к верхней левой ячейке (ячейка 0)",
+            "ctrlEnd": "Ctrl + End",
+            "ctrlEndDesc": ": Переход к нижней правой ячейке (ячейка 80)",
+            "numberEntry": "Ввод чисел",
+            "basicEntry": "Основной ввод",
+            "numberKeys": "1-9",
+            "numberKeysDesc": ": Ввод чисел в зависимости от режима игры:",
+            "fastMode": "Быстрый режим",
+            "fastModeDesc": ": Выбирает число для подсветки. Если ячейка выбрана, применяет число к этой ячейке",
+            "advancedMode": "Продвинутый режим",
+            "advancedModeDesc": ": Переключает число в основном выборе. Используйте две числовые панели для нажатия (основная=синяя, вторичная=красная)",
+            "candidateEntry": "Ввод кандидатов (пометки карандашом)",
+            "ctrlNumberKeys": "Ctrl + 1-9",
+            "ctrlNumberKeysDesc": ": Переключить кандидата пометки карандашом в выбранной ячейке",
+            "space": "Пробел",
+            "spaceDesc": ": Если число выбрано (фильтр), переключить его кандидата в выбранной ячейке",
+            "n": "N",
+            "nDesc": ": Включить/выключить режим заметок/карандаша",
+            "editing": "Редактирование",
+            "undoButton": "Кнопка отмены (↩)",
+            "undoButtonDesc": ": Отменить последнее действие (размещение и удаление кандидатов)",
+            "escape": "Escape",
+            "escapeDesc": ": Очистить все выборы (выбранные числа и ячейка)",
+            "filters": "Фильтры и подсветка",
+            "f1f9": "F1-F9",
+            "f1f9Desc": ": Установить/изменить отфильтрованную (выбранную) цифру для подсветки",
+            "shiftF1f9": "Shift + F1-F9",
+            "shiftF1f9Desc": ": Установить/изменить отфильтрованную цифру (в будущем: переключить режим фильтра)",
+            "gameActions": "Действия в игре",
+            "hintSystem": "Система подсказок",
+            "h": "H",
+            "hDesc": ": Переключить панель подсказок (показать/скрыть доступные техники решения)",
+            "requiresBackend": "Требуется доступное подключение к бэкэнду",
+            "whenHintsVisible": "Когда подсказки видны:",
+            "arrowUpDown": "Стрелка вверх/вниз",
+            "arrowUpDownDesc": ": Навигация по доступным подсказкам",
+            "pageUp": "Page Up",
+            "pageUpDesc": ": Перейти к первой подсказке",
+            "pageDown": "Page Down",
+            "pageDownDesc": ": Перейти к последней подсказке",
+            "advancedModeActions": "Действия в продвинутом режиме",
+            "enter": "Enter",
+            "or": " или ",
+            "s": "S",
+            "enterDesc": ": Установить значение в выбранной ячейке (работает только при выборе ровно одного числа в основном выборе)",
+            "deselectButton": "Кнопка отмены выбора",
+            "deselectButtonDesc": ": Нажмите, чтобы отменить выбор ячейки и снова показать числовые панели",
+            "screenNavigation": "Навигация по экрану",
+            "m": "M",
+            "mDesc": ": Открыть экран Меню/Настройки",
+            "b": "B",
+            "bDesc": ": Открыть экран браузера пазлов",
+            "i": "I",
+            "iDesc": ": Открыть экран Импорт/Экспорт",
+            "escapeScreen": "Escape",
+            "escapeScreenDesc": ":",
+            "closeModals": "Закрыть модальные окна (О программе и т.д.)",
+            "closeHintPanel": "Закрыть панель подсказок",
+            "returnToGame": "Вернуться на экран игры с любого другого экрана",
+            "clearSelections": "Очистить выборы на экране игры",
+            "modeSwitching": "Переключение режимов",
+            "nMode": "N",
+            "nModeDesc": ": Переключить режим Заметки/Карандаш",
+            "whenEnabled": "При включении ввод чисел добавляет/удаляет пометки карандашом вместо значений",
+            "notes": "Заметки",
+            "shortcutsDisabled": "Все горячие клавиши отключены при вводе в полях ввода или текстовых областях для предотвращения конфликтов",
+            "hodokuConventions": "Горячие клавиши соответствуют соглашениям HoDoKu для совместимости со стандартным программным обеспечением для судоку",
+            "fullyPlayable": "В игру можно полностью играть, используя только клавиатуру",
+            "shortcutsVary": "Некоторые горячие клавиши могут незначительно отличаться по поведению в режимах Быстрый, Сначала ячейка и Продвинутый",
+            "f1f9Note": "Клавиши F1-F9: некоторые браузеры используют F-клавиши для инструментов разработчика (например, F12) или других функций. Если горячая клавиша браузера конфликтует, вам может потребоваться отключить горячую клавишу браузера или использовать вместо нее цифровые клавиши 1-9 для фильтрации",
+            "playModeDifferences": "Различия в режимах игры",
+            "fastModeDetails": "Быстрый режим",
+            "fastModeDetail1": "Цифровые клавиши сначала выбирают числа для подсветки",
+            "fastModeDetail2": "Если ячейка выбрана, число немедленно применяется",
+            "fastModeDetail3": "Быстрый, оптимизированный ввод для более быстрого решения",
+            "fastModeDetail4": "Выбор одного числа для подсветки",
+            "cellFirstMode": "Режим Сначала ячейка",
+            "cellFirstDetail1": "Сначала нажмите на ячейку, чтобы выбрать ее",
+            "cellFirstDetail2": "Затем нажмите на число, чтобы заполнить эту ячейку",
+            "cellFirstDetail3": "Подсветка зависит от значения выбранной ячейки",
+            "cellFirstDetail4": "Идеально подходит для методичного решения ячейка за ячейкой",
+            "advancedModeDetails": "Продвинутый режим",
+            "advancedDetail1": "Две числовые панели: основная (синяя) и вторичная (красная)",
+            "advancedDetail2": "Переключайте несколько чисел на каждой панели - ячейки должны содержать ВСЕ выбранные числа для подсветки",
+            "advancedDetail3": "Когда ячейка выбрана, числовые панели скрываются и появляются кнопки действий",
+            "advancedDetail4": "Используйте кнопку отмены выбора, чтобы снова показать числовые панели",
+            "advancedDetail5": "Используйте кнопки Установить/Очистить для изменения ячеек или Enter/S для выбора одного числа",
+            "advancedDetail6": "Нажмите на значок Быстрый/Ячейка/Продвинутый в заголовке для быстрого переключения режимов",
+            "advancedDetail7": "Поддерживает подсветку двух чисел для сложных техник решения",
+            "tips": "Советы",
+            "tip1": "Используйте",
+            "tip1CtrlArrow": "Ctrl + Клавиши со стрелками",
+            "tip1Desc": "для быстрого перехода между нерешенными ячейками",
+            "tip2": "Используйте",
+            "tip2F1f9": "F1-F9",
+            "tip2Desc": "для быстрой фильтрации и подсветки чисел",
+            "tip3": "Используйте",
+            "tip3H": "H",
+            "tip3Desc": "для доступа к подсказкам и изучения новых техник решения",
+            "tip4": "Escape",
+            "tip4Desc": " - ваша универсальная клавиша \"назад\" - используйте ее для возврата в игру с любого экрана или модального окна",
+            "deleteBackspace": "Delete / Backspace",
+            "deleteBackspaceDesc": ": Clear the selected cell (placed value or all pencil marks; cannot clear givens)",
+            "ctrlZ": "Ctrl + Z / Cmd + Z",
+            "ctrlZDesc": ": Undo your last action (placements, clears, and candidate eliminations)",
+            "playModes": "Play Modes",
+            "placeMode": "Place Mode",
+            "placeModeDesc": "Select a number from the number bar, then click a cell to place it.",
+            "notesModeTitle": "Notes / Pencil Mode",
+            "notesModeDetail1": "Toggle with the Notes button or the N key",
+            "notesModeDetail2": "When active, matching candidates show a slash — clicking a cell removes that candidate",
+            "multiNotesModeTitle": "Multi-Select Notes Mode",
+            "multiNotesModeDetail1": "Toggle with the Multi-Select Notes button. Select multiple numbers to choose which candidates to target.",
+            "multiNotesClrSel": "Clr Sel: Remove the selected numbers as candidates from the clicked cell",
+            "multiNotesClrOth": "Clr Oth: Remove all candidates EXCEPT the selected numbers from the clicked cell",
+            "tip5": "Use",
+            "tip5Delete": "Delete / Backspace",
+            "tip5Desc": "to erase a misplaced digit in the selected cell"
+        },
+        "gameScreen": {
+            "menu": "☰ Меню",
+            "title": "Nice Sudoku",
+            "poweredBy": "На базе StormDoku",
+            "pauseNotification": "Автопаузу можно отключить в настройках, выключив «Учитывать время игры».",
+            "placed": "Размещено",
+            "rcb": "РСБ",
+            "rcbPlus": "РСБ+",
+            "fast": "Быстрый",
+            "cell": "Ячейка",
+            "adv": "Продвинутый",
+            "paused": "Paused",
+            "clickToResume": "Click to resume"
+        },
+        "buttonHelp": {
+            "title": "Краткий справочник",
+            "topBar": "Верхняя панель",
+            "menuBtn": "Кнопка меню",
+            "menuBtnDesc": "Открыть настройки, навигацию и параметры",
+            "highlightMode": "Режим подсветки",
+            "highlightModeDesc": "Показывает текущий стиль подсветки. Нажмите для изменения в настройках.",
+            "playMode": "Режим игры",
+            "playModeDesc": "Показывает режим Быстрый/Ячейка/Продвинутый. Нажмите для переключения Быстрый ↔ Продвинутый.",
+            "gameInfo": "Информация об игре",
+            "category": "Категория",
+            "categoryDesc": "Категория сложности головоломки (от Начинающего до Дьявольского)",
+            "difficulty": "Рейтинг сложности",
+            "difficultyDesc": "Числовая оценка сложности головоломки",
+            "timer": "Таймер",
+            "timerDesc": "Время, потраченное на эту головоломку",
+            "pauseBtn": "Пауза",
+            "pauseBtnDesc": "Приостановить игру и скрыть сетку",
+            "mistakes": "Ошибки",
+            "mistakesDesc": "Количество неправильных размещений",
+            "hintsUsed": "Использовано подсказок",
+            "hintsUsedDesc": "Количество запрошенных подсказок",
+            "controls": "Кнопки управления",
+            "notesBtn": "Режим заметок",
+            "notesBtnDesc": "Переключить режим карандаша/заметок. При активации числа добавляют кандидатов вместо решения ячеек.",
+            "undoBtn": "Отменить",
+            "undoBtnDesc": "Отменить последнее действие (размещение или исключение)",
+            "hintBtn": "Подсказка",
+            "hintBtnDesc": "Показать подсказки и техники решения. Требуется подключение к серверу.",
+            "clearBtn": "Очистить выбор",
+            "clearBtnDesc": "Очистить все выбранные числа (клавиатура: Escape)",
+            "numberPads": "Цифровые панели",
+            "numberBtns": "Кнопки цифр",
+            "numberBtnsDesc": "Нажмите для выбора/размещения чисел. Затемнено, когда все 9 экземпляров размещены.",
+            "primaryRow": "Основной выбор (Синий)",
+            "primaryRowDesc": "В продвинутом режиме: первый ряд выбирает основные числа для синей подсветки",
+            "secondaryRow": "Вторичный выбор (Красный)",
+            "secondaryRowDesc": "В продвинутом режиме: второй ряд выбирает вторичные числа для красной подсветки",
+            "advancedActions": "Действия продвинутого режима",
+            "deselectBtn": "Снять выбор",
+            "deselectBtnDesc": "Снять выбор с ячейки, чтобы снова показать цифровые панели",
+            "setBtn": "Установить",
+            "setBtnDesc": "Разместить выбранное число в текущей ячейке",
+            "clrBtn": "Очистить кандидатов",
+            "clrBtnDesc": "Удалить выбранных кандидатов из текущей ячейки",
+            "clrOtherBtn": "Очистить остальных",
+            "clrOtherBtnDesc": "Удалить всех кандидатов, КРОМЕ выбранных",
+            "quickTip": "💡 Быстрый совет",
+            "quickTipText": "Нажмите на значок Быстрый/Продвинутый в заголовке для быстрого переключения режимов без открытия настроек!",
+            "moreHelp": "Для клавиатурных сокращений и подробной справки см.",
+            "keyboardShortcuts": "Полное руководство →",
+            "gotIt": "Понятно!",
+            "notes2Btn": "Multi-Select Notes Mode",
+            "notes2BtnDesc": "Like notes mode, but allows selecting multiple numbers, for removing multiple candidates at the same time.",
+            "eraseBtn": "Erase",
+            "eraseBtnDesc": "Clear the selected cell (keyboard: Delete or Backspace)"
+        },
+        "hints": {
+            "overview": "Обзор",
+            "eliminations": "Исключения",
+            "solution": "Решение",
+            "remove": "Удалить",
+            "from": "из"
+        },
+        "toasts": {
+            "wrongNumber": "Wrong number!",
+            "wrongCandidate": "Wrong candidate removed!"
+        }
     },
     "hints": {
-      "overview": "Обзор",
-      "eliminations": "Исключения",
-      "solution": "Решение",
-      "remove": "Удалить",
-      "from": "из"
+        "common": {
+            "overview": "Обзор",
+            "eliminations": "Исключения",
+            "solution": "Решение",
+            "remove": "Удалить {{digit}} из {{cells}}",
+            "place": "Поместить {{digit}} в {{cell}}",
+            "cellFormat": "R{{row}}C{{col}}"
+        },
+        "naked_single": {
+            "step1": {
+                "title": "Найти Одиночку",
+                "description": "В ячейке {{cell}} остался только один кандидат: {{digit}}"
+            },
+            "step2": {
+                "title": "Установить значение и исключить",
+                "description": "Поместите {{digit}} в {{cell}}. Исключите {{digit}} из строки {{row}}, столбца {{col}} и блока {{box}}: {{cells}}"
+            }
+        },
+        "hidden_single": {
+            "step1": {
+                "title": "Найти Скрытую Одиночку",
+                "description": "В {{house}} только в ячейку {{cell}} можно поставить {{digit}}. Следовательно, исключите других кандидатов из этой ячейки."
+            },
+            "step2": {
+                "title": "Исключить из соседей",
+                "description": "В строке {{row}}, столбце {{col}} и блоке {{box}} цифра {{digit}} может быть только в {{cell}}. Исключите {{digit}} из: {{cells}}"
+            }
+        },
+        "naked_pair": {
+            "step1": {
+                "title": "Найти Голую Пару",
+                "description": "Ячейки {{cells}} в {{house}} могут содержать только {{digits}}. Эти цифры 'заперты' в этих ячейках."
+            },
+            "step2": {
+                "title": "Исключить из того же дома",
+                "description": "Так как {{digits}} могут быть только в {{subsetCells}}, исключите эти цифры из {{elimCells}} в {{house}}."
+            },
+            "step3": {
+                "title": "Применить запертых кандидатов",
+                "description": "Голая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
+            }
+        },
+        "naked_triple": {
+            "step1": {
+                "title": "Найти Голую Тройку",
+                "description": "Ячейки {{cells}} в {{house}} могут содержать только {{digits}}. Эти цифры 'заперты' в этих ячейках."
+            },
+            "step2": {
+                "title": "Исключить из того же дома",
+                "description": "Так как {{digits}} могут быть только в {{subsetCells}}, исключите эти цифры из {{elimCells}} в {{house}}."
+            },
+            "step3": {
+                "title": "Применить запертых кандидатов",
+                "description": "Голая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
+            }
+        },
+        "naked_quadruple": {
+            "step1": {
+                "title": "Найти Голую Четверку",
+                "description": "Ячейки {{cells}} в {{house}} могут содержать только {{digits}}. Эти цифры 'заперты' в этих ячейках."
+            },
+            "step2": {
+                "title": "Исключить из того же дома",
+                "description": "Так как {{digits}} могут быть только в {{subsetCells}}, исключите эти цифры из {{elimCells}} в {{house}}."
+            },
+            "step3": {
+                "title": "Применить запертых кандидатов",
+                "description": "Голая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
+            }
+        },
+        "hidden_pair": {
+            "step1": {
+                "title": "Найти Скрытую Пару",
+                "description": "В {{house}} цифры {{digits}} могут быть размещены только в {{cells}}. Эти ячейки 'заперты' для этих цифр."
+            },
+            "step2": {
+                "title": "Исключить из того же дома",
+                "description": "Так как {{digits}} могут быть только в {{cells}}, исключите других кандидатов из этих ячеек."
+            },
+            "step3": {
+                "title": "Применить скрытых запертых кандидатов",
+                "description": "Скрытая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
+            }
+        },
+        "hidden_triple": {
+            "step1": {
+                "title": "Найти Скрытую Тройку",
+                "description": "В {{house}} цифры {{digits}} могут быть размещены только в {{cells}}. Эти ячейки 'заперты' для этих цифр."
+            },
+            "step2": {
+                "title": "Исключить из того же дома",
+                "description": "Так как {{digits}} могут быть только в {{cells}}, исключите других кандидатов из этих ячеек."
+            },
+            "step3": {
+                "title": "Применить скрытых запертых кандидатов",
+                "description": "Скрытая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
+            }
+        },
+        "hidden_quadruple": {
+            "step1": {
+                "title": "Найти Скрытую Четверку",
+                "description": "В {{house}} цифры {{digits}} могут быть размещены только в {{cells}}. Эти ячейки 'заперты' для этих цифр."
+            },
+            "step2": {
+                "title": "Исключить из того же дома",
+                "description": "Так как {{digits}} могут быть только в {{cells}}, исключите других кандидатов из этих ячеек."
+            },
+            "step3": {
+                "title": "Применить скрытых запертых кандидатов",
+                "description": "Скрытая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
+            }
+        },
+        "pointing_candidates": {
+            "step1": {
+                "title": "Найти Указывающих Кандидатов"
+            },
+            "step2": {
+                "title": "Исключить из {{house}}",
+                "description": "Исключите {{digit}} из других ячеек в {{house}}: {{cells}}"
+            }
+        },
+        "claiming_candidates": {
+            "step1": {
+                "title": "Найти Претендующих Кандидатов"
+            },
+            "step2": {
+                "title": "Исключить из {{house}}",
+                "description": "Исключите {{digit}} из других ячеек в {{house}}: {{cells}}"
+            }
+        },
+        "bug": {
+            "step1": {
+                "title": "Заметить Двузначный Узор",
+                "description": "Посмотрите на нерешенные ячейки в этом пазле. Почти каждая из них имеет ровно ДВА кандидата. Это особая ситуация, называемая 'Bivalue Universal Grave' (BUG). Вот почему это проблема: если бы КАЖДАЯ нерешенная ячейка имела ровно два кандидата, расположенных определенным образом, вы могли бы поменять значения местами и получить два разных правильных решения! Но у правильного судоку есть только ОДНО решение. Значит, что-то должно 'разрушать' этот узор — должна быть хотя бы одна ячейка, которая отличается."
+            },
+            "step2": {
+                "title": "Найти Исключительную Ячейку",
+                "description": "Теперь посмотрите на {{cell}} — эта ячейка особенная! В то время как во всех остальных нерешенных ячейках ровно по два кандидата, в этой ТРИ (или больше). Это и есть '+1' в BUG+1. Этот лишний кандидат — ключ к решению пазла. Если бы мы удалили этого лишнего кандидата, мы бы получили смертельный узор BUG с несколькими решениями. Следовательно, лишний кандидат ДОЛЖЕН быть истинным значением этой ячейки!"
+            },
+            "step3": {
+                "title": "Предотвратить BUG",
+                "description": "Чтобы избежать BUG (что означало бы наличие нескольких решений), мы должны исключить кандидатов, которые завершили бы смертельный узор. Удалите {{digits}} из {{cell}}. Оставшийся кандидат является решением для этой ячейки."
+            }
+        },
+        "aic": {
+            "step1": {
+                "title": "Найти Цепь",
+                "description": "Чередующаяся Цепь Выводов (AIC) соединяет кандидатов в логическую последовательность. Представьте это как цепочку домино, где каждая деталь влияет на следующую. Эта цепь состоит из {{nodeCount}} звеньев, начинается в {{startDesc}} и заканчивается в {{endDesc}}. Цепь чередует два типа связей: • **Сильные связи** (сплошные линии): 'Если это ЛОЖЬ, то то должно быть ИСТИНОЙ' • **Слабые связи** (пунктирные линии): 'Если это ИСТИНА, то то должно быть ЛОЖЬЮ'. Следуя по цепи, мы можем доказать, что определенные кандидаты должны быть исключены."
+            },
+            "step2": {
+                "title": "Следовать Логике",
+                "description": "Давайте проследим за цепью шаг за шагом:\n\n{{chainSteps}}\n\nКонцы цепи критически важны — любая ячейка, которая 'видит' оба конца, не может содержать целевой кандидат."
+            },
+            "step3": {
+                "title": "Сделать Исключение",
+                "description": "Цепь доказывает, что {{digits}} не могут быть в {{cells}}. Почему? Потому что концы цепи создают 'ловушку': независимо от того, какой конец истинен, исключаемая ячейка увидит ячейку, в которой есть этот кандидат. Удалите {{digits}} из: {{cells}}."
+            }
+        },
+        "als": {
+            "step1": {
+                "title": "Понять Почти Заблокированные Наборы",
+                "description": "**Почти Заблокированный Набор** (ALS) — это группа ячеек, которая 'почти' решена. Ключевая идея: если у вас есть N ячеек, содержащих ровно N+1 различных кандидатов, то удаление всего ОДНОГО кандидата 'заблокирует' оставшихся кандидатов в этих ячейках. Например: 3 ячейки с кандидатами {1,2,3,4} = почти заблокированы. Удалите любую одну цифру, и остальные 3 цифры ДОЛЖНЫ пойти в эти 3 ячейки. Эта техника {{alsType}} использует {{numALS}} почти заблокированных набора, которые имеют 'соединительные цифры' — цифры, которые могут быть только в одном ALS или другом, связывая их вместе."
+            }
+        },
+        "als_identify": {
+            "step1": {
+                "description": "Посмотрите на {{alsName}}: {{cellCount}} ячеек ({{cells}}) с {{digitCount}} кандидатами {{{digits}}}. Это {{cellCount}} ячеек с {{digitCount}} кандидатами — это 'почти заблокировано', потому что {{digitCount}} = {{cellCount}} + 1."
+            }
+        },
+        "als_connecting": {
+            "step1": {
+                "title": "Найти Соединительные Цифры",
+                "description": "ALS-наборы соединены **общими цифрами**, которые могут появиться только в одном ALS или другом:\n\n{{connections}}\n\nЭти 'соединительные цифры' действуют как мосты — если цифра используется в одном ALS, она исключается из другого ALS, что затем блокирует остальные цифры."
+            }
+        },
+        "als_elimination": {
+            "step1": {
+                "title": "Сделать Исключение",
+                "description": "Теперь самое интересное! Посмотрите на цифру(ы) {{digits}}. Из-за того, как соединены ALS-наборы, {{digits}} должны оказаться в одной из ячеек ALS. Любая ячейка, которая 'видит' ВСЕ места, где {{digits}} могли бы быть в ОБОИХ ALS-наборах, не может содержать {{digits}} — она всегда будет конфликтовать. Удалите {{digits}} из: {{cells}}."
+            }
+        },
+        "x_cycle": {
+            "step1": {
+                "title": "Найти X-Цикл",
+                "description": "X-Цикл — это цепь ячеек, которая возвращается к своему началу. Этот цикл имеет {{cycleSize}} узлов, включающих цифру {{digit}} в ячейках: {{cells}}. Ключ в том, что цепь чередует 'сильные связи' (сплошные линии) и 'слабые связи' (пунктирные линии). Сильная связь = если один ложен, другой должен быть истинным. Слабая связь = оба не могут быть истинными одновременно. Поскольку цепь образует полный цикл, определенные кандидаты ДОЛЖНЫ быть исключены во избежание противоречия."
+            },
+            "step2": {
+                "title": "Понять Логику Цикла"
+            },
+            "step3": {
+                "title": "Исключить из ячеек, видящих оба цвета",
+                "description": "Ячейка(и) в {{cells}} могут видеть узлы обоих 'цветов' в цикле. Так как один цвет должен быть истинным, эти ячейки всегда будут конфликтовать. Удалите {{digit}} из: {{cells}}."
+            }
+        },
+        "x_cycle_nice_loop": {
+            "step1": {
+                "description": "Это 'Приятный Цикл' (четное количество узлов). В приятном цикле мы можем раскрашивать узлы поочередно — назовем их 'Зеленый' и 'Желтый'. Либо во всех зеленых узлах будет {{digit}}, ЛИБО во всех желтых узлах будет {{digit}}. Любая ячейка, которая видит И зеленый, И желтый узлы, не может содержать {{digit}} — независимо от того, какой цвет истинен, эта ячейка будет с ним конфликтовать."
+            }
+        },
+        "x_cycle_discontinuous": {
+            "step1": {
+                "description": "Это 'Прерывистый Цикл' (нечетное количество узлов). В нечетном цикле что-то должно 'сломаться' — мы находим противоречие. Следуя логике цепи, мы можем доказать, что определенные кандидаты должны быть исключены, потому что их сохранение создало бы невозможную ситуацию."
+            }
+        },
+        "simple_coloring": {
+            "step1": {
+                "title": "Понять Простое Раскрашивание",
+                "description": "Простое Раскрашивание работает с одной цифрой ({{digit}}). Идея такова: найдите все 'сильные связи' для цифры {{digit}}. Сильная связь существует, когда {{digit}} появляется ровно в двух ячейках строки, столбца или блока — если одна ложна, другая ДОЛЖНА быть истинной. Теперь раскрасьте эти ячейки поочередно — начните с 'Зеленого', соединенные ячейки станут 'Желтыми', их соединения снова 'Зелеными' и так далее. У нас есть {{greenCount}} зеленых ячеек и {{yellowCount}} желтых ячеек. Либо ВСЕ зеленые ячейки имеют {{digit}}, ЛИБО ВСЕ желтые ячейки имеют {{digit}}."
+            }
+        },
+        "3d_medusa": {
+            "step1": {
+                "title": "Понять 3D-Медузу",
+                "description": "3D-Медуза расширяет раскрашивание на несколько цифр. Идея такова: начните с любого кандидата и назовите его 'Зеленым'. Каждый кандидат, соединенный сильной связью, получает противоположный цвет ('Желтый'). Сильные связи существуют, когда: • Цифра появляется только дважды в строке, столбце или блоке • Ячейка имеет только два кандидата (двузначная ячейка). Мы раскрашиваем {{greenCount}} ячеек в зеленый и {{yellowCount}} ячеек в желтый. Одна целая цветовая группа ИСТИННА, другая ЛОЖНА — мы просто пока не знаем какая."
+            }
+        },
+        "coloring": {
+            "step2": {
+                "title": "Найти Цветовые Ловушки и Завороты",
+                "description": "Теперь мы ищем противоречия или 'ловушки': **Цветовая ловушка**: Если нераскрашенная ячейка видит и зеленую, и желтую ячейку (в той же строке, столбце или блоке), эта ячейка не может содержать данную цифру. Почему? Потому что один из этих цветов должен быть истинным, и любой из них исключил бы цифру из этой ячейки. **Цветовой заворот**: Если две ячейки ОДНОГО цвета видят друг друга, этот цвет невозможен! Они обе не могут содержать цифру. Значит, ДРУГОЙ цвет должен быть полностью истинным."
+            },
+            "step3": {
+                "title": "Сделать Исключение",
+                "description": "На основе анализа раскрашивания: ячейка(и) в {{cells}} либо видят оба цвета (Цветовая ловушка), либо являются частью цвета, который противоречит сам себе (Цветовой заворот). Удалите кандидат(ы) из: {{cells}}."
+            }
+        },
+        "generic": {
+            "step1": {
+                "title": "{{technique}}",
+                "description": "Эта техника называется **{{technique}}**. Она использует логический вывод, чтобы доказать, что определенные кандидаты должны быть исключены или что определенные ячейки должны иметь конкретные значения. Узор включает в себя выделенные ячейки и кандидаты."
+            },
+            "step2": {
+                "title": "Применить исключения",
+                "description": "На основе узора мы можем исключить: Удалите {{digits}} из {{cells}}."
+            },
+            "step3": {
+                "title": "Установить значения",
+                "description": "Техника раскрывает следующие решения:\n\n{{solutions}}"
+            }
+        },
+        "unique_rectangle": {
+            "step1": {
+                "title": "Заметить Смертельный Узор",
+                "description": "Посмотрите на эти четыре ячейки, образующие прямоугольник: {{cells}}. Они охватывают ровно две строки, два столбца и два блока. Заметьте, что все они содержат кандидатов {{digits}}. Проблема вот в чем: если бы в этих четырех ячейках в качестве кандидатов были ТОЛЬКО {{digits}}, вы могли бы поменять цифры местами в диагональных углах и все равно получить правильное решение! Это означает, что у пазла было бы ДВА решения — что недопустимо в правильном судоку. Этот запрещенный узор называется 'Смертельный узор' или 'Уникальный Прямоугольник'."
+            },
+            "step3": {
+                "title": "Сделать Исключение"
+            }
+        },
+        "unique_rectangle_type1": {
+            "step1": {
+                "title": "Понять Тип {{type}}",
+                "description": "Это Тип 1 — самый простой случай. Три угла прямоугольника имеют только {{digits}}, но у {{extraCell}} есть лишний кандидат. Подумайте: если бы {{extraCell}} был просто {{digits}}, как и остальные, мы бы получили смертельный узор. Значит, лишний кандидат ДОЛЖЕН быть истинным значением этой ячейки! Мы можем безопасно удалить {{digits}} из {{extraCell}}."
+            }
+        },
+        "unique_rectangle_type2": {
+            "step1": {
+                "title": "Понять Тип {{type}}",
+                "description": "Это Тип 2 — два угла имеют один и тот же лишний кандидат ({{extraDigit}}). Эти две ячейки находятся в противоположных углах прямоугольника. Так как смертельный узор существовать не может, хотя бы один из этих углов должен быть {{extraDigit}}. Любая ячейка, которая видит ОБА этих угла, не может содержать {{extraDigit}}."
+            }
+        },
+        "unique_rectangle_type3": {
+            "step1": {
+                "title": "Понять Тип {{type}}",
+                "description": "Это Тип 3 — два угла имеют лишние кандидаты, которые образуют 'голый поднабор' с близлежащими ячейками. Лишние кандидаты в углах UR в сочетании with другими ячейками в том же доме заставляют делать определенные исключения. Смертельный узор избегается, потому что логика поднабора гарантирует, что UR не будет завершен."
+            }
+        },
+        "unique_rectangle_type4": {
+            "step1": {
+                "title": "Понять Тип {{type}}",
+                "description": "Это Тип 4 — одна из цифр UR ({{digits}}) 'заперта' в двух противоположных углах. Благодаря сильной связи одна цифра должна пойти в эти два угла. Это означает, что ДРУГАЯ цифра не может быть в этих углах (иначе мы получили бы смертельный узор). Удалите не запертую цифру из запертых углов."
+            }
+        },
+        "unique_rectangle_type5": {
+            "step1": {
+                "title": "Понять Тип {{type}}",
+                "description": "Это Тип 5 — диагональная сильная связь предотвращает смертельный узор. Два противоположных угла сильно связаны одной цифрой, что означает, что один из них должен ее содержать. Это нарушает симметрию, которая позволила бы существовать смертельному узору."
+            }
+        },
+        "unique_rectangle_type6": {
+            "step1": {
+                "title": "Понять Тип {{type}}",
+                "description": "Это Тип 6 — обе диагонали имеют сильные связи по одной и той же цифре. Этот двойной замок на одной цифре означает, что она должна появиться ровно в двух противоположных углах, вытесняя другую цифру из этих углов."
+            }
+        },
+        "unique_rectangle_generic": {
+            "step1": {
+                "title": "Разрушить Узор",
+                "description": "Чтобы избежать этого смертельного узора, нам нужно убедиться, что он никогда не сможет быть завершен. Что-то должно 'разрушить' прямоугольник — либо лишний кандидат, который должен быть истинным, либо сильная связь, которая заставляет одну цифру идти в определенные углы."
+            }
+        },
+        "unique_rectangle_elim_type1": {
+            "step1": {
+                "description": "Удалите {{digits}} из {{cells}}. Лишний кандидат в этой ячейке должен быть ее истинным значением, чтобы предотвратить смертельный узор."
+            }
+        },
+        "unique_rectangle_elim_type2": {
+            "step1": {
+                "description": "Удалите {{digits}} из {{cells}}. Эти ячейки видят оба угла UR, которые имеют общий лишний кандидат."
+            }
+        },
+        "empty_rectangle": {
+            "step1": {
+                "title": "Найти Пустой Прямоугольник",
+                "description": "Посмотрите на блок {{box}}. Кандидат {{digit}} появляется только в 'L-образном' или 'изогнутом' узоре — он отсутствует как минимум в одной строке И одном столбце внутри блока. Это создает 'Пустой Прямоугольник' — пустые строка и столбец образуют крест внутри блока, и все кандидаты {{digit}} находятся в углах этого креста. Ячейки с {{digit}}: {{cells}}."
+            },
+            "step2": {
+                "title": "Соединить с Сильной Связью",
+                "description": "Теперь посмотрите за пределы блока. Есть 'сильная связь' (сплошная линия) по {{digit}} в {{conjugateCells}}. Сильная связь означает: если один конец ложен, другой ДОЛЖЕН быть истинным. Один конец этой сильной связи соединяется с Пустым Прямоугольником через общую строку или столбец. Это создает логическую цепочку: если дальний конец сильной связи истинен, он исключает {{digit}} из точки пересечения в блоке, что затем заставляет {{digit}} занять другую позицию в ER."
+            },
+            "step3": {
+                "title": "Сделать Исключение",
+                "description": "Вот ключевая идея: исключаемая ячейка ({{cells}}) видит оба конца нашей цепи — она видит один конец сильной связи И она видит, где {{digit}} будет принудительно размещен в Пустом Прямоугольнике. Независимо от того, как пойдет логика, {{digit}} окажется в ячейке, которая видит {{cells}}. Значит, {{digit}} не может быть в {{cells}}. Удалите {{digit}} из: {{cells}}."
+            }
+        },
+        "x_wing": {
+            "step1": {
+                "title": "Найти узор X-Wing"
+            },
+            "step2": {
+                "title": "Исключить из покрывающих {{coverTypeText}}",
+                "description": "Так как {{digit}} заперт в {{baseNames}} (выделено в базовых {{baseTypeText}}), любые другие кандидаты {{digit}} в {{coverNames}} должны быть ложными. Исключите {{digit}} из ячеек в покрывающих {{coverTypeText}}, которые не являются частью узора."
+            },
+            "step3": {
+                "title": "Удалить кандидат {{digit}}",
+                "description": "Удалите {{digit}} из: {{cells}}. Эти ячейки видят узор рыбы и не могут содержать {{digit}}."
+            }
+        },
+        "swordfish": {
+            "step1": {
+                "title": "Найти узор Рыба-меч",
+                "description": "В {{baseNames}} цифра {{digit}} появляется ровно в трех {{baseTypeText}}. Эти кандидаты выстраиваются по трем {{coverTypeText}}: {{coverNames}}. Узор рыбы-меч запирает {{digit}} в этих базовых {{baseTypeText}}."
+            },
+            "step2": {
+                "title": "Исключить из покрывающих {{coverTypeText}}",
+                "description": "Так как {{digit}} заперт в {{baseNames}} (выделено в базовых {{baseTypeText}}), любые другие кандидаты {{digit}} в {{coverNames}} должны быть ложными. Исключите {{digit}} из ячеек в покрывающих {{coverTypeText}}, которые не являются частью узора."
+            },
+            "step3": {
+                "title": "Удалить кандидат {{digit}}",
+                "description": "Удалите {{digit}} из: {{cells}}. Эти ячейки видят узор рыбы и не могут содержать {{digit}}."
+            }
+        },
+        "jellyfish": {
+            "step1": {
+                "title": "Найти узор Медуза",
+                "description": "В {{baseNames}} цифра {{digit}} появляется ровно в четырех {{baseTypeText}}. Эти кандидаты выстраиваются по четырем {{coverTypeText}}: {{coverNames}}. Узор медузы запирает {{digit}} в этих базовых {{baseTypeText}}."
+            },
+            "step2": {
+                "title": "Исключить из покрывающих {{coverTypeText}}",
+                "description": "Так как {{digit}} заперт в {{baseNames}} (выделено в базовых {{baseTypeText}}), любые другие кандидаты {{digit}} в {{coverNames}} должны быть ложными. Исключите {{digit}} из ячеек в покрывающих {{coverTypeText}}, которые не являются частью узора."
+            },
+            "step3": {
+                "title": "Удалить кандидат {{digit}}",
+                "description": "Удалите {{digit}} из: {{cells}}. Эти ячейки видят узор рыбы и не могут содержать {{digit}}."
+            }
+        },
+        "basic_fish": {
+            "step1": {
+                "title": "Найти узор",
+                "description": "Кандидаты цифры {{digit}} выстраиваются на базовых {{baseTypeText}} ({{baseNames}}) и покрывающих {{coverTypeText}} ({{coverNames}}), образуя этот узор."
+            },
+            "step2": {
+                "title": "Исключить из покрывающих {{coverTypeText}}",
+                "description": "Так как {{digit}} заперт в {{baseNames}} (выделено в базовых {{baseTypeText}}), любые другие кандидаты {{digit}} в {{coverNames}} должны быть ложными. Исключите {{digit}} из ячеек в покрывающих {{coverTypeText}}, которые не являются частью узора."
+            },
+            "step3": {
+                "title": "Удалить кандидат {{digit}}",
+                "description": "Удалите {{digit}} из: {{cells}}. Эти ячейки видят узор рыбы и не могут содержать {{digit}}."
+            }
+        },
+        "skyscraper": {
+            "step1": {
+                "title": "Найти Две Сильные Связи",
+                "description": "Небоскреб — это узор с двумя **сильными связями** на одной цифре. Посмотрите на {{baseNamesText}}. В каждой из этих {{baseTypeText}} цифра {{digit}} появляется ровно в ДВУХ ячейках. Это сильная связь — если в одной ячейке нет {{digit}}, она ДОЛЖНА быть в другой. Две сильные связи соединены: один конец каждой сильной связи находится в одном столбце (или строке). Другие концы — 'крыша' небоскреба (показаны желтым) — являются ключевыми ячейками."
+            },
+            "step2": {
+                "title": "Следовать Логике",
+                "description": "Вот почему Небоскреб работает: Соединенные концы двух сильных связей находятся в одной колонке/строке. Если {{digit}} НЕТ в одной из соединенных ячеек, сильная связь заставляет ее быть в партнере этой ячейки. Но этот партнер — ячейка 'крыши'! Так что в любом случае: либо {{digit}} находится в одной ячейке крыши, либо в другой (или, возможно, в обеих). Одна из ячеек крыши ДОЛЖНА содержать {{digit}}."
+            },
+            "step3": {
+                "title": "Исключить из ячеек, видящих обе крыши",
+                "description": "Любая ячейка, которая видит ОБЕ ячейки крыши, не может содержать {{digit}}. Почему? Потому что одна из ячеек крыши должна содержать {{digit}}, и это исключило бы {{digit}} из любой ячейки, видящей ее. Так как исключаемая ячейка видит обе ячейки крыши, она всегда будет исключена. Удалите {{digit}} из: {{cells}}."
+            }
+        },
+        "finned_fish": {
+            "step1": {
+                "title": "Найти Узор с Плавником",
+                "description": "Это **{{fishType}} с плавником**. Начнем с базового узора: посмотрите на {{baseNames}}. В обычном {{fishType}} цифра {{digit}} появлялась бы только в ячейках, которые выстраиваются с {{coverNames}}. Но здесь есть лишняя ячейка (или ячейки), которая не подходит — это 'плавник'. Плавник находится в: {{finCells}} (показан желтым)."
+            },
+            "step2": {
+                "title": "Понять Эффект Плавника"
+            },
+            "step3": {
+                "title": "Исключить там, где встречаются плавник и рыба"
+            }
+        },
+        "sashimi_fish": {
+            "step1": {
+                "title": "Найти Узор с Плавником",
+                "description": "Это **{{fishType}} с плавником**. Начнем с базового узора: посмотрите на {{baseNames}}. В обычном {{fishType}} цифра {{digit}} появлялась бы только в ячейках, которые выстраиваются с {{coverNames}}. Но здесь есть лишняя ячейка (или ячейки), которая не подходит — это 'плавник Сашими'. Плавник находится в: {{finCells}} (показан желтым). В варианте Сашими рыба была бы неполной без плавника — плавник на самом деле 'заменяет' отсутствующую базовую ячейку."
+            }
+        },
+        "xy_wing": {
+            "step1": {
+                "title": "Найти узор {{wingType}}",
+                "description": "Посмотрите на желтую ячейку в {{pivotName}} — она называется 'шарнир' и имеет ровно два кандидата. Теперь посмотрите на две зеленые ячейки в {{pincerNamesText}} — это 'клещи'. Каждая клешня делит одного кандидата с шарниром, но у них обеих есть общая цифра {{targetDigitText}}. Ключ в том, что независимо от того, какой кандидат пойдет в шарнир, одна из клещей ДОЛЖНА в итоге содержать {{targetDigitText}}."
+            },
+            "step2": {
+                "title": "Понять, почему это работает",
+                "description": "Так как одна клешня ДОЛЖНА иметь {{targetDigitText}}, любая ячейка, которая видит ОБЕ клешни, не может содержать {{targetDigitText}}. Она конфликтовала бы с той клешней, которая в итоге получит эту цифру. Сплошная линия показывает, что одна клешня должна быть истинной для {{targetDigitText}}."
+            },
+            "step3": {
+                "title": "Удалить {{digit}} из ячеек, видящих узор"
+            }
+        },
+        "xyz_wing": {
+            "step1": {
+                "title": "Найти узор {{wingType}}",
+                "description": "Посмотрите на желтую ячейку в {{pivotName}} — у нее три кандидата: {{wingDigitText}}. Две зеленые ячейки в {{pincerNamesText}} каждая делят по два из этих кандидатов с шарниром. Цифра {{targetDigitText}} появляется во ВСЕХ трех ячейках. Так как любой исход заставляет {{targetDigitText}} попасть в одну из этих ячеек, любая ячейка, которая видит все три, не может содержать {{targetDigitText}}."
+            },
+            "step2": {
+                "title": "Понять, почему это работает",
+                "description": "Три ячейки образуют 'закрытую группу' для {{targetDigitText}}. Что бы ни случилось, {{targetDigitText}} окажется в одной из них. Любая ячейка, видящая все три, лишается возможности иметь {{targetDigitText}}."
+            },
+            "step3": {
+                "title": "Удалить {{digit}} из ячеек, видящих узор"
+            }
+        },
+        "wxyz_wing": {
+            "step1": {
+                "title": "Найти узор {{wingType}}",
+                "description": "Этот узор использует четыре ячейки, которые вместе содержат четыре разных кандидата. Цифра {{targetDigitText}} особенная — она появляется таким образом, что гарантирует ее наличие в одной из этих ячеек. Представьте это как игру в музыкальные стулья: {{targetDigitText}} должна занять место где-то в этой группе."
+            },
+            "step2": {
+                "title": "Понять, почему это работает",
+                "description": "Четыре ячейки 'запирают' {{targetDigitText}} внутри своей группы. Любая внешняя ячейка, которая видит все четыре, должна отказаться от {{targetDigitText}}."
+            },
+            "step3": {
+                "title": "Удалить {{digit}} из ячеек, видящих узор"
+            }
+        },
+        "w_wing": {
+            "step1": {
+                "title": "Найти узор {{wingType}}",
+                "description": "Посмотрите на две зеленые ячейки в {{pincerNamesText}}. У них обоих одинаковые два кандидата. Эти ячейки соединены 'сильной связью' (показана сплошной линией) по одной из этих цифр. Это означает: если связующая цифра удалена из одной ячейки, другая ячейка ДОЛЖНА ее содержать. В любом случае в одной из этих ячеек будет {{targetDigitText}}."
+            },
+            "step2": {
+                "title": "Понять, почему это работает",
+                "description": "Так как две ячейки соединены сильной связью, их 'другой' кандидат ({{targetDigitText}}) ограничен. Любая ячейка, видящая обе зеленые ячейки, конфликтовала бы с той, в которой в итоге окажется {{targetDigitText}}."
+            },
+            "step3": {
+                "title": "Удалить {{digit}} из ячеек, видящих узор"
+            }
+        },
+        "generic_wing": {
+            "step1": {
+                "title": "Найти узор {{wingType}}",
+                "description": "Этот узор {{wingType}} соединяет ячейки таким образом, что заставляет {{targetDigitText}} появиться в определенных местах."
+            },
+            "step2": {
+                "title": "Понять, почему это работает",
+                "description": "Узор гарантирует появление {{targetDigitText}} в одной из выделенных ячеек, блокируя ее в других местах."
+            },
+            "step3": {
+                "title": "Удалить {{digit}} из ячеек, видящих узор"
+            }
+        },
+        "kite": {
+            "step1": {
+                "title": "Найти узор воздушного змея",
+                "description": "Посмотрите на двух зеленых кандидатов {{digit}} в {{kiteNames}}. Это конечные точки змея. Они соединены через {{coverNames}}, который содержит еще двух кандидатов {{digit}} (показаны желтым). Представьте это так: одна из зеленых ячеек ДОЛЖНА иметь {{digit}}, но они не могут ОБЕ ее иметь."
+            },
+            "step2": {
+                "title": "Следовать за цепью",
+                "description": "Змей образует цепь: {{chain}}. Сплошные линии указывают на сильные связи, а пунктирная линия указывает на слабую связь. Независимо от того, какая зеленая ячейка содержит {{digit}}, слабая связь гарантирует, что хотя бы одна из желтых ячеек в блоке будет ее иметь. Любая ячейка, которая видит ОБЕ зеленые ячейки в {{kiteNames}}, не может содержать {{digit}}."
+            },
+            "step3": {
+                "title": "Сделать исключение",
+                "description": "Так как {{cells}} видит обе зеленые ячейки, мы знаем, что {{digit}} не может там находиться. Исключите {{digit}} из: {{cells}}."
+            }
+        }
     },
-    "toasts": {
-      "wrongNumber": "Wrong number!",
-      "wrongCandidate": "Wrong candidate removed!"
+    "backend": {
+        "techniques": {
+            "NAKED_SINGLE": "В эту ячейку подходит только один кандидат, поэтому поместите его.",
+            "NAKED_SINGLES": "В эту ячейку подходит только один кандидат, поэтому поместите его.",
+            "HIDDEN_SINGLE": "Цифра появляется только в одной ячейке дома, что заставляет ее разместить.",
+            "HIDDEN_SINGLES": "Цифра появляется только в одной ячейке дома, что заставляет ее разместить.",
+            "POINTING_CANDIDATES": "Цифра заблокирована в одной строке блока, поэтому ее можно удалить из этой строки за пределами блока.",
+            "POINTING_PAIRS": "Цифра заблокирована в одной строке блока, поэтому ее можно удалить из этой строки за пределами блока.",
+            "CLAIMING_CANDIDATES": "Цифра заблокирована в одном блоке строки, поэтому ее можно удалить из этого блока за пределами строки.",
+            "BOX_LINE_REDUCTION": "Цифра заблокирована в одном блоке строки, поэтому ее можно удалить из этого блока за пределами строки.",
+            "NAKED_PAIR": "Две ячейки в доме содержат ровно два одинаковых кандидата; они претендуют на эти цифры.",
+            "NAKED_PAIRS": "Две ячейки в доме содержат ровно два одинаковых кандидата; они претендуют на эти цифры.",
+            "LOCKED_PAIR": "Две ячейки в доме содержат ровно два одинаковых кандидата; они претендуют на эти цифры.",
+            "LOCKED_PAIRS": "Две ячейки в доме содержат ровно два одинаковых кандидата; они претендуют на эти цифры.",
+            "NAKED_TRIPLE": "Три ячейки в доме содержат ровно три одинаковых кандидата; они претендуют на эти цифры.",
+            "LOCKED_TRIPLES": "Три ячейки в доме содержат ровно три одинаковых кандидата; они претендуют на эти цифры.",
+            "NAKED_TRIPLES": "Три ячейки в доме содержат ровно три одинаковых кандидата; они претендуют на эти цифры.",
+            "NAKED_QUADRUPLE": "Четыре ячейки в доме содержат ровно четыре одинаковых кандидата; они претендуют на эти цифры.",
+            "LOCKED_QUADRUPLES": "Четыре ячейки в доме содержат ровно четыре одинаковых кандидата; они претендуют на эти цифры.",
+            "NAKED_QUADRUPLES": "Четыре ячейки в доме содержат ровно четыре одинаковых кандидата; они претендуют на эти цифры.",
+            "HIDDEN_PAIR": "Две цифры могут появиться только в двух ячейках дома; другие кандидаты в этих ячейках удаляются.",
+            "HIDDEN_PAIRS": "Две цифры могут появиться только в двух ячейках дома; другие кандидаты в этих ячейках удаляются.",
+            "HIDDEN_TRIPLE": "Три цифры могут появиться только в трех ячейках дома; другие кандидаты в этих ячейках удаляются.",
+            "HIDDEN_TRIPLES": "Три цифры могут появиться только в трех ячейках дома; другие кандидаты в этих ячейках удаляются.",
+            "HIDDEN_QUADRUPLE": "Четыре цифры могут появиться только в четырех ячейках дома; другие кандидаты в этих ячейках удаляются.",
+            "HIDDEN_QUADRUPLES": "Четыре цифры могут появиться только в четырех ячейках дома; другие кандидаты в этих ячейках удаляются.",
+            "X_WING_FISH": "Строки и столбцы образуют X-Wing, поэтому цифру можно исключить из покрывающих линий.",
+            "X_WING": "Строки и столбцы образуют X-Wing, поэтому цифру можно исключить из покрывающих линий.",
+            "SKYSCRAPER_FISH": "Две сильные связи по цифре образуют небоскреб, что позволяет исключить их в общих столбцах/строках.",
+            "SKYSCRAPER": "Две сильные связи по цифре образуют небоскреб, что позволяет исключить их в общих столбцах/строках.",
+            "TWO_STRING_KITE_FISH": "Воздушный змей с двумя нитями использует 2 сильные связи со слабой связью в том же блоке, чтобы исключить кандидата на пересечении двух сильных связей.",
+            "2_STRING_KITE": "Воздушный змей с двумя нитями использует 2 сильные связи со слабой связью в том же блоке, чтобы исключить кандидата на пересечении двух сильных связей.",
+            "2_STRING_KITE_FISH": "Воздушный змей с двумя нитями использует 2 сильные связи со слабой связью в том же блоке, чтобы исключить кандидата на пересечении двух сильных связей.",
+            "FINNED_X_WING_FISH": "X-Wing с плавником; ячейки, видящие плавник, могут потерять эту цифру.",
+            "FINNED_X_WING": "X-Wing с плавником; ячейки, видящие плавник, могут потерять эту цифру.",
+            "SASHIMI_X_WING_FISH": "Сашими X-Wing имеет плавник плюс отсутствующую основу; ячейки, видящие плавник, могут быть исключены.",
+            "SASHIMI_X_WING": "Сашими X-Wing имеет плавник плюс отсутствующую основу; ячейки, видящие плавник, могут быть исключены.",
+            "SWORDFISH_FISH": "Три линии выравнивают кандидатов в трех столбцах/строках, что позволяет исключить (рыба-меч).",
+            "SWORDFISH": "Три линии выравнивают кандидатов в трех столбцах/строках, что позволяет исключить (рыба-меч).",
+            "FINNED_SWORDFISH_FISH": "Рыба-меч с плавником; ячейки, видящие плавник, теряют эту цифру.",
+            "FINNED_SWORDFISH": "Рыба-меч с плавником; ячейки, видящие плавник, теряют эту цифру.",
+            "JELLYFISH_FISH": "Четыре линии выравнивают кандидатов в четырех столбцах/строках, что позволяет исключить (медуза).",
+            "JELLYFISH": "Четыре линии выравнивают кандидатов в четырех столбцах/строках, что позволяет исключить (медуза).",
+            "FINNED_JELLYFISH_FISH": "Медуза с плавником; ячейки, видящие плавник, теряют эту цифру.",
+            "FINNED_JELLYFISH": "Медуза с плавником; ячейки, видящие плавник, теряют эту цифру.",
+            "FRANKEN_X_WING_FISH": "Рыба Франкенштейна смешивает блоки и линии, чтобы сформировать основу/покрытие, что позволяет исключить.",
+            "FRANKEN_X_WING": "Рыба Франкенштейна смешивает блоки и линии, чтобы сформировать основу/покрытие, что позволяет исключить.",
+            "FINNED_FRANKEN_X_WING_FISH": "Рыба Франкенштейна с плавником; ячейки, видящие плавник, теряют эту цифру.",
+            "FINNED_FRANKEN_X_WING": "Рыба Франкенштейна с плавником; ячейки, видящие плавник, теряют эту цифру.",
+            "FINNED_MUTANT_X_WING_FISH": "Рыба-мутант с плавником; исключения происходят из ячеек, видящих плавник.",
+            "FINNED_MUTANT_X_WING": "Рыба-мутант с плавником; исключения происходят из ячеек, видящих плавник.",
+            "FRANKEN_SWORDFISH_FISH": "Вариант рыбы-меч с блоком/линией, позволяющий исключить на покрывающих линиях.",
+            "FRANKEN_SWORDFISH": "Вариант рыбы-меч с блоком/линией, позволяющий исключить на покрывающих линиях.",
+            "GROUPED_X_CYCLES": "Сгруппированные X-циклы чередуют сильные и слабые связи по одной цифре, чтобы доказать исключения.",
+            "SIMPLE_COLOURING": "Раскрасьте одну цифру в два набора сильных связей; цвет-противоречие исключается.",
+            "SIMPLE_COLORING": "Раскрасьте одну цифру в два набора сильных связей; цвет-противоречие исключается.",
+            "MEDUSA_3D": "3D-Медуза раскрашивает несколько цифр; противоречия исключают кандидатов или размещают значения.",
+            "3D_MEDUSA": "3D-Медуза раскрашивает несколько цифр; противоречия исключают кандидатов или размещают значения.",
+            "THREE_D_MEDUSA": "3D-Медуза раскрашивает несколько цифр; противоречия исключают кандидатов или размещают значения.",
+            "UNIQUE_RECTANGLE": "Предотвратите смертельный узор, принуждая или исключая вокруг прямоугольника из четырех ячеек.",
+            "UNIQUE_RECTANGLES": "Предотвратите смертельный узор, принуждая или исключая вокруг прямоугольника из четырех ячеек.",
+            "BUG": "Универсальная могила с двумя значениями: только один кандидат нарушает тупик; разместите или исключите соответственно.",
+            "BIVALUE_UNIVERSAL_GRAVE": "Универсальная могила с двумя значениями: только один кандидат нарушает тупик; разместите или исключите соответственно.",
+            "Y_WING": "XY-Wing (шарнир + два клещи) исключает общего кандидата, видимого обоими клещами.",
+            "XY_WING": "XY-Wing (шарнир + два клещи) исключает общего кандидата, видимого обоими клещами.",
+            "XYZ_WING": "XYZ-Wing (триада с XYZ) удаляет Z из ячеек, видящих все три ячейки.",
+            "WXYZ_WING": "WXYZ-Wing удаляет общего кандидата из сверстников всех четырех ячеек.",
+            "W_WING": "W-Wing связывает две совпадающие ячейки с двумя значениями через сильную связь, принуждая к исключениям.",
+            "L_3__WING": "L-Wing с 3 ячейками связывает кандидатов, чтобы принудить к исключениям.",
+            "L_WING": "L-Wing связывает кандидатов в L-образном узоре, чтобы принудить к исключениям.",
+            "EMPTY_RECTANGLE": "Пустой прямоугольник заставляет взаимодействовать сопряженную пару, чтобы исключить кандидата.",
+            "EMPTY_RECTANGLES": "Пустой прямоугольник заставляет взаимодействовать сопряженную пару, чтобы исключить кандидата.",
+            "X_CYCLES": "X-циклы чередуют сильные/слабые связи по одной цифре; противоречия удаляют кандидатов.",
+            "X_CYCLE": "X-циклы чередуют сильные/слабые связи по одной цифре; противоречия удаляют кандидатов.",
+            "XY_CHAIN": "XY-цепочки связывают ячейки с двумя значениями; целевая цифра исключается там, где видят оба конца.",
+            "AIC": "Чередующаяся цепь выводов доказывает исключения с помощью чередующихся сильных/слабых связей.",
+            "AIC_TYPE_2": "Чередующаяся цепь выводов (тип 2) доказывает исключения с помощью чередующихся сильных/слабых связей.",
+            "ALTERNATING_INFERENCE_CHAINS": "Чередующаяся цепь выводов доказывает исключения с помощью чередующихся сильных/слабых связей.",
+            "FORCING_CHAINS": "Принудительные цепочки исследуют оба исхода и сохраняют общий вывод для всех путей.",
+            "RING": "Кольцевая структура сильных и слабых связей заставляет исключать в точках соединения.",
+            "ALMOST_LOCKED_SETS": "Почти заблокированные наборы соединяются через ограниченных кандидатов, чтобы принудить к исключениям.",
+            "ALS_XY": "ALS-XY связывает два почти заблокированных набора через общего ограниченного кандидата.",
+            "ALS_XZ": "ALS-XZ связывает два почти заблокированных набора через общих ограниченных кандидатов.",
+            "SUE_DE_COQ": "Sue-de-Coq делит пересечение блока и строки на непересекающиеся наборы цифр, принуждая к исключениям.",
+            "NISHIO": "Нисио предполагает размещение цифры и обрезает ветви, которые приводят к противоречию.",
+            "AIC___ALS": "Чередующаяся цепь выводов в сочетании с почти заблокированными наборами для принудительных исключений.",
+            "AIC_TYPE_1": "Чередующаяся цепь выводов (тип 1) использует чередование сильных/слабых связей для доказательства исключений.",
+            "XY_CHAINS__TYPE_1": "XY-цепочка (тип 1) связывает ячейки с двумя значениями; целевая цифра исключается там, где видят оба конца.",
+            "ALS_CHAIN": "ALS-цепочка связывает несколько почти заблокированных наборов последовательно, чтобы принудить к исключениям.",
+            "SPLIT_WING": "Разделенное крыло использует разделенный узор кандидатов для принудительных исключений.",
+            "STRONG_WING__WINDMILL_": "Сильное крыло (ветряная мельница) использует узор ветряной мельницы из сильных связей для исключения кандидатов.",
+            "INVERTED_H_3__WING": "Перевернутое H(3)-крыло использует перевернутый H-образный узор с 3 ячейками для принудительных исключений.",
+            "INVERTED_M_3__WING": "Перевернутое M(3)-крыло использует перевернутый M-образный узор с 3 ячейками для принудительных исключений.",
+            "INVERTED_L_3__WINGS": "Перевернутое L(3)-крыло использует перевернутый L-образный узор с 3 ячейками для принудительных исключений.",
+            "UVWXYZ_WING": "UVWXYZ-Wing (6-ячеечное крыло) удаляет общего кандидата из сверстников всех шести ячеек.",
+            "HIDDEN_XY__TYPE_1": "Скрытое XY (тип 1) использует скрытые ячейки с двумя значениями в узоре XY-цепочки для исключения кандидатов."
+        }
+    },
+    "domain": {
+        "difficulty": {
+            "beginner": "Начинающий",
+            "easy": "Легкий",
+            "medium": "Средний",
+            "tough": "Сложный",
+            "hard": "Очень сложный",
+            "expert": "Эксперт",
+            "diabolical": "Дьявольский",
+            "custom": "Пользовательский"
+        }
     }
-  },
-  "hints": {
-    "common": {
-      "overview": "Обзор",
-      "eliminations": "Исключения",
-      "solution": "Решение",
-      "remove": "Удалить {{digit}} из {{cells}}",
-      "place": "Поместить {{digit}} в {{cell}}",
-      "cellFormat": "R{{row}}C{{col}}"
-    },
-    "naked_single": {
-      "step1": {
-        "title": "Найти Одиночку",
-        "description": "В ячейке {{cell}} остался только один кандидат: {{digit}}"
-      },
-      "step2": {
-        "title": "Установить значение и исключить",
-        "description": "Поместите {{digit}} в {{cell}}. Исключите {{digit}} из строки {{row}}, столбца {{col}} и блока {{box}}: {{cells}}"
-      }
-    },
-    "hidden_single": {
-      "step1": {
-        "title": "Найти Скрытую Одиночку",
-        "description": "В {{house}} только в ячейку {{cell}} можно поставить {{digit}}. Следовательно, исключите других кандидатов из этой ячейки."
-      },
-      "step2": {
-        "title": "Исключить из соседей",
-        "description": "В строке {{row}}, столбце {{col}} и блоке {{box}} цифра {{digit}} может быть только в {{cell}}. Исключите {{digit}} из: {{cells}}"
-      }
-    },
-    "naked_pair": {
-      "step1": {
-        "title": "Найти Голую Пару",
-        "description": "Ячейки {{cells}} в {{house}} могут содержать только {{digits}}. Эти цифры 'заперты' в этих ячейках."
-      },
-      "step2": {
-        "title": "Исключить из того же дома",
-        "description": "Так как {{digits}} могут быть только в {{subsetCells}}, исключите эти цифры из {{elimCells}} в {{house}}."
-      },
-      "step3": {
-        "title": "Применить запертых кандидатов",
-        "description": "Голая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
-      }
-    },
-    "naked_triple": {
-      "step1": {
-        "title": "Найти Голую Тройку",
-        "description": "Ячейки {{cells}} в {{house}} могут содержать только {{digits}}. Эти цифры 'заперты' в этих ячейках."
-      },
-      "step2": {
-        "title": "Исключить из того же дома",
-        "description": "Так как {{digits}} могут быть только в {{subsetCells}}, исключите эти цифры из {{elimCells}} в {{house}}."
-      },
-      "step3": {
-        "title": "Применить запертых кандидатов",
-        "description": "Голая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
-      }
-    },
-    "naked_quadruple": {
-      "step1": {
-        "title": "Найти Голую Четверку",
-        "description": "Ячейки {{cells}} в {{house}} могут содержать только {{digits}}. Эти цифры 'заперты' в этих ячейках."
-      },
-      "step2": {
-        "title": "Исключить из того же дома",
-        "description": "Так как {{digits}} могут быть только в {{subsetCells}}, исключите эти цифры из {{elimCells}} в {{house}}."
-      },
-      "step3": {
-        "title": "Применить запертых кандидатов",
-        "description": "Голая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
-      }
-    },
-    "hidden_pair": {
-      "step1": {
-        "title": "Найти Скрытую Пару",
-        "description": "В {{house}} цифры {{digits}} могут быть размещены только в {{cells}}. Эти ячейки 'заперты' для этих цифр."
-      },
-      "step2": {
-        "title": "Исключить из того же дома",
-        "description": "Так как {{digits}} могут быть только в {{cells}}, исключите других кандидатов из этих ячеек."
-      },
-      "step3": {
-        "title": "Применить скрытых запертых кандидатов",
-        "description": "Скрытая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
-      }
-    },
-    "hidden_triple": {
-      "step1": {
-        "title": "Найти Скрытую Тройку",
-        "description": "В {{house}} цифры {{digits}} могут быть размещены только в {{cells}}. Эти ячейки 'заперты' для этих цифр."
-      },
-      "step2": {
-        "title": "Исключить из того же дома",
-        "description": "Так как {{digits}} могут быть только в {{cells}}, исключите других кандидатов из этих ячеек."
-      },
-      "step3": {
-        "title": "Применить скрытых запертых кандидатов",
-        "description": "Скрытая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
-      }
-    },
-    "hidden_quadruple": {
-      "step1": {
-        "title": "Найти Скрытую Четверку",
-        "description": "В {{house}} цифры {{digits}} могут быть размещены только в {{cells}}. Эти ячейки 'заперты' для этих цифр."
-      },
-      "step2": {
-        "title": "Исключить из того же дома",
-        "description": "Так как {{digits}} могут быть только в {{cells}}, исключите других кандидатов из этих ячеек."
-      },
-      "step3": {
-        "title": "Применить скрытых запертых кандидатов",
-        "description": "Скрытая {{subsetType}} запирает {{digits}} в {{house}}, поэтому исключите {{digits}} из {{cells}}."
-      }
-    },
-    "pointing_candidates": {
-      "step1": {
-        "title": "Найти Указывающих Кандидатов",
-        "description": "В {{baseHouse}} кандидат {{digit}} появляется только в ячейках, которые также принадлежат {{coverHouse}}."
-      },
-      "step2": {
-        "title": "Исключить из {{house}}",
-        "description": "Исключите {{digit}} из других ячеек в {{house}}: {{cells}}"
-      }
-    },
-    "claiming_candidates": {
-      "step1": {
-        "title": "Найти Претендующих Кандидатов",
-        "description": "В {{baseHouse}} кандидат {{digit}} появляется только в ячейках, которые также принадлежат {{coverHouse}}."
-      },
-      "step2": {
-        "title": "Исключить из {{house}}",
-        "description": "Исключите {{digit}} из других ячеек в {{house}}: {{cells}}"
-      }
-    },
-    "bug": {
-      "step1": {
-        "title": "Заметить Двузначный Узор",
-        "description": "Посмотрите на нерешенные ячейки в этом пазле. Почти каждая из них имеет ровно ДВА кандидата. Это особая ситуация, называемая 'Bivalue Universal Grave' (BUG). Вот почему это проблема: если бы КАЖДАЯ нерешенная ячейка имела ровно два кандидата, расположенных определенным образом, вы могли бы поменять значения местами и получить два разных правильных решения! Но у правильного судоку есть только ОДНО решение. Значит, что-то должно 'разрушать' этот узор — должна быть хотя бы одна ячейка, которая отличается."
-      },
-      "step2": {
-        "title": "Найти Исключительную Ячейку",
-        "description": "Теперь посмотрите на {{cell}} — эта ячейка особенная! В то время как во всех остальных нерешенных ячейках ровно по два кандидата, в этой ТРИ (или больше). Это и есть '+1' в BUG+1. Этот лишний кандидат — ключ к решению пазла. Если бы мы удалили этого лишнего кандидата, мы бы получили смертельный узор BUG с несколькими решениями. Следовательно, лишний кандидат ДОЛЖЕН быть истинным значением этой ячейки!"
-      },
-      "step3": {
-        "title": "Предотвратить BUG",
-        "description": "Чтобы избежать BUG (что означало бы наличие нескольких решений), мы должны исключить кандидатов, которые завершили бы смертельный узор. Удалите {{digits}} из {{cell}}. Оставшийся кандидат является решением для этой ячейки."
-      }
-    },
-    "aic": {
-      "step1": {
-        "title": "Найти Цепь",
-        "description": "Чередующаяся Цепь Выводов (AIC) соединяет кандидатов в логическую последовательность. Представьте это как цепочку домино, где каждая деталь влияет на следующую. Эта цепь состоит из {{nodeCount}} звеньев, начинается в {{startDesc}} и заканчивается в {{endDesc}}. Цепь чередует два типа связей: • **Сильные связи** (сплошные линии): 'Если это ЛОЖЬ, то то должно быть ИСТИНОЙ' • **Слабые связи** (пунктирные линии): 'Если это ИСТИНА, то то должно быть ЛОЖЬЮ'. Следуя по цепи, мы можем доказать, что определенные кандидаты должны быть исключены."
-      },
-      "step2": {
-        "title": "Следовать Логике",
-        "description": "Давайте проследим за цепью шаг за шагом:\n\n{{chainSteps}}\n\nКонцы цепи критически важны — любая ячейка, которая 'видит' оба конца, не может содержать целевой кандидат."
-      },
-      "step3": {
-        "title": "Сделать Исключение",
-        "description": "Цепь доказывает, что {{digits}} не могут быть в {{cells}}. Почему? Потому что концы цепи создают 'ловушку': независимо от того, какой конец истинен, исключаемая ячейка увидит ячейку, в которой есть этот кандидат. Удалите {{digits}} из: {{cells}}."
-      }
-    },
-    "als": {
-      "step1": {
-        "title": "Понять Почти Заблокированные Наборы",
-        "description": "**Почти Заблокированный Набор** (ALS) — это группа ячеек, которая 'почти' решена. Ключевая идея: если у вас есть N ячеек, содержащих ровно N+1 различных кандидатов, то удаление всего ОДНОГО кандидата 'заблокирует' оставшихся кандидатов в этих ячейках. Например: 3 ячейки с кандидатами {1,2,3,4} = почти заблокированы. Удалите любую одну цифру, и остальные 3 цифры ДОЛЖНЫ пойти в эти 3 ячейки. Эта техника {{alsType}} использует {{numALS}} почти заблокированных набора, которые имеют 'соединительные цифры' — цифры, которые могут быть только в одном ALS или другом, связывая их вместе."
-      }
-    },
-    "als_identify": {
-      "step1": {
-        "description": "Посмотрите на {{alsName}}: {{cellCount}} ячеек ({{cells}}) с {{digitCount}} кандидатами {{{digits}}}. Это {{cellCount}} ячеек с {{digitCount}} кандидатами — это 'почти заблокировано', потому что {{digitCount}} = {{cellCount}} + 1."
-      }
-    },
-    "als_connecting": {
-      "step1": {
-        "title": "Найти Соединительные Цифры",
-        "description": "ALS-наборы соединены **общими цифрами**, которые могут появиться только в одном ALS или другом:\n\n{{connections}}\n\nЭти 'соединительные цифры' действуют как мосты — если цифра используется в одном ALS, она исключается из другого ALS, что затем блокирует остальные цифры."
-      }
-    },
-    "als_elimination": {
-      "step1": {
-        "title": "Сделать Исключение",
-        "description": "Теперь самое интересное! Посмотрите на цифру(ы) {{digits}}. Из-за того, как соединены ALS-наборы, {{digits}} должны оказаться в одной из ячеек ALS. Любая ячейка, которая 'видит' ВСЕ места, где {{digits}} могли бы быть в ОБОИХ ALS-наборах, не может содержать {{digits}} — она всегда будет конфликтовать. Удалите {{digits}} из: {{cells}}."
-      }
-    },
-    "x_cycle": {
-      "step1": {
-        "title": "Найти X-Цикл",
-        "description": "X-Цикл — это цепь ячеек, которая возвращается к своему началу. Этот цикл имеет {{cycleSize}} узлов, включающих цифру {{digit}} в ячейках: {{cells}}. Ключ в том, что цепь чередует 'сильные связи' (сплошные линии) и 'слабые связи' (пунктирные линии). Сильная связь = если один ложен, другой должен быть истинным. Слабая связь = оба не могут быть истинными одновременно. Поскольку цепь образует полный цикл, определенные кандидаты ДОЛЖНЫ быть исключены во избежание противоречия."
-      },
-      "step2": {
-        "title": "Понять Логику Цикла"
-      },
-      "step3": {
-        "title": "Исключить из ячеек, видящих оба цвета",
-        "description": "Ячейка(и) в {{cells}} могут видеть узлы обоих 'цветов' в цикле. Так как один цвет должен быть истинным, эти ячейки всегда будут конфликтовать. Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "x_cycle_nice_loop": {
-      "step1": {
-        "description": "Это 'Приятный Цикл' (четное количество узлов). В приятном цикле мы можем раскрашивать узлы поочередно — назовем их 'Зеленый' и 'Желтый'. Либо во всех зеленых узлах будет {{digit}}, ЛИБО во всех желтых узлах будет {{digit}}. Любая ячейка, которая видит И зеленый, И желтый узлы, не может содержать {{digit}} — независимо от того, какой цвет истинен, эта ячейка будет с ним конфликтовать."
-      }
-    },
-    "x_cycle_discontinuous": {
-      "step1": {
-        "description": "Это 'Прерывистый Цикл' (нечетное количество узлов). В нечетном цикле что-то должно 'сломаться' — мы находим противоречие. Следуя логике цепи, мы можем доказать, что определенные кандидаты должны быть исключены, потому что их сохранение создало бы невозможную ситуацию."
-      }
-    },
-    "simple_coloring": {
-      "step1": {
-        "title": "Понять Простое Раскрашивание",
-        "description": "Простое Раскрашивание работает с одной цифрой ({{digit}}). Идея такова: найдите все 'сильные связи' для цифры {{digit}}. Сильная связь существует, когда {{digit}} появляется ровно в двух ячейках строки, столбца или блока — если одна ложна, другая ДОЛЖНА быть истинной. Теперь раскрасьте эти ячейки поочередно — начните с 'Зеленого', соединенные ячейки станут 'Желтыми', их соединения снова 'Зелеными' и так далее. У нас есть {{greenCount}} зеленых ячеек и {{yellowCount}} желтых ячеек. Либо ВСЕ зеленые ячейки имеют {{digit}}, ЛИБО ВСЕ желтые ячейки имеют {{digit}}."
-      }
-    },
-    "3d_medusa": {
-      "step1": {
-        "title": "Понять 3D-Медузу",
-        "description": "3D-Медуза расширяет раскрашивание на несколько цифр. Идея такова: начните с любого кандидата и назовите его 'Зеленым'. Каждый кандидат, соединенный сильной связью, получает противоположный цвет ('Желтый'). Сильные связи существуют, когда: • Цифра появляется только дважды в строке, столбце или блоке • Ячейка имеет только два кандидата (двузначная ячейка). Мы раскрашиваем {{greenCount}} ячеек в зеленый и {{yellowCount}} ячеек в желтый. Одна целая цветовая группа ИСТИННА, другая ЛОЖНА — мы просто пока не знаем какая."
-      }
-    },
-    "coloring": {
-      "step2": {
-        "title": "Найти Цветовые Ловушки и Завороты",
-        "description": "Теперь мы ищем противоречия или 'ловушки': **Цветовая ловушка**: Если нераскрашенная ячейка видит и зеленую, и желтую ячейку (в той же строке, столбце или блоке), эта ячейка не может содержать данную цифру. Почему? Потому что один из этих цветов должен быть истинным, и любой из них исключил бы цифру из этой ячейки. **Цветовой заворот**: Если две ячейки ОДНОГО цвета видят друг друга, этот цвет невозможен! Они обе не могут содержать цифру. Значит, ДРУГОЙ цвет должен быть полностью истинным."
-      },
-      "step3": {
-        "title": "Сделать Исключение",
-        "description": "На основе анализа раскрашивания: ячейка(и) в {{cells}} либо видят оба цвета (Цветовая ловушка), либо являются частью цвета, который противоречит сам себе (Цветовой заворот). Удалите кандидат(ы) из: {{cells}}."
-      }
-    },
-    "generic": {
-      "step1": {
-        "title": "{{technique}}",
-        "description": "Эта техника называется **{{technique}}**. Она использует логический вывод, чтобы доказать, что определенные кандидаты должны быть исключены или что определенные ячейки должны иметь конкретные значения. Узор включает в себя выделенные ячейки и кандидаты."
-      },
-      "step2": {
-        "title": "Применить исключения",
-        "description": "На основе узора мы можем исключить: Удалите {{digits}} из {{cells}}."
-      },
-      "step3": {
-        "title": "Установить значения",
-        "description": "Техника раскрывает следующие решения:\n\n{{solutions}}"
-      }
-    },
-    "unique_rectangle": {
-      "step1": {
-        "title": "Заметить Смертельный Узор",
-        "description": "Посмотрите на эти четыре ячейки, образующие прямоугольник: {{cells}}. Они охватывают ровно две строки, два столбца и два блока. Заметьте, что все они содержат кандидатов {{digits}}. Проблема вот в чем: если бы в этих четырех ячейках в качестве кандидатов были ТОЛЬКО {{digits}}, вы могли бы поменять цифры местами в диагональных углах и все равно получить правильное решение! Это означает, что у пазла было бы ДВА решения — что недопустимо в правильном судоку. Этот запрещенный узор называется 'Смертельный узор' или 'Уникальный Прямоугольник'."
-      },
-      "step3": {
-        "title": "Сделать Исключение"
-      }
-    },
-    "unique_rectangle_type1": {
-      "step1": {
-        "title": "Понять Тип {{type}}",
-        "description": "Это Тип 1 — самый простой случай. Три угла прямоугольника имеют только {{digits}}, но у {{extraCell}} есть лишний кандидат. Подумайте: если бы {{extraCell}} был просто {{digits}}, как и остальные, мы бы получили смертельный узор. Значит, лишний кандидат ДОЛЖЕН быть истинным значением этой ячейки! Мы можем безопасно удалить {{digits}} из {{extraCell}}."
-      }
-    },
-    "unique_rectangle_type2": {
-      "step1": {
-        "title": "Понять Тип {{type}}",
-        "description": "Это Тип 2 — два угла имеют один и тот же лишний кандидат ({{extraDigit}}). Эти две ячейки находятся в противоположных углах прямоугольника. Так как смертельный узор существовать не может, хотя бы один из этих углов должен быть {{extraDigit}}. Любая ячейка, которая видит ОБА этих угла, не может содержать {{extraDigit}}."
-      }
-    },
-    "unique_rectangle_type3": {
-      "step1": {
-        "title": "Понять Тип {{type}}",
-        "description": "Это Тип 3 — два угла имеют лишние кандидаты, которые образуют 'голый поднабор' с близлежащими ячейками. Лишние кандидаты в углах UR в сочетании with другими ячейками в том же доме заставляют делать определенные исключения. Смертельный узор избегается, потому что логика поднабора гарантирует, что UR не будет завершен."
-      }
-    },
-    "unique_rectangle_type4": {
-      "step1": {
-        "title": "Понять Тип {{type}}",
-        "description": "Это Тип 4 — одна из цифр UR ({{digits}}) 'заперта' в двух противоположных углах. Благодаря сильной связи одна цифра должна пойти в эти два угла. Это означает, что ДРУГАЯ цифра не может быть в этих углах (иначе мы получили бы смертельный узор). Удалите не запертую цифру из запертых углов."
-      }
-    },
-    "unique_rectangle_type5": {
-      "step1": {
-        "title": "Понять Тип {{type}}",
-        "description": "Это Тип 5 — диагональная сильная связь предотвращает смертельный узор. Два противоположных угла сильно связаны одной цифрой, что означает, что один из них должен ее содержать. Это нарушает симметрию, которая позволила бы существовать смертельному узору."
-      }
-    },
-    "unique_rectangle_type6": {
-      "step1": {
-        "title": "Понять Тип {{type}}",
-        "description": "Это Тип 6 — обе диагонали имеют сильные связи по одной и той же цифре. Этот двойной замок на одной цифре означает, что она должна появиться ровно в двух противоположных углах, вытесняя другую цифру из этих углов."
-      }
-    },
-    "unique_rectangle_generic": {
-      "step1": {
-        "title": "Разрушить Узор",
-        "description": "Чтобы избежать этого смертельного узора, нам нужно убедиться, что он никогда не сможет быть завершен. Что-то должно 'разрушить' прямоугольник — либо лишний кандидат, который должен быть истинным, либо сильная связь, которая заставляет одну цифру идти в определенные углы."
-      }
-    },
-    "unique_rectangle_elim_type1": {
-      "step1": {
-        "description": "Удалите {{digits}} из {{cells}}. Лишний кандидат в этой ячейке должен быть ее истинным значением, чтобы предотвратить смертельный узор."
-      }
-    },
-    "unique_rectangle_elim_type2": {
-      "step1": {
-        "description": "Удалите {{digits}} из {{cells}}. Эти ячейки видят оба угла UR, которые имеют общий лишний кандидат."
-      }
-    },
-    "empty_rectangle": {
-      "step1": {
-        "title": "Найти Пустой Прямоугольник",
-        "description": "Посмотрите на блок {{box}}. Кандидат {{digit}} появляется только в 'L-образном' или 'изогнутом' узоре — он отсутствует как минимум в одной строке И одном столбце внутри блока. Это создает 'Пустой Прямоугольник' — пустые строка и столбец образуют крест внутри блока, и все кандидаты {{digit}} находятся в углах этого креста. Ячейки с {{digit}}: {{cells}}."
-      },
-      "step2": {
-        "title": "Соединить с Сильной Связью",
-        "description": "Теперь посмотрите за пределы блока. Есть 'сильная связь' (сплошная линия) по {{digit}} в {{conjugateCells}}. Сильная связь означает: если один конец ложен, другой ДОЛЖЕН быть истинным. Один конец этой сильной связи соединяется с Пустым Прямоугольником через общую строку или столбец. Это создает логическую цепочку: если дальний конец сильной связи истинен, он исключает {{digit}} из точки пересечения в блоке, что затем заставляет {{digit}} занять другую позицию в ER."
-      },
-      "step3": {
-        "title": "Сделать Исключение",
-        "description": "Вот ключевая идея: исключаемая ячейка ({{cells}}) видит оба конца нашей цепи — она видит один конец сильной связи И она видит, где {{digit}} будет принудительно размещен в Пустом Прямоугольнике. Независимо от того, как пойдет логика, {{digit}} окажется в ячейке, которая видит {{cells}}. Значит, {{digit}} не может быть в {{cells}}. Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "x_wing": {
-      "step1": {
-        "title": "Найти узор X-Wing",
-        "description": "В {{baseNames}} цифра {{digit}} появляется ровно в {{baseCount}} {{baseTypeText}}. Эти кандидаты идеально выстраиваются в {{coverNames}}. Так как {{digit}} должен быть размещен в одной из этих позиций в каждой базовой {{baseTypeText}}, это запирает {{digit}} в выделенных {{baseTypeText}}."
-      },
-      "step2": {
-        "title": "Исключить из покрывающих {{coverTypeText}}",
-        "description": "Так как {{digit}} заперт в {{baseNames}} (выделено в базовых {{baseTypeText}}), любые другие кандидаты {{digit}} в {{coverNames}} должны быть ложными. Исключите {{digit}} из ячеек в покрывающих {{coverTypeText}}, которые не являются частью узора."
-      },
-      "step3": {
-        "title": "Удалить кандидат {{digit}}",
-        "description": "Удалите {{digit}} из: {{cells}}. Эти ячейки видят узор рыбы и не могут содержать {{digit}}."
-      }
-    },
-    "swordfish": {
-      "step1": {
-        "title": "Найти узор Рыба-меч",
-        "description": "В {{baseNames}} цифра {{digit}} появляется ровно в трех {{baseTypeText}}. Эти кандидаты выстраиваются по трем {{coverTypeText}}: {{coverNames}}. Узор рыбы-меч запирает {{digit}} в этих базовых {{baseTypeText}}."
-      },
-      "step2": {
-        "title": "Исключить из покрывающих {{coverTypeText}}",
-        "description": "Так как {{digit}} заперт в {{baseNames}} (выделено в базовых {{baseTypeText}}), любые другие кандидаты {{digit}} в {{coverNames}} должны быть ложными. Исключите {{digit}} из ячеек в покрывающих {{coverTypeText}}, которые не являются частью узора."
-      },
-      "step3": {
-        "title": "Удалить кандидат {{digit}}",
-        "description": "Удалите {{digit}} из: {{cells}}. Эти ячейки видят узор рыбы и не могут содержать {{digit}}."
-      }
-    },
-    "jellyfish": {
-      "step1": {
-        "title": "Найти узор Медуза",
-        "description": "В {{baseNames}} цифра {{digit}} появляется ровно в четырех {{baseTypeText}}. Эти кандидаты выстраиваются по четырем {{coverTypeText}}: {{coverNames}}. Узор медузы запирает {{digit}} в этих базовых {{baseTypeText}}."
-      },
-      "step2": {
-        "title": "Исключить из покрывающих {{coverTypeText}}",
-        "description": "Так как {{digit}} заперт в {{baseNames}} (выделено в базовых {{baseTypeText}}), любые другие кандидаты {{digit}} в {{coverNames}} должны быть ложными. Исключите {{digit}} из ячеек в покрывающих {{coverTypeText}}, которые не являются частью узора."
-      },
-      "step3": {
-        "title": "Удалить кандидат {{digit}}",
-        "description": "Удалите {{digit}} из: {{cells}}. Эти ячейки видят узор рыбы и не могут содержать {{digit}}."
-      }
-    },
-    "basic_fish": {
-      "step1": {
-        "title": "Найти узор",
-        "description": "Кандидаты цифры {{digit}} выстраиваются на базовых {{baseTypeText}} ({{baseNames}}) и покрывающих {{coverTypeText}} ({{coverNames}}), образуя этот узор."
-      },
-      "step2": {
-        "title": "Исключить из покрывающих {{coverTypeText}}",
-        "description": "Так как {{digit}} заперт в {{baseNames}} (выделено в базовых {{baseTypeText}}), любые другие кандидаты {{digit}} в {{coverNames}} должны быть ложными. Исключите {{digit}} из ячеек в покрывающих {{coverTypeText}}, которые не являются частью узора."
-      },
-      "step3": {
-        "title": "Удалить кандидат {{digit}}",
-        "description": "Удалите {{digit}} из: {{cells}}. Эти ячейки видят узор рыбы и не могут содержать {{digit}}."
-      }
-    },
-    "skyscraper": {
-      "step1": {
-        "title": "Найти Две Сильные Связи",
-        "description": "Небоскреб — это узор с двумя **сильными связями** на одной цифре. Посмотрите на {{baseNamesText}}. В каждой из этих {{baseTypeText}} цифра {{digit}} появляется ровно в ДВУХ ячейках. Это сильная связь — если в одной ячейке нет {{digit}}, она ДОЛЖНА быть в другой. Две сильные связи соединены: один конец каждой сильной связи находится в одном столбце (или строке). Другие концы — 'крыша' небоскреба (показаны желтым) — являются ключевыми ячейками."
-      },
-      "step2": {
-        "title": "Следовать Логике",
-        "description": "Вот почему Небоскреб работает: Соединенные концы двух сильных связей находятся в одной колонке/строке. Если {{digit}} НЕТ в одной из соединенных ячеек, сильная связь заставляет ее быть в партнере этой ячейки. Но этот партнер — ячейка 'крыши'! Так что в любом случае: либо {{digit}} находится в одной ячейке крыши, либо в другой (или, возможно, в обеих). Одна из ячеек крыши ДОЛЖНА содержать {{digit}}."
-      },
-      "step3": {
-        "title": "Исключить из ячеек, видящих обе крыши",
-        "description": "Любая ячейка, которая видит ОБЕ ячейки крыши, не может содержать {{digit}}. Почему? Потому что одна из ячеек крыши должна содержать {{digit}}, и это исключило бы {{digit}} из любой ячейки, видящей ее. Так как исключаемая ячейка видит обе ячейки крыши, она всегда будет исключена. Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "finned_fish": {
-      "step1": {
-        "title": "Найти Узор с Плавником",
-        "description": "Это **{{fishType}} с плавником**. Начнем с базового узора: посмотрите на {{baseNames}}. В обычном {{fishType}} цифра {{digit}} появлялась бы только в ячейках, которые выстраиваются с {{coverNames}}. Но здесь есть лишняя ячейка (или ячейки), которая не подходит — это 'плавник'. Плавник находится в: {{finCells}} (показан желтым)."
-      },
-      "step2": {
-        "title": "Понять Эффект Плавника",
-        "description": "Плавник меняет то, что мы можем исключить. Логика такова: **Если плавник ИСТИНЕН** (содержит {{digit}}): применяется обычный узор рыбы к остальным, но мы можем исключать только из ячеек, которые ТАКЖЕ видят плавник. **Если плавник ЛОЖЕН**: тогда {{digit}} должна быть где-то еще в узоре рыбы, и применились бы обычные исключения для рыбы. В любом случае любая ячейка, которая видит и плавник, И узор рыбы, может быть исключена! Это означает, что исключения ограничены блоком {{boxName}} (где находится плавник)."
-      },
-      "step3": {
-        "title": "Исключить там, где встречаются плавник и рыба",
-        "description": "Ячейки, которые могут видеть плавник И находятся в линиях покрытия рыбы, могут быть исключены. Эти ячейки находятся в блоке {{boxName}} (поэтому они видят плавник), а также в одной из покрывающих {{coverTypeText}} (поэтому на них влияет узор рыбы). Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "sashimi_fish": {
-      "step1": {
-        "title": "Найти Узор с Плавником",
-        "description": "Это **{{fishType}} с плавником**. Начнем с базового узора: посмотрите на {{baseNames}}. В обычном {{fishType}} цифра {{digit}} появлялась бы только в ячейках, которые выстраиваются с {{coverNames}}. Но здесь есть лишняя ячейка (или ячейки), которая не подходит — это 'плавник Сашими'. Плавник находится в: {{finCells}} (показан желтым). В варианте Сашими рыба была бы неполной без плавника — плавник на самом деле 'заменяет' отсутствующую базовую ячейку."
-      },
-      "step2": {
-        "title": "Понять Эффект Плавника",
-        "description": "Плавник меняет то, что мы можем исключить. Логика такова: **Если плавник ИСТИНЕН** (содержит {{digit}}): применяется обычный узор рыбы к остальным, но мы можем исключать только из ячеек, которые ТАКЖЕ видят плавник. **Если плавник ЛОЖЕН**: тогда {{digit}} должна быть где-то еще в узоре рыбы, и применились бы обычные исключения для рыбы. В любом случае любая ячейка, которая видит и плавник, И узор рыбы, может быть исключена! Это означает, что исключения ограничены блоком {{boxName}} (где находится плавник)."
-      },
-      "step3": {
-        "title": "Исключить там, где встречаются плавник и рыба",
-        "description": "Ячейки, которые могут видеть плавник И находятся в линиях покрытия рыбы, могут быть исключены. Эти ячейки находятся в блоке {{boxName}} (поэтому они видят плавник), а также в одной из покрывающих {{coverTypeText}} (поэтому на них влияет узор рыбы). Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "xy_wing": {
-      "step1": {
-        "title": "Найти узор {{wingType}}",
-        "description": "Посмотрите на желтую ячейку в {{pivotName}} — она называется 'шарнир' и имеет ровно два кандидата. Теперь посмотрите на две зеленые ячейки в {{pincerNamesText}} — это 'клещи'. Каждая клешня делит одного кандидата с шарниром, но у них обеих есть общая цифра {{targetDigitText}}. Ключ в том, что независимо от того, какой кандидат пойдет в шарнир, одна из клещей ДОЛЖНА в итоге содержать {{targetDigitText}}."
-      },
-      "step2": {
-        "title": "Понять, почему это работает",
-        "description": "Так как одна клешня ДОЛЖНА иметь {{targetDigitText}}, любая ячейка, которая видит ОБЕ клешни, не может содержать {{targetDigitText}}. Она конфликтовала бы с той клешней, которая в итоге получит эту цифру. Сплошная линия показывает, что одна клешня должна быть истинной для {{targetDigitText}}."
-      },
-      "step3": {
-        "title": "Удалить {{digit}} из ячеек, видящих узор",
-        "description": "Ячейка(и) в {{cells}} могут видеть обе клешни (или все ячейки крыла), поэтому {{digit}} не может там находиться. Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "xyz_wing": {
-      "step1": {
-        "title": "Найти узор {{wingType}}",
-        "description": "Посмотрите на желтую ячейку в {{pivotName}} — у нее три кандидата: {{wingDigitText}}. Две зеленые ячейки в {{pincerNamesText}} каждая делят по два из этих кандидатов с шарниром. Цифра {{targetDigitText}} появляется во ВСЕХ трех ячейках. Так как любой исход заставляет {{targetDigitText}} попасть в одну из этих ячеек, любая ячейка, которая видит все три, не может содержать {{targetDigitText}}."
-      },
-      "step2": {
-        "title": "Понять, почему это работает",
-        "description": "Три ячейки образуют 'закрытую группу' для {{targetDigitText}}. Что бы ни случилось, {{targetDigitText}} окажется в одной из них. Любая ячейка, видящая все три, лишается возможности иметь {{targetDigitText}}."
-      },
-      "step3": {
-        "title": "Удалить {{digit}} из ячеек, видящих узор",
-        "description": "Ячейка(и) в {{cells}} могут видеть обе клешни (или все ячейки крыла), поэтому {{digit}} не может там находиться. Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "wxyz_wing": {
-      "step1": {
-        "title": "Найти узор {{wingType}}",
-        "description": "Этот узор использует четыре ячейки, которые вместе содержат четыре разных кандидата. Цифра {{targetDigitText}} особенная — она появляется таким образом, что гарантирует ее наличие в одной из этих ячеек. Представьте это как игру в музыкальные стулья: {{targetDigitText}} должна занять место где-то в этой группе."
-      },
-      "step2": {
-        "title": "Понять, почему это работает",
-        "description": "Четыре ячейки 'запирают' {{targetDigitText}} внутри своей группы. Любая внешняя ячейка, которая видит все четыре, должна отказаться от {{targetDigitText}}."
-      },
-      "step3": {
-        "title": "Удалить {{digit}} из ячеек, видящих узор",
-        "description": "Ячейка(и) в {{cells}} могут видеть обе клешни (или все ячейки крыла), поэтому {{digit}} не может там находиться. Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "w_wing": {
-      "step1": {
-        "title": "Найти узор {{wingType}}",
-        "description": "Посмотрите на две зеленые ячейки в {{pincerNamesText}}. У них обоих одинаковые два кандидата. Эти ячейки соединены 'сильной связью' (показана сплошной линией) по одной из этих цифр. Это означает: если связующая цифра удалена из одной ячейки, другая ячейка ДОЛЖНА ее содержать. В любом случае в одной из этих ячеек будет {{targetDigitText}}."
-      },
-      "step2": {
-        "title": "Понять, почему это работает",
-        "description": "Так как две ячейки соединены сильной связью, их 'другой' кандидат ({{targetDigitText}}) ограничен. Любая ячейка, видящая обе зеленые ячейки, конфликтовала бы с той, в которой в итоге окажется {{targetDigitText}}."
-      },
-      "step3": {
-        "title": "Удалить {{digit}} из ячеек, видящих узор",
-        "description": "Ячейка(и) в {{cells}} могут видеть обе клешни (или все ячейки крыла), поэтому {{digit}} не может там находиться. Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "generic_wing": {
-      "step1": {
-        "title": "Найти узор {{wingType}}",
-        "description": "Этот узор {{wingType}} соединяет ячейки таким образом, что заставляет {{targetDigitText}} появиться в определенных местах."
-      },
-      "step2": {
-        "title": "Понять, почему это работает",
-        "description": "Узор гарантирует появление {{targetDigitText}} в одной из выделенных ячеек, блокируя ее в других местах."
-      },
-      "step3": {
-        "title": "Удалить {{digit}} из ячеек, видящих узор",
-        "description": "Ячейка(и) в {{cells}} могут видеть обе клешни (или все ячейки крыла), поэтому {{digit}} не может там находиться. Удалите {{digit}} из: {{cells}}."
-      }
-    },
-    "kite": {
-      "step1": {
-        "title": "Найти узор воздушного змея",
-        "description": "Посмотрите на двух зеленых кандидатов {{digit}} в {{kiteNames}}. Это конечные точки змея. Они соединены через {{coverNames}}, который содержит еще двух кандидатов {{digit}} (показаны желтым). Представьте это так: одна из зеленых ячеек ДОЛЖНА иметь {{digit}}, но они не могут ОБЕ ее иметь."
-      },
-      "step2": {
-        "title": "Следовать за цепью",
-        "description": "Змей образует цепь: {{chain}}. Сплошные линии указывают на сильные связи, а пунктирная линия указывает на слабую связь. Независимо от того, какая зеленая ячейка содержит {{digit}}, слабая связь гарантирует, что хотя бы одна из желтых ячеек в блоке будет ее иметь. Любая ячейка, которая видит ОБЕ зеленые ячейки в {{kiteNames}}, не может содержать {{digit}}."
-      },
-      "step3": {
-        "title": "Сделать исключение",
-        "description": "Так как {{cells}} видит обе зеленые ячейки, мы знаем, что {{digit}} не может там находиться. Исключите {{digit}} из: {{cells}}."
-      }
-    }
-  },
-  "backend": {
-    "techniques": {
-      "NAKED_SINGLE": "В эту ячейку подходит только один кандидат, поэтому поместите его.",
-      "NAKED_SINGLES": "В эту ячейку подходит только один кандидат, поэтому поместите его.",
-      "HIDDEN_SINGLE": "Цифра появляется только в одной ячейке дома, что заставляет ее разместить.",
-      "HIDDEN_SINGLES": "Цифра появляется только в одной ячейке дома, что заставляет ее разместить.",
-      "POINTING_CANDIDATES": "Цифра заблокирована в одной строке блока, поэтому ее можно удалить из этой строки за пределами блока.",
-      "POINTING_PAIRS": "Цифра заблокирована в одной строке блока, поэтому ее можно удалить из этой строки за пределами блока.",
-      "CLAIMING_CANDIDATES": "Цифра заблокирована в одном блоке строки, поэтому ее можно удалить из этого блока за пределами строки.",
-      "BOX_LINE_REDUCTION": "Цифра заблокирована в одном блоке строки, поэтому ее можно удалить из этого блока за пределами строки.",
-      "NAKED_PAIR": "Две ячейки в доме содержат ровно два одинаковых кандидата; они претендуют на эти цифры.",
-      "NAKED_PAIRS": "Две ячейки в доме содержат ровно два одинаковых кандидата; они претендуют на эти цифры.",
-      "LOCKED_PAIR": "Две ячейки в доме содержат ровно два одинаковых кандидата; они претендуют на эти цифры.",
-      "LOCKED_PAIRS": "Две ячейки в доме содержат ровно два одинаковых кандидата; они претендуют на эти цифры.",
-      "NAKED_TRIPLE": "Три ячейки в доме содержат ровно три одинаковых кандидата; они претендуют на эти цифры.",
-      "LOCKED_TRIPLES": "Три ячейки в доме содержат ровно три одинаковых кандидата; они претендуют на эти цифры.",
-      "NAKED_TRIPLES": "Три ячейки в доме содержат ровно три одинаковых кандидата; они претендуют на эти цифры.",
-      "NAKED_QUADRUPLE": "Четыре ячейки в доме содержат ровно четыре одинаковых кандидата; они претендуют на эти цифры.",
-      "LOCKED_QUADRUPLES": "Четыре ячейки в доме содержат ровно четыре одинаковых кандидата; они претендуют на эти цифры.",
-      "NAKED_QUADRUPLES": "Четыре ячейки в доме содержат ровно четыре одинаковых кандидата; они претендуют на эти цифры.",
-      "HIDDEN_PAIR": "Две цифры могут появиться только в двух ячейках дома; другие кандидаты в этих ячейках удаляются.",
-      "HIDDEN_PAIRS": "Две цифры могут появиться только в двух ячейках дома; другие кандидаты в этих ячейках удаляются.",
-      "HIDDEN_TRIPLE": "Три цифры могут появиться только в трех ячейках дома; другие кандидаты в этих ячейках удаляются.",
-      "HIDDEN_TRIPLES": "Три цифры могут появиться только в трех ячейках дома; другие кандидаты в этих ячейках удаляются.",
-      "HIDDEN_QUADRUPLE": "Четыре цифры могут появиться только в четырех ячейках дома; другие кандидаты в этих ячейках удаляются.",
-      "HIDDEN_QUADRUPLES": "Четыре цифры могут появиться только в четырех ячейках дома; другие кандидаты в этих ячейках удаляются.",
-      "X_WING_FISH": "Строки и столбцы образуют X-Wing, поэтому цифру можно исключить из покрывающих линий.",
-      "X_WING": "Строки и столбцы образуют X-Wing, поэтому цифру можно исключить из покрывающих линий.",
-      "SKYSCRAPER_FISH": "Две сильные связи по цифре образуют небоскреб, что позволяет исключить их в общих столбцах/строках.",
-      "SKYSCRAPER": "Две сильные связи по цифре образуют небоскреб, что позволяет исключить их в общих столбцах/строках.",
-      "TWO_STRING_KITE_FISH": "Воздушный змей с двумя нитями использует 2 сильные связи со слабой связью в том же блоке, чтобы исключить кандидата на пересечении двух сильных связей.",
-      "2_STRING_KITE": "Воздушный змей с двумя нитями использует 2 сильные связи со слабой связью в том же блоке, чтобы исключить кандидата на пересечении двух сильных связей.",
-      "2_STRING_KITE_FISH": "Воздушный змей с двумя нитями использует 2 сильные связи со слабой связью в том же блоке, чтобы исключить кандидата на пересечении двух сильных связей.",
-      "FINNED_X_WING_FISH": "X-Wing с плавником; ячейки, видящие плавник, могут потерять эту цифру.",
-      "FINNED_X_WING": "X-Wing с плавником; ячейки, видящие плавник, могут потерять эту цифру.",
-      "SASHIMI_X_WING_FISH": "Сашими X-Wing имеет плавник плюс отсутствующую основу; ячейки, видящие плавник, могут быть исключены.",
-      "SASHIMI_X_WING": "Сашими X-Wing имеет плавник плюс отсутствующую основу; ячейки, видящие плавник, могут быть исключены.",
-      "SWORDFISH_FISH": "Три линии выравнивают кандидатов в трех столбцах/строках, что позволяет исключить (рыба-меч).",
-      "SWORDFISH": "Три линии выравнивают кандидатов в трех столбцах/строках, что позволяет исключить (рыба-меч).",
-      "FINNED_SWORDFISH_FISH": "Рыба-меч с плавником; ячейки, видящие плавник, теряют эту цифру.",
-      "FINNED_SWORDFISH": "Рыба-меч с плавником; ячейки, видящие плавник, теряют эту цифру.",
-      "JELLYFISH_FISH": "Четыре линии выравнивают кандидатов в четырех столбцах/строках, что позволяет исключить (медуза).",
-      "JELLYFISH": "Четыре линии выравнивают кандидатов в четырех столбцах/строках, что позволяет исключить (медуза).",
-      "FINNED_JELLYFISH_FISH": "Медуза с плавником; ячейки, видящие плавник, теряют эту цифру.",
-      "FINNED_JELLYFISH": "Медуза с плавником; ячейки, видящие плавник, теряют эту цифру.",
-      "FRANKEN_X_WING_FISH": "Рыба Франкенштейна смешивает блоки и линии, чтобы сформировать основу/покрытие, что позволяет исключить.",
-      "FRANKEN_X_WING": "Рыба Франкенштейна смешивает блоки и линии, чтобы сформировать основу/покрытие, что позволяет исключить.",
-      "FINNED_FRANKEN_X_WING_FISH": "Рыба Франкенштейна с плавником; ячейки, видящие плавник, теряют эту цифру.",
-      "FINNED_FRANKEN_X_WING": "Рыба Франкенштейна с плавником; ячейки, видящие плавник, теряют эту цифру.",
-      "FINNED_MUTANT_X_WING_FISH": "Рыба-мутант с плавником; исключения происходят из ячеек, видящих плавник.",
-      "FINNED_MUTANT_X_WING": "Рыба-мутант с плавником; исключения происходят из ячеек, видящих плавник.",
-      "FRANKEN_SWORDFISH_FISH": "Вариант рыбы-меч с блоком/линией, позволяющий исключить на покрывающих линиях.",
-      "FRANKEN_SWORDFISH": "Вариант рыбы-меч с блоком/линией, позволяющий исключить на покрывающих линиях.",
-      "GROUPED_X_CYCLES": "Сгруппированные X-циклы чередуют сильные и слабые связи по одной цифре, чтобы доказать исключения.",
-      "SIMPLE_COLOURING": "Раскрасьте одну цифру в два набора сильных связей; цвет-противоречие исключается.",
-      "SIMPLE_COLORING": "Раскрасьте одну цифру в два набора сильных связей; цвет-противоречие исключается.",
-      "MEDUSA_3D": "3D-Медуза раскрашивает несколько цифр; противоречия исключают кандидатов или размещают значения.",
-      "3D_MEDUSA": "3D-Медуза раскрашивает несколько цифр; противоречия исключают кандидатов или размещают значения.",
-      "THREE_D_MEDUSA": "3D-Медуза раскрашивает несколько цифр; противоречия исключают кандидатов или размещают значения.",
-      "UNIQUE_RECTANGLE": "Предотвратите смертельный узор, принуждая или исключая вокруг прямоугольника из четырех ячеек.",
-      "UNIQUE_RECTANGLES": "Предотвратите смертельный узор, принуждая или исключая вокруг прямоугольника из четырех ячеек.",
-      "BUG": "Универсальная могила с двумя значениями: только один кандидат нарушает тупик; разместите или исключите соответственно.",
-      "BIVALUE_UNIVERSAL_GRAVE": "Универсальная могила с двумя значениями: только один кандидат нарушает тупик; разместите или исключите соответственно.",
-      "Y_WING": "XY-Wing (шарнир + два клещи) исключает общего кандидата, видимого обоими клещами.",
-      "XY_WING": "XY-Wing (шарнир + два клещи) исключает общего кандидата, видимого обоими клещами.",
-      "XYZ_WING": "XYZ-Wing (триада с XYZ) удаляет Z из ячеек, видящих все три ячейки.",
-      "WXYZ_WING": "WXYZ-Wing удаляет общего кандидата из сверстников всех четырех ячеек.",
-      "W_WING": "W-Wing связывает две совпадающие ячейки с двумя значениями через сильную связь, принуждая к исключениям.",
-      "L_3__WING": "L-Wing с 3 ячейками связывает кандидатов, чтобы принудить к исключениям.",
-      "L_WING": "L-Wing связывает кандидатов в L-образном узоре, чтобы принудить к исключениям.",
-      "EMPTY_RECTANGLE": "Пустой прямоугольник заставляет взаимодействовать сопряженную пару, чтобы исключить кандидата.",
-      "EMPTY_RECTANGLES": "Пустой прямоугольник заставляет взаимодействовать сопряженную пару, чтобы исключить кандидата.",
-      "X_CYCLES": "X-циклы чередуют сильные/слабые связи по одной цифре; противоречия удаляют кандидатов.",
-      "X_CYCLE": "X-циклы чередуют сильные/слабые связи по одной цифре; противоречия удаляют кандидатов.",
-      "XY_CHAIN": "XY-цепочки связывают ячейки с двумя значениями; целевая цифра исключается там, где видят оба конца.",
-      "AIC": "Чередующаяся цепь выводов доказывает исключения с помощью чередующихся сильных/слабых связей.",
-      "AIC_TYPE_2": "Чередующаяся цепь выводов (тип 2) доказывает исключения с помощью чередующихся сильных/слабых связей.",
-      "ALTERNATING_INFERENCE_CHAINS": "Чередующаяся цепь выводов доказывает исключения с помощью чередующихся сильных/слабых связей.",
-      "FORCING_CHAINS": "Принудительные цепочки исследуют оба исхода и сохраняют общий вывод для всех путей.",
-      "RING": "Кольцевая структура сильных и слабых связей заставляет исключать в точках соединения.",
-      "ALMOST_LOCKED_SETS": "Почти заблокированные наборы соединяются через ограниченных кандидатов, чтобы принудить к исключениям.",
-      "ALS_XY": "ALS-XY связывает два почти заблокированных набора через общего ограниченного кандидата.",
-      "ALS_XZ": "ALS-XZ связывает два почти заблокированных набора через общих ограниченных кандидатов.",
-      "SUE_DE_COQ": "Sue-de-Coq делит пересечение блока и строки на непересекающиеся наборы цифр, принуждая к исключениям.",
-      "NISHIO": "Нисио предполагает размещение цифры и обрезает ветви, которые приводят к противоречию.",
-      "AIC___ALS": "Чередующаяся цепь выводов в сочетании с почти заблокированными наборами для принудительных исключений.",
-      "AIC_TYPE_1": "Чередующаяся цепь выводов (тип 1) использует чередование сильных/слабых связей для доказательства исключений.",
-      "XY_CHAINS__TYPE_1": "XY-цепочка (тип 1) связывает ячейки с двумя значениями; целевая цифра исключается там, где видят оба конца.",
-      "ALS_CHAIN": "ALS-цепочка связывает несколько почти заблокированных наборов последовательно, чтобы принудить к исключениям.",
-      "SPLIT_WING": "Разделенное крыло использует разделенный узор кандидатов для принудительных исключений.",
-      "STRONG_WING__WINDMILL_": "Сильное крыло (ветряная мельница) использует узор ветряной мельницы из сильных связей для исключения кандидатов.",
-      "INVERTED_H_3__WING": "Перевернутое H(3)-крыло использует перевернутый H-образный узор с 3 ячейками для принудительных исключений.",
-      "INVERTED_M_3__WING": "Перевернутое M(3)-крыло использует перевернутый M-образный узор с 3 ячейками для принудительных исключений.",
-      "INVERTED_L_3__WINGS": "Перевернутое L(3)-крыло использует перевернутый L-образный узор с 3 ячейками для принудительных исключений.",
-      "UVWXYZ_WING": "UVWXYZ-Wing (6-ячеечное крыло) удаляет общего кандидата из сверстников всех шести ячеек.",
-      "HIDDEN_XY__TYPE_1": "Скрытое XY (тип 1) использует скрытые ячейки с двумя значениями в узоре XY-цепочки для исключения кандидатов."
-    }
-  },
-  "domain": {
-    "difficulty": {
-      "beginner": "Начинающий",
-      "easy": "Легкий",
-      "medium": "Средний",
-      "tough": "Сложный",
-      "hard": "Очень сложный",
-      "expert": "Эксперт",
-      "diabolical": "Дьявольский",
-      "custom": "Пользовательский"
-    }
-  }
 }

@@ -1,1050 +1,1032 @@
 {
-  "languageName": "Deutsch",
-  "ui": {
-    "game": {
-      "solved": "🎉 Gelöst!",
-      "thinking": "Denke...",
-      "error": "Fehler:",
-      "goodSudoku": "Gutes Sudoku",
-      "pencil": "✏️ Bleistift",
-      "difficulty": "Schwierigkeit:",
-      "selection": "Auswahl",
-      "primary": "Primär",
-      "secondary": "Sekundär",
-      "cell": "Zelle",
-      "undo": "Rückgängig",
-      "findTechniques": "Techniken finden",
-      "apply": "Anwenden",
-      "solve": "Lösen",
-      "selected": "Ausgewählt:",
-      "set": "Setzen (Eingabe)",
-      "remove": "Entfernen (Leertaste)"
-    },
-    "modes": {
-      "highlightMode": "Hervorhebungsmodus",
-      "playMode": "Spielmodus",
-      "placed": "Gesetzt",
-      "rcbSel": "ZSB Ausw",
-      "rcbAll": "ZSB Alle",
-      "pencil": "Bleistift",
-      "fast": "Schnell",
-      "cellFirst": "Zelle zuerst",
-      "advanced": "Fortgeschritten",
-      "fastDescription": "Zahl anklicken → Zelle anklicken zum Füllen",
-      "cellFirstDescription": "Zelle anklicken → Zahl anklicken zum Füllen",
-      "advancedDescription": "Zahl anklicken → Aktion auswählen",
-      "placedDescription": "Hebt Zellen mit übereinstimmenden gesetzten Zahlen hervor",
-      "rcbSelectedDescription": "Hebt Zeile, Spalte, Block der ausgewählten Zelle hervor",
-      "rcbAllDescription": "Hebt alle Zeilen/Spalten/Blöcke hervor, die die Zahl enthalten",
-      "pencilDescription": "Hebt Zellen mit übereinstimmenden Bleistiftmarkierungen hervor",
-      "place": "Place",
-      "multiSelectNotes": "Multi-Select Notes",
-      "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-      "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
-    },
-    "techniques": {
-      "title": "Techniken"
-    },
-    "settings": {
-      "title": "Einstellungen",
-      "back": "← Zurück",
-      "navigation": "📁 Navigation",
-      "puzzles": "📚 Rätsel",
-      "importExport": "📋 Import/Export",
-      "about": "ℹ️ Über",
-      "help": "❓ Hilfe",
-      "highlightMode": "🎨 Hervorhebungsmodus",
-      "highlightModeDesc": "Wählen Sie, wie Zahlen bei Auswahl hervorgehoben werden",
-      "theme": "🎨 Thema",
-      "themeDesc": "Wählen Sie Ihr visuelles Thema",
-      "dark": "🌙 Dunkel",
-      "blue": "🔵 Blau",
-      "light": "☀️ Hell",
-      "ePaper": "📖 ePaper",
-      "darkDesc": "Reines dunkles Thema mit hohem Kontrast",
-      "blueDesc": "Klassisches blaues Gradiententhema",
-      "lightDesc": "Sauberes helles Thema",
-      "ePaperDesc": "Hoher Kontrast für ePaper-Geräte",
-      "playMode": "🎮 Spielmodus",
-      "playModeDesc": "Wählen Sie Ihren Eingabestil",
-      "fast": "⚡ Schnell",
-      "cellFirst": "🎯 Zelle zuerst",
-      "advanced": "🔧 Fortgeschritten",
-      "fastDesc": "Klicken Sie auf eine Zahl, dann auf eine Zelle, um sie zu füllen. Schnell und einfach.",
-      "cellFirstDesc": "Klicken Sie zuerst auf eine Zelle, dann auf eine Zahl, um sie zu füllen. Die Hervorhebung basiert auf der ausgewählten Zelle.",
-      "advancedDesc": "Zwei Zahlenreihen zur Hervorhebung. Wählen Sie mehrere Zahlen pro Farbe aus. Zellen mit ALLEN ausgewählten Zahlen werden hervorgehoben. Klicken Sie auf die Zelle für Aktionsschaltflächen.",
-      "candidateMode": "📝 Kandidatenmodus",
-      "candidateModeDesc": "Wählen Sie, wie Bleistiftmarkierungen verwaltet werden",
-      "auto": "Automatisch",
-      "manual": "Manuell",
-      "autoDesc": "Bleistiftmarkierungen basierend auf gesetzten Zahlen automatisch berechnen. Hinweise und Fehlererkennung aktiviert.",
-      "manualDesc": "Beginnen Sie mit leeren Bleistiftmarkierungen. Füllen Sie sie selbst aus. Hinweise und Fehlererkennung für Bleistiftmarkierungen deaktiviert.",
-      "autoConfirm": "Der Wechsel in den Auto-Modus setzt alle Bleistiftmarkierungen im aktuellen Rätsel zurück. Fortfahren?",
-      "manualConfirm": "Der Wechsel in den Manuellen Modus wird:\n• Alle Bleistiftmarkierungen zurücksetzen\n• Hinweise deaktivieren\n• Fehlererkennung für Bleistiftmarkierungen deaktivieren\n\nFortfahren?",
-      "hintPlacement": "Hinweisposition",
-      "hintPlacementDesc": "Wählen Sie aus, wo das Hinweispanel erscheint",
-      "hintPlacementAuto": "Auto",
-      "hintPlacementAutoDesc": "Hinweise erscheinen neben dem Feld, wenn genug Platz ist, sonst darunter. Das Layout wird automatisch nach dem verfügbaren Platz gewählt.",
-      "hintPlacementSide": "Seite",
-      "hintPlacementSideDesc": "Hinweise erscheinen immer in einem Panel neben dem Feld.",
-      "hintPlacementBelow": "Unten",
-      "hintPlacementBelowDesc": "Hinweise erscheinen immer in einem Panel unter dem Feld.",
-      "language": "🌐 Sprache",
-      "languageDesc": "Wählen Sie Ihre bevorzugte Sprache",
-      "mistakeDetection": "⚠️ Fehlererkennung",
-      "mistakeDetectionDesc": "Wählen Sie, wann Fehler erkannt und gezählt werden",
-      "trackPlayTime": "⏱ Spielzeit erfassen",
-      "trackPlayTimeDesc": "Spielzeit messen, beim Verlassen des Spiels pausieren und Pause-Overlay anzeigen. Aus: Timer bleibt bei null, kein Pause-Bildschirm.",
-      "trackPlayTimeOn": "Ein",
-      "trackPlayTimeOff": "Aus",
-      "trackPlayTimeOnDesc": "Der Timer läuft beim Spielen. Wenn Sie das Spiel verlassen (Menü, Rätsel-Browser, Import/Export oder Tab wechseln), pausiert die Zeit und das Brett bleibt gesperrt, bis Sie fortsetzen.",
-      "trackPlayTimeOffDesc": "Der Timer zeigt null und zählt nicht. Kein Pause-Overlay und keine automatische Pause beim Verlassen.",
-      "off": "Aus",
-      "placement": "Platzierung",
-      "candidate": "Kandidat",
-      "offDesc": "Keine Fehlererkennung - spielen Sie ohne Feedback",
-      "placementDesc": "Warnung beim Platzieren einer falschen Zahl in einer Zelle",
-      "candidateDesc": "Warnung bei falschen Platzierungen UND beim Entfernen korrekter Kandidaten"
-    },
-    "modals": {
-      "close": "✕",
-      "about": {
-        "title": "Nice Sudoku",
-        "tagline": "Ein FOSS Sudoku-Spiel für alle Plattformen von Andrew Frahn",
-        "description": "Soll einfach zu erlernen sein, aber auch für die komplexesten Rätsel von Enthusiasten geeignet.",
-        "feedback": "💬 Feedback",
-        "feedbackText": "Bitte melden Sie Fehler, Features und Ideen auf GitHub:",
-        "solvers": "🧠 Löser",
-        "solversText": "Alle Löser von StrmCkr via",
-        "uiux": "🎨 UI/UX",
-        "uiuxText": "Entworfen von Andrew Frahn:",
-        "puzzles": "Rätsel",
-        "puzzlesText": "Rätsel generiert von:"
-      },
-      "completion": {
-        "title": "Herzlichen Glückwunsch!",
-        "message": "Sie haben das Rätsel gelöst!",
-        "time": "Zeit",
-        "mistakes": "Fehler",
-        "hints": "Hinweise",
-        "difficulty": "Schwierigkeit",
-        "close": "Schließen",
-        "nextGame": "Nächstes Spiel"
-      },
-      "version": {
-        "title": "Was ist neu",
-        "gotIt": "Verstanden!"
-      },
-      "puzzleInfo": {
-        "title": "Rätselinformationen",
-        "titleLabel": "Titel:",
-        "author": "Autor:",
-        "contact": "Kontakt:",
-        "description": "Beschreibung:",
-        "difficulty": "Schwierigkeit:",
-        "category": "Kategorie:",
-        "quality": "Qualität:",
-        "puzzleId": "Rätsel-ID:",
-        "techniquesUsed": "Verwendete Techniken",
-        "close": "Schließen",
-        "playPuzzle": "Rätsel spielen"
-      }
-    },
-    "importExport": {
-      "title": "Import / Export",
-      "back": "← Zurück",
-      "export": "📤 Exportieren",
-      "import": "📥 Importieren",
-      "originalPuzzle": "Originalrätsel (81 Zeichen)",
-      "currentState": "Aktueller Zustand (81 Zeichen)",
-      "fullState": "Zustand, Gegebene und Eliminierungen (891 Zeichen)",
-      "sudokuCoachFormat": "Sudoku Coach Format",
-      "copy": "Kopieren",
-      "copyUrl": "URL kopieren",
-      "importHint": "Fügen Sie ein 81-Zeichen-Rätsel, einen 810-Zeichen-Zustand, einen 891-Zeichen-Vollzustand oder ein",
-      "placeholder": "Rätselzeichenfolge hier einfügen...",
-      "pasteFromClipboard": "📋 Aus Zwischenablage einfügen",
-      "loadPuzzle": "Rätsel laden",
-      "copiedPuzzle": "✓ Rätsel kopiert!",
-      "copiedState": "✓ Zustand kopiert!",
-      "copiedFullState": "✓ Vollständiger Zustand kopiert!",
-      "copiedSudokuCoach": "✓ Sudoku Coach Format kopiert!",
-      "copiedPuzzleUrl": "✓ Rätsel-URL kopiert!",
-      "copiedStateUrl": "✓ Zustands-URL kopiert!",
-      "copiedFullStateUrl": "✓ URL des vollständigen Zustands kopiert!",
-      "copiedSudokuCoachUrl": "✓ Sudoku Coach URL kopiert!",
-      "failedToCopy": "Kopieren fehlgeschlagen",
-      "failedToCopyUrl": "URL-Kopieren fehlgeschlagen",
-      "failedToReadClipboard": "Lesen der Zwischenablage fehlgeschlagen",
-      "scopeOriginal": "Original puzzle",
-      "scopeCurrent": "Current state",
-      "fmt81": "81 Char (Standard Format)",
-      "fmtCoachComplete": "Complete (Sudoku Coach Compatible)",
-      "fmt729": "729 Char (Standard Pencil)",
-      "fmt891": "891 Char (State, Pencil, Original)",
-      "fmtCoachCurrentFull": "Complete (Sudoku Coach Compatible)",
-      "completeFormatDescription": "Complete (Sudoku Coach Compatible) uses the same format as Sudoku Coach and can include title, author, description, play time, mistakes, and hints used (when exporting current state). Original puzzle in Complete form omits session stats.",
-      "copiedExport": "✓ Copied to clipboard!",
-      "copiedExportUrl": "✓ Copied share URL!"
-    },
-    "puzzleBrowser": {
-      "title": "Rätsel-Browser",
-      "puzzleDetails": "Puzzle details",
-      "clearSelection": "Clear selection",
-      "metadataDash": "—",
-      "statsPlayTime": "Play time:",
-      "statsMistakes": "Mistakes:",
-      "statsHints": "Hints:",
-      "resetPuzzle": "Reset puzzle",
-      "saveMetadata": "Save metadata",
-      "metadataSaved": "✓ Metadata saved",
-      "resetDone": "✓ Puzzle reset to givens",
-      "back": "← Zurück",
-      "resumeGame": "⏸ Spiel fortsetzen",
-      "newPuzzle": "🎯 Neues Rätsel",
-      "hideCompleted": "Abgeschlossene ausblenden",
-      "loadingPuzzles": "Lade Rätsel...",
-      "noCustomPuzzles": "Noch keine benutzerdefinierten Rätsel. Importieren Sie ein Rätsel von der Import/Export-Seite, um es hier hinzuzufügen.",
-      "noPuzzlesAvailable": "Keine Rätsel für diese Kategorie verfügbar.",
-      "resume": "Fortsetzen",
-      "delete": "🗑️",
-      "deleteTitle": "Gespeichertes Spiel löschen",
-      "gameDeleted": "Spiel gelöscht",
-      "completed": "✓ Abgeschlossen",
-      "replay": "Wiederholen",
-      "play": "Spielen",
-      "deleteCustomPuzzle": "Benutzerdefiniertes Rätsel löschen",
-      "customPuzzleDeleted": "Benutzerdefiniertes Rätsel gelöscht",
-      "puzzleInfo": "Rätsel-Info"
-    },
-    "help": {
-      "title": "Hilfe",
-      "welcome": "Willkommen",
-      "welcomeText": "Danke, dass Sie Nice Sudoku testen.",
-      "author": "Andrew Frahn",
-      "keyboardShortcuts": "Tastaturkürzel",
-      "navigation": "Navigation",
-      "cellSelection": "Zellenauswahl",
-      "arrowKeys": "Pfeiltasten (↑ ← ↓ →)",
-      "arrowKeysDesc": ": Bewegt den Cursor zwischen den Zellen",
-      "ctrlArrowKeys": "Strg + Pfeiltasten",
-      "ctrlArrowKeysDesc": ": Springt zur nächsten ungelösten Zelle in dieser Richtung",
-      "home": "Pos1",
-      "homeDesc": ": Bewegt zur ersten Spalte der aktuellen Zeile",
-      "end": "Ende",
-      "endDesc": ": Bewegt zur letzten Spalte der aktuellen Zeile",
-      "ctrlHome": "Strg + Pos1",
-      "ctrlHomeDesc": ": Bewegt zur Zelle oben links (Zelle 0)",
-      "ctrlEnd": "Strg + Ende",
-      "ctrlEndDesc": ": Bewegt zur Zelle unten rechts (Zelle 80)",
-      "numberEntry": "Zahleneingabe",
-      "basicEntry": "Grundlegende Eingabe",
-      "numberKeys": "1-9",
-      "numberKeysDesc": ": Geben Sie Zahlen basierend auf dem Spielmodus ein:",
-      "fastMode": "Schnellmodus",
-      "fastModeDesc": ": Wählt die Zahl zur Hervorhebung aus. Wenn eine Zelle ausgewählt ist, wird die Zahl auf diese Zelle angewendet",
-      "advancedMode": "Fortgeschrittener Modus",
-      "advancedModeDesc": ": Schaltet die Zahl in der primären Auswahl um. Verwenden Sie die beiden Zahlenleisten zum Klicken (primär=blau, sekundär=rot)",
-      "candidateEntry": "Kandidateneingabe (Bleistiftmarkierungen)",
-      "ctrlNumberKeys": "Strg + 1-9",
-      "ctrlNumberKeysDesc": ": Schaltet den Bleistiftmarkierungskandidaten in der ausgewählten Zelle um",
-      "space": "Leertaste",
-      "spaceDesc": ": Wenn eine Zahl ausgewählt ist (Filter), schaltet ihren Kandidaten in der ausgewählten Zelle um",
-      "n": "N",
-      "nDesc": ": Schaltet den Notiz-/Bleistiftmodus ein/aus",
-      "editing": "Bearbeitung",
-      "undoButton": "Rückgängig-Taste (↩)",
-      "undoButtonDesc": ": Macht Ihre letzte Aktion rückgängig (Platzierungen und Kandidateneliminierungen)",
-      "escape": "Escape",
-      "escapeDesc": ": Löscht alle Auswahlen (ausgewählte Zahlen und Zelle)",
-      "filters": "Filter und Hervorhebung",
-      "f1f9": "F1-F9",
-      "f1f9Desc": ": Setzt/ändert die gefilterte (ausgewählte) Ziffer zur Hervorhebung",
-      "shiftF1f9": "Shift + F1-F9",
-      "shiftF1f9Desc": ": Setzt/ändert die gefilterte Ziffer (zukünftig: Filtermodus umschalten)",
-      "gameActions": "Spielaktionen",
-      "hintSystem": "Hinweissystem",
-      "h": "H",
-      "hDesc": ": Schaltet das Hinweispanel um (zeigt/versteckt verfügbare Lösungstechniken)",
-      "requiresBackend": "Erfordert eine verfügbare Backend-Verbindung",
-      "whenHintsVisible": "Wenn Hinweise sichtbar sind:",
-      "arrowUpDown": "Pfeil nach oben/unten",
-      "arrowUpDownDesc": ": Navigiert durch verfügbare Hinweise",
-      "pageUp": "Bild auf",
-      "pageUpDesc": ": Springt zum ersten Hinweis",
-      "pageDown": "Bild ab",
-      "pageDownDesc": ": Springt zum letzten Hinweis",
-      "advancedModeActions": "Aktionen im Fortgeschrittenen-Modus",
-      "enter": "Eingabe",
-      "or": " oder ",
-      "s": "S",
-      "enterDesc": ": Setzt den Wert in der ausgewählten Zelle (funktioniert nur, wenn genau eine Zahl in der primären Auswahl ausgewählt ist)",
-      "deselectButton": "Abwählen-Taste",
-      "deselectButtonDesc": ": Klicken Sie, um die Zelle abzuwählen und die Zahlenleisten wieder anzuzeigen",
-      "screenNavigation": "Bildschirmnavigation",
-      "m": "M",
-      "mDesc": ": Öffnet den Menü-/Einstellungsbildschirm",
-      "b": "B",
-      "bDesc": ": Öffnet den Rätsel-Browser-Bildschirm",
-      "i": "I",
-      "iDesc": ": Öffnet den Import/Export-Bildschirm",
-      "escapeScreen": "Escape",
-      "escapeScreenDesc": ":",
-      "closeModals": "Schließt Modals (Über, etc.)",
-      "closeHintPanel": "Schließt das Hinweispanel",
-      "returnToGame": "Kehrt von jedem anderen Bildschirm zum Spielbildschirm zurück",
-      "clearSelections": "Löscht Auswahlen im Spielbildschirm",
-      "modeSwitching": "Moduswechsel",
-      "nMode": "N",
-      "nModeDesc": ": Schaltet den Notizen-/Bleistiftmodus um",
-      "whenEnabled": "Wenn aktiviert, fügt die Zahleneingabe Bleistiftmarkierungen hinzu/entfernt sie anstelle von Werten",
-      "notes": "Notizen",
-      "shortcutsDisabled": "Alle Kürzel sind deaktiviert, wenn Sie in Eingabefeldern oder Textbereichen tippen, um Konflikte zu vermeiden",
-      "hodokuConventions": "Tastaturkürzel folgen den HoDoKu-Konventionen für Konsistenz mit Standard-Sudoku-Software",
-      "fullyPlayable": "Das Spiel ist vollständig nur mit Tastatureingabe spielbar",
-      "shortcutsVary": "Einige Kürzel können sich im Verhalten zwischen den Spielmodi Schnell, Zelle zuerst und Fortgeschritten geringfügig unterscheiden",
-      "f1f9Note": "F1-F9-Tasten: Einige Browser verwenden F-Tasten für Entwicklerwerkzeuge (z.B. F12) oder andere Funktionen. Wenn ein Browser-Kürzel in Konflikt steht, müssen Sie möglicherweise das Browser-Kürzel deaktivieren oder stattdessen die Zifferntasten 1-9 zum Filtern verwenden",
-      "playModeDifferences": "Unterschiede im Spielmodus",
-      "fastModeDetails": "Schnellmodus",
-      "fastModeDetail1": "Zifferntasten wählen zuerst Zahlen zur Hervorhebung aus",
-      "fastModeDetail2": "Wenn eine Zelle ausgewählt ist, wird die Zahl sofort angewendet",
-      "fastModeDetail3": "Schnelle, optimierte Eingabe für schnelleres Lösen",
-      "fastModeDetail4": "Einzelauswahl von Zahlen zur Hervorhebung",
-      "cellFirstMode": "Zuerst-Zelle-Modus",
-      "cellFirstDetail1": "Klicken Sie zuerst auf eine Zelle, um sie auszuwählen",
-      "cellFirstDetail2": "Klicken Sie dann auf eine Zahl, um diese Zelle zu füllen",
-      "cellFirstDetail3": "Die Hervorhebung basiert auf dem Wert der ausgewählten Zelle",
-      "cellFirstDetail4": "Ideal für methodisches Lösen Zelle für Zelle",
-      "advancedModeDetails": "Fortgeschrittener Modus",
-      "advancedDetail1": "Zwei Zahlenleisten: primär (blau) und sekundär (rot)",
-      "advancedDetail2": "Schalten Sie mehrere Zahlen in jeder Leiste um - Zellen müssen ALLE ausgewählten Zahlen enthalten, um hervorgehoben zu werden",
-      "advancedDetail3": "Wenn eine Zelle ausgewählt ist, werden die Zahlenleisten ausgeblendet und Aktionsschaltflächen angezeigt",
-      "advancedDetail4": "Verwenden Sie die Abwählen-Taste, um die Zahlenleisten wieder anzuzeigen",
-      "advancedDetail5": "Verwenden Sie die Setzen/Löschen-Tasten, um Zellen zu ändern, oder Eingabe/S für Einzelauswahlen",
-      "advancedDetail6": "Klicken Sie auf das Schnell/Zelle/Fortg-Abzeichen im Header, um schnell zwischen den Modi zu wechseln",
-      "advancedDetail7": "Unterstützt Zwei-Zahlen-Hervorhebung für komplexe Lösungstechniken",
-      "tips": "Tipps",
-      "tip1": "Verwenden Sie",
-      "tip1CtrlArrow": "Strg + Pfeiltasten",
-      "tip1Desc": "um schnell zwischen ungelösten Zellen zu springen",
-      "tip2": "Verwenden Sie",
-      "tip2F1f9": "F1-F9",
-      "tip2Desc": "für schnelles Filtern und Hervorheben von Zahlen",
-      "tip3": "Verwenden Sie",
-      "tip3H": "H",
-      "tip3Desc": "um auf Hinweise zuzugreifen und neue Lösungstechniken zu lernen",
-      "tip4": "Escape",
-      "tip4Desc": "ist Ihre universelle \"Zurück\"-Taste - verwenden Sie sie, um von jedem Bildschirm oder Modal zum Spiel zurückzukehren",
-      "deleteBackspace": "Delete / Backspace",
-      "deleteBackspaceDesc": ": Clear the selected cell (placed value or all pencil marks; cannot clear givens)",
-      "ctrlZ": "Ctrl + Z / Cmd + Z",
-      "ctrlZDesc": ": Undo your last action (placements, clears, and candidate eliminations)",
-      "playModes": "Play Modes",
-      "placeMode": "Place Mode",
-      "placeModeDesc": "Select a number from the number bar, then click a cell to place it.",
-      "notesModeTitle": "Notes / Pencil Mode",
-      "notesModeDetail1": "Toggle with the Notes button or the N key",
-      "notesModeDetail2": "When active, matching candidates show a slash — clicking a cell removes that candidate",
-      "multiNotesModeTitle": "Multi-Select Notes Mode",
-      "multiNotesModeDetail1": "Toggle with the Multi-Select Notes button. Select multiple numbers to choose which candidates to target.",
-      "multiNotesClrSel": "Clr Sel: Remove the selected numbers as candidates from the clicked cell",
-      "multiNotesClrOth": "Clr Oth: Remove all candidates EXCEPT the selected numbers from the clicked cell",
-      "tip5": "Use",
-      "tip5Delete": "Delete / Backspace",
-      "tip5Desc": "to erase a misplaced digit in the selected cell"
-    },
-    "gameScreen": {
-      "menu": "☰ Menü",
-      "title": "Nice Sudoku",
-      "poweredBy": "Angetrieben von StormDoku",
-      "pauseNotification": "Die automatische Pause können Sie in den Einstellungen deaktivieren, indem Sie „Spielzeit erfassen“ ausschalten.",
-      "placed": "Gesetzt",
-      "rcb": "ZSB",
-      "rcbPlus": "ZSB+",
-      "fast": "Schnell",
-      "cell": "Zelle",
-      "adv": "Fortg",
-      "paused": "Paused",
-      "clickToResume": "Click to resume"
-    },
-    "buttonHelp": {
-      "title": "Schnellreferenz",
-      "topBar": "Obere Leiste",
-      "menuBtn": "Menü-Taste",
-      "menuBtnDesc": "Einstellungen, Navigation und Optionen öffnen",
-      "highlightMode": "Hervorhebungsmodus",
-      "highlightModeDesc": "Zeigt den aktuellen Hervorhebungsstil. Tippen für Einstellungen zum Ändern.",
-      "playMode": "Spielmodus",
-      "playModeDesc": "Zeigt Schnell/Zelle/Fortg-Modus. Tippen zum Wechseln zwischen Schnell ↔ Fortgeschritten.",
-      "gameInfo": "Spielinformationen",
-      "category": "Kategorie",
-      "categoryDesc": "Schwierigkeitskategorie des Rätsels (Anfänger bis Teuflisch)",
-      "difficulty": "Schwierigkeitsbewertung",
-      "difficultyDesc": "Numerischer Schwierigkeitswert für das Rätsel",
-      "timer": "Timer",
-      "timerDesc": "Verbrachte Zeit mit diesem Rätsel",
-      "pauseBtn": "Pause",
-      "pauseBtnDesc": "Spiel pausieren und Gitter ausblenden",
-      "mistakes": "Fehler",
-      "mistakesDesc": "Anzahl der falschen Platzierungen",
-      "hintsUsed": "Verwendete Hinweise",
-      "hintsUsedDesc": "Anzahl der angeforderten Hinweise",
-      "controls": "Steuerungstasten",
-      "notesBtn": "Notizmodus",
-      "notesBtnDesc": "Bleistift-/Notizmodus umschalten. Wenn aktiv, fügen Zahlen Kandidaten hinzu, anstatt Zellen zu lösen.",
-      "undoBtn": "Rückgängig",
-      "undoBtnDesc": "Letzte Aktion rückgängig machen (Platzierung oder Eliminierung)",
-      "hintBtn": "Hinweis",
-      "hintBtnDesc": "Lösungshinweise und Techniken anzeigen. Erfordert Backend-Verbindung.",
-      "clearBtn": "Auswahl löschen",
-      "clearBtnDesc": "Alle ausgewählten Zahlen löschen (Tastatur: Escape)",
-      "numberPads": "Zahlenfelder",
-      "numberBtns": "Zahlentasten",
-      "numberBtnsDesc": "Tippen zum Auswählen/Platzieren von Zahlen. Ausgegraut wenn alle 9 Instanzen platziert sind.",
-      "primaryRow": "Primäre Auswahl (Blau)",
-      "primaryRowDesc": "Im Fortgeschrittenen-Modus: Erste Reihe wählt primäre Zahlen für blaue Hervorhebung",
-      "secondaryRow": "Sekundäre Auswahl (Rot)",
-      "secondaryRowDesc": "Im Fortgeschrittenen-Modus: Zweite Reihe wählt sekundäre Zahlen für rote Hervorhebung",
-      "advancedActions": "Aktionen im Fortgeschrittenen-Modus",
-      "deselectBtn": "Abwählen",
-      "deselectBtnDesc": "Zelle abwählen um Zahlenfelder wieder anzuzeigen",
-      "setBtn": "Setzen",
-      "setBtnDesc": "Die ausgewählte Zahl in der aktuellen Zelle platzieren",
-      "clrBtn": "Kandidaten löschen",
-      "clrBtnDesc": "Die ausgewählten Kandidaten aus der aktuellen Zelle entfernen",
-      "clrOtherBtn": "Andere löschen",
-      "clrOtherBtnDesc": "Alle Kandidaten AUSSER den ausgewählten entfernen",
-      "quickTip": "💡 Schnelltipp",
-      "quickTipText": "Tippen Sie auf das Schnell/Fortg-Abzeichen in der Kopfzeile, um schnell zwischen Schnell- und Fortgeschrittenen-Modus zu wechseln!",
-      "moreHelp": "Für Tastaturkürzel und detaillierte Hilfe, siehe",
-      "keyboardShortcuts": "Vollständige Hilfe →",
-      "gotIt": "Verstanden!",
-      "notes2Btn": "Multi-Select Notes Mode",
-      "notes2BtnDesc": "Like notes mode, but allows selecting multiple numbers, for removing multiple candidates at the same time.",
-      "eraseBtn": "Erase",
-      "eraseBtnDesc": "Clear the selected cell (keyboard: Delete or Backspace)"
+    "languageName": "Deutsch",
+    "ui": {
+        "game": {
+            "solved": "🎉 Gelöst!",
+            "thinking": "Denke...",
+            "error": "Fehler:",
+            "goodSudoku": "Gutes Sudoku",
+            "pencil": "✏️ Bleistift",
+            "difficulty": "Schwierigkeit:",
+            "selection": "Auswahl",
+            "primary": "Primär",
+            "secondary": "Sekundär",
+            "cell": "Zelle",
+            "undo": "Rückgängig",
+            "findTechniques": "Techniken finden",
+            "apply": "Anwenden",
+            "solve": "Lösen",
+            "selected": "Ausgewählt:",
+            "set": "Setzen (Eingabe)",
+            "remove": "Entfernen (Leertaste)"
+        },
+        "modes": {
+            "highlightMode": "Hervorhebungsmodus",
+            "playMode": "Spielmodus",
+            "placed": "Gesetzt",
+            "rcbSel": "ZSB Ausw",
+            "rcbAll": "ZSB Alle",
+            "pencil": "Bleistift",
+            "fast": "Schnell",
+            "cellFirst": "Zelle zuerst",
+            "advanced": "Fortgeschritten",
+            "fastDescription": "Zahl anklicken → Zelle anklicken zum Füllen",
+            "cellFirstDescription": "Zelle anklicken → Zahl anklicken zum Füllen",
+            "advancedDescription": "Zahl anklicken → Aktion auswählen",
+            "placedDescription": "Hebt Zellen mit übereinstimmenden gesetzten Zahlen hervor",
+            "rcbSelectedDescription": "Hebt Zeile, Spalte, Block der ausgewählten Zelle hervor",
+            "rcbAllDescription": "Hebt alle Zeilen/Spalten/Blöcke hervor, die die Zahl enthalten",
+            "pencilDescription": "Hebt Zellen mit übereinstimmenden Bleistiftmarkierungen hervor",
+            "place": "Place",
+            "multiSelectNotes": "Multi-Select Notes",
+            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
+            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+        },
+        "techniques": {
+            "title": "Techniken"
+        },
+        "settings": {
+            "title": "Einstellungen",
+            "back": "← Zurück",
+            "navigation": "📁 Navigation",
+            "puzzles": "📚 Rätsel",
+            "importExport": "📋 Import/Export",
+            "about": "ℹ️ Über",
+            "help": "❓ Hilfe",
+            "highlightMode": "🎨 Hervorhebungsmodus",
+            "highlightModeDesc": "Wählen Sie, wie Zahlen bei Auswahl hervorgehoben werden",
+            "theme": "🎨 Thema",
+            "themeDesc": "Wählen Sie Ihr visuelles Thema",
+            "dark": "🌙 Dunkel",
+            "blue": "🔵 Blau",
+            "light": "☀️ Hell",
+            "ePaper": "📖 ePaper",
+            "darkDesc": "Reines dunkles Thema mit hohem Kontrast",
+            "blueDesc": "Klassisches blaues Gradiententhema",
+            "lightDesc": "Sauberes helles Thema",
+            "ePaperDesc": "Hoher Kontrast für ePaper-Geräte",
+            "playMode": "🎮 Spielmodus",
+            "playModeDesc": "Wählen Sie Ihren Eingabestil",
+            "fast": "⚡ Schnell",
+            "cellFirst": "🎯 Zelle zuerst",
+            "advanced": "🔧 Fortgeschritten",
+            "fastDesc": "Klicken Sie auf eine Zahl, dann auf eine Zelle, um sie zu füllen. Schnell und einfach.",
+            "cellFirstDesc": "Klicken Sie zuerst auf eine Zelle, dann auf eine Zahl, um sie zu füllen. Die Hervorhebung basiert auf der ausgewählten Zelle.",
+            "advancedDesc": "Zwei Zahlenreihen zur Hervorhebung. Wählen Sie mehrere Zahlen pro Farbe aus. Zellen mit ALLEN ausgewählten Zahlen werden hervorgehoben. Klicken Sie auf die Zelle für Aktionsschaltflächen.",
+            "candidateMode": "📝 Kandidatenmodus",
+            "candidateModeDesc": "Wählen Sie, wie Bleistiftmarkierungen verwaltet werden",
+            "auto": "Automatisch",
+            "manual": "Manuell",
+            "autoDesc": "Bleistiftmarkierungen basierend auf gesetzten Zahlen automatisch berechnen. Hinweise und Fehlererkennung aktiviert.",
+            "manualDesc": "Beginnen Sie mit leeren Bleistiftmarkierungen. Füllen Sie sie selbst aus. Hinweise und Fehlererkennung für Bleistiftmarkierungen deaktiviert.",
+            "autoConfirm": "Der Wechsel in den Auto-Modus setzt alle Bleistiftmarkierungen im aktuellen Rätsel zurück. Fortfahren?",
+            "manualConfirm": "Der Wechsel in den Manuellen Modus wird:\n• Alle Bleistiftmarkierungen zurücksetzen\n• Hinweise deaktivieren\n• Fehlererkennung für Bleistiftmarkierungen deaktivieren\n\nFortfahren?",
+            "hintPlacement": "Hinweisposition",
+            "hintPlacementDesc": "Wählen Sie aus, wo das Hinweispanel erscheint",
+            "hintPlacementAuto": "Auto",
+            "hintPlacementAutoDesc": "Hinweise erscheinen neben dem Feld, wenn genug Platz ist, sonst darunter. Das Layout wird automatisch nach dem verfügbaren Platz gewählt.",
+            "hintPlacementSide": "Seite",
+            "hintPlacementSideDesc": "Hinweise erscheinen immer in einem Panel neben dem Feld.",
+            "hintPlacementBelow": "Unten",
+            "hintPlacementBelowDesc": "Hinweise erscheinen immer in einem Panel unter dem Feld.",
+            "language": "🌐 Sprache",
+            "languageDesc": "Wählen Sie Ihre bevorzugte Sprache",
+            "mistakeDetection": "⚠️ Fehlererkennung",
+            "mistakeDetectionDesc": "Wählen Sie, wann Fehler erkannt und gezählt werden",
+            "trackPlayTime": "⏱ Spielzeit erfassen",
+            "trackPlayTimeDesc": "Spielzeit messen, beim Verlassen des Spiels pausieren und Pause-Overlay anzeigen. Aus: Timer bleibt bei null, kein Pause-Bildschirm.",
+            "trackPlayTimeOn": "Ein",
+            "trackPlayTimeOff": "Aus",
+            "trackPlayTimeOnDesc": "Der Timer läuft beim Spielen. Wenn Sie das Spiel verlassen (Menü, Rätsel-Browser, Import/Export oder Tab wechseln), pausiert die Zeit und das Brett bleibt gesperrt, bis Sie fortsetzen.",
+            "trackPlayTimeOffDesc": "Der Timer zeigt null und zählt nicht. Kein Pause-Overlay und keine automatische Pause beim Verlassen.",
+            "off": "Aus",
+            "placement": "Platzierung",
+            "candidate": "Kandidat",
+            "offDesc": "Keine Fehlererkennung - spielen Sie ohne Feedback",
+            "placementDesc": "Warnung beim Platzieren einer falschen Zahl in einer Zelle",
+            "candidateDesc": "Warnung bei falschen Platzierungen UND beim Entfernen korrekter Kandidaten"
+        },
+        "modals": {
+            "close": "✕",
+            "about": {
+                "title": "Nice Sudoku",
+                "tagline": "Ein FOSS Sudoku-Spiel für alle Plattformen von Andrew Frahn",
+                "description": "Soll einfach zu erlernen sein, aber auch für die komplexesten Rätsel von Enthusiasten geeignet.",
+                "feedback": "💬 Feedback",
+                "feedbackText": "Bitte melden Sie Fehler, Features und Ideen auf GitHub:",
+                "solvers": "🧠 Löser",
+                "solversText": "Alle Löser von StrmCkr via",
+                "uiux": "🎨 UI/UX",
+                "uiuxText": "Entworfen von Andrew Frahn:",
+                "puzzles": "Rätsel",
+                "puzzlesText": "Rätsel generiert von:"
+            },
+            "completion": {
+                "title": "Herzlichen Glückwunsch!",
+                "message": "Sie haben das Rätsel gelöst!",
+                "time": "Zeit",
+                "mistakes": "Fehler",
+                "hints": "Hinweise",
+                "difficulty": "Schwierigkeit",
+                "close": "Schließen",
+                "nextGame": "Nächstes Spiel"
+            },
+            "version": {
+                "title": "Was ist neu",
+                "gotIt": "Verstanden!"
+            },
+            "puzzleInfo": {
+                "title": "Rätselinformationen",
+                "titleLabel": "Titel:",
+                "author": "Autor:",
+                "contact": "Kontakt:",
+                "description": "Beschreibung:",
+                "difficulty": "Schwierigkeit:",
+                "category": "Kategorie:",
+                "quality": "Qualität:",
+                "puzzleId": "Rätsel-ID:",
+                "techniquesUsed": "Verwendete Techniken",
+                "close": "Schließen",
+                "playPuzzle": "Rätsel spielen"
+            }
+        },
+        "importExport": {
+            "title": "Import / Export",
+            "back": "← Zurück",
+            "export": "📤 Exportieren",
+            "import": "📥 Importieren",
+            "originalPuzzle": "Originalrätsel (81 Zeichen)",
+            "currentState": "Aktueller Zustand (81 Zeichen)",
+            "fullState": "Zustand, Gegebene und Eliminierungen (891 Zeichen)",
+            "sudokuCoachFormat": "Sudoku Coach Format",
+            "copy": "Kopieren",
+            "copyUrl": "URL kopieren",
+            "importHint": "Fügen Sie ein 81-Zeichen-Rätsel, einen 810-Zeichen-Zustand, einen 891-Zeichen-Vollzustand oder ein",
+            "placeholder": "Rätselzeichenfolge hier einfügen...",
+            "pasteFromClipboard": "📋 Aus Zwischenablage einfügen",
+            "loadPuzzle": "Rätsel laden",
+            "copiedPuzzle": "✓ Rätsel kopiert!",
+            "copiedState": "✓ Zustand kopiert!",
+            "copiedFullState": "✓ Vollständiger Zustand kopiert!",
+            "copiedSudokuCoach": "✓ Sudoku Coach Format kopiert!",
+            "copiedPuzzleUrl": "✓ Rätsel-URL kopiert!",
+            "copiedStateUrl": "✓ Zustands-URL kopiert!",
+            "copiedFullStateUrl": "✓ URL des vollständigen Zustands kopiert!",
+            "copiedSudokuCoachUrl": "✓ Sudoku Coach URL kopiert!",
+            "failedToCopy": "Kopieren fehlgeschlagen",
+            "failedToCopyUrl": "URL-Kopieren fehlgeschlagen",
+            "failedToReadClipboard": "Lesen der Zwischenablage fehlgeschlagen",
+            "scopeOriginal": "Original puzzle",
+            "scopeCurrent": "Current state",
+            "fmt81": "81 Char (Standard Format)",
+            "fmtCoachComplete": "Complete (Sudoku Coach Compatible)",
+            "fmt729": "729 Char (Standard Pencil)",
+            "fmt891": "891 Char (State, Pencil, Original)",
+            "fmtCoachCurrentFull": "Complete (Sudoku Coach Compatible)",
+            "completeFormatDescription": "Complete (Sudoku Coach Compatible) uses the same format as Sudoku Coach and can include title, author, description, play time, mistakes, and hints used (when exporting current state). Original puzzle in Complete form omits session stats.",
+            "copiedExport": "✓ Copied to clipboard!",
+            "copiedExportUrl": "✓ Copied share URL!"
+        },
+        "puzzleBrowser": {
+            "title": "Rätsel-Browser",
+            "puzzleDetails": "Puzzle details",
+            "clearSelection": "Clear selection",
+            "metadataDash": "—",
+            "statsPlayTime": "Play time:",
+            "statsMistakes": "Mistakes:",
+            "statsHints": "Hints:",
+            "resetPuzzle": "Reset puzzle",
+            "saveMetadata": "Save metadata",
+            "metadataSaved": "✓ Metadata saved",
+            "resetDone": "✓ Puzzle reset to givens",
+            "back": "← Zurück",
+            "resumeGame": "⏸ Spiel fortsetzen",
+            "newPuzzle": "🎯 Neues Rätsel",
+            "hideCompleted": "Abgeschlossene ausblenden",
+            "loadingPuzzles": "Lade Rätsel...",
+            "noCustomPuzzles": "Noch keine benutzerdefinierten Rätsel. Importieren Sie ein Rätsel von der Import/Export-Seite, um es hier hinzuzufügen.",
+            "noPuzzlesAvailable": "Keine Rätsel für diese Kategorie verfügbar.",
+            "resume": "Fortsetzen",
+            "delete": "🗑️",
+            "deleteTitle": "Gespeichertes Spiel löschen",
+            "gameDeleted": "Spiel gelöscht",
+            "completed": "✓ Abgeschlossen",
+            "replay": "Wiederholen",
+            "play": "Spielen",
+            "deleteCustomPuzzle": "Benutzerdefiniertes Rätsel löschen",
+            "customPuzzleDeleted": "Benutzerdefiniertes Rätsel gelöscht",
+            "puzzleInfo": "Rätsel-Info"
+        },
+        "help": {
+            "title": "Hilfe",
+            "welcome": "Willkommen",
+            "welcomeText": "Danke, dass Sie Nice Sudoku testen.",
+            "author": "Andrew Frahn",
+            "keyboardShortcuts": "Tastaturkürzel",
+            "navigation": "Navigation",
+            "cellSelection": "Zellenauswahl",
+            "arrowKeys": "Pfeiltasten (↑ ← ↓ →)",
+            "arrowKeysDesc": ": Bewegt den Cursor zwischen den Zellen",
+            "ctrlArrowKeys": "Strg + Pfeiltasten",
+            "ctrlArrowKeysDesc": ": Springt zur nächsten ungelösten Zelle in dieser Richtung",
+            "home": "Pos1",
+            "homeDesc": ": Bewegt zur ersten Spalte der aktuellen Zeile",
+            "end": "Ende",
+            "endDesc": ": Bewegt zur letzten Spalte der aktuellen Zeile",
+            "ctrlHome": "Strg + Pos1",
+            "ctrlHomeDesc": ": Bewegt zur Zelle oben links (Zelle 0)",
+            "ctrlEnd": "Strg + Ende",
+            "ctrlEndDesc": ": Bewegt zur Zelle unten rechts (Zelle 80)",
+            "numberEntry": "Zahleneingabe",
+            "basicEntry": "Grundlegende Eingabe",
+            "numberKeys": "1-9",
+            "numberKeysDesc": ": Geben Sie Zahlen basierend auf dem Spielmodus ein:",
+            "fastMode": "Schnellmodus",
+            "fastModeDesc": ": Wählt die Zahl zur Hervorhebung aus. Wenn eine Zelle ausgewählt ist, wird die Zahl auf diese Zelle angewendet",
+            "advancedMode": "Fortgeschrittener Modus",
+            "advancedModeDesc": ": Schaltet die Zahl in der primären Auswahl um. Verwenden Sie die beiden Zahlenleisten zum Klicken (primär=blau, sekundär=rot)",
+            "candidateEntry": "Kandidateneingabe (Bleistiftmarkierungen)",
+            "ctrlNumberKeys": "Strg + 1-9",
+            "ctrlNumberKeysDesc": ": Schaltet den Bleistiftmarkierungskandidaten in der ausgewählten Zelle um",
+            "space": "Leertaste",
+            "spaceDesc": ": Wenn eine Zahl ausgewählt ist (Filter), schaltet ihren Kandidaten in der ausgewählten Zelle um",
+            "n": "N",
+            "nDesc": ": Schaltet den Notiz-/Bleistiftmodus ein/aus",
+            "editing": "Bearbeitung",
+            "undoButton": "Rückgängig-Taste (↩)",
+            "undoButtonDesc": ": Macht Ihre letzte Aktion rückgängig (Platzierungen und Kandidateneliminierungen)",
+            "escape": "Escape",
+            "escapeDesc": ": Löscht alle Auswahlen (ausgewählte Zahlen und Zelle)",
+            "filters": "Filter und Hervorhebung",
+            "f1f9": "F1-F9",
+            "f1f9Desc": ": Setzt/ändert die gefilterte (ausgewählte) Ziffer zur Hervorhebung",
+            "shiftF1f9": "Shift + F1-F9",
+            "shiftF1f9Desc": ": Setzt/ändert die gefilterte Ziffer (zukünftig: Filtermodus umschalten)",
+            "gameActions": "Spielaktionen",
+            "hintSystem": "Hinweissystem",
+            "h": "H",
+            "hDesc": ": Schaltet das Hinweispanel um (zeigt/versteckt verfügbare Lösungstechniken)",
+            "requiresBackend": "Erfordert eine verfügbare Backend-Verbindung",
+            "whenHintsVisible": "Wenn Hinweise sichtbar sind:",
+            "arrowUpDown": "Pfeil nach oben/unten",
+            "arrowUpDownDesc": ": Navigiert durch verfügbare Hinweise",
+            "pageUp": "Bild auf",
+            "pageUpDesc": ": Springt zum ersten Hinweis",
+            "pageDown": "Bild ab",
+            "pageDownDesc": ": Springt zum letzten Hinweis",
+            "advancedModeActions": "Aktionen im Fortgeschrittenen-Modus",
+            "enter": "Eingabe",
+            "or": " oder ",
+            "s": "S",
+            "enterDesc": ": Setzt den Wert in der ausgewählten Zelle (funktioniert nur, wenn genau eine Zahl in der primären Auswahl ausgewählt ist)",
+            "deselectButton": "Abwählen-Taste",
+            "deselectButtonDesc": ": Klicken Sie, um die Zelle abzuwählen und die Zahlenleisten wieder anzuzeigen",
+            "screenNavigation": "Bildschirmnavigation",
+            "m": "M",
+            "mDesc": ": Öffnet den Menü-/Einstellungsbildschirm",
+            "b": "B",
+            "bDesc": ": Öffnet den Rätsel-Browser-Bildschirm",
+            "i": "I",
+            "iDesc": ": Öffnet den Import/Export-Bildschirm",
+            "escapeScreen": "Escape",
+            "escapeScreenDesc": ":",
+            "closeModals": "Schließt Modals (Über, etc.)",
+            "closeHintPanel": "Schließt das Hinweispanel",
+            "returnToGame": "Kehrt von jedem anderen Bildschirm zum Spielbildschirm zurück",
+            "clearSelections": "Löscht Auswahlen im Spielbildschirm",
+            "modeSwitching": "Moduswechsel",
+            "nMode": "N",
+            "nModeDesc": ": Schaltet den Notizen-/Bleistiftmodus um",
+            "whenEnabled": "Wenn aktiviert, fügt die Zahleneingabe Bleistiftmarkierungen hinzu/entfernt sie anstelle von Werten",
+            "notes": "Notizen",
+            "shortcutsDisabled": "Alle Kürzel sind deaktiviert, wenn Sie in Eingabefeldern oder Textbereichen tippen, um Konflikte zu vermeiden",
+            "hodokuConventions": "Tastaturkürzel folgen den HoDoKu-Konventionen für Konsistenz mit Standard-Sudoku-Software",
+            "fullyPlayable": "Das Spiel ist vollständig nur mit Tastatureingabe spielbar",
+            "shortcutsVary": "Einige Kürzel können sich im Verhalten zwischen den Spielmodi Schnell, Zelle zuerst und Fortgeschritten geringfügig unterscheiden",
+            "f1f9Note": "F1-F9-Tasten: Einige Browser verwenden F-Tasten für Entwicklerwerkzeuge (z.B. F12) oder andere Funktionen. Wenn ein Browser-Kürzel in Konflikt steht, müssen Sie möglicherweise das Browser-Kürzel deaktivieren oder stattdessen die Zifferntasten 1-9 zum Filtern verwenden",
+            "playModeDifferences": "Unterschiede im Spielmodus",
+            "fastModeDetails": "Schnellmodus",
+            "fastModeDetail1": "Zifferntasten wählen zuerst Zahlen zur Hervorhebung aus",
+            "fastModeDetail2": "Wenn eine Zelle ausgewählt ist, wird die Zahl sofort angewendet",
+            "fastModeDetail3": "Schnelle, optimierte Eingabe für schnelleres Lösen",
+            "fastModeDetail4": "Einzelauswahl von Zahlen zur Hervorhebung",
+            "cellFirstMode": "Zuerst-Zelle-Modus",
+            "cellFirstDetail1": "Klicken Sie zuerst auf eine Zelle, um sie auszuwählen",
+            "cellFirstDetail2": "Klicken Sie dann auf eine Zahl, um diese Zelle zu füllen",
+            "cellFirstDetail3": "Die Hervorhebung basiert auf dem Wert der ausgewählten Zelle",
+            "cellFirstDetail4": "Ideal für methodisches Lösen Zelle für Zelle",
+            "advancedModeDetails": "Fortgeschrittener Modus",
+            "advancedDetail1": "Zwei Zahlenleisten: primär (blau) und sekundär (rot)",
+            "advancedDetail2": "Schalten Sie mehrere Zahlen in jeder Leiste um - Zellen müssen ALLE ausgewählten Zahlen enthalten, um hervorgehoben zu werden",
+            "advancedDetail3": "Wenn eine Zelle ausgewählt ist, werden die Zahlenleisten ausgeblendet und Aktionsschaltflächen angezeigt",
+            "advancedDetail4": "Verwenden Sie die Abwählen-Taste, um die Zahlenleisten wieder anzuzeigen",
+            "advancedDetail5": "Verwenden Sie die Setzen/Löschen-Tasten, um Zellen zu ändern, oder Eingabe/S für Einzelauswahlen",
+            "advancedDetail6": "Klicken Sie auf das Schnell/Zelle/Fortg-Abzeichen im Header, um schnell zwischen den Modi zu wechseln",
+            "advancedDetail7": "Unterstützt Zwei-Zahlen-Hervorhebung für komplexe Lösungstechniken",
+            "tips": "Tipps",
+            "tip1": "Verwenden Sie",
+            "tip1CtrlArrow": "Strg + Pfeiltasten",
+            "tip1Desc": "um schnell zwischen ungelösten Zellen zu springen",
+            "tip2": "Verwenden Sie",
+            "tip2F1f9": "F1-F9",
+            "tip2Desc": "für schnelles Filtern und Hervorheben von Zahlen",
+            "tip3": "Verwenden Sie",
+            "tip3H": "H",
+            "tip3Desc": "um auf Hinweise zuzugreifen und neue Lösungstechniken zu lernen",
+            "tip4": "Escape",
+            "tip4Desc": "ist Ihre universelle \"Zurück\"-Taste - verwenden Sie sie, um von jedem Bildschirm oder Modal zum Spiel zurückzukehren",
+            "deleteBackspace": "Delete / Backspace",
+            "deleteBackspaceDesc": ": Clear the selected cell (placed value or all pencil marks; cannot clear givens)",
+            "ctrlZ": "Ctrl + Z / Cmd + Z",
+            "ctrlZDesc": ": Undo your last action (placements, clears, and candidate eliminations)",
+            "playModes": "Play Modes",
+            "placeMode": "Place Mode",
+            "placeModeDesc": "Select a number from the number bar, then click a cell to place it.",
+            "notesModeTitle": "Notes / Pencil Mode",
+            "notesModeDetail1": "Toggle with the Notes button or the N key",
+            "notesModeDetail2": "When active, matching candidates show a slash — clicking a cell removes that candidate",
+            "multiNotesModeTitle": "Multi-Select Notes Mode",
+            "multiNotesModeDetail1": "Toggle with the Multi-Select Notes button. Select multiple numbers to choose which candidates to target.",
+            "multiNotesClrSel": "Clr Sel: Remove the selected numbers as candidates from the clicked cell",
+            "multiNotesClrOth": "Clr Oth: Remove all candidates EXCEPT the selected numbers from the clicked cell",
+            "tip5": "Use",
+            "tip5Delete": "Delete / Backspace",
+            "tip5Desc": "to erase a misplaced digit in the selected cell"
+        },
+        "gameScreen": {
+            "menu": "☰ Menü",
+            "title": "Nice Sudoku",
+            "poweredBy": "Angetrieben von StormDoku",
+            "pauseNotification": "Die automatische Pause können Sie in den Einstellungen deaktivieren, indem Sie „Spielzeit erfassen“ ausschalten.",
+            "placed": "Gesetzt",
+            "rcb": "ZSB",
+            "rcbPlus": "ZSB+",
+            "fast": "Schnell",
+            "cell": "Zelle",
+            "adv": "Fortg",
+            "paused": "Paused",
+            "clickToResume": "Click to resume"
+        },
+        "buttonHelp": {
+            "title": "Schnellreferenz",
+            "topBar": "Obere Leiste",
+            "menuBtn": "Menü-Taste",
+            "menuBtnDesc": "Einstellungen, Navigation und Optionen öffnen",
+            "highlightMode": "Hervorhebungsmodus",
+            "highlightModeDesc": "Zeigt den aktuellen Hervorhebungsstil. Tippen für Einstellungen zum Ändern.",
+            "playMode": "Spielmodus",
+            "playModeDesc": "Zeigt Schnell/Zelle/Fortg-Modus. Tippen zum Wechseln zwischen Schnell ↔ Fortgeschritten.",
+            "gameInfo": "Spielinformationen",
+            "category": "Kategorie",
+            "categoryDesc": "Schwierigkeitskategorie des Rätsels (Anfänger bis Teuflisch)",
+            "difficulty": "Schwierigkeitsbewertung",
+            "difficultyDesc": "Numerischer Schwierigkeitswert für das Rätsel",
+            "timer": "Timer",
+            "timerDesc": "Verbrachte Zeit mit diesem Rätsel",
+            "pauseBtn": "Pause",
+            "pauseBtnDesc": "Spiel pausieren und Gitter ausblenden",
+            "mistakes": "Fehler",
+            "mistakesDesc": "Anzahl der falschen Platzierungen",
+            "hintsUsed": "Verwendete Hinweise",
+            "hintsUsedDesc": "Anzahl der angeforderten Hinweise",
+            "controls": "Steuerungstasten",
+            "notesBtn": "Notizmodus",
+            "notesBtnDesc": "Bleistift-/Notizmodus umschalten. Wenn aktiv, fügen Zahlen Kandidaten hinzu, anstatt Zellen zu lösen.",
+            "undoBtn": "Rückgängig",
+            "undoBtnDesc": "Letzte Aktion rückgängig machen (Platzierung oder Eliminierung)",
+            "hintBtn": "Hinweis",
+            "hintBtnDesc": "Lösungshinweise und Techniken anzeigen. Erfordert Backend-Verbindung.",
+            "clearBtn": "Auswahl löschen",
+            "clearBtnDesc": "Alle ausgewählten Zahlen löschen (Tastatur: Escape)",
+            "numberPads": "Zahlenfelder",
+            "numberBtns": "Zahlentasten",
+            "numberBtnsDesc": "Tippen zum Auswählen/Platzieren von Zahlen. Ausgegraut wenn alle 9 Instanzen platziert sind.",
+            "primaryRow": "Primäre Auswahl (Blau)",
+            "primaryRowDesc": "Im Fortgeschrittenen-Modus: Erste Reihe wählt primäre Zahlen für blaue Hervorhebung",
+            "secondaryRow": "Sekundäre Auswahl (Rot)",
+            "secondaryRowDesc": "Im Fortgeschrittenen-Modus: Zweite Reihe wählt sekundäre Zahlen für rote Hervorhebung",
+            "advancedActions": "Aktionen im Fortgeschrittenen-Modus",
+            "deselectBtn": "Abwählen",
+            "deselectBtnDesc": "Zelle abwählen um Zahlenfelder wieder anzuzeigen",
+            "setBtn": "Setzen",
+            "setBtnDesc": "Die ausgewählte Zahl in der aktuellen Zelle platzieren",
+            "clrBtn": "Kandidaten löschen",
+            "clrBtnDesc": "Die ausgewählten Kandidaten aus der aktuellen Zelle entfernen",
+            "clrOtherBtn": "Andere löschen",
+            "clrOtherBtnDesc": "Alle Kandidaten AUSSER den ausgewählten entfernen",
+            "quickTip": "💡 Schnelltipp",
+            "quickTipText": "Tippen Sie auf das Schnell/Fortg-Abzeichen in der Kopfzeile, um schnell zwischen Schnell- und Fortgeschrittenen-Modus zu wechseln!",
+            "moreHelp": "Für Tastaturkürzel und detaillierte Hilfe, siehe",
+            "keyboardShortcuts": "Vollständige Hilfe →",
+            "gotIt": "Verstanden!",
+            "notes2Btn": "Multi-Select Notes Mode",
+            "notes2BtnDesc": "Like notes mode, but allows selecting multiple numbers, for removing multiple candidates at the same time.",
+            "eraseBtn": "Erase",
+            "eraseBtnDesc": "Clear the selected cell (keyboard: Delete or Backspace)"
+        },
+        "hints": {
+            "overview": "Übersicht",
+            "eliminations": "Eliminierungen",
+            "solution": "Lösung",
+            "remove": "Entfernen",
+            "from": "von"
+        },
+        "toasts": {
+            "wrongNumber": "Wrong number!",
+            "wrongCandidate": "Wrong candidate removed!"
+        }
     },
     "hints": {
-      "overview": "Übersicht",
-      "eliminations": "Eliminierungen",
-      "solution": "Lösung",
-      "remove": "Entfernen",
-      "from": "von"
+        "common": {
+            "overview": "Übersicht",
+            "eliminations": "Eliminierungen",
+            "solution": "Lösung",
+            "remove": "Entferne {{digit}} von {{cells}}",
+            "place": "Setze {{digit}} in {{cell}}",
+            "cellFormat": "Z{{row}}S{{col}}"
+        },
+        "naked_single": {
+            "step1": {
+                "title": "Nacktes Einer finden",
+                "description": "Zelle {{cell}} hat nur einen möglichen Kandidaten: {{digit}}"
+            },
+            "step2": {
+                "title": "Wert setzen und eliminieren",
+                "description": "Setze {{digit}} in {{cell}}. Eliminiere {{digit}} aus Zeile {{row}}, Spalte {{col}} und Block {{box}}: {{cells}}"
+            }
+        },
+        "hidden_single": {
+            "step1": {
+                "title": "Verstecktes Einer finden",
+                "description": "In {{house}} kann nur {{cell}} die {{digit}} sein. Daher eliminieren wir andere Kandidaten aus dieser Zelle."
+            },
+            "step2": {
+                "title": "Aus Nachbarzellen eliminieren",
+                "description": "In Zeile {{row}}, Spalte {{col}} und Block {{box}} kann {{digit}} nur in {{cell}} sein. Eliminiere {{digit}} aus: {{cells}}"
+            }
+        },
+        "naked_pair": {
+            "step1": {
+                "title": "Nacktes Paar finden",
+                "description": "Die Zellen {{cells}} in {{house}} können nur die Ziffern {{digits}} enthalten. Diese Ziffern sind in diesen Zellen 'eingeschlossen'."
+            },
+            "step2": {
+                "title": "Aus demselben Haus eliminieren",
+                "description": "Da {{digits}} nur in {{subsetCells}} sein können, eliminieren wir diese Ziffern aus {{elimCells}} in {{house}}."
+            },
+            "step3": {
+                "title": "Eingeschlossene Kandidaten anwenden",
+                "description": "Das nackte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
+            }
+        },
+        "naked_triple": {
+            "step1": {
+                "title": "Nacktes Tripel finden",
+                "description": "Die Zellen {{cells}} in {{house}} können nur die Ziffern {{digits}} enthalten. Diese Ziffern sind in diesen Zellen 'eingeschlossen'."
+            },
+            "step2": {
+                "title": "Aus demselben Haus eliminieren",
+                "description": "Da {{digits}} nur in {{subsetCells}} sein können, eliminieren wir diese Ziffern aus {{elimCells}} in {{house}}."
+            },
+            "step3": {
+                "title": "Eingeschlossene Kandidaten anwenden",
+                "description": "Das nackte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
+            }
+        },
+        "naked_quadruple": {
+            "step1": {
+                "title": "Nackter Vierer finden",
+                "description": "Die Zellen {{cells}} in {{house}} können nur die Ziffern {{digits}} enthalten. Diese Ziffern sind in diesen Zellen 'eingeschlossen'."
+            },
+            "step2": {
+                "title": "Aus demselben Haus eliminieren",
+                "description": "Da {{digits}} nur in {{subsetCells}} sein können, eliminieren wir diese Ziffern aus {{elimCells}} in {{house}}."
+            },
+            "step3": {
+                "title": "Eingeschlossene Kandidaten anwenden",
+                "description": "Der nackte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
+            }
+        },
+        "hidden_pair": {
+            "step1": {
+                "title": "Verstecktes Paar finden",
+                "description": "In {{house}} können {{digits}} nur in den Zellen {{cells}} platziert werden. Diese Zellen sind für diese Ziffern 'reserviert'."
+            },
+            "step2": {
+                "title": "Aus demselben Haus eliminieren",
+                "description": "Da {{digits}} nur in {{cells}} sein können, eliminieren wir andere Kandidaten aus diesen Zellen."
+            },
+            "step3": {
+                "title": "Versteckte eingeschlossene Kandidaten anwenden",
+                "description": "Das versteckte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
+            }
+        },
+        "hidden_triple": {
+            "step1": {
+                "title": "Verstecktes Tripel finden",
+                "description": "In {{house}} können {{digits}} nur in den Zellen {{cells}} platziert werden. Diese Zellen sind für diese Ziffern 'reserviert'."
+            },
+            "step2": {
+                "title": "Aus demselben Haus eliminieren",
+                "description": "Da {{digits}} nur in {{cells}} sein können, eliminieren wir andere Kandidaten aus diesen Zellen."
+            },
+            "step3": {
+                "title": "Versteckte eingeschlossene Kandidaten anwenden",
+                "description": "Das versteckte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
+            }
+        },
+        "hidden_quadruple": {
+            "step1": {
+                "title": "Versteckter Vierer finden",
+                "description": "In {{house}} können {{digits}} nur in den Zellen {{cells}} platziert werden. Diese Zellen sind für diese Ziffern 'reserviert'."
+            },
+            "step2": {
+                "title": "Aus demselben Haus eliminieren",
+                "description": "Da {{digits}} nur in {{cells}} sein können, eliminieren wir andere Kandidaten aus diesen Zellen."
+            },
+            "step3": {
+                "title": "Versteckte eingeschlossene Kandidaten anwenden",
+                "description": "Der versteckte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
+            }
+        },
+        "pointing_candidates": {
+            "step1": {
+                "title": "Pointing Candidates finden"
+            },
+            "step2": {
+                "title": "Aus {{house}} eliminieren",
+                "description": "Eliminiere {{digit}} aus anderen Zellen in {{house}}: {{cells}}"
+            }
+        },
+        "claiming_candidates": {
+            "step1": {
+                "title": "Claiming Candidates finden"
+            },
+            "step2": {
+                "title": "Aus {{house}} eliminieren",
+                "description": "Eliminiere {{digit}} aus anderen Zellen in {{house}}: {{cells}}"
+            }
+        },
+        "bug": {
+            "step1": {
+                "title": "Das Bivalue-Muster erkennen",
+                "description": "Schauen Sie sich die ungelösten Zellen in diesem Rätsel an. Fast jede einzelne hat genau ZWEI Kandidaten. Dies ist eine ganz besondere Situation, die 'Bivalue Universal Grave' (BUG) genannt wird. Hier ist der Grund, warum das ein Problem ist: Wenn JEDE ungelöste Zelle genau zwei Kandidaten hätte, die in einem bestimmten Muster angeordnet sind, könnte man die Werte vertauschen und erhielte zwei verschiedene gültige Lösungen! Aber ein richtiges Sudoku-Rätsel hat nur EINE Lösung. Etwas muss dieses Muster also 'durchbrechen' - es muss mindestens eine Zelle geben, die anders ist."
+            },
+            "step2": {
+                "title": "Die Ausnahmezelle finden",
+                "description": "Schauen Sie sich nun {{cell}} an - diese Zelle ist besonders! Während alle anderen ungelösten Zellen genau zwei Kandidaten haben, hat diese DREI (oder mehr). Dies ist das '+1' in BUG+1. Dieser zusätzliche Kandidat ist der Schlüssel zur Lösung des Rätsels. Wenn wir diesen zusätzlichen Kandidaten entfernen würden, hätten wir das tödliche BUG-Muster mit mehreren Lösungen. Daher MUSS der zusätzliche Kandidat der wahre Wert dieser Zelle sein!"
+            },
+            "step3": {
+                "title": "Das BUG verhindern",
+                "description": "Um das BUG zu vermeiden (was mehrere Lösungen bedeuten würde), müssen wir die Kandidaten eliminieren, die das tödliche Muster vervollständigen würden. Entferne {{digits}} aus {{cell}}. Der verbleibende Kandidat ist die Lösung für diese Zelle."
+            }
+        },
+        "aic": {
+            "step1": {
+                "title": "Die Kette finden",
+                "description": "Eine Alternating Inference Chain (AIC) verbindet Kandidaten in einer logischen Folge. Denken Sie an eine Kette von Dominosteinen, bei der jedes Teil das nächste beeinflusst. Diese Kette hat {{nodeCount}} Glieder, beginnt bei {{startDesc}} und endet bei {{endDesc}}. Die Kette wechselt zwischen zwei Arten von Verbindungen: • **Starke Verbindungen** (durchgehende Linien): 'Wenn dies FALSCH ist, dann muss jenes WAHR sein' • **Schwache Verbindungen** (gestrichelte Linien): 'Wenn dies WAHR ist, dann muss jenes FALSCH sein'. Indem wir der Kette folgen, können wir beweisen, dass bestimmte Kandidaten eliminiert werden müssen."
+            },
+            "step2": {
+                "title": "Der Logik folgen",
+                "description": "Folgen wir der Kette Schritt für Schritt:\n\n{{chainSteps}}\n\nDie Endpunkte der Kette sind entscheidend - jede Zelle, die beide Endpunkte 'sieht', kann den Zielkandidaten nicht enthalten."
+            },
+            "step3": {
+                "title": "Die Eliminierung vornehmen",
+                "description": "Die Kette beweist, dass {{digits}} nicht in {{cells}} sein können. Warum? Weil die Endpunkte der Kette eine 'Falle' bilden: Egal welcher Endpunkt wahr ist, die Eliminierungszelle würde eine Zelle sehen, die den Kandidaten hat. Entferne {{digits}} aus: {{cells}}."
+            }
+        },
+        "als": {
+            "step1": {
+                "title": "Almost Locked Sets verstehen",
+                "description": "Ein **Almost Locked Set** (ALS) ist eine Gruppe von Zellen, die 'fast' gelöst ist. Hier ist die Kernidee: Wenn man N Zellen hat, die genau N+1 verschiedene Kandidaten enthalten, dann würde das Entfernen von nur EINEM Kandidaten die verbleibenden Kandidaten in diesen Zellen 'einschließen'. Zum Beispiel: 3 Zellen mit den Kandidaten {1,2,3,4} = fast eingeschlossen. Entfernt man eine beliebige Ziffer, MÜSSEN die anderen 3 Ziffern in diese 3 Zellen. Diese {{alsType}}-Technik verwendet {{numALS}} Almost Locked Sets, die sich 'Verbindungsziffern' teilen - Ziffern, die nur in dem einen oder dem anderen ALS sein können und sie so miteinander verbinden."
+            }
+        },
+        "als_identify": {
+            "step1": {
+                "description": "Schauen Sie sich {{alsName}} an: {{cellCount}} Zellen ({{cells}}) mit {{digitCount}} Kandidaten {{{digits}}}. Dies sind {{cellCount}} Zellen mit {{digitCount}} Kandidaten - das ist 'fast eingeschlossen', weil {{digitCount}} = {{cellCount}} + 1."
+            }
+        },
+        "als_connecting": {
+            "step1": {
+                "title": "Die Verbindungsziffern finden",
+                "description": "Die ALS sind durch **gemeinsame Ziffern** verbunden, die nur in dem einen oder dem anderen ALS erscheinen können:\n\n{{connections}}\n\nDiese 'Verbindungsziffern' fungieren wie Brücken - wenn die Ziffer in einem ALS verwendet wird, ist sie aus dem anderen ALS ausgeschlossen, was dann die verbleibenden Ziffern dort einsperrt."
+            }
+        },
+        "als_elimination": {
+            "step1": {
+                "title": "Die Eliminierung vornehmen",
+                "description": "Nun zum Ergebnis! Schauen Sie sich die Ziffer(n) {{digits}} an. Aufgrund der Art und Weise, wie die ALS verbunden sind, müssen {{digits}} in einer der ALS-Zellen landen. Jede Zelle, die ALLE Stellen 'sehen' kann, an denen {{digits}} in BEIDEN ALS sein könnten, kann {{digits}} nicht enthalten - es gäbe immer einen Konflikt. Entferne {{digits}} aus: {{cells}}."
+            }
+        },
+        "x_cycle": {
+            "step1": {
+                "title": "Den X-Zyklus finden",
+                "description": "Ein X-Zyklus ist eine Kette von Zellen, die zu ihrem Ausgangspunkt zurückkehrt. Dieser Zyklus hat {{cycleSize}} Knoten und betrifft die Ziffer {{digit}} in den Zellen: {{cells}}. Der Schlüssel ist, dass die Kette zwischen 'starken Verbindungen' (durchgehende Linien) und 'schwachen Verbindungen' (gestrichelte Linien) abwechselt. Starke Verbindung = wenn eine falsch ist, muss die andere wahr sein. Schwache Verbindung = beide können nicht gleichzeitig wahr sein. Da die Kette eine vollständige Schleife bildet, müssen bestimmte Kandidaten eliminiert werden, um einen Widerspruch zu vermeiden."
+            },
+            "step2": {
+                "title": "Die Zyklus-Logik verstehen"
+            },
+            "step3": {
+                "title": "Aus Zellen eliminieren, die beide Farben sehen",
+                "description": "Die Zelle(n) bei {{cells}} können Knoten beider 'Farben' im Zyklus sehen. Da eine Farbe wahr sein muss, würden diese Zellen immer in Konflikt geraten. Entferne {{digit}} aus: {{cells}}."
+            }
+        },
+        "x_cycle_nice_loop": {
+            "step1": {
+                "description": "Dies ist ein 'Nice Loop' (gerade Anzahl von Knoten). In einem Nice Loop können wir die Knoten abwechselnd einfärben - nennen wir sie 'Grün' und 'Gelb'. Entweder alle grünen Knoten hätten {{digit}} ODER alle gelben Knoten hätten {{digit}}. Jede Zelle, die SOWOHL einen grünen ALS AUCH einen gelben Knoten sehen kann, kann {{digit}} nicht enthalten - egal welche Farbe wahr ist, diese Zelle würde mit ihr in Konflikt geraten."
+            }
+        },
+        "x_cycle_discontinuous": {
+            "step1": {
+                "description": "Dies ist ein 'Discontinuous Loop' (ungerade Anzahl von Knoten). Bei einem ungeraden Zyklus muss etwas 'brechen' - wir finden einen Widerspruch. Der Kettenlogik folgend können wir beweisen, dass bestimmte Kandidaten eliminiert werden müssen, da ihre Beibehaltung eine unmögliche Situation schaffen würde."
+            }
+        },
+        "simple_coloring": {
+            "step1": {
+                "title": "Simple Coloring verstehen",
+                "description": "Simple Coloring arbeitet mit einer einzelnen Ziffer ({{digit}}). Hier ist die Idee: Finden Sie alle 'starken Verbindungen' für die Ziffer {{digit}}. Eine starke Verbindung existiert, wenn {{digit}} in genau zwei Zellen einer Zeile, Spalte oder eines Blocks erscheint - wenn eine falsch ist, muss die andere wahr sein. Färben Sie nun diese Zellen abwechselnd - beginnen Sie mit 'Grün', verbundene Zellen werden 'Gelb', deren Verbindungen wieder 'Grün' und so weiter. Wir haben {{greenCount}} grüne Zellen und {{yellowCount}} gelbe Zellen. Entweder haben ALLE grünen Zellen die {{digit}} ODER ALLE gelben Zellen."
+            }
+        },
+        "3d_medusa": {
+            "step1": {
+                "title": "3D Medusa Coloring verstehen",
+                "description": "3D Medusa erweitert das Coloring auf mehrere Ziffern. Hier ist die Idee: Beginnen Sie mit einem beliebigen Kandidaten und nennen Sie ihn 'Grün'. Jeder durch eine starke Verbindung verbundene Kandidat erhält die entgegengesetzte Farbe ('Gelb'). Starke Verbindungen existieren, wenn: • Eine Ziffer nur zweimal in einer Zeile, Spalte oder einem Block erscheint • Eine Zelle nur zwei Kandidaten hat (Bivalue-Zelle). Wir färben {{greenCount}} Zellen grün und {{yellowCount}} Zellen gelb. Eine ganze Farbgruppe ist WAHR, die andere ist FALSCH - wir wissen nur noch nicht, welche."
+            }
+        },
+        "coloring": {
+            "step2": {
+                "title": "Farbfallen und Farbwickel finden",
+                "description": "Nun suchen wir nach Widersprüchen oder 'Fallen': **Farbfalle (Color Trap)**: Wenn eine nicht gefärbte Zelle sowohl eine grüne als auch eine gelbe Zelle sehen kann (in derselben Zeile, Spalte oder demselben Block), kann diese Zelle die Ziffer nicht enthalten. Warum? Weil eine dieser Farben wahr sein muss und jede die Ziffer aus dieser Zelle eliminieren würde. **Farbwickel (Color Wrap)**: Wenn zwei Zellen der GLEICHEN Farbe einander sehen können, ist diese Farbe unmöglich! Sie können nicht beide die Ziffer enthalten. Also muss die ANDERE Farbe komplett wahr sein."
+            },
+            "step3": {
+                "title": "Die Eliminierung vornehmen",
+                "description": "Basierend auf der Coloring-Analyse: Die Zelle(n) bei {{cells}} sehen entweder beide Farben (Color Trap) oder sind Teil einer Farbe, die sich selbst widerspricht (Color Wrap). Entferne die Kandidaten aus: {{cells}}."
+            }
+        },
+        "generic": {
+            "step1": {
+                "title": "{{technique}}",
+                "description": "Diese Technik wird **{{technique}}** genannt. Sie nutzt logische Schlussfolgerungen, um zu beweisen, dass bestimmte Kandidaten eliminiert werden müssen oder dass bestimmte Zellen spezifische Werte haben müssen. Das Muster umfasst die hervorgehobenen Zellen und Kandidaten."
+            },
+            "step2": {
+                "title": "Eliminierungen anwenden",
+                "description": "Basierend auf dem Muster können wir eliminieren: Entferne {{digits}} aus {{cells}}."
+            },
+            "step3": {
+                "title": "Werte setzen",
+                "description": "Die Technik offenbart diese Lösungen:\n\n{{solutions}}"
+            }
+        },
+        "unique_rectangle": {
+            "step1": {
+                "title": "Das tödliche Muster erkennen",
+                "description": "Schauen Sie sich diese vier Zellen an, die ein Rechteck bilden: {{cells}}. Sie erstrecken sich über genau zwei Zeilen, zwei Spalten und zwei Blöcke. Beachten Sie, dass sie alle die Kandidaten {{digits}} enthalten. Hier ist das Problem: Wenn diese vier Zellen NUR {{digits}} als Kandidaten hätten, könnte man die Ziffern zwischen den diagonalen Ecken vertauschen und hätte immer noch eine gültige Lösung! Das bedeutet, das Rätsel hätte ZWEI Lösungen - was bei einem richtigen Sudoku nicht erlaubt ist. Dieses verbotene Muster wird 'tödliches Muster' oder 'Unique Rectangle' genannt."
+            },
+            "step3": {
+                "title": "Die Eliminierung vornehmen"
+            }
+        },
+        "unique_rectangle_type1": {
+            "step1": {
+                "title": "Typ {{type}} verstehen",
+                "description": "Dies ist Typ 1 - der einfachste Fall. Drei Ecken des Rechtecks haben nur {{digits}}, aber {{extraCell}} hat einen zusätzlichen Kandidaten. Überlegen Sie mal: Wenn {{extraCell}} nur {{digits}} wie die anderen hätte, hätten wir das tödliche Muster. Also MUSS der zusätzliche Kandidat der wahre Wert dieser Zelle sein! Wir können {{digits}} sicher aus {{extraCell}} entfernen."
+            }
+        },
+        "unique_rectangle_type2": {
+            "step1": {
+                "title": "Typ {{type}} verstehen",
+                "description": "Dies ist Typ 2 - zwei Ecken teilen sich denselben zusätzlichen Kandidaten ({{extraDigit}}). Diese beiden Zellen liegen an gegenüberliegenden Ecken des Rechtecks. Da das tödliche Muster nicht existieren kann, muss mindestens eine dieser Ecken {{extraDigit}} sein. Jede Zelle, die BEIDE Ecken sehen kann, kann {{extraDigit}} nicht enthalten."
+            }
+        },
+        "unique_rectangle_type3": {
+            "step1": {
+                "title": "Typ {{type}} verstehen",
+                "description": "Dies ist Typ 3 - zwei Ecken haben zusätzliche Kandidaten, die mit benachbarten Zellen ein 'nacktes Subset' bilden. Die zusätzlichen Kandidaten in den UR-Ecken erzwingen zusammen mit anderen Zellen in demselben Haus bestimmte Eliminierungen. Das tödliche Muster wird vermieden, weil die Subset-Logik garantiert, dass das UR nicht vervollständigt wird."
+            }
+        },
+        "unique_rectangle_type4": {
+            "step1": {
+                "title": "Typ {{type}} verstehen",
+                "description": "Dies ist Typ 4 - eine der UR-Ziffern ({{digits}}) ist in zwei gegenüberliegenden Ecken 'eingesperrt'. Aufgrund einer starken Verbindung muss eine Ziffer in diese beiden Ecken. Das bedeutet, dass die ANDERE Ziffer nicht in diesen Ecken sein kann (sonst hätten wir das tödliche Muster). Entfernen Sie die nicht-eingesperrte Ziffer aus den eingesperrten Ecken."
+            }
+        },
+        "unique_rectangle_type5": {
+            "step1": {
+                "title": "Typ {{type}} verstehen",
+                "description": "Dies ist Typ 5 - eine diagonale starke Verbindung verhindert das tödliche Muster. Zwei gegenüberliegende Ecken sind bei einer Ziffer stark miteinander verbunden, was bedeutet, dass eine von ihnen sie haben muss. Dies bricht die Symmetrie, die das tödliche Muster ermöglichen würde."
+            }
+        },
+        "unique_rectangle_type6": {
+            "step1": {
+                "title": "Typ {{type}} verstehen",
+                "description": "Dies ist Typ 6 - beide Diagonalen haben starke Verbindungen bei derselben Ziffer. Diese doppelte Sperre bei einer Ziffer bedeutet, dass sie in genau zwei gegenüberliegenden Ecken erscheinen muss, was die andere Ziffer aus diesen Ecken verdrängt."
+            }
+        },
+        "unique_rectangle_generic": {
+            "step1": {
+                "title": "Das Muster durchbrechen",
+                "description": "Um dieses tödliche Muster zu vermeiden, müssen wir sicherstellen, dass es niemals vervollständigt werden kann. Etwas muss das Rechteck 'brechen' - entweder ein zusätzlicher Kandidat, der wahr sein muss, oder eine starke Verbindung, die eine Ziffer in bestimmte Ecken zwingt."
+            }
+        },
+        "unique_rectangle_elim_type1": {
+            "step1": {
+                "description": "Entferne {{digits}} von {{cells}}. Der zusätzliche Kandidat in dieser Zelle muss sein wahrer Wert sein, um das tödliche Muster zu verhindern."
+            }
+        },
+        "unique_rectangle_elim_type2": {
+            "step1": {
+                "description": "Entferne {{digits}} von {{cells}}. Diese Zellen sehen beide UR-Ecken, die sich den zusätzlichen Kandidaten teilen."
+            }
+        },
+        "empty_rectangle": {
+            "step1": {
+                "title": "Das leere Rechteck (Empty Rectangle) finden",
+                "description": "Schauen Sie sich den Block {{box}} an. Der Kandidat {{digit}} erscheint nur in einem 'L-förmigen' oder 'abgeknickten' Muster - er fehlt in mindestens einer Zeile UND einer Spalte innerhalb des Blocks. Dies erzeugt ein 'leeres Rechteck' - die leere Zeile und Spalte bilden ein Kreuz innerhalb des Blocks, und alle {{digit}}-Kandidaten befinden sich in den Ecken dieses Kreuzes. Die Zellen mit {{digit}} sind: {{cells}}."
+            },
+            "step2": {
+                "title": "Mit der starken Verbindung verbinden",
+                "description": "Schauen Sie nun außerhalb des Blocks. Es gibt eine 'starke Verbindung' (durchgehende Linie) bei {{digit}} in {{conjugateCells}}. Eine starke Verbindung bedeutet: Wenn ein Ende falsch ist, MUSS das andere wahr sein. Ein Ende dieser starken Verbindung ist über eine gemeinsame Zeile oder Spalte mit dem leeren Rechteck verbunden. Dies erzeugt eine Logikkette: Wenn das ferne Ende der starken Verbindung wahr ist, eliminiert es {{digit}} vom Schnittpunkt im Block, was dann {{digit}} an eine andere Position im ER zwingt."
+            },
+            "step3": {
+                "title": "Die Eliminierung vornehmen",
+                "description": "Hier ist die entscheidende Erkenntnis: Die Eliminierungszelle ({{cells}}) kann beide Enden unserer Kette sehen - sie sieht ein Ende der starken Verbindung UND sie sieht, wohin {{digit}} im leeren Rechteck gezwungen würde. Egal in welche Richtung die Logik geht, {{digit}} wird in einer Zelle landen, die {{cells}} sieht. Also kann {{digit}} nicht in {{cells}} sein. Entferne {{digit}} aus: {{cells}}."
+            }
+        },
+        "x_wing": {
+            "step1": {
+                "title": "Das X-Wing-Muster identifizieren"
+            },
+            "step2": {
+                "title": "Aus Abdeck-{{coverTypeText}} eliminieren",
+                "description": "Da {{digit}} in {{baseNames}} eingeschlossen ist (im Basis-{{baseTypeText}} hervorgehoben), müssen alle anderen {{digit}}-Kandidaten in {{coverNames}} falsch sein. Eliminiere {{digit}} aus Zellen im Abdeck-{{coverTypeText}}, die nicht Teil des Musters sind."
+            },
+            "step3": {
+                "title": "Kandidat {{digit}} entfernen",
+                "description": "Entferne {{digit}} aus: {{cells}}. Diese Zellen sehen das Fisch-Muster und können {{digit}} nicht enthalten."
+            }
+        },
+        "swordfish": {
+            "step1": {
+                "title": "Das Swordfish-Muster identifizieren",
+                "description": "In {{baseNames}} erscheint die Ziffer {{digit}} in genau drei {{baseTypeText}}. Diese Kandidaten richten sich über drei {{coverTypeText}} aus: {{coverNames}}. Das Swordfish-Muster schließt {{digit}} in diese Basis-{{baseTypeText}} ein."
+            },
+            "step2": {
+                "title": "Aus Abdeck-{{coverTypeText}} eliminieren",
+                "description": "Da {{digit}} in {{baseNames}} eingeschlossen ist (im Basis-{{baseTypeText}} hervorgehoben), müssen alle anderen {{digit}}-Kandidaten in {{coverNames}} falsch sein. Eliminiere {{digit}} aus Zellen im Abdeck-{{coverTypeText}}, die nicht Teil des Musters sind."
+            },
+            "step3": {
+                "title": "Kandidat {{digit}} entfernen",
+                "description": "Entferne {{digit}} aus: {{cells}}. Diese Zellen sehen das Fisch-Muster und können {{digit}} nicht enthalten."
+            }
+        },
+        "jellyfish": {
+            "step1": {
+                "title": "Das Jellyfish-Muster identifizieren",
+                "description": "In {{baseNames}} erscheint die Ziffer {{digit}} in genau vier {{baseTypeText}}. Diese Kandidaten richten sich über vier {{coverTypeText}} aus: {{coverNames}}. Das Jellyfish-Muster schließt {{digit}} in diese Basis-{{baseTypeText}} ein."
+            },
+            "step2": {
+                "title": "Aus Abdeck-{{coverTypeText}} eliminieren",
+                "description": "Da {{digit}} in {{baseNames}} eingeschlossen ist (im Basis-{{baseTypeText}} hervorgehoben), müssen alle anderen {{digit}}-Kandidaten in {{coverNames}} falsch sein. Eliminiere {{digit}} aus Zellen im Abdeck-{{coverTypeText}}, die nicht Teil des Musters sind."
+            },
+            "step3": {
+                "title": "Kandidat {{digit}} entfernen",
+                "description": "Entferne {{digit}} aus: {{cells}}. Diese Zellen sehen das Fisch-Muster und können {{digit}} nicht enthalten."
+            }
+        },
+        "basic_fish": {
+            "step1": {
+                "title": "Das Muster identifizieren",
+                "description": "Ziffer {{digit}} Kandidaten richten sich an Basis-{{baseTypeText}} ({{baseNames}}) and Abdeck-{{coverTypeText}} ({{coverNames}}) aus, um dieses Muster zu bilden."
+            },
+            "step2": {
+                "title": "Aus Abdeck-{{coverTypeText}} eliminieren",
+                "description": "Da {{digit}} in {{baseNames}} eingeschlossen ist (im Basis-{{baseTypeText}} hervorgehoben), müssen alle anderen {{digit}}-Kandidaten in {{coverNames}} falsch sein. Eliminiere {{digit}} aus Zellen im Abdeck-{{coverTypeText}}, die nicht Teil des Musters sind."
+            },
+            "step3": {
+                "title": "Kandidat {{digit}} entfernen",
+                "description": "Entferne {{digit}} aus: {{cells}}. Diese Zellen sehen das Fisch-Muster und können {{digit}} nicht enthalten."
+            }
+        },
+        "skyscraper": {
+            "step1": {
+                "title": "Die zwei starken Verbindungen finden",
+                "description": "Ein Wolkenkratzer (Skyscraper) ist ein Muster mit zwei **starken Verbindungen** bei derselben Ziffer. Schauen Sie sich {{baseNamesText}} an. In jedem dieser {{baseTypeText}} erscheint die Ziffer {{digit}} in genau ZWEI Zellen. Das ist eine starke Verbindung - wenn eine Zelle {{digit}} nicht hat, MUSS die andere sie haben. Die zwei starken Verbindungen sind verbunden: Ein Ende jeder starken Verbindung teilt sich dieselbe Spalte (oder Zeile). Die anderen Enden - das 'Dach' des Wolkenkratzers (in Gelb gezeigt) - sind die Schlüsselzellen."
+            },
+            "step2": {
+                "title": "Der Logik folgen",
+                "description": "Hier ist der Grund, warum der Wolkenkratzer funktioniert: Die verbundenen Enden der beiden starken Verbindungen liegen in derselben Spalte/Zeile. Wenn {{digit}} NICHT in einer der verbundenen Zellen ist, erzwingt die starke Verbindung sie in der Partnerzelle. Aber dieser Partner ist die 'Dach'-Zelle! Egal was passiert: Entweder ist {{digit}} in der einen Dach-Zelle oder in der anderen Dach-Zelle (oder möglicherweise in beiden). Eine der Dach-Zellen MUSS die {{digit}} haben."
+            },
+            "step3": {
+                "title": "Aus Zellen eliminieren, die beide Dächer sehen",
+                "description": "Jede Zelle, die BEIDE Dach-Zellen sehen kann, kann {{digit}} nicht enthalten. Warum? Weil eine der Dach-Zellen {{digit}} haben muss, und das würde {{digit}} aus jeder Zelle eliminieren, die sie sieht. Da die Eliminierungszelle beide Dach-Zellen sieht, wird sie immer eliminiert. Entferne {{digit}} aus: {{cells}}."
+            }
+        },
+        "finned_fish": {
+            "step1": {
+                "title": "Das gefinnte Muster finden",
+                "description": "Dies ist ein **gefinnter {{fishType}}**. Beginnen wir mit dem Grundmuster: Schauen Sie sich {{baseNames}} an. In einem normalen {{fishType}} würde die Ziffer {{digit}} nur in Zellen erscheinen, die sich an {{coverNames}} ausrichten. Aber hier gibt es eine zusätzliche Zelle (oder Zellen), die nicht passt - das ist die 'Finne'. Die Finne befindet sich bei: {{finCells}} (in Gelb gezeigt)."
+            },
+            "step2": {
+                "title": "Den Effekt der Finne verstehen"
+            },
+            "step3": {
+                "title": "Eliminieren, wo Finne und Fisch aufeinandertreffen"
+            }
+        },
+        "sashimi_fish": {
+            "step1": {
+                "title": "Das gefinnte Muster finden",
+                "description": "Dies ist ein **gefinnter {{fishType}}**. Beginnen wir mit dem Grundmuster: Schauen Sie sich {{baseNames}} an. In einem normalen {{fishType}} würde die Ziffer {{digit}} nur in Zellen erscheinen, die sich an {{coverNames}} ausrichten. Aber hier gibt es eine zusätzliche Zelle (oder Zellen), die nicht passt - das ist die 'Sashimi-Finne'. Die Finne befindet sich bei: {{finCells}} (in Gelb gezeigt). In einer Sashimi-Variante wäre der Fisch ohne die Finne unvollständig - die Finne 'füllt' eigentlich eine fehlende Basiszelle aus."
+            }
+        },
+        "xy_wing": {
+            "step1": {
+                "title": "Das {{wingType}}-Muster finden",
+                "description": "Schauen Sie sich die gelbe Zelle bei {{pivotName}} an - sie wird 'Scharnier' (pivot) genannt und hat genau zwei Kandidaten. Schauen Sie sich nun die zwei grünen Zellen bei {{pincerNamesText}} an - das sind die 'Zangen' (pincers). Jede Zange teilt sich einen Kandidaten mit dem Scharnier, aber beide haben {{targetDigitText}} gemeinsam. Der Schlüssel: Egal welcher Kandidat im Scharnier steht, eine der Zangen MUSS am Ende {{targetDigitText}} enthalten."
+            },
+            "step2": {
+                "title": "Verstehen, warum es funktioniert",
+                "description": "Da eine Zange {{targetDigitText}} haben MUSS, kann jede Zelle, die BEIDE Zangen sehen kann, {{targetDigitText}} nicht enthalten. Sie würde mit der Zange kollidieren, die am Ende diese Ziffer erhält. Die durchgehende Linie zeigt, dass eine Zange für {{targetDigitText}} wahr sein muss."
+            },
+            "step3": {
+                "title": "{{digit}} aus Zellen entfernen, die das Muster sehen"
+            }
+        },
+        "xyz_wing": {
+            "step1": {
+                "title": "Das {{wingType}}-Muster finden",
+                "description": "Schauen Sie sich die gelbe Zelle bei {{pivotName}} an - sie hat drei Kandidaten: {{wingDigitText}}. Die zwei grünen Zellen bei {{pincerNamesText}} teilen sich jeweils zwei dieser Kandidaten mit dem Scharnier. Die Ziffer {{targetDigitText}} erscheint in ALLEN drei Zellen. Da jedes Ergebnis die {{targetDigitText}} in eine dieser Zellen zwingt, kann jede Zelle, die alle drei sehen kann, {{targetDigitText}} nicht enthalten."
+            },
+            "step2": {
+                "title": "Verstehen, warum es funktioniert",
+                "description": "Die drei Zellen bilden eine 'geschlossene Gruppe' für {{targetDigitText}}. Egal was passiert, {{targetDigitText}} wird in einer von ihnen landen. Jede Zelle, die alle drei sieht, ist davon ausgeschlossen, {{targetDigitText}} zu haben."
+            },
+            "step3": {
+                "title": "{{digit}} aus Zellen entfernen, die das Muster sehen"
+            }
+        },
+        "wxyz_wing": {
+            "step1": {
+                "title": "Das {{wingType}}-Muster finden",
+                "description": "Dieses Muster verwendet vier Zellen, die zusammen vier verschiedene Kandidaten enthalten. Die Ziffer {{targetDigitText}} ist besonders - sie erscheint auf eine Weise, die garantiert, dass eine dieser Zellen sie haben wird. Denken Sie an die Reise nach Jerusalem: {{targetDigitText}} muss irgendwo in dieser Gruppe sitzen."
+            },
+            "step2": {
+                "title": "Verstehen, warum es funktioniert",
+                "description": "Die vier Zellen 'sperren' {{targetDigitText}} innerhalb ihrer Gruppe ein. Jede Zelle außerhalb, die alle vier sehen kann, muss auf {{targetDigitText}} verzichten."
+            },
+            "step3": {
+                "title": "{{digit}} aus Zellen entfernen, die das Muster sehen"
+            }
+        },
+        "w_wing": {
+            "step1": {
+                "title": "Das {{wingType}}-Muster finden",
+                "description": "Schauen Sie sich die zwei grünen Zellen bei {{pincerNamesText}} an. Sie haben beide dieselben zwei Kandidaten. Diese Zellen sind durch eine 'starke Verbindung' (als durchgehende Linie gezeigt) bei einer dieser Ziffern verbunden. Das bedeutet: Wenn die Verbindungsziffer aus einer Zelle entfernt wird, MUSS die andere Zelle sie haben. In jedem Fall wird eine dieser Zellen {{targetDigitText}} haben."
+            },
+            "step2": {
+                "title": "Verstehen, warum es funktioniert",
+                "description": "Da die beiden Zellen durch eine starke Verbindung verbunden sind, ist ihr 'anderer' Kandidat ({{targetDigitText}}) eingeschränkt. Jede Zelle, die beide grünen Zellen sieht, würde mit derjenigen kollidieren, die am Ende {{targetDigitText}} erhält."
+            },
+            "step3": {
+                "title": "{{digit}} aus Zellen entfernen, die das Muster sehen"
+            }
+        },
+        "generic_wing": {
+            "step1": {
+                "title": "Das {{wingType}}-Muster finden",
+                "description": "Dieses {{wingType}}-Muster verbindet Zellen so, dass {{targetDigitText}} an bestimmten Stellen erscheinen muss."
+            },
+            "step2": {
+                "title": "Verstehen, warum es funktioniert",
+                "description": "Das Muster garantiert, dass {{targetDigitText}} in einer der hervorgehobenen Zellen erscheint, wodurch sie woanders blockiert wird."
+            },
+            "step3": {
+                "title": "{{digit}} aus Zellen entfernen, die das Muster sehen"
+            }
+        },
+        "kite": {
+            "step1": {
+                "title": "Das Drachen-Muster (Kite) finden",
+                "description": "Schauen Sie sich die zwei grünen {{digit}}-Kandidaten bei {{kiteNames}} an. Dies sind die Endpunkte des Drachens. Sie sind über {{coverNames}} verbunden, das zwei weitere {{digit}}-Kandidaten enthält (in Gelb gezeigt). Denken Sie so darüber: Eine der grünen Zellen MUSS die {{digit}} haben, aber sie können sie nicht BEIDE haben."
+            },
+            "step2": {
+                "title": "Der Kette folgen",
+                "description": "Der Drachen bildet eine Kette: {{chain}}. Die durchgehenden Linien zeigen starke Verbindungen an, die gestrichelte Linie eine schwache Verbindung. Egal welche grüne Zelle die {{digit}} hat, die schwache Verbindung stellt sicher, dass mindestens eine der gelben Zellen im Block sie haben wird. Jede Zelle, die BEIDE grünen Zellen bei {{kiteNames}} sehen kann, kann {{digit}} nicht enthalten."
+            },
+            "step3": {
+                "title": "Die Eliminierung vornehmen",
+                "description": "Da {{cells}} beide grünen Zellen sehen kann, wissen wir, dass {{digit}} dort nicht stehen kann. Eliminiere {{digit}} aus: {{cells}}."
+            }
+        }
     },
-    "toasts": {
-      "wrongNumber": "Wrong number!",
-      "wrongCandidate": "Wrong candidate removed!"
+    "backend": {
+        "techniques": {
+            "NAKED_SINGLE": "Nur ein Kandidat passt in diese Zelle, also setzen Sie ihn.",
+            "NAKED_SINGLES": "Nur ein Kandidat passt in diese Zelle, also setzen Sie ihn.",
+            "HIDDEN_SINGLE": "Eine Ziffer erscheint nur in einer Zelle eines Hauses und erzwingt ihre Platzierung.",
+            "HIDDEN_SINGLES": "Eine Ziffer erscheint nur in einer Zelle eines Hauses und erzwingt ihre Platzierung.",
+            "POINTING_CANDIDATES": "Eine Ziffer ist in einer Zeile eines Blocks gesperrt, so dass sie aus dieser Zeile außerhalb des Blocks entfernt werden kann.",
+            "POINTING_PAIRS": "Eine Ziffer ist in einer Zeile eines Blocks gesperrt, so dass sie aus dieser Zeile außerhalb des Blocks entfernt werden kann.",
+            "CLAIMING_CANDIDATES": "Eine Ziffer ist in einem Block einer Zeile gesperrt, so dass sie aus diesem Block außerhalb der Zeile entfernt werden kann.",
+            "BOX_LINE_REDUCTION": "Eine Ziffer ist in einem Block einer Zeile gesperrt, so dass sie aus diesem Block außerhalb der Zeile entfernt werden kann.",
+            "NAKED_PAIR": "Zwei Zellen in einem Haus enthalten genau die gleichen zwei Kandidaten; sie beanspruchen diese Ziffern.",
+            "NAKED_PAIRS": "Zwei Zellen in einem Haus enthalten genau die gleichen zwei Kandidaten; sie beanspruchen diese Ziffern.",
+            "LOCKED_PAIR": "Zwei Zellen in einem Haus enthalten genau die gleichen zwei Kandidaten; sie beanspruchen diese Ziffern.",
+            "LOCKED_PAIRS": "Zwei Zellen in einem Haus enthalten genau die gleichen zwei Kandidaten; sie beanspruchen diese Ziffern.",
+            "NAKED_TRIPLE": "Drei Zellen in einem Haus enthalten genau die gleichen drei Kandidaten; sie beanspruchen diese Ziffern.",
+            "LOCKED_TRIPLES": "Drei Zellen in einem Haus enthalten genau die gleichen drei Kandidaten; sie beanspruchen diese Ziffern.",
+            "NAKED_TRIPLES": "Drei Zellen in einem Haus enthalten genau die gleichen drei Kandidaten; sie beanspruchen diese Ziffern.",
+            "NAKED_QUADRUPLE": "Vier Zellen in einem Haus enthalten genau die gleichen vier Kandidaten; sie beanspruchen diese Ziffern.",
+            "LOCKED_QUADRUPLES": "Vier Zellen in einem Haus enthalten genau die gleichen vier Kandidaten; sie beanspruchen diese Ziffern.",
+            "NAKED_QUADRUPLES": "Vier Zellen in einem Haus enthalten genau die gleichen vier Kandidaten; sie beanspruchen diese Ziffern.",
+            "HIDDEN_PAIR": "Zwei Ziffern können nur in zwei Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
+            "HIDDEN_PAIRS": "Zwei Ziffern können nur in zwei Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
+            "HIDDEN_TRIPLE": "Drei Ziffern können nur in drei Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
+            "HIDDEN_TRIPLES": "Drei Ziffern können nur in drei Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
+            "HIDDEN_QUADRUPLE": "Vier Ziffern können nur in vier Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
+            "HIDDEN_QUADRUPLES": "Vier Ziffern können nur in vier Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
+            "X_WING_FISH": "Zeilen und Spalten bilden ein X-Wing, so dass eine Ziffer aus den abdeckenden Linien eliminiert werden kann.",
+            "X_WING": "Zeilen und Spalten bilden ein X-Wing, so dass eine Ziffer aus den abdeckenden Linien eliminiert werden kann.",
+            "SKYSCRAPER_FISH": "Zwei starke Verbindungen auf einer Ziffer bilden einen Wolkenkratzer, der Eliminierungen in den gemeinsamen Spalten/Zeilen ermöglicht.",
+            "SKYSCRAPER": "Zwei starke Verbindungen auf einer Ziffer bilden einen Wolkenkratzer, der Eliminierungen in den gemeinsamen Spalten/Zeilen ermöglicht.",
+            "TWO_STRING_KITE_FISH": "Ein Zwei-Schnur-Drachen verwendet 2 starke Verbindungen mit einer schwachen Verbindung im selben Block, um einen Kandidaten an der Schnittstelle zwischen den beiden starken Verbindungen zu eliminieren.",
+            "2_STRING_KITE": "Ein Zwei-Schnur-Drachen verwendet 2 starke Verbindungen mit einer schwachen Verbindung im selben Block, um einen Kandidaten an der Schnittstelle zwischen den beiden starken Verbindungen zu eliminieren.",
+            "2_STRING_KITE_FISH": "Ein Zwei-Schnur-Drachen verwendet 2 starke Verbindungen mit einer schwachen Verbindung im selben Block, um einen Kandidaten an der Schnittstelle zwischen den beiden starken Verbindungen zu eliminieren.",
+            "FINNED_X_WING_FISH": "Ein X-Wing mit einer Finne; Zellen, die die Finne sehen, können diese Ziffer verlieren.",
+            "FINNED_X_WING": "Ein X-Wing mit einer Finne; Zellen, die die Finne sehen, können diese Ziffer verlieren.",
+            "SASHIMI_X_WING_FISH": "Ein Sashimi-X-Wing hat eine Finne plus eine fehlende Basis; Zellen, die die Finne sehen, können eliminiert werden.",
+            "SASHIMI_X_WING": "Ein Sashimi-X-Wing hat eine Finne plus eine fehlende Basis; Zellen, die die Finne sehen, können eliminiert werden.",
+            "SWORDFISH_FISH": "Drei Linien richten Kandidaten in drei Spalten/Zeilen aus, was Eliminierungen ermöglicht (Schwertfisch).",
+            "SWORDFISH": "Drei Linien richten Kandidaten in drei Spalten/Zeilen aus, was einer Eliminierung ermöglicht (Schwertfisch).",
+            "FINNED_SWORDFISH_FISH": "Ein Schwertfisch mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
+            "FINNED_SWORDFISH": "Ein Schwertfisch mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
+            "JELLYFISH_FISH": "Vier Linien richten Kandidaten in vier Spalten/Zeilen aus, was Eliminierungen ermöglicht (Qualle).",
+            "JELLYFISH": "Vier Linien richten Kandidaten in vier Spalten/Zeilen aus, was Eliminierungen ermöglicht (Qualle).",
+            "FINNED_JELLYFISH_FISH": "Eine Qualle mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
+            "FINNED_JELLYFISH": "Eine Qualle mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
+            "FRANKEN_X_WING_FISH": "Ein Franken-Fisch mischt Boxen und Linien, um die Basis/Abdeckung zu bilden, was Eliminierungen ermöglicht.",
+            "FRANKEN_X_WING": "Ein Franken-Fisch mischt Boxen und Linien, um die Basis/Abdeckung zu bilden, was Eliminierungen ermöglicht.",
+            "FINNED_FRANKEN_X_WING_FISH": "Ein Franken-Fisch mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
+            "FINNED_FRANKEN_X_WING": "Ein Franken-Fisch mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
+            "FINNED_MUTANT_X_WING_FISH": "Ein mutierter Fisch mit einer Finne; Eliminierungen kommen von Zellen, die die Finne sehen.",
+            "FINNED_MUTANT_X_WING": "Ein mutierter Fisch mit einer Finne; Eliminierungen kommen von Zellen, die die Finne sehen.",
+            "FRANKEN_SWORDFISH_FISH": "Eine Box-/Linien-Schwertfisch-Variante, die Eliminierungen auf den Abdeckungslinien ermöglicht.",
+            "FRANKEN_SWORDFISH": "Eine Box-/Linien-Schwertfisch-Variante, die Eliminierungen auf den Abdeckungslinien ermöglicht.",
+            "GROUPED_X_CYCLES": "Gruppierte X-Zyklen wechseln starke und schwache Verbindungen auf einer Ziffer, um Eliminierungen zu beweisen.",
+            "SIMPLE_COLOURING": "Färben Sie eine Ziffer in zwei Sätze starker Verbindungen; eine Widerspruchsfarbe wird eliminiert.",
+            "SIMPLE_COLORING": "Färben Sie eine Ziffer in zwei Sätze starker Verbindungen; eine Widerspruchsfarbe wird eliminiert.",
+            "MEDUSA_3D": "3D Medusa färbt mehrere Ziffern; Widersprüche eliminieren Kandidaten oder setzen Werte.",
+            "3D_MEDUSA": "3D Medusa färbt mehrere Ziffern; Widersprüche eliminieren Kandidaten oder setzen Werte.",
+            "THREE_D_MEDUSA": "3D Medusa färbt mehrere Ziffern; Widersprüche eliminieren Kandidaten oder setzen Werte.",
+            "UNIQUE_RECTANGLE": "Verhindern Sie ein tödliches Muster, indem Sie um ein Vier-Zellen-Rechteck herum erzwingen oder eliminieren.",
+            "UNIQUE_RECTANGLES": "Verhindern Sie ein tödliches Muster, indem Sie um ein Vier-Zellen-Rechteck herum erzwingen oder eliminieren.",
+            "BUG": "Bivalue Universal Grave: nur ein Kandidat bricht die Pattsituation; setzen oder eliminieren Sie entsprechend.",
+            "BIVALUE_UNIVERSAL_GRAVE": "Bivalue Universal Grave: nur ein Kandidat bricht die Pattsituation; setzen oder eliminieren Sie entsprechend.",
+            "Y_WING": "XY-Wing (Scharnier + zwei Zangen) eliminiert einen gemeinsamen Kandidaten, der von beiden Zangen gesehen wird.",
+            "XY_WING": "XY-Wing (Scharnier + zwei Zangen) eliminiert einen gemeinsamen Kandidaten, der von beiden Zangen gesehen wird.",
+            "XYZ_WING": "XYZ-Wing (Triade mit XYZ) entfernt Z aus Zellen, die alle drei Zellen sehen.",
+            "WXYZ_WING": "WXYZ-Wing entfernt den gemeinsamen Kandidaten von Peers aller vier Zellen.",
+            "W_WING": "W-Wing verbindet zwei übereinstimmende Bivalue-Zellen durch eine starke Verbindung und erzwingt Eliminierungen.",
+            "L_3__WING": "L-Wing mit 3 Zellen verbindet Kandidaten, um Eliminierungen zu erzwingen.",
+            "L_WING": "L-Wing verbindet Kandidaten in einem L-förmigen Muster, um Eliminierungen zu erzwingen.",
+            "EMPTY_RECTANGLE": "Ein leeres Rechteck erzwingt eine Konjugatpaar-Interaktion, um einen Kandidaten zu eliminieren.",
+            "EMPTY_RECTANGLES": "Ein leeres Rechteck erzwingt eine Konjugatpaar-Interaktion, um einen Kandidaten zu eliminieren.",
+            "X_CYCLES": "X-Zyklen wechseln starke/schwache Verbindungen auf einer Ziffer; Widersprüche entfernen Kandidaten.",
+            "X_CYCLE": "X-Zyklen wechseln starke/schwache Verbindungen auf einer Ziffer; Widersprüche entfernen Kandidaten.",
+            "XY_CHAIN": "XY-Ketten verbinden Bivalue-Zellen; die Zielziffer wird dort eliminiert, wo beide Enden sehen.",
+            "AIC": "Alternating Inference Chain beweist Eliminierungen durch abwechselnd starke/schwache Verbindungen.",
+            "AIC_TYPE_2": "Alternating Inference Chain (Typ 2) beweist Eliminierungen durch abwechselnd starke/schwache Verbindungen.",
+            "ALTERNATING_INFERENCE_CHAINS": "Alternating Inference Chain beweist Eliminierungen durch abwechselnd starke/schwache Verbindungen.",
+            "FORCING_CHAINS": "Forcing chains untersuchen beide Ergebnisse und behalten die für alle Pfade gemeinsame Deduktion bei.",
+            "RING": "Eine Ringstruktur aus starken und schwachen Verbindungen erzwingt Eliminierungen an den Verbindungspunkten.",
+            "ALMOST_LOCKED_SETS": "Almost Locked Sets verbinden sich über eingeschränkte Kandidaten, um Eliminierungen zu erzwenken.",
+            "ALS_XY": "ALS-XY verbindet zwei fast gesperrte Sätze durch einen gemeinsamen eingeschränkten Kandidaten.",
+            "ALS_XZ": "ALS-XZ verbindet zwei fast gesperrte Sätze durch gemeinsame eingeschränkte Kandidaten.",
+            "SUE_DE_COQ": "Sue-de-Coq teilt eine Box-Linien-Überlappung in disjunkte Ziffernsätze auf und erzwingt Eliminierungen.",
+            "NISHIO": "Nishio nimmt eine Ziffernplatzierung an und beschneidet Zweige, die zu einem Widerspruch führen.",
+            "AIC___ALS": "Alternating Inference Chain kombiniert mit Almost Locked Sets, um Eliminierungen zu erzwingen.",
+            "AIC_TYPE_1": "Alternating Inference Chain (Typ 1) verwendet den Wechsel von starken/schwachen Verbindungen, um Eliminierungen zu beweisen.",
+            "XY_CHAINS__TYPE_1": "XY-Chain (Typ 1) verbindet Bivalue-Zellen; die Zielziffer wird dort eliminiert, wo beide Enden sehen.",
+            "ALS_CHAIN": "ALS-Chain verbindet mehrere fast gesperrte Sätze in einer Sequenz, um Eliminierungen zu erzwingen.",
+            "SPLIT_WING": "Split-Wing verwendet ein geteiltes Muster von Kandidaten, um Eliminierungen zu erzwingen.",
+            "STRONG_WING__WINDMILL_": "Strong-Wing (Windmühle) verwendet ein Windmühlenmuster aus starken Verbindungen, um Kandidaten zu eliminieren.",
+            "INVERTED_H_3__WING": "Inverted H(3)-Wing verwendet ein invertiertes H-förmiges Muster mit 3 Zellen, um Eliminierungen zu erzwingen.",
+            "INVERTED_M_3__WING": "Inverted M(3)-Wing verwendet ein invertiertes M-förmiges Muster mit 3 Zellen, um Eliminierungen zu erzwingen.",
+            "INVERTED_L_3__WINGS": "Inverted L(3)-Wing verwendet ein invertiertes L-förmiges Muster mit 3 Zellen, um Eliminierungen zu erzwingen.",
+            "UVWXYZ_WING": "UVWXYZ-Wing (6-Zellen-Flügel) entfernt den gemeinsamen Kandidaten von Peers aller sechs Zellen.",
+            "HIDDEN_XY__TYPE_1": "Hidden XY (Typ 1) verwendet versteckte Bivalue-Zellen in einem XY-Kettenmuster, um Kandidaten zu eliminieren."
+        }
+    },
+    "domain": {
+        "difficulty": {
+            "beginner": "Anfänger",
+            "easy": "Einfach",
+            "medium": "Mittel",
+            "tough": "Schwer",
+            "hard": "Sehr schwer",
+            "expert": "Experte",
+            "diabolical": "Diabolisch",
+            "custom": "Benutzerdefiniert"
+        }
     }
-  },
-  "hints": {
-    "common": {
-      "overview": "Übersicht",
-      "eliminations": "Eliminierungen",
-      "solution": "Lösung",
-      "remove": "Entferne {{digit}} von {{cells}}",
-      "place": "Setze {{digit}} in {{cell}}",
-      "cellFormat": "Z{{row}}S{{col}}"
-    },
-    "naked_single": {
-      "step1": {
-        "title": "Nacktes Einer finden",
-        "description": "Zelle {{cell}} hat nur einen möglichen Kandidaten: {{digit}}"
-      },
-      "step2": {
-        "title": "Wert setzen und eliminieren",
-        "description": "Setze {{digit}} in {{cell}}. Eliminiere {{digit}} aus Zeile {{row}}, Spalte {{col}} und Block {{box}}: {{cells}}"
-      }
-    },
-    "hidden_single": {
-      "step1": {
-        "title": "Verstecktes Einer finden",
-        "description": "In {{house}} kann nur {{cell}} die {{digit}} sein. Daher eliminieren wir andere Kandidaten aus dieser Zelle."
-      },
-      "step2": {
-        "title": "Aus Nachbarzellen eliminieren",
-        "description": "In Zeile {{row}}, Spalte {{col}} und Block {{box}} kann {{digit}} nur in {{cell}} sein. Eliminiere {{digit}} aus: {{cells}}"
-      }
-    },
-    "naked_pair": {
-      "step1": {
-        "title": "Nacktes Paar finden",
-        "description": "Die Zellen {{cells}} in {{house}} können nur die Ziffern {{digits}} enthalten. Diese Ziffern sind in diesen Zellen 'eingeschlossen'."
-      },
-      "step2": {
-        "title": "Aus demselben Haus eliminieren",
-        "description": "Da {{digits}} nur in {{subsetCells}} sein können, eliminieren wir diese Ziffern aus {{elimCells}} in {{house}}."
-      },
-      "step3": {
-        "title": "Eingeschlossene Kandidaten anwenden",
-        "description": "Das nackte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
-      }
-    },
-    "naked_triple": {
-      "step1": {
-        "title": "Nacktes Tripel finden",
-        "description": "Die Zellen {{cells}} in {{house}} können nur die Ziffern {{digits}} enthalten. Diese Ziffern sind in diesen Zellen 'eingeschlossen'."
-      },
-      "step2": {
-        "title": "Aus demselben Haus eliminieren",
-        "description": "Da {{digits}} nur in {{subsetCells}} sein können, eliminieren wir diese Ziffern aus {{elimCells}} in {{house}}."
-      },
-      "step3": {
-        "title": "Eingeschlossene Kandidaten anwenden",
-        "description": "Das nackte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
-      }
-    },
-    "naked_quadruple": {
-      "step1": {
-        "title": "Nackter Vierer finden",
-        "description": "Die Zellen {{cells}} in {{house}} können nur die Ziffern {{digits}} enthalten. Diese Ziffern sind in diesen Zellen 'eingeschlossen'."
-      },
-      "step2": {
-        "title": "Aus demselben Haus eliminieren",
-        "description": "Da {{digits}} nur in {{subsetCells}} sein können, eliminieren wir diese Ziffern aus {{elimCells}} in {{house}}."
-      },
-      "step3": {
-        "title": "Eingeschlossene Kandidaten anwenden",
-        "description": "Der nackte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
-      }
-    },
-    "hidden_pair": {
-      "step1": {
-        "title": "Verstecktes Paar finden",
-        "description": "In {{house}} können {{digits}} nur in den Zellen {{cells}} platziert werden. Diese Zellen sind für diese Ziffern 'reserviert'."
-      },
-      "step2": {
-        "title": "Aus demselben Haus eliminieren",
-        "description": "Da {{digits}} nur in {{cells}} sein können, eliminieren wir andere Kandidaten aus diesen Zellen."
-      },
-      "step3": {
-        "title": "Versteckte eingeschlossene Kandidaten anwenden",
-        "description": "Das versteckte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
-      }
-    },
-    "hidden_triple": {
-      "step1": {
-        "title": "Verstecktes Tripel finden",
-        "description": "In {{house}} können {{digits}} nur in den Zellen {{cells}} platziert werden. Diese Zellen sind für diese Ziffern 'reserviert'."
-      },
-      "step2": {
-        "title": "Aus demselben Haus eliminieren",
-        "description": "Da {{digits}} nur in {{cells}} sein können, eliminieren wir andere Kandidaten aus diesen Zellen."
-      },
-      "step3": {
-        "title": "Versteckte eingeschlossene Kandidaten anwenden",
-        "description": "Das versteckte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
-      }
-    },
-    "hidden_quadruple": {
-      "step1": {
-        "title": "Versteckter Vierer finden",
-        "description": "In {{house}} können {{digits}} nur in den Zellen {{cells}} platziert werden. Diese Zellen sind für diese Ziffern 'reserviert'."
-      },
-      "step2": {
-        "title": "Aus demselben Haus eliminieren",
-        "description": "Da {{digits}} nur in {{cells}} sein können, eliminieren wir andere Kandidaten aus diesen Zellen."
-      },
-      "step3": {
-        "title": "Versteckte eingeschlossene Kandidaten anwenden",
-        "description": "Der versteckte {{subsetType}} schließt {{digits}} in {{house}} ein, also eliminieren wir {{digits}} aus {{cells}}."
-      }
-    },
-    "pointing_candidates": {
-      "step1": {
-        "title": "Pointing Candidates finden",
-        "description": "In {{baseHouse}} erscheint der Kandidat {{digit}} nur in Zellen, die auch zu {{coverHouse}} gehören."
-      },
-      "step2": {
-        "title": "Aus {{house}} eliminieren",
-        "description": "Eliminiere {{digit}} aus anderen Zellen in {{house}}: {{cells}}"
-      }
-    },
-    "claiming_candidates": {
-      "step1": {
-        "title": "Claiming Candidates finden",
-        "description": "In {{baseHouse}} erscheint der Kandidat {{digit}} nur in Zellen, die auch zu {{coverHouse}} gehören."
-      },
-      "step2": {
-        "title": "Aus {{house}} eliminieren",
-        "description": "Eliminiere {{digit}} aus anderen Zellen in {{house}}: {{cells}}"
-      }
-    },
-    "bug": {
-      "step1": {
-        "title": "Das Bivalue-Muster erkennen",
-        "description": "Schauen Sie sich die ungelösten Zellen in diesem Rätsel an. Fast jede einzelne hat genau ZWEI Kandidaten. Dies ist eine ganz besondere Situation, die 'Bivalue Universal Grave' (BUG) genannt wird. Hier ist der Grund, warum das ein Problem ist: Wenn JEDE ungelöste Zelle genau zwei Kandidaten hätte, die in einem bestimmten Muster angeordnet sind, könnte man die Werte vertauschen und erhielte zwei verschiedene gültige Lösungen! Aber ein richtiges Sudoku-Rätsel hat nur EINE Lösung. Etwas muss dieses Muster also 'durchbrechen' - es muss mindestens eine Zelle geben, die anders ist."
-      },
-      "step2": {
-        "title": "Die Ausnahmezelle finden",
-        "description": "Schauen Sie sich nun {{cell}} an - diese Zelle ist besonders! Während alle anderen ungelösten Zellen genau zwei Kandidaten haben, hat diese DREI (oder mehr). Dies ist das '+1' in BUG+1. Dieser zusätzliche Kandidat ist der Schlüssel zur Lösung des Rätsels. Wenn wir diesen zusätzlichen Kandidaten entfernen würden, hätten wir das tödliche BUG-Muster mit mehreren Lösungen. Daher MUSS der zusätzliche Kandidat der wahre Wert dieser Zelle sein!"
-      },
-      "step3": {
-        "title": "Das BUG verhindern",
-        "description": "Um das BUG zu vermeiden (was mehrere Lösungen bedeuten würde), müssen wir die Kandidaten eliminieren, die das tödliche Muster vervollständigen würden. Entferne {{digits}} aus {{cell}}. Der verbleibende Kandidat ist die Lösung für diese Zelle."
-      }
-    },
-    "aic": {
-      "step1": {
-        "title": "Die Kette finden",
-        "description": "Eine Alternating Inference Chain (AIC) verbindet Kandidaten in einer logischen Folge. Denken Sie an eine Kette von Dominosteinen, bei der jedes Teil das nächste beeinflusst. Diese Kette hat {{nodeCount}} Glieder, beginnt bei {{startDesc}} und endet bei {{endDesc}}. Die Kette wechselt zwischen zwei Arten von Verbindungen: • **Starke Verbindungen** (durchgehende Linien): 'Wenn dies FALSCH ist, dann muss jenes WAHR sein' • **Schwache Verbindungen** (gestrichelte Linien): 'Wenn dies WAHR ist, dann muss jenes FALSCH sein'. Indem wir der Kette folgen, können wir beweisen, dass bestimmte Kandidaten eliminiert werden müssen."
-      },
-      "step2": {
-        "title": "Der Logik folgen",
-        "description": "Folgen wir der Kette Schritt für Schritt:\n\n{{chainSteps}}\n\nDie Endpunkte der Kette sind entscheidend - jede Zelle, die beide Endpunkte 'sieht', kann den Zielkandidaten nicht enthalten."
-      },
-      "step3": {
-        "title": "Die Eliminierung vornehmen",
-        "description": "Die Kette beweist, dass {{digits}} nicht in {{cells}} sein können. Warum? Weil die Endpunkte der Kette eine 'Falle' bilden: Egal welcher Endpunkt wahr ist, die Eliminierungszelle würde eine Zelle sehen, die den Kandidaten hat. Entferne {{digits}} aus: {{cells}}."
-      }
-    },
-    "als": {
-      "step1": {
-        "title": "Almost Locked Sets verstehen",
-        "description": "Ein **Almost Locked Set** (ALS) ist eine Gruppe von Zellen, die 'fast' gelöst ist. Hier ist die Kernidee: Wenn man N Zellen hat, die genau N+1 verschiedene Kandidaten enthalten, dann würde das Entfernen von nur EINEM Kandidaten die verbleibenden Kandidaten in diesen Zellen 'einschließen'. Zum Beispiel: 3 Zellen mit den Kandidaten {1,2,3,4} = fast eingeschlossen. Entfernt man eine beliebige Ziffer, MÜSSEN die anderen 3 Ziffern in diese 3 Zellen. Diese {{alsType}}-Technik verwendet {{numALS}} Almost Locked Sets, die sich 'Verbindungsziffern' teilen - Ziffern, die nur in dem einen oder dem anderen ALS sein können und sie so miteinander verbinden."
-      }
-    },
-    "als_identify": {
-      "step1": {
-        "description": "Schauen Sie sich {{alsName}} an: {{cellCount}} Zellen ({{cells}}) mit {{digitCount}} Kandidaten {{{digits}}}. Dies sind {{cellCount}} Zellen mit {{digitCount}} Kandidaten - das ist 'fast eingeschlossen', weil {{digitCount}} = {{cellCount}} + 1."
-      }
-    },
-    "als_connecting": {
-      "step1": {
-        "title": "Die Verbindungsziffern finden",
-        "description": "Die ALS sind durch **gemeinsame Ziffern** verbunden, die nur in dem einen oder dem anderen ALS erscheinen können:\n\n{{connections}}\n\nDiese 'Verbindungsziffern' fungieren wie Brücken - wenn die Ziffer in einem ALS verwendet wird, ist sie aus dem anderen ALS ausgeschlossen, was dann die verbleibenden Ziffern dort einsperrt."
-      }
-    },
-    "als_elimination": {
-      "step1": {
-        "title": "Die Eliminierung vornehmen",
-        "description": "Nun zum Ergebnis! Schauen Sie sich die Ziffer(n) {{digits}} an. Aufgrund der Art und Weise, wie die ALS verbunden sind, müssen {{digits}} in einer der ALS-Zellen landen. Jede Zelle, die ALLE Stellen 'sehen' kann, an denen {{digits}} in BEIDEN ALS sein könnten, kann {{digits}} nicht enthalten - es gäbe immer einen Konflikt. Entferne {{digits}} aus: {{cells}}."
-      }
-    },
-    "x_cycle": {
-      "step1": {
-        "title": "Den X-Zyklus finden",
-        "description": "Ein X-Zyklus ist eine Kette von Zellen, die zu ihrem Ausgangspunkt zurückkehrt. Dieser Zyklus hat {{cycleSize}} Knoten und betrifft die Ziffer {{digit}} in den Zellen: {{cells}}. Der Schlüssel ist, dass die Kette zwischen 'starken Verbindungen' (durchgehende Linien) und 'schwachen Verbindungen' (gestrichelte Linien) abwechselt. Starke Verbindung = wenn eine falsch ist, muss die andere wahr sein. Schwache Verbindung = beide können nicht gleichzeitig wahr sein. Da die Kette eine vollständige Schleife bildet, müssen bestimmte Kandidaten eliminiert werden, um einen Widerspruch zu vermeiden."
-      },
-      "step2": {
-        "title": "Die Zyklus-Logik verstehen"
-      },
-      "step3": {
-        "title": "Aus Zellen eliminieren, die beide Farben sehen",
-        "description": "Die Zelle(n) bei {{cells}} können Knoten beider 'Farben' im Zyklus sehen. Da eine Farbe wahr sein muss, würden diese Zellen immer in Konflikt geraten. Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "x_cycle_nice_loop": {
-      "step1": {
-        "description": "Dies ist ein 'Nice Loop' (gerade Anzahl von Knoten). In einem Nice Loop können wir die Knoten abwechselnd einfärben - nennen wir sie 'Grün' und 'Gelb'. Entweder alle grünen Knoten hätten {{digit}} ODER alle gelben Knoten hätten {{digit}}. Jede Zelle, die SOWOHL einen grünen ALS AUCH einen gelben Knoten sehen kann, kann {{digit}} nicht enthalten - egal welche Farbe wahr ist, diese Zelle würde mit ihr in Konflikt geraten."
-      }
-    },
-    "x_cycle_discontinuous": {
-      "step1": {
-        "description": "Dies ist ein 'Discontinuous Loop' (ungerade Anzahl von Knoten). Bei einem ungeraden Zyklus muss etwas 'brechen' - wir finden einen Widerspruch. Der Kettenlogik folgend können wir beweisen, dass bestimmte Kandidaten eliminiert werden müssen, da ihre Beibehaltung eine unmögliche Situation schaffen würde."
-      }
-    },
-    "simple_coloring": {
-      "step1": {
-        "title": "Simple Coloring verstehen",
-        "description": "Simple Coloring arbeitet mit einer einzelnen Ziffer ({{digit}}). Hier ist die Idee: Finden Sie alle 'starken Verbindungen' für die Ziffer {{digit}}. Eine starke Verbindung existiert, wenn {{digit}} in genau zwei Zellen einer Zeile, Spalte oder eines Blocks erscheint - wenn eine falsch ist, muss die andere wahr sein. Färben Sie nun diese Zellen abwechselnd - beginnen Sie mit 'Grün', verbundene Zellen werden 'Gelb', deren Verbindungen wieder 'Grün' und so weiter. Wir haben {{greenCount}} grüne Zellen und {{yellowCount}} gelbe Zellen. Entweder haben ALLE grünen Zellen die {{digit}} ODER ALLE gelben Zellen."
-      }
-    },
-    "3d_medusa": {
-      "step1": {
-        "title": "3D Medusa Coloring verstehen",
-        "description": "3D Medusa erweitert das Coloring auf mehrere Ziffern. Hier ist die Idee: Beginnen Sie mit einem beliebigen Kandidaten und nennen Sie ihn 'Grün'. Jeder durch eine starke Verbindung verbundene Kandidat erhält die entgegengesetzte Farbe ('Gelb'). Starke Verbindungen existieren, wenn: • Eine Ziffer nur zweimal in einer Zeile, Spalte oder einem Block erscheint • Eine Zelle nur zwei Kandidaten hat (Bivalue-Zelle). Wir färben {{greenCount}} Zellen grün und {{yellowCount}} Zellen gelb. Eine ganze Farbgruppe ist WAHR, die andere ist FALSCH - wir wissen nur noch nicht, welche."
-      }
-    },
-    "coloring": {
-      "step2": {
-        "title": "Farbfallen und Farbwickel finden",
-        "description": "Nun suchen wir nach Widersprüchen oder 'Fallen': **Farbfalle (Color Trap)**: Wenn eine nicht gefärbte Zelle sowohl eine grüne als auch eine gelbe Zelle sehen kann (in derselben Zeile, Spalte oder demselben Block), kann diese Zelle die Ziffer nicht enthalten. Warum? Weil eine dieser Farben wahr sein muss und jede die Ziffer aus dieser Zelle eliminieren würde. **Farbwickel (Color Wrap)**: Wenn zwei Zellen der GLEICHEN Farbe einander sehen können, ist diese Farbe unmöglich! Sie können nicht beide die Ziffer enthalten. Also muss die ANDERE Farbe komplett wahr sein."
-      },
-      "step3": {
-        "title": "Die Eliminierung vornehmen",
-        "description": "Basierend auf der Coloring-Analyse: Die Zelle(n) bei {{cells}} sehen entweder beide Farben (Color Trap) oder sind Teil einer Farbe, die sich selbst widerspricht (Color Wrap). Entferne die Kandidaten aus: {{cells}}."
-      }
-    },
-    "generic": {
-      "step1": {
-        "title": "{{technique}}",
-        "description": "Diese Technik wird **{{technique}}** genannt. Sie nutzt logische Schlussfolgerungen, um zu beweisen, dass bestimmte Kandidaten eliminiert werden müssen oder dass bestimmte Zellen spezifische Werte haben müssen. Das Muster umfasst die hervorgehobenen Zellen und Kandidaten."
-      },
-      "step2": {
-        "title": "Eliminierungen anwenden",
-        "description": "Basierend auf dem Muster können wir eliminieren: Entferne {{digits}} aus {{cells}}."
-      },
-      "step3": {
-        "title": "Werte setzen",
-        "description": "Die Technik offenbart diese Lösungen:\n\n{{solutions}}"
-      }
-    },
-    "unique_rectangle": {
-      "step1": {
-        "title": "Das tödliche Muster erkennen",
-        "description": "Schauen Sie sich diese vier Zellen an, die ein Rechteck bilden: {{cells}}. Sie erstrecken sich über genau zwei Zeilen, zwei Spalten und zwei Blöcke. Beachten Sie, dass sie alle die Kandidaten {{digits}} enthalten. Hier ist das Problem: Wenn diese vier Zellen NUR {{digits}} als Kandidaten hätten, könnte man die Ziffern zwischen den diagonalen Ecken vertauschen und hätte immer noch eine gültige Lösung! Das bedeutet, das Rätsel hätte ZWEI Lösungen - was bei einem richtigen Sudoku nicht erlaubt ist. Dieses verbotene Muster wird 'tödliches Muster' oder 'Unique Rectangle' genannt."
-      },
-      "step3": {
-        "title": "Die Eliminierung vornehmen"
-      }
-    },
-    "unique_rectangle_type1": {
-      "step1": {
-        "title": "Typ {{type}} verstehen",
-        "description": "Dies ist Typ 1 - der einfachste Fall. Drei Ecken des Rechtecks haben nur {{digits}}, aber {{extraCell}} hat einen zusätzlichen Kandidaten. Überlegen Sie mal: Wenn {{extraCell}} nur {{digits}} wie die anderen hätte, hätten wir das tödliche Muster. Also MUSS der zusätzliche Kandidat der wahre Wert dieser Zelle sein! Wir können {{digits}} sicher aus {{extraCell}} entfernen."
-      }
-    },
-    "unique_rectangle_type2": {
-      "step1": {
-        "title": "Typ {{type}} verstehen",
-        "description": "Dies ist Typ 2 - zwei Ecken teilen sich denselben zusätzlichen Kandidaten ({{extraDigit}}). Diese beiden Zellen liegen an gegenüberliegenden Ecken des Rechtecks. Da das tödliche Muster nicht existieren kann, muss mindestens eine dieser Ecken {{extraDigit}} sein. Jede Zelle, die BEIDE Ecken sehen kann, kann {{extraDigit}} nicht enthalten."
-      }
-    },
-    "unique_rectangle_type3": {
-      "step1": {
-        "title": "Typ {{type}} verstehen",
-        "description": "Dies ist Typ 3 - zwei Ecken haben zusätzliche Kandidaten, die mit benachbarten Zellen ein 'nacktes Subset' bilden. Die zusätzlichen Kandidaten in den UR-Ecken erzwingen zusammen mit anderen Zellen in demselben Haus bestimmte Eliminierungen. Das tödliche Muster wird vermieden, weil die Subset-Logik garantiert, dass das UR nicht vervollständigt wird."
-      }
-    },
-    "unique_rectangle_type4": {
-      "step1": {
-        "title": "Typ {{type}} verstehen",
-        "description": "Dies ist Typ 4 - eine der UR-Ziffern ({{digits}}) ist in zwei gegenüberliegenden Ecken 'eingesperrt'. Aufgrund einer starken Verbindung muss eine Ziffer in diese beiden Ecken. Das bedeutet, dass die ANDERE Ziffer nicht in diesen Ecken sein kann (sonst hätten wir das tödliche Muster). Entfernen Sie die nicht-eingesperrte Ziffer aus den eingesperrten Ecken."
-      }
-    },
-    "unique_rectangle_type5": {
-      "step1": {
-        "title": "Typ {{type}} verstehen",
-        "description": "Dies ist Typ 5 - eine diagonale starke Verbindung verhindert das tödliche Muster. Zwei gegenüberliegende Ecken sind bei einer Ziffer stark miteinander verbunden, was bedeutet, dass eine von ihnen sie haben muss. Dies bricht die Symmetrie, die das tödliche Muster ermöglichen würde."
-      }
-    },
-    "unique_rectangle_type6": {
-      "step1": {
-        "title": "Typ {{type}} verstehen",
-        "description": "Dies ist Typ 6 - beide Diagonalen haben starke Verbindungen bei derselben Ziffer. Diese doppelte Sperre bei einer Ziffer bedeutet, dass sie in genau zwei gegenüberliegenden Ecken erscheinen muss, was die andere Ziffer aus diesen Ecken verdrängt."
-      }
-    },
-    "unique_rectangle_generic": {
-      "step1": {
-        "title": "Das Muster durchbrechen",
-        "description": "Um dieses tödliche Muster zu vermeiden, müssen wir sicherstellen, dass es niemals vervollständigt werden kann. Etwas muss das Rechteck 'brechen' - entweder ein zusätzlicher Kandidat, der wahr sein muss, oder eine starke Verbindung, die eine Ziffer in bestimmte Ecken zwingt."
-      }
-    },
-    "unique_rectangle_elim_type1": {
-      "step1": {
-        "description": "Entferne {{digits}} von {{cells}}. Der zusätzliche Kandidat in dieser Zelle muss sein wahrer Wert sein, um das tödliche Muster zu verhindern."
-      }
-    },
-    "unique_rectangle_elim_type2": {
-      "step1": {
-        "description": "Entferne {{digits}} von {{cells}}. Diese Zellen sehen beide UR-Ecken, die sich den zusätzlichen Kandidaten teilen."
-      }
-    },
-    "empty_rectangle": {
-      "step1": {
-        "title": "Das leere Rechteck (Empty Rectangle) finden",
-        "description": "Schauen Sie sich den Block {{box}} an. Der Kandidat {{digit}} erscheint nur in einem 'L-förmigen' oder 'abgeknickten' Muster - er fehlt in mindestens einer Zeile UND einer Spalte innerhalb des Blocks. Dies erzeugt ein 'leeres Rechteck' - die leere Zeile und Spalte bilden ein Kreuz innerhalb des Blocks, und alle {{digit}}-Kandidaten befinden sich in den Ecken dieses Kreuzes. Die Zellen mit {{digit}} sind: {{cells}}."
-      },
-      "step2": {
-        "title": "Mit der starken Verbindung verbinden",
-        "description": "Schauen Sie nun außerhalb des Blocks. Es gibt eine 'starke Verbindung' (durchgehende Linie) bei {{digit}} in {{conjugateCells}}. Eine starke Verbindung bedeutet: Wenn ein Ende falsch ist, MUSS das andere wahr sein. Ein Ende dieser starken Verbindung ist über eine gemeinsame Zeile oder Spalte mit dem leeren Rechteck verbunden. Dies erzeugt eine Logikkette: Wenn das ferne Ende der starken Verbindung wahr ist, eliminiert es {{digit}} vom Schnittpunkt im Block, was dann {{digit}} an eine andere Position im ER zwingt."
-      },
-      "step3": {
-        "title": "Die Eliminierung vornehmen",
-        "description": "Hier ist die entscheidende Erkenntnis: Die Eliminierungszelle ({{cells}}) kann beide Enden unserer Kette sehen - sie sieht ein Ende der starken Verbindung UND sie sieht, wohin {{digit}} im leeren Rechteck gezwungen würde. Egal in welche Richtung die Logik geht, {{digit}} wird in einer Zelle landen, die {{cells}} sieht. Also kann {{digit}} nicht in {{cells}} sein. Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "x_wing": {
-      "step1": {
-        "title": "Das X-Wing-Muster identifizieren",
-        "description": "In {{baseNames}} erscheint die Ziffer {{digit}} in genau {{baseCount}} {{baseTypeText}}. Diese Kandidaten richten sich perfekt in {{coverNames}} aus. Da {{digit}} in jedem Basis-{{baseTypeText}} an einer dieser Positionen platziert werden muss, schließt dies {{digit}} in den hervorgehobenen {{baseTypeText}} ein."
-      },
-      "step2": {
-        "title": "Aus Abdeck-{{coverTypeText}} eliminieren",
-        "description": "Da {{digit}} in {{baseNames}} eingeschlossen ist (im Basis-{{baseTypeText}} hervorgehoben), müssen alle anderen {{digit}}-Kandidaten in {{coverNames}} falsch sein. Eliminiere {{digit}} aus Zellen im Abdeck-{{coverTypeText}}, die nicht Teil des Musters sind."
-      },
-      "step3": {
-        "title": "Kandidat {{digit}} entfernen",
-        "description": "Entferne {{digit}} aus: {{cells}}. Diese Zellen sehen das Fisch-Muster und können {{digit}} nicht enthalten."
-      }
-    },
-    "swordfish": {
-      "step1": {
-        "title": "Das Swordfish-Muster identifizieren",
-        "description": "In {{baseNames}} erscheint die Ziffer {{digit}} in genau drei {{baseTypeText}}. Diese Kandidaten richten sich über drei {{coverTypeText}} aus: {{coverNames}}. Das Swordfish-Muster schließt {{digit}} in diese Basis-{{baseTypeText}} ein."
-      },
-      "step2": {
-        "title": "Aus Abdeck-{{coverTypeText}} eliminieren",
-        "description": "Da {{digit}} in {{baseNames}} eingeschlossen ist (im Basis-{{baseTypeText}} hervorgehoben), müssen alle anderen {{digit}}-Kandidaten in {{coverNames}} falsch sein. Eliminiere {{digit}} aus Zellen im Abdeck-{{coverTypeText}}, die nicht Teil des Musters sind."
-      },
-      "step3": {
-        "title": "Kandidat {{digit}} entfernen",
-        "description": "Entferne {{digit}} aus: {{cells}}. Diese Zellen sehen das Fisch-Muster und können {{digit}} nicht enthalten."
-      }
-    },
-    "jellyfish": {
-      "step1": {
-        "title": "Das Jellyfish-Muster identifizieren",
-        "description": "In {{baseNames}} erscheint die Ziffer {{digit}} in genau vier {{baseTypeText}}. Diese Kandidaten richten sich über vier {{coverTypeText}} aus: {{coverNames}}. Das Jellyfish-Muster schließt {{digit}} in diese Basis-{{baseTypeText}} ein."
-      },
-      "step2": {
-        "title": "Aus Abdeck-{{coverTypeText}} eliminieren",
-        "description": "Da {{digit}} in {{baseNames}} eingeschlossen ist (im Basis-{{baseTypeText}} hervorgehoben), müssen alle anderen {{digit}}-Kandidaten in {{coverNames}} falsch sein. Eliminiere {{digit}} aus Zellen im Abdeck-{{coverTypeText}}, die nicht Teil des Musters sind."
-      },
-      "step3": {
-        "title": "Kandidat {{digit}} entfernen",
-        "description": "Entferne {{digit}} aus: {{cells}}. Diese Zellen sehen das Fisch-Muster und können {{digit}} nicht enthalten."
-      }
-    },
-    "basic_fish": {
-      "step1": {
-        "title": "Das Muster identifizieren",
-        "description": "Ziffer {{digit}} Kandidaten richten sich an Basis-{{baseTypeText}} ({{baseNames}}) and Abdeck-{{coverTypeText}} ({{coverNames}}) aus, um dieses Muster zu bilden."
-      },
-      "step2": {
-        "title": "Aus Abdeck-{{coverTypeText}} eliminieren",
-        "description": "Da {{digit}} in {{baseNames}} eingeschlossen ist (im Basis-{{baseTypeText}} hervorgehoben), müssen alle anderen {{digit}}-Kandidaten in {{coverNames}} falsch sein. Eliminiere {{digit}} aus Zellen im Abdeck-{{coverTypeText}}, die nicht Teil des Musters sind."
-      },
-      "step3": {
-        "title": "Kandidat {{digit}} entfernen",
-        "description": "Entferne {{digit}} aus: {{cells}}. Diese Zellen sehen das Fisch-Muster und können {{digit}} nicht enthalten."
-      }
-    },
-    "skyscraper": {
-      "step1": {
-        "title": "Die zwei starken Verbindungen finden",
-        "description": "Ein Wolkenkratzer (Skyscraper) ist ein Muster mit zwei **starken Verbindungen** bei derselben Ziffer. Schauen Sie sich {{baseNamesText}} an. In jedem dieser {{baseTypeText}} erscheint die Ziffer {{digit}} in genau ZWEI Zellen. Das ist eine starke Verbindung - wenn eine Zelle {{digit}} nicht hat, MUSS die andere sie haben. Die zwei starken Verbindungen sind verbunden: Ein Ende jeder starken Verbindung teilt sich dieselbe Spalte (oder Zeile). Die anderen Enden - das 'Dach' des Wolkenkratzers (in Gelb gezeigt) - sind die Schlüsselzellen."
-      },
-      "step2": {
-        "title": "Der Logik folgen",
-        "description": "Hier ist der Grund, warum der Wolkenkratzer funktioniert: Die verbundenen Enden der beiden starken Verbindungen liegen in derselben Spalte/Zeile. Wenn {{digit}} NICHT in einer der verbundenen Zellen ist, erzwingt die starke Verbindung sie in der Partnerzelle. Aber dieser Partner ist die 'Dach'-Zelle! Egal was passiert: Entweder ist {{digit}} in der einen Dach-Zelle oder in der anderen Dach-Zelle (oder möglicherweise in beiden). Eine der Dach-Zellen MUSS die {{digit}} haben."
-      },
-      "step3": {
-        "title": "Aus Zellen eliminieren, die beide Dächer sehen",
-        "description": "Jede Zelle, die BEIDE Dach-Zellen sehen kann, kann {{digit}} nicht enthalten. Warum? Weil eine der Dach-Zellen {{digit}} haben muss, und das würde {{digit}} aus jeder Zelle eliminieren, die sie sieht. Da die Eliminierungszelle beide Dach-Zellen sieht, wird sie immer eliminiert. Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "finned_fish": {
-      "step1": {
-        "title": "Das gefinnte Muster finden",
-        "description": "Dies ist ein **gefinnter {{fishType}}**. Beginnen wir mit dem Grundmuster: Schauen Sie sich {{baseNames}} an. In einem normalen {{fishType}} würde die Ziffer {{digit}} nur in Zellen erscheinen, die sich an {{coverNames}} ausrichten. Aber hier gibt es eine zusätzliche Zelle (oder Zellen), die nicht passt - das ist die 'Finne'. Die Finne befindet sich bei: {{finCells}} (in Gelb gezeigt)."
-      },
-      "step2": {
-        "title": "Den Effekt der Finne verstehen",
-        "description": "Die Finne ändert, was wir eliminieren können. Hier ist die Logik: **Wenn die Finne WAHR ist** (die {{digit}} hat): Das normale Fischmuster gilt für den Rest, aber wir können nur aus Zellen eliminieren, die AUCH die Finne sehen. **Wenn die Finne FALSCH ist**: Dann muss {{digit}} irgendwo anders im Fischmuster sein, und die normalen Fisch-Eliminierungen würden gelten. In jedem Fall kann jede Zelle, die sowohl die Finne ALS AUCH das Fischmuster sieht, eliminiert werden! Das bedeutet, Eliminierungen sind auf den Block {{boxName}} beschränkt (wo sich die Finne befindet)."
-      },
-      "step3": {
-        "title": "Eliminieren, wo Finne und Fisch aufeinandertreffen",
-        "description": "Zellen, die die Finne sehen KÖNNEN UND in den Abdeckungslinien des Fisches liegen, können eliminiert werden. Diese Zellen liegen im Block {{boxName}} (sehen also die Finne) und auch in einem der Abdeck-{{coverTypeText}} (sind also vom Fischmuster betroffen). Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "sashimi_fish": {
-      "step1": {
-        "title": "Das gefinnte Muster finden",
-        "description": "Dies ist ein **gefinnter {{fishType}}**. Beginnen wir mit dem Grundmuster: Schauen Sie sich {{baseNames}} an. In einem normalen {{fishType}} würde die Ziffer {{digit}} nur in Zellen erscheinen, die sich an {{coverNames}} ausrichten. Aber hier gibt es eine zusätzliche Zelle (oder Zellen), die nicht passt - das ist die 'Sashimi-Finne'. Die Finne befindet sich bei: {{finCells}} (in Gelb gezeigt). In einer Sashimi-Variante wäre der Fisch ohne die Finne unvollständig - die Finne 'füllt' eigentlich eine fehlende Basiszelle aus."
-      },
-      "step2": {
-        "title": "Den Effekt der Finne verstehen",
-        "description": "Die Finne ändert, was wir eliminieren können. Hier ist die Logik: **Wenn die Finne WAHR ist** (die {{digit}} hat): Das normale Fischmuster gilt für den Rest, aber wir können nur aus Zellen eliminieren, die AUCH die Finne sehen. **Wenn die Finne FALSCH ist**: Dann muss {{digit}} irgendwo anders im Fischmuster sein, und die normalen Fisch-Eliminierungen würden gelten. In jedem Fall kann jede Zelle, die sowohl die Finne ALS AUCH das Fischmuster sieht, eliminiert werden! Das bedeutet, Eliminierungen sind auf den Block {{boxName}} beschränkt (wo sich die Finne befindet)."
-      },
-      "step3": {
-        "title": "Eliminieren, wo Finne und Fisch aufeinandertreffen",
-        "description": "Zellen, die die Finne sehen KÖNNEN UND in den Abdeckungslinien des Fisches liegen, können eliminiert werden. Diese Zellen liegen im Block {{boxName}} (sehen also die Finne) und auch in einem der Abdeck-{{coverTypeText}} (sind also vom Fischmuster betroffen). Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "xy_wing": {
-      "step1": {
-        "title": "Das {{wingType}}-Muster finden",
-        "description": "Schauen Sie sich die gelbe Zelle bei {{pivotName}} an - sie wird 'Scharnier' (pivot) genannt und hat genau zwei Kandidaten. Schauen Sie sich nun die zwei grünen Zellen bei {{pincerNamesText}} an - das sind die 'Zangen' (pincers). Jede Zange teilt sich einen Kandidaten mit dem Scharnier, aber beide haben {{targetDigitText}} gemeinsam. Der Schlüssel: Egal welcher Kandidat im Scharnier steht, eine der Zangen MUSS am Ende {{targetDigitText}} enthalten."
-      },
-      "step2": {
-        "title": "Verstehen, warum es funktioniert",
-        "description": "Da eine Zange {{targetDigitText}} haben MUSS, kann jede Zelle, die BEIDE Zangen sehen kann, {{targetDigitText}} nicht enthalten. Sie würde mit der Zange kollidieren, die am Ende diese Ziffer erhält. Die durchgehende Linie zeigt, dass eine Zange für {{targetDigitText}} wahr sein muss."
-      },
-      "step3": {
-        "title": "{{digit}} aus Zellen entfernen, die das Muster sehen",
-        "description": "Die Zelle(n) bei {{cells}} können beide Zangen (oder alle Flügelzellen) sehen, also kann {{digit}} dort nicht stehen. Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "xyz_wing": {
-      "step1": {
-        "title": "Das {{wingType}}-Muster finden",
-        "description": "Schauen Sie sich die gelbe Zelle bei {{pivotName}} an - sie hat drei Kandidaten: {{wingDigitText}}. Die zwei grünen Zellen bei {{pincerNamesText}} teilen sich jeweils zwei dieser Kandidaten mit dem Scharnier. Die Ziffer {{targetDigitText}} erscheint in ALLEN drei Zellen. Da jedes Ergebnis die {{targetDigitText}} in eine dieser Zellen zwingt, kann jede Zelle, die alle drei sehen kann, {{targetDigitText}} nicht enthalten."
-      },
-      "step2": {
-        "title": "Verstehen, warum es funktioniert",
-        "description": "Die drei Zellen bilden eine 'geschlossene Gruppe' für {{targetDigitText}}. Egal was passiert, {{targetDigitText}} wird in einer von ihnen landen. Jede Zelle, die alle drei sieht, ist davon ausgeschlossen, {{targetDigitText}} zu haben."
-      },
-      "step3": {
-        "title": "{{digit}} aus Zellen entfernen, die das Muster sehen",
-        "description": "Die Zelle(n) bei {{cells}} können beide Zangen (oder alle Flügelzellen) sehen, also kann {{digit}} dort nicht stehen. Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "wxyz_wing": {
-      "step1": {
-        "title": "Das {{wingType}}-Muster finden",
-        "description": "Dieses Muster verwendet vier Zellen, die zusammen vier verschiedene Kandidaten enthalten. Die Ziffer {{targetDigitText}} ist besonders - sie erscheint auf eine Weise, die garantiert, dass eine dieser Zellen sie haben wird. Denken Sie an die Reise nach Jerusalem: {{targetDigitText}} muss irgendwo in dieser Gruppe sitzen."
-      },
-      "step2": {
-        "title": "Verstehen, warum es funktioniert",
-        "description": "Die vier Zellen 'sperren' {{targetDigitText}} innerhalb ihrer Gruppe ein. Jede Zelle außerhalb, die alle vier sehen kann, muss auf {{targetDigitText}} verzichten."
-      },
-      "step3": {
-        "title": "{{digit}} aus Zellen entfernen, die das Muster sehen",
-        "description": "Die Zelle(n) bei {{cells}} können beide Zangen (oder alle Flügelzellen) sehen, also kann {{digit}} dort nicht stehen. Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "w_wing": {
-      "step1": {
-        "title": "Das {{wingType}}-Muster finden",
-        "description": "Schauen Sie sich die zwei grünen Zellen bei {{pincerNamesText}} an. Sie haben beide dieselben zwei Kandidaten. Diese Zellen sind durch eine 'starke Verbindung' (als durchgehende Linie gezeigt) bei einer dieser Ziffern verbunden. Das bedeutet: Wenn die Verbindungsziffer aus einer Zelle entfernt wird, MUSS die andere Zelle sie haben. In jedem Fall wird eine dieser Zellen {{targetDigitText}} haben."
-      },
-      "step2": {
-        "title": "Verstehen, warum es funktioniert",
-        "description": "Da die beiden Zellen durch eine starke Verbindung verbunden sind, ist ihr 'anderer' Kandidat ({{targetDigitText}}) eingeschränkt. Jede Zelle, die beide grünen Zellen sieht, würde mit derjenigen kollidieren, die am Ende {{targetDigitText}} erhält."
-      },
-      "step3": {
-        "title": "{{digit}} aus Zellen entfernen, die das Muster sehen",
-        "description": "Die Zelle(n) bei {{cells}} können beide Zangen (oder alle Flügelzellen) sehen, also kann {{digit}} dort nicht stehen. Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "generic_wing": {
-      "step1": {
-        "title": "Das {{wingType}}-Muster finden",
-        "description": "Dieses {{wingType}}-Muster verbindet Zellen so, dass {{targetDigitText}} an bestimmten Stellen erscheinen muss."
-      },
-      "step2": {
-        "title": "Verstehen, warum es funktioniert",
-        "description": "Das Muster garantiert, dass {{targetDigitText}} in einer der hervorgehobenen Zellen erscheint, wodurch sie woanders blockiert wird."
-      },
-      "step3": {
-        "title": "{{digit}} aus Zellen entfernen, die das Muster sehen",
-        "description": "Die Zelle(n) bei {{cells}} können beide Zangen (oder alle Flügelzellen) sehen, also kann {{digit}} dort nicht stehen. Entferne {{digit}} aus: {{cells}}."
-      }
-    },
-    "kite": {
-      "step1": {
-        "title": "Das Drachen-Muster (Kite) finden",
-        "description": "Schauen Sie sich die zwei grünen {{digit}}-Kandidaten bei {{kiteNames}} an. Dies sind die Endpunkte des Drachens. Sie sind über {{coverNames}} verbunden, das zwei weitere {{digit}}-Kandidaten enthält (in Gelb gezeigt). Denken Sie so darüber: Eine der grünen Zellen MUSS die {{digit}} haben, aber sie können sie nicht BEIDE haben."
-      },
-      "step2": {
-        "title": "Der Kette folgen",
-        "description": "Der Drachen bildet eine Kette: {{chain}}. Die durchgehenden Linien zeigen starke Verbindungen an, die gestrichelte Linie eine schwache Verbindung. Egal welche grüne Zelle die {{digit}} hat, die schwache Verbindung stellt sicher, dass mindestens eine der gelben Zellen im Block sie haben wird. Jede Zelle, die BEIDE grünen Zellen bei {{kiteNames}} sehen kann, kann {{digit}} nicht enthalten."
-      },
-      "step3": {
-        "title": "Die Eliminierung vornehmen",
-        "description": "Da {{cells}} beide grünen Zellen sehen kann, wissen wir, dass {{digit}} dort nicht stehen kann. Eliminiere {{digit}} aus: {{cells}}."
-      }
-    }
-  },
-  "backend": {
-    "techniques": {
-      "NAKED_SINGLE": "Nur ein Kandidat passt in diese Zelle, also setzen Sie ihn.",
-      "NAKED_SINGLES": "Nur ein Kandidat passt in diese Zelle, also setzen Sie ihn.",
-      "HIDDEN_SINGLE": "Eine Ziffer erscheint nur in einer Zelle eines Hauses und erzwingt ihre Platzierung.",
-      "HIDDEN_SINGLES": "Eine Ziffer erscheint nur in einer Zelle eines Hauses und erzwingt ihre Platzierung.",
-      "POINTING_CANDIDATES": "Eine Ziffer ist in einer Zeile eines Blocks gesperrt, so dass sie aus dieser Zeile außerhalb des Blocks entfernt werden kann.",
-      "POINTING_PAIRS": "Eine Ziffer ist in einer Zeile eines Blocks gesperrt, so dass sie aus dieser Zeile außerhalb des Blocks entfernt werden kann.",
-      "CLAIMING_CANDIDATES": "Eine Ziffer ist in einem Block einer Zeile gesperrt, so dass sie aus diesem Block außerhalb der Zeile entfernt werden kann.",
-      "BOX_LINE_REDUCTION": "Eine Ziffer ist in einem Block einer Zeile gesperrt, so dass sie aus diesem Block außerhalb der Zeile entfernt werden kann.",
-      "NAKED_PAIR": "Zwei Zellen in einem Haus enthalten genau die gleichen zwei Kandidaten; sie beanspruchen diese Ziffern.",
-      "NAKED_PAIRS": "Zwei Zellen in einem Haus enthalten genau die gleichen zwei Kandidaten; sie beanspruchen diese Ziffern.",
-      "LOCKED_PAIR": "Zwei Zellen in einem Haus enthalten genau die gleichen zwei Kandidaten; sie beanspruchen diese Ziffern.",
-      "LOCKED_PAIRS": "Zwei Zellen in einem Haus enthalten genau die gleichen zwei Kandidaten; sie beanspruchen diese Ziffern.",
-      "NAKED_TRIPLE": "Drei Zellen in einem Haus enthalten genau die gleichen drei Kandidaten; sie beanspruchen diese Ziffern.",
-      "LOCKED_TRIPLES": "Drei Zellen in einem Haus enthalten genau die gleichen drei Kandidaten; sie beanspruchen diese Ziffern.",
-      "NAKED_TRIPLES": "Drei Zellen in einem Haus enthalten genau die gleichen drei Kandidaten; sie beanspruchen diese Ziffern.",
-      "NAKED_QUADRUPLE": "Vier Zellen in einem Haus enthalten genau die gleichen vier Kandidaten; sie beanspruchen diese Ziffern.",
-      "LOCKED_QUADRUPLES": "Vier Zellen in einem Haus enthalten genau die gleichen vier Kandidaten; sie beanspruchen diese Ziffern.",
-      "NAKED_QUADRUPLES": "Vier Zellen in einem Haus enthalten genau die gleichen vier Kandidaten; sie beanspruchen diese Ziffern.",
-      "HIDDEN_PAIR": "Zwei Ziffern können nur in zwei Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
-      "HIDDEN_PAIRS": "Zwei Ziffern können nur in zwei Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
-      "HIDDEN_TRIPLE": "Drei Ziffern können nur in drei Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
-      "HIDDEN_TRIPLES": "Drei Ziffern können nur in drei Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
-      "HIDDEN_QUADRUPLE": "Vier Ziffern können nur in vier Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
-      "HIDDEN_QUADRUPLES": "Vier Ziffern können nur in vier Zellen eines Hauses erscheinen; andere Kandidaten in diesen Zellen werden entfernt.",
-      "X_WING_FISH": "Zeilen und Spalten bilden ein X-Wing, so dass eine Ziffer aus den abdeckenden Linien eliminiert werden kann.",
-      "X_WING": "Zeilen und Spalten bilden ein X-Wing, so dass eine Ziffer aus den abdeckenden Linien eliminiert werden kann.",
-      "SKYSCRAPER_FISH": "Zwei starke Verbindungen auf einer Ziffer bilden einen Wolkenkratzer, der Eliminierungen in den gemeinsamen Spalten/Zeilen ermöglicht.",
-      "SKYSCRAPER": "Zwei starke Verbindungen auf einer Ziffer bilden einen Wolkenkratzer, der Eliminierungen in den gemeinsamen Spalten/Zeilen ermöglicht.",
-      "TWO_STRING_KITE_FISH": "Ein Zwei-Schnur-Drachen verwendet 2 starke Verbindungen mit einer schwachen Verbindung im selben Block, um einen Kandidaten an der Schnittstelle zwischen den beiden starken Verbindungen zu eliminieren.",
-      "2_STRING_KITE": "Ein Zwei-Schnur-Drachen verwendet 2 starke Verbindungen mit einer schwachen Verbindung im selben Block, um einen Kandidaten an der Schnittstelle zwischen den beiden starken Verbindungen zu eliminieren.",
-      "2_STRING_KITE_FISH": "Ein Zwei-Schnur-Drachen verwendet 2 starke Verbindungen mit einer schwachen Verbindung im selben Block, um einen Kandidaten an der Schnittstelle zwischen den beiden starken Verbindungen zu eliminieren.",
-      "FINNED_X_WING_FISH": "Ein X-Wing mit einer Finne; Zellen, die die Finne sehen, können diese Ziffer verlieren.",
-      "FINNED_X_WING": "Ein X-Wing mit einer Finne; Zellen, die die Finne sehen, können diese Ziffer verlieren.",
-      "SASHIMI_X_WING_FISH": "Ein Sashimi-X-Wing hat eine Finne plus eine fehlende Basis; Zellen, die die Finne sehen, können eliminiert werden.",
-      "SASHIMI_X_WING": "Ein Sashimi-X-Wing hat eine Finne plus eine fehlende Basis; Zellen, die die Finne sehen, können eliminiert werden.",
-      "SWORDFISH_FISH": "Drei Linien richten Kandidaten in drei Spalten/Zeilen aus, was Eliminierungen ermöglicht (Schwertfisch).",
-      "SWORDFISH": "Drei Linien richten Kandidaten in drei Spalten/Zeilen aus, was einer Eliminierung ermöglicht (Schwertfisch).",
-      "FINNED_SWORDFISH_FISH": "Ein Schwertfisch mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
-      "FINNED_SWORDFISH": "Ein Schwertfisch mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
-      "JELLYFISH_FISH": "Vier Linien richten Kandidaten in vier Spalten/Zeilen aus, was Eliminierungen ermöglicht (Qualle).",
-      "JELLYFISH": "Vier Linien richten Kandidaten in vier Spalten/Zeilen aus, was Eliminierungen ermöglicht (Qualle).",
-      "FINNED_JELLYFISH_FISH": "Eine Qualle mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
-      "FINNED_JELLYFISH": "Eine Qualle mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
-      "FRANKEN_X_WING_FISH": "Ein Franken-Fisch mischt Boxen und Linien, um die Basis/Abdeckung zu bilden, was Eliminierungen ermöglicht.",
-      "FRANKEN_X_WING": "Ein Franken-Fisch mischt Boxen und Linien, um die Basis/Abdeckung zu bilden, was Eliminierungen ermöglicht.",
-      "FINNED_FRANKEN_X_WING_FISH": "Ein Franken-Fisch mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
-      "FINNED_FRANKEN_X_WING": "Ein Franken-Fisch mit einer Finne; Zellen, die die Finne sehen, verlieren diese Ziffer.",
-      "FINNED_MUTANT_X_WING_FISH": "Ein mutierter Fisch mit einer Finne; Eliminierungen kommen von Zellen, die die Finne sehen.",
-      "FINNED_MUTANT_X_WING": "Ein mutierter Fisch mit einer Finne; Eliminierungen kommen von Zellen, die die Finne sehen.",
-      "FRANKEN_SWORDFISH_FISH": "Eine Box-/Linien-Schwertfisch-Variante, die Eliminierungen auf den Abdeckungslinien ermöglicht.",
-      "FRANKEN_SWORDFISH": "Eine Box-/Linien-Schwertfisch-Variante, die Eliminierungen auf den Abdeckungslinien ermöglicht.",
-      "GROUPED_X_CYCLES": "Gruppierte X-Zyklen wechseln starke und schwache Verbindungen auf einer Ziffer, um Eliminierungen zu beweisen.",
-      "SIMPLE_COLOURING": "Färben Sie eine Ziffer in zwei Sätze starker Verbindungen; eine Widerspruchsfarbe wird eliminiert.",
-      "SIMPLE_COLORING": "Färben Sie eine Ziffer in zwei Sätze starker Verbindungen; eine Widerspruchsfarbe wird eliminiert.",
-      "MEDUSA_3D": "3D Medusa färbt mehrere Ziffern; Widersprüche eliminieren Kandidaten oder setzen Werte.",
-      "3D_MEDUSA": "3D Medusa färbt mehrere Ziffern; Widersprüche eliminieren Kandidaten oder setzen Werte.",
-      "THREE_D_MEDUSA": "3D Medusa färbt mehrere Ziffern; Widersprüche eliminieren Kandidaten oder setzen Werte.",
-      "UNIQUE_RECTANGLE": "Verhindern Sie ein tödliches Muster, indem Sie um ein Vier-Zellen-Rechteck herum erzwingen oder eliminieren.",
-      "UNIQUE_RECTANGLES": "Verhindern Sie ein tödliches Muster, indem Sie um ein Vier-Zellen-Rechteck herum erzwingen oder eliminieren.",
-      "BUG": "Bivalue Universal Grave: nur ein Kandidat bricht die Pattsituation; setzen oder eliminieren Sie entsprechend.",
-      "BIVALUE_UNIVERSAL_GRAVE": "Bivalue Universal Grave: nur ein Kandidat bricht die Pattsituation; setzen oder eliminieren Sie entsprechend.",
-      "Y_WING": "XY-Wing (Scharnier + zwei Zangen) eliminiert einen gemeinsamen Kandidaten, der von beiden Zangen gesehen wird.",
-      "XY_WING": "XY-Wing (Scharnier + zwei Zangen) eliminiert einen gemeinsamen Kandidaten, der von beiden Zangen gesehen wird.",
-      "XYZ_WING": "XYZ-Wing (Triade mit XYZ) entfernt Z aus Zellen, die alle drei Zellen sehen.",
-      "WXYZ_WING": "WXYZ-Wing entfernt den gemeinsamen Kandidaten von Peers aller vier Zellen.",
-      "W_WING": "W-Wing verbindet zwei übereinstimmende Bivalue-Zellen durch eine starke Verbindung und erzwingt Eliminierungen.",
-      "L_3__WING": "L-Wing mit 3 Zellen verbindet Kandidaten, um Eliminierungen zu erzwingen.",
-      "L_WING": "L-Wing verbindet Kandidaten in einem L-förmigen Muster, um Eliminierungen zu erzwingen.",
-      "EMPTY_RECTANGLE": "Ein leeres Rechteck erzwingt eine Konjugatpaar-Interaktion, um einen Kandidaten zu eliminieren.",
-      "EMPTY_RECTANGLES": "Ein leeres Rechteck erzwingt eine Konjugatpaar-Interaktion, um einen Kandidaten zu eliminieren.",
-      "X_CYCLES": "X-Zyklen wechseln starke/schwache Verbindungen auf einer Ziffer; Widersprüche entfernen Kandidaten.",
-      "X_CYCLE": "X-Zyklen wechseln starke/schwache Verbindungen auf einer Ziffer; Widersprüche entfernen Kandidaten.",
-      "XY_CHAIN": "XY-Ketten verbinden Bivalue-Zellen; die Zielziffer wird dort eliminiert, wo beide Enden sehen.",
-      "AIC": "Alternating Inference Chain beweist Eliminierungen durch abwechselnd starke/schwache Verbindungen.",
-      "AIC_TYPE_2": "Alternating Inference Chain (Typ 2) beweist Eliminierungen durch abwechselnd starke/schwache Verbindungen.",
-      "ALTERNATING_INFERENCE_CHAINS": "Alternating Inference Chain beweist Eliminierungen durch abwechselnd starke/schwache Verbindungen.",
-      "FORCING_CHAINS": "Forcing chains untersuchen beide Ergebnisse und behalten die für alle Pfade gemeinsame Deduktion bei.",
-      "RING": "Eine Ringstruktur aus starken und schwachen Verbindungen erzwingt Eliminierungen an den Verbindungspunkten.",
-      "ALMOST_LOCKED_SETS": "Almost Locked Sets verbinden sich über eingeschränkte Kandidaten, um Eliminierungen zu erzwenken.",
-      "ALS_XY": "ALS-XY verbindet zwei fast gesperrte Sätze durch einen gemeinsamen eingeschränkten Kandidaten.",
-      "ALS_XZ": "ALS-XZ verbindet zwei fast gesperrte Sätze durch gemeinsame eingeschränkte Kandidaten.",
-      "SUE_DE_COQ": "Sue-de-Coq teilt eine Box-Linien-Überlappung in disjunkte Ziffernsätze auf und erzwingt Eliminierungen.",
-      "NISHIO": "Nishio nimmt eine Ziffernplatzierung an und beschneidet Zweige, die zu einem Widerspruch führen.",
-      "AIC___ALS": "Alternating Inference Chain kombiniert mit Almost Locked Sets, um Eliminierungen zu erzwingen.",
-      "AIC_TYPE_1": "Alternating Inference Chain (Typ 1) verwendet den Wechsel von starken/schwachen Verbindungen, um Eliminierungen zu beweisen.",
-      "XY_CHAINS__TYPE_1": "XY-Chain (Typ 1) verbindet Bivalue-Zellen; die Zielziffer wird dort eliminiert, wo beide Enden sehen.",
-      "ALS_CHAIN": "ALS-Chain verbindet mehrere fast gesperrte Sätze in einer Sequenz, um Eliminierungen zu erzwingen.",
-      "SPLIT_WING": "Split-Wing verwendet ein geteiltes Muster von Kandidaten, um Eliminierungen zu erzwingen.",
-      "STRONG_WING__WINDMILL_": "Strong-Wing (Windmühle) verwendet ein Windmühlenmuster aus starken Verbindungen, um Kandidaten zu eliminieren.",
-      "INVERTED_H_3__WING": "Inverted H(3)-Wing verwendet ein invertiertes H-förmiges Muster mit 3 Zellen, um Eliminierungen zu erzwingen.",
-      "INVERTED_M_3__WING": "Inverted M(3)-Wing verwendet ein invertiertes M-förmiges Muster mit 3 Zellen, um Eliminierungen zu erzwingen.",
-      "INVERTED_L_3__WINGS": "Inverted L(3)-Wing verwendet ein invertiertes L-förmiges Muster mit 3 Zellen, um Eliminierungen zu erzwingen.",
-      "UVWXYZ_WING": "UVWXYZ-Wing (6-Zellen-Flügel) entfernt den gemeinsamen Kandidaten von Peers aller sechs Zellen.",
-      "HIDDEN_XY__TYPE_1": "Hidden XY (Typ 1) verwendet versteckte Bivalue-Zellen in einem XY-Kettenmuster, um Kandidaten zu eliminieren."
-    }
-  },
-  "domain": {
-    "difficulty": {
-      "beginner": "Anfänger",
-      "easy": "Einfach",
-      "medium": "Mittel",
-      "tough": "Schwer",
-      "hard": "Sehr schwer",
-      "expert": "Experte",
-      "diabolical": "Diabolisch",
-      "custom": "Benutzerdefiniert"
-    }
-  }
 }

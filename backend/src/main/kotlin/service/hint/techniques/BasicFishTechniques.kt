@@ -182,6 +182,7 @@ import dto.*
         } catch (e: Exception) {
             // Fallback if reflection fails
         }
+        if (digit == 0) return emptyList()
 
         // Determine base and cover types from the *whole* sector set, so a mixed
         // base (e.g. a Franken fish's row + box) reads "rows and boxes" rather than
@@ -353,6 +354,7 @@ import dto.*
             } catch (e: Exception) {}
 
         } catch (e: Exception) {}
+        if (digit == 0) return emptyList()
 
         val baseType = if (baseIndices.isNotEmpty()) getSectorType(baseIndices.first()) else "row"
         val baseTypeText = if (baseType == "row") "rows" else "columns"
@@ -519,6 +521,7 @@ import dto.*
                 idx = coverSecs.nextSetBit(idx + 1)
             }
         } catch (e: Exception) {}
+        if (digit == 0) return emptyList()
 
         val coverTypeText = describeSectorTypeText(coverIndices)
 

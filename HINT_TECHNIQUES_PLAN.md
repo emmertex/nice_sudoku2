@@ -489,6 +489,8 @@ verified.
 
 ## Phase 10 — Final full verification pass
 
+✅ **Done.**
+
 **Goal:** one end-to-end confirmation that nothing regressed and the whole hint surface is
 correct + localized.
 

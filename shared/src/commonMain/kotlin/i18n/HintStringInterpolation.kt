@@ -37,7 +37,7 @@ object HintStringInterpolation {
             val eqIndex = varPart.indexOf('=')
             if (eqIndex > 0) {
                 val varName = varPart.substring(0, eqIndex).trim()
-                val varValue = varPart.substring(eqIndex + 1).trim()
+                val varValue = varPart.substring(eqIndex + 1)
                 variables[varName] = varValue
             }
         }
