@@ -1,11 +1,22 @@
+# v1.2.0 - 2026-08-25
+
+### Features and Bugs
+- Overhaul of the hint system
+  - Add missing hints
+  - Fixed some broken hints
+  - Enhanced the hint display
+  - Regression tests
+  - This is the biggest update since implementing hints.
+
+
 # v1.1.0 - 2026-08-16
 
 ### Features
 - **Hint Placement Setting** -- choose where the hint panel appears, instead of it being automatic only
-- - **Auto** (default): original behavior, sidebar when there's room and a card below otherwise
-- - **Side**: always show hints in a right-hand sidebar beside the board
-- - **Below**: always show hints in a card below the board
-- - The choice is remembered across sessions
+  - **Auto** (default): original behavior, sidebar when there's room and a card below otherwise
+  - **Side**: always show hints in a right-hand sidebar beside the board
+  - **Below**: always show hints in a card below the board
+  
 
 # v1.0.0 - 2026-06-21
 
