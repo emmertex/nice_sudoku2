@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="10" fill="#1a1a2e"/>
+  <!-- 3x3 grid lines -->
+  <g stroke="#4a5568" stroke-width="1.5">
+    <line x1="21.3" y1="0" x2="21.3" y2="64"/>
+    <line x1="42.7" y1="0" x2="42.7" y2="64"/>
+    <line x1="0" y1="21.3" x2="64" y2="21.3"/>
+    <line x1="0" y1="42.7" x2="64" y2="42.7"/>
+  </g>
+  <!-- One contrasting filled cell -->
+  <rect x="22.3" y="22.3" width="19.4" height="19.4" rx="3" fill="#4cc9f0"/>
+</svg>

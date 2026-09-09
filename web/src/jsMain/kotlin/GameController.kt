@@ -30,8 +30,8 @@ internal fun SudokuApp.startNewGame(puzzle: PuzzleDefinition) {
         GameStateManager.setCurrentGameId(game.puzzleId)
     }
 
-    gameStartTime = currentTimeMillis()
-    pausedTime = 0L
+    accumulatedTime = 0L
+    segmentStart = if (trackPlayTime) currentTimeMillis() else null
     isPaused = false
     selectedCell = null
     completionShownForPuzzle = null  // Reset completion modal tracking for new game
@@ -45,17 +45,23 @@ internal fun SudokuApp.startNewGame(puzzle: PuzzleDefinition) {
         // Fallback: solve in background for custom puzzles without solutions
         val solverEngine = GameEngine()
         solverEngine.loadPuzzle(puzzle.puzzleString)
+        // Capture the puzzle ID at request time to prevent late callbacks from
+        // updating a different game (R3 fix)
+        val puzzleIdForCallback = puzzle.id
         solverEngine.getSolutionString(
             onStatus = { status ->
                 showToast("⏳ $status")
             },
             onComplete = { solutionStr ->
                 if (solutionStr != null) {
-                    solution = solutionStr
-                    currentGame = currentGame?.copy(solution = solutionStr)
-                    currentGame?.let { GameStateManager.saveGame(it) }
-                    showToast("✓ Ready for mistake checking")
-                    println("Solution loaded: ${solutionStr.take(20)}...")
+                    // Only update if this is still the current game
+                    if (currentGame?.puzzleId == puzzleIdForCallback) {
+                        solution = solutionStr
+                        currentGame = currentGame?.copy(solution = solutionStr)
+                        currentGame?.let { GameStateManager.saveGame(it) }
+                        showToast("✓ Ready for mistake checking")
+                        println("Solution loaded: ${solutionStr.take(20)}...")
+                    }
                 } else {
                     showToast("⚠️ Could not verify solution")
                     println("Failed to get solution for puzzle")
@@ -96,8 +102,9 @@ internal fun SudokuApp.resumeGame(saved: SavedGameState) {
         GameStateManager.saveGame(loaded)
     }
 
-    gameStartTime = currentTimeMillis()
-    pausedTime = loaded.elapsedTimeMs
+    // R9 fix: Initialize from saved elapsed time, start a new segment
+    accumulatedTime = if (trackPlayTime) loaded.elapsedTimeMs else 0L
+    segmentStart = if (trackPlayTime) currentTimeMillis() else null
     isPaused = false
     selectedCell = null
     // If already completed, mark as shown so we don't re-show modal when resuming
@@ -109,14 +116,19 @@ internal fun SudokuApp.resumeGame(saved: SavedGameState) {
     if (saved.solution == null) {
         val solverEngine = GameEngine()
         solverEngine.loadPuzzle(saved.puzzleString)
+        // Capture puzzle ID at request time (R3 fix)
+        val puzzleIdForCallback = saved.puzzleId
         solverEngine.getSolutionString(
             onStatus = { status -> showToast("⏳ $status") },
             onComplete = { solutionStr ->
                 if (solutionStr != null) {
-                    solution = solutionStr
-                    currentGame = currentGame?.copy(solution = solutionStr)
-                    currentGame?.let { GameStateManager.saveGame(it) }
-                    showToast("✓ Ready for mistake checking")
+                    // Only update if this is still the current game
+                    if (currentGame?.puzzleId == puzzleIdForCallback) {
+                        solution = solutionStr
+                        currentGame = currentGame?.copy(solution = solutionStr)
+                        currentGame?.let { GameStateManager.saveGame(it) }
+                        showToast("✓ Ready for mistake checking")
+                    }
                 }
             }
         )
@@ -235,9 +247,9 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
         GameStateManager.setCurrentGameId(it.puzzleId)
     }
 
-    // Reset timers/selection and render game screen
-    gameStartTime = currentTimeMillis()
-    pausedTime = 0L
+    // R9 fix: Initialize from saved elapsed time (imported play time)
+    accumulatedTime = if (trackPlayTime) importResult.playTimeMs else 0L
+    segmentStart = if (trackPlayTime) currentTimeMillis() else null
     isPaused = false
     selectedCell = null
     currentScreen = AppScreen.GAME
@@ -260,31 +272,35 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
             },
             onComplete = { difficulty, solutionStr, techniques ->
                 if (difficulty > 0) {
-                    // Determine category from difficulty
-                    val category = DifficultyCategory.fromDifficulty(difficulty.toFloat())
-                    
-                    // Update puzzle definition with graded difficulty
-                    puzzle = puzzle.copy(
-                        difficulty = difficulty.toFloat(),
-                        category = category,
-                        solution = solutionStr,
-                        techniques = techniques
-                    )
-                    GameStateManager.saveCustomPuzzle(puzzle)
-                    
-                    // Update current game with graded difficulty
-                    currentGame = currentGame?.copy(
-                        difficulty = difficulty.toFloat(),
-                        category = category,
-                        solution = solutionStr
-                    )
-                    currentGame?.let { game ->
-                        GameStateManager.saveGame(game)
-                        solution = solutionStr
+                    // Capture puzzle ID at callback time (R3 fix)
+                    // Only update if this is still the current game and it's the same puzzle
+                    if (currentGame?.puzzleId == puzzle.id) {
+                        // Determine category from difficulty
+                        val category = DifficultyCategory.fromDifficulty(difficulty.toFloat())
+                        
+                        // Update puzzle definition with graded difficulty
+                        val updatedPuzzle = puzzle.copy(
+                            difficulty = difficulty.toFloat(),
+                            category = category,
+                            solution = solutionStr,
+                            techniques = techniques
+                        )
+                        GameStateManager.saveCustomPuzzle(updatedPuzzle)
+                        
+                        // Update current game with graded difficulty
+                        currentGame = currentGame?.copy(
+                            difficulty = difficulty.toFloat(),
+                            category = category,
+                            solution = solutionStr
+                        )
+                        currentGame?.let { game ->
+                            GameStateManager.saveGame(game)
+                            solution = solutionStr
+                        }
+                        
+                        println("Imported puzzle graded: difficulty=$difficulty, category=${category.getLocalizedDisplayName()}")
+                        showToast("✓ Graded as ${category.getLocalizedDisplayName()} (difficulty: $difficulty)")
                     }
-                    
-                    println("Imported puzzle graded: difficulty=$difficulty, category=${category.getLocalizedDisplayName()}")
-                    showToast("✓ Graded as ${category.getLocalizedDisplayName()} (difficulty: $difficulty)")
                 }
             }
         )
@@ -369,10 +385,13 @@ internal fun SudokuApp.resetSavedPuzzleToGivens(puzzleId: String) {
 internal fun SudokuApp.saveCurrentState(newHint: Boolean = false) {
     val game = currentGame ?: return
     val grid = gameEngine.getCurrentGrid()
-    val additionalTimeMs = when {
-        !trackPlayTime -> 0L
-        isPaused -> (pauseStartTime - gameStartTime).coerceAtLeast(0L)
-        else -> currentTimeMillis() - gameStartTime
+    
+    // R9 fix: Settle the active segment before saving
+    var additionalTimeMs = 0L
+    if (trackPlayTime && segmentStart != null) {
+        additionalTimeMs = currentTimeMillis() - segmentStart
+        accumulatedTime += additionalTimeMs
+        segmentStart = null
     }
 
     val updated = GameStateManager.updateGameState(
@@ -387,10 +406,9 @@ internal fun SudokuApp.saveCurrentState(newHint: Boolean = false) {
     currentGame = updated
     GameStateManager.saveGame(updated)
 
-    gameStartTime = currentTimeMillis()
-    pausedTime = updated.elapsedTimeMs
-    if (isPaused) {
-        pauseStartTime = gameStartTime
+    // Start a new segment for continued play (unless paused)
+    if (trackPlayTime && !isPaused) {
+        segmentStart = currentTimeMillis()
     }
 }
 

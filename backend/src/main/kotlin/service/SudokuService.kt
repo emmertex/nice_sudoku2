@@ -10,7 +10,7 @@ import sudoku.Solvingtech.BruteForceSolver
 import sudoku.HelpingTools.cardinals
 import sudoku.match.TechniqueMatch
 import sudoku.solvingtechClassifier.Technique
-import java.util.concurrent.ConcurrentHashMap
+import java.security.MessageDigest
 import java.util.UUID
 import org.slf4j.LoggerFactory
 import service.hint.metadata.missingDescriptionsForPriority
@@ -25,27 +25,63 @@ class SudokuService {
 
     private val logger = LoggerFactory.getLogger(SudokuService::class.java)
     
-    // Store technique matches by ID for later application
-    private val matchCache = ConcurrentHashMap<String, CachedMatch>()
-    private val maxMatchCacheEntries = 1_000
-
-    private data class CachedMatch(
-            val match: TechniqueMatch,
-            val technique: Technique,
-            val puzzleString: String,
-            val timestamp: Long = System.currentTimeMillis()
-        )
-
-    /** Drop expired entries, then evict oldest if over [maxMatchCacheEntries]. */
-    private fun pruneMatchCache() {
-        val cutoff = System.currentTimeMillis() - 5 * 60 * 1000
-        matchCache.entries.removeIf { it.value.timestamp < cutoff }
-        if (matchCache.size <= maxMatchCacheEntries) return
-        val overflow = matchCache.size - maxMatchCacheEntries
-        matchCache.entries
-            .sortedBy { it.value.timestamp }
-            .take(overflow)
-            .forEach { matchCache.remove(it.key) }
+    /**
+     * Generate a deterministic match ID from match properties.
+     * Same match found on same board state produces the same ID.
+     */
+    private fun generateMatchId(technique: Technique, match: TechniqueMatch): String {
+        // Build a canonical representation of the match
+        val sb = StringBuilder(technique.name)
+        
+        // Add eliminations in sorted order
+        val eliminationsSorted = match.eliminations.toSortedMap()
+        for ((digit, cells) in eliminationsSorted) {
+            sb.append("|elim:${digit}:")
+            var cell = cells.nextSetBit(0)
+            val cellList = mutableListOf<Int>()
+            while (cell >= 0) {
+                cellList.add(cell)
+                cell = cells.nextSetBit(cell + 1)
+            }
+            sb.append(cellList.joinToString(","))
+        }
+        
+        // Add solved cells in sorted order
+        val solvedSorted = match.solvedCells.toSortedMap()
+        for ((cell, digit) in solvedSorted) {
+            sb.append("|solve:${cell}:${digit}")
+        }
+        
+        // Hash the canonical representation
+        val md = MessageDigest.getInstance("SHA-256")
+        val hash = md.digest(sb.toString().toByteArray())
+        return hash.joinToString("") { "%02x".format(it) }
+    }
+    
+    /**
+     * Find a match on a board that corresponds to the given match ID.
+     * Re-finds all matches and checks each one's generated ID.
+     */
+    private fun findMatchById(
+        basicGrid: BasicGrid,
+        matchId: String,
+        basicOnly: Boolean
+    ): Pair<Technique, TechniqueMatch>? {
+        val sbrcGrid = SBRCGrid(basicGrid)
+        val matches: Map<Technique, List<TechniqueMatch>> = if (basicOnly) {
+            FindBasics.invoke(sbrcGrid, false)
+        } else {
+            FindAll.invoke(sbrcGrid)
+        }
+        
+        for ((technique, techniqueMatches) in matches) {
+            for (match in techniqueMatches) {
+                if (generateMatchId(technique, match) == matchId) {
+                    return Pair(technique, match)
+                }
+            }
+        }
+        return null
     }
     
     init {
@@ -64,9 +100,6 @@ class SudokuService {
         return try {
             val basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
             val sbrcGrid = SBRCGrid(basicGrid)
-            
-            // Clear old cache entries / enforce size cap
-            pruneMatchCache()
             
             // TIER 1: Try basic techniques first (very fast)
             var matches = FindBasics.invoke(sbrcGrid, false)
@@ -106,9 +139,10 @@ class SudokuService {
                 )
             }
             
-            // Cache the match for later application
-            val matchId = UUID.randomUUID().toString()
-            matchCache[matchId] = CachedMatch(bestMatch, bestTechnique, puzzleString)
+            // Generate a deterministic match ID from match properties.
+            // Same match found on same board state produces the same ID, so it can be
+            // regenerated after server restart or cache expiry.
+            val matchId = generateMatchId(bestTechnique, bestMatch)
             
             val hintDto = techniqueMatchToDto(matchId, bestTechnique, bestMatch, puzzleString)
             
@@ -377,9 +411,6 @@ class SudokuService {
             val basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
             val sbrcGrid = SBRCGrid(basicGrid)
             
-            // Clear old cache entries / enforce size cap
-            pruneMatchCache()
-            
             val matches: Map<Technique, List<TechniqueMatch>> = if (basicOnly) {
                 FindBasics.invoke(sbrcGrid, false)
             } else {
@@ -405,8 +436,7 @@ class SudokuService {
                 
                 val limitedMatches = techniqueMatches.take(maxMatchesPerTechnique)
                 val matchDtos = limitedMatches.map { match ->
-                    val matchId = UUID.randomUUID().toString()
-                    matchCache[matchId] = CachedMatch(match, technique, puzzleString)
+                    val matchId = generateMatchId(technique, match)
                     techniqueMatchToDto(matchId, technique, match, puzzleString)
                 }
                 if (matchDtos.isNotEmpty()) {
@@ -442,9 +472,6 @@ class SudokuService {
                 }
             }
             
-            // Clear old cache entries / enforce size cap
-            pruneMatchCache()
-            
             val matches: Map<Technique, List<TechniqueMatch>> = if (request.basicOnly) {
                 FindBasics.invoke(sbrcGrid, false)
             } else {
@@ -470,10 +497,7 @@ class SudokuService {
                 
                 val limitedMatches = techniqueMatches.take(maxMatchesPerTechnique)
                 val matchDtos = limitedMatches.map { match ->
-                    val matchId = UUID.randomUUID().toString()
-                    // Cache the match for later application
-                    matchCache[matchId] = CachedMatch(match, technique, puzzleString)
-                    
+                    val matchId = generateMatchId(technique, match)
                     techniqueMatchToDto(matchId, technique, match, puzzleString)
                 }
                 if (matchDtos.isNotEmpty()) {
@@ -498,11 +522,17 @@ class SudokuService {
      */
     fun applyTechnique(request: ApplyTechniqueRequest): ApplyTechniqueResponse {
         return try {
-            val cached = matchCache[request.techniqueId]
-                ?: return ApplyTechniqueResponse(success = false, error = "Technique match not found or expired")
-            
             val basicGrid = dtoToBasicGrid(request.grid)
-            val match = cached.match
+            
+            // Re-find the match on the submitted board to validate it's still applicable
+            // and to get the match object (no longer rely on in-memory cache)
+            val found = findMatchById(basicGrid, request.techniqueId, basicOnly = false)
+                ?: return ApplyTechniqueResponse(
+                    success = false,
+                    error = "Technique match not found on submitted board (board state may have changed)"
+                )
+            
+            val (technique, match) = found
             
             // Apply eliminations
             for ((digit, cells) in match.eliminations) {
@@ -520,9 +550,7 @@ class SudokuService {
             
             basicGrid.cleanUpCandidates()
             
-            // Remove from cache after use
-            matchCache.remove(request.techniqueId)
-            
+            logger.debug("Applied technique {}", technique.name)
             ApplyTechniqueResponse(success = true, grid = basicGridToDto(basicGrid))
         } catch (e: Exception) {
             logger.warn("Failed to apply technique", e)

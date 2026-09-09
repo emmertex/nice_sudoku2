@@ -34,9 +34,15 @@ internal fun SudokuApp.renderGameScreen() {
         showCompletionModal = true
     }
 
+    // R9 fix: Use accumulated time + active segment
     val currentElapsed = if (trackPlayTime) {
-        if (isPaused) pausedTime + (pauseStartTime - gameStartTime)
-        else pausedTime + (currentTimeMillis() - gameStartTime)
+        if (isPaused) {
+            accumulatedTime
+        } else if (segmentStart != null) {
+            accumulatedTime + (currentTimeMillis() - segmentStart)
+        } else {
+            accumulatedTime
+        }
     } else 0L
 
     val puzzleTitleTrimmed = game?.title?.trim().orEmpty()

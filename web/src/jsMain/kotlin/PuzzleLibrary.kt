@@ -115,7 +115,9 @@ object PuzzleLibrary {
         
         loadingState[category] = true
         
-        val fetchPromise = window.asDynamic().fetch("puzzles/$filename") as Promise<Response>
+        // Use root-relative URL so language-prefixed paths like /de/ still
+        // resolve to the correct asset location.
+        val fetchPromise = window.asDynamic().fetch("/puzzles/$filename") as Promise<Response>
         fetchPromise.then { response: Response ->
             if (response.ok) {
                 response.text().then { text: dynamic ->

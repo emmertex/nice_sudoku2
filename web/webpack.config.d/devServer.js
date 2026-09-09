@@ -4,4 +4,15 @@ if (config.mode === 'development') {
     config.devServer.allowedHosts = 'all';
     // Enable SPA routing for language-based URLs like /en/, /zh/, /de/, /es/
     config.devServer.historyApiFallback = true;
+    // Proxy API and health check endpoints to the local backend
+    config.devServer.proxy = {
+        '/api': {
+            target: 'http://localhost:8181',
+            changeOrigin: true
+        },
+        '/health': {
+            target: 'http://localhost:8181',
+            changeOrigin: true
+        }
+    };
 }

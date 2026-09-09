@@ -84,6 +84,23 @@ class KeyboardHandler {
             grid: SudokuGrid,
             event: dynamic
         ): Boolean {
+            // R10 fix: Gate gameplay mutations on interaction state
+            
+            // If a modal is open, block gameplay keys (Escape is handled at top level)
+            if (app.showAboutModal || app.showHelpModal || app.showCompletionModal ||
+                app.showVersionModal || app.showPuzzleInfoModal || app.showExplanation) {
+                return false
+            }
+            
+            // If paused, only allow pause/resume commands (space or p)
+            if (app.isPaused && app.trackPlayTime) {
+                if (key == " " || key == "p") {
+                    app.resumeGame()
+                    return true
+                }
+                return false  // Block all other keyboard input while paused
+            }
+            
             // Hint navigation takes priority when hints are shown
             if (app.showHints && (key == "ArrowUp" || key == "ArrowDown" || key == "PageUp" || key == "PageDown")) {
                 when (key) {
@@ -198,9 +215,11 @@ class KeyboardHandler {
                             val isCandidatePresent = num in cell.displayCandidates
                             val wasMistake = app.checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
                             if (wasMistake) app.showToast(i18n.LanguageConfig.getString("ui.toasts.wrongCandidate"))
-                            // Only record elimination if candidate was present (we're removing it)
+                            // R11 fix: Record both eliminations and additions
                             if (isCandidatePresent) {
                                 app.gameEngine.recordAction(app.gameEngine.createEliminationAction(cellIndex, num))
+                            } else {
+                                app.gameEngine.recordAction(app.gameEngine.createAddCandidateAction(cellIndex, num))
                             }
                             app.gameEngine.toggleCandidate(cellIndex, num)
                             app.saveCurrentState()
@@ -250,6 +269,13 @@ class KeyboardHandler {
                         }
                     }
                 }
+                "p" -> {
+                    if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
+                        // Toggle pause (R10 fix)
+                        app.togglePause()
+                        return true
+                    }
+                }
                 " " -> {
                     // Space: If a filter (selected number) is set, toggle the candidate
                     app.selectedCell?.let { cellIndex ->
@@ -260,9 +286,11 @@ class KeyboardHandler {
                                 val isCandidatePresent = num in cell.displayCandidates
                                 val wasMistake = app.checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
                                 if (wasMistake) app.showToast(i18n.LanguageConfig.getString("ui.toasts.wrongCandidate"))
-                                // Only record elimination if candidate was present (we're removing it)
+                                // R11 fix: Record both eliminations and additions
                                 if (isCandidatePresent) {
                                     app.gameEngine.recordAction(app.gameEngine.createEliminationAction(cellIndex, num))
+                                } else {
+                                    app.gameEngine.recordAction(app.gameEngine.createAddCandidateAction(cellIndex, num))
                                 }
                                 app.gameEngine.toggleCandidate(cellIndex, num)
                                 app.saveCurrentState()

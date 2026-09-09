@@ -111,7 +111,7 @@ object LanguageManager {
 
             if (i == keys.size - 1) {
                 // Last key - return the string value
-                return element.toString().trim('"')
+                return element.jsonPrimitive.content
             } else {
                 // Navigate deeper
                 current = element as? JsonObject ?: return null

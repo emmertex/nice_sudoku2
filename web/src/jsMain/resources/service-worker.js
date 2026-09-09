@@ -1,12 +1,16 @@
 // Basic service worker for PWA functionality
-const CACHE_NAME = 'nice-sudoku-v1';
+const CACHE_NAME = 'nice-sudoku-v2';
 // Only precache assets the build actually emits — cache.addAll() rejects
 // atomically if any URL 404s, which would silently break SW installation.
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
   '/web.js',
-  '/manifest.json'
+  '/manifest.json',
+  '/favicon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png'
 ];
 
 // Install event - cache static resources

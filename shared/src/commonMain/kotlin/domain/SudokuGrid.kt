@@ -109,8 +109,10 @@ data class SudokuGrid(
         }
 
         private fun isUnitValid(unit: List<SudokuCell>): Boolean {
-            val solvedValues = unit.mapNotNull { it.value }.toSet()
-            return solvedValues.size == solvedValues.count()
+            val values = unit.mapNotNull { it.value }
+            val solvedValues = values.toSet()
+            // Compare original count with distinct count to detect duplicates
+            return solvedValues.size == values.size
         }
     }
 }

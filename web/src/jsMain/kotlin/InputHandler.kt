@@ -24,14 +24,19 @@ internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
                         val isCandidatePresent = num in cell.displayCandidates
                         val wasMistake = checkCandidateRemovalMistake(cellIndex, num, isCandidatePresent)
                         if (wasMistake) showToast(LanguageConfig.getString("ui.toasts.wrongCandidate"))
+                        // R11 fix: Record both eliminations and additions
                         if (isCandidatePresent) {
                             gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
+                        } else {
+                            gameEngine.recordAction(gameEngine.createAddCandidateAction(cellIndex, num))
                         }
                         gameEngine.toggleCandidate(cellIndex, num)
                     } else {
                         val wasMistake = checkMistake(cellIndex, num)
                         if (wasMistake) showToast(LanguageConfig.getString("ui.toasts.wrongNumber"))
-                        gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, num))
+                        // R11 fix: Include previous note state for undo
+                        val previousCandidates = cell.displayCandidates.toSet()
+                        gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, num, previousCandidates))
                         gameEngine.setCellValue(cellIndex, num)
                     }
                     saveCurrentState()
@@ -69,9 +74,10 @@ internal fun SudokuApp.handleErase(grid: SudokuGrid) {
     }
 
     if (!cell.isSolved && cell.displayCandidates.isNotEmpty()) {
-        val toRemove = cell.displayCandidates.toList()
+        val toRemove = cell.displayCandidates.toSet()
+        // R11 fix: Group multi-note erase into one undo entry
+        gameEngine.recordAction(gameEngine.createClearCandidatesAction(cellIndex, toRemove))
         toRemove.forEach { num ->
-            gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
             gameEngine.toggleCandidate(cellIndex, num)
         }
         saveCurrentState()
@@ -90,8 +96,11 @@ internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
                     val isCandidatePresent = selectedNum in cell.displayCandidates
                     val wasMistake = checkCandidateRemovalMistake(cellIndex, selectedNum, isCandidatePresent)
                     if (wasMistake) showToast(LanguageConfig.getString("ui.toasts.wrongCandidate"))
+                    // R11 fix: Record both eliminations and additions
                     if (isCandidatePresent) {
                         gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, selectedNum))
+                    } else {
+                        gameEngine.recordAction(gameEngine.createAddCandidateAction(cellIndex, selectedNum))
                     }
                     gameEngine.toggleCandidate(cellIndex, selectedNum)
                     saveCurrentState()
@@ -100,7 +109,9 @@ internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
             } else if (!cell.isSolved) {
                 val wasMistake = checkMistake(cellIndex, selectedNum)
                 if (wasMistake) showToast(LanguageConfig.getString("ui.toasts.wrongNumber"))
-                gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, selectedNum))
+                // R11 fix: Include previous note state for undo
+                val previousCandidates = cell.displayCandidates.toSet()
+                gameEngine.recordAction(gameEngine.createPlacementAction(cellIndex, selectedNum, previousCandidates))
                 gameEngine.setCellValue(cellIndex, selectedNum)
                 saveCurrentState()
                 selectedCell = null
@@ -120,23 +131,33 @@ internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
         if (!cell.isGiven && !cell.isSolved && selectedNumbers1.isNotEmpty()) {
             when (multiSelectAction) {
                 MultiSelectAction.CLEAR_SELECTED -> {
-                    val toRemove = selectedNumbers1.filter { it in cell.displayCandidates }
+                    val toRemove = selectedNumbers1.filter { it in cell.displayCandidates }.toSet()
                     var hadMistake = false
                     toRemove.forEach { num ->
                         if (checkCandidateRemovalMistake(cellIndex, num, true)) hadMistake = true
-                        gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
-                        gameEngine.toggleCandidate(cellIndex, num)
+                    }
+                    if (toRemove.isNotEmpty()) {
+                        // R11 fix: Group multi-note gesture into one undo entry
+                        gameEngine.recordAction(gameEngine.createClearCandidatesAction(cellIndex, toRemove))
+                        toRemove.forEach { num ->
+                            gameEngine.toggleCandidate(cellIndex, num)
+                        }
                     }
                     if (hadMistake) showToast(LanguageConfig.getString("ui.toasts.wrongCandidate"))
                     if (toRemove.isNotEmpty()) saveCurrentState()
                 }
                 MultiSelectAction.CLEAR_OTHER -> {
-                    val toRemove = cell.displayCandidates.filter { it !in selectedNumbers1 }
+                    val toRemove = cell.displayCandidates.filter { it !in selectedNumbers1 }.toSet()
                     var hadMistake = false
                     toRemove.forEach { num ->
                         if (checkCandidateRemovalMistake(cellIndex, num, true)) hadMistake = true
-                        gameEngine.recordAction(gameEngine.createEliminationAction(cellIndex, num))
-                        gameEngine.toggleCandidate(cellIndex, num)
+                    }
+                    if (toRemove.isNotEmpty()) {
+                        // R11 fix: Group multi-note gesture into one undo entry
+                        gameEngine.recordAction(gameEngine.createClearCandidatesAction(cellIndex, toRemove))
+                        toRemove.forEach { num ->
+                            gameEngine.toggleCandidate(cellIndex, num)
+                        }
                     }
                     if (hadMistake) showToast(LanguageConfig.getString("ui.toasts.wrongCandidate"))
                     if (toRemove.isNotEmpty()) saveCurrentState()

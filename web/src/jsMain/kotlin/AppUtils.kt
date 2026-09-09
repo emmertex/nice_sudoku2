@@ -34,7 +34,9 @@ internal fun SudokuApp.showToast(message: String) {
 }
 
 internal fun SudokuApp.loadChangelog() {
-    val fetchPromise = window.asDynamic().fetch("CHANGELOG.md") as Promise<Response>
+    // Use root-relative URL so language-prefixed paths like /de/ still
+    // resolve to the correct asset location.
+    val fetchPromise = window.asDynamic().fetch("/CHANGELOG.md") as Promise<Response>
     fetchPromise.then { response ->
         if (response.ok) {
             response.text().then { text ->

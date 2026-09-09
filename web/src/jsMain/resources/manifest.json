@@ -4,9 +4,9 @@
   "description": "A beautiful Sudoku game with advanced solving techniques",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FAFAFA",
-  "theme_color": "#1976D2",
-  "orientation": "portrait-primary",
+  "background_color": "#050505",
+  "theme_color": "#4cc9f0",
+  "orientation": "any",
   "categories": ["games", "puzzle"],
   "lang": "en",
   "icons": [

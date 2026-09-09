@@ -21,10 +21,53 @@ import service.CacheService
 import database.CacheDatabase
 import validation.*
 import kotlin.time.Duration.Companion.seconds
+import java.util.concurrent.ConcurrentHashMap
+
+// Trusted proxy addresses for X-Real-IP / X-Forwarded-For handling.
+// When the backend sits behind an upstream reverse proxy, that proxy's address
+// (or range) must be listed here. Empty means no forwarded headers are trusted.
+private val trustedProxyAddrs: Set<String> = System.getenv("TRUSTED_PROXY_ADDRS")
+    ?.split(",")
+    ?.map { it.trim() }
+    ?.filter { it.isNotEmpty() }
+    ?.toSet()
+    ?: emptySet()
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8181
     embeddedServer(Netty, port = port, host = "0.0.0.0", module = Application::module).start(wait = true)
+}
+
+/**
+ * Read the request body as text, enforcing a byte limit during the stream
+ * rather than after consuming the whole body.
+ *
+ * This prevents DoS from oversized bodies (with or without Content-Length) and
+ * ensures the byte budget is respected even when the stream is large.
+ *
+ * @throws ApiValidationException if the body exceeds [maxBytes].
+ */
+private suspend fun ApplicationCall.readBody(maxBytes: Int = MAX_REQUEST_BODY_BYTES): String {
+    val channel = receive<ByteReadChannel>()
+    try {
+        val buf = ByteArray(maxBytes + 1)
+        var total = 0
+        while (true) {
+            val remaining = maxBytes - total
+            if (remaining <= 0) {
+                throw ApiValidationException("Request body exceeds maximum size of $maxBytes bytes")
+            }
+            val read = channel.readAtMost(buf, total, remaining + 1)
+            if (read == null) break
+            total += read
+            if (total > maxBytes) {
+                throw ApiValidationException("Request body exceeds maximum size of $maxBytes bytes")
+            }
+        }
+        return buf.decodeToString(0, total).trim()
+    } finally {
+        channel.close()
+    }
 }
 
 /**
@@ -41,8 +84,10 @@ private suspend inline fun <reified Req : Any, reified Resp : Any> PipelineConte
     validate: (Req) -> Unit = {},
     process: (Req) -> Resp,
 ) {
-    val requestJson = call.receive<ByteReadChannel>().readRemaining().readText().trim()
-    requireBodySize(requestJson)
+    val requestJson = call.readBody()
+    if (requestJson.toByteArray(Charsets.UTF_8).size > MAX_REQUEST_BODY_BYTES) {
+        throw ApiValidationException("Request body exceeds maximum size of $MAX_REQUEST_BODY_BYTES bytes")
+    }
 
     cache.getCachedResponse(endpoint, requestJson)?.let { cached ->
         call.application.log.debug("Cache HIT {}", endpoint)
@@ -58,15 +103,46 @@ private suspend inline fun <reified Req : Any, reified Resp : Any> PipelineConte
     call.respond(response)
 }
 
-/** Client IP for rate limiting — prefers proxy headers set by nginx. */
+/**
+ * Determine the real client IP for rate limiting.
+ *
+ * If the request comes from a trusted proxy (configured via TRUSTED_PROXY_ADDRS),
+ * extract the real client address from X-Forwarded-For. Otherwise use the immediate
+ * peer address (direct connection).
+ */
 private fun ApplicationCall.clientIp(): String {
-    request.header("X-Real-IP")?.trim()?.takeIf { it.isNotEmpty() }?.let { return it }
-    request.header("X-Forwarded-For")
-        ?.substringBefore(",")
-        ?.trim()
-        ?.takeIf { it.isNotEmpty() }
-        ?.let { return it }
-    return request.local.remoteHost
+    // No trusted proxies configured: assume direct connection
+    if (trustedProxyAddrs.isEmpty()) {
+        return request.local.remoteHost
+    }
+
+    // Check if immediate peer is a trusted proxy
+    val peerHost = request.local.remoteHost
+    if (peerHost !in trustedProxyAddrs) {
+        // Direct connection or untrusted proxy - use peer address
+        return peerHost
+    }
+
+    // Trusted proxy - extract real client IP from headers
+    // Prefer X-Real-IP (set by nginx) over X-Forwarded-For
+    val realIp = request.header("X-Real-IP")?.trim()
+    if (realIp != null && realIp.isNotEmpty()) {
+        return realIp
+    }
+
+    // Use rightmost non-proxy address from X-Forwarded-For
+    request.header("X-Forwarded-For")?.let { xff ->
+        val addrs = xff.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        // Walk from right to left, skip trusted proxies
+        for (addr in addrs.reversed()) {
+            if (addr !in trustedProxyAddrs) {
+                return addr
+            }
+        }
+    }
+
+    // Fall back to peer address if nothing useful found
+    return peerHost
 }
 
 /**
@@ -188,13 +264,15 @@ fun Application.module() {
 
                 route("/puzzle") {
                     post("/load") {
-                        val request = call.receive<LoadPuzzleRequest>()
+                        val requestJson = call.readBody()
+                        val request = json.decodeFromString<LoadPuzzleRequest>(requestJson)
                         requireValidPuzzle(request.puzzle)
                         call.respond(sudokuService.loadPuzzle(request.puzzle))
                     }
 
                     post("/solve") {
-                        val request = call.receive<SolveRequest>()
+                        val requestJson = call.readBody()
+                        val request = json.decodeFromString<SolveRequest>(requestJson)
                         requireValidGrid(request.grid)
                         call.respond(sudokuService.solve(request))
                     }
@@ -209,7 +287,8 @@ fun Application.module() {
 
                 route("/cell") {
                     post("/set") {
-                        val request = call.receive<SetCellRequest>()
+                        val requestJson = call.readBody()
+                        val request = json.decodeFromString<SetCellRequest>(requestJson)
                         requireValidGrid(request.grid)
                         requireValidCellIndex(request.cellIndex)
                         requireValidCellValue(request.value)
@@ -233,7 +312,8 @@ fun Application.module() {
                     }
 
                     post("/apply") {
-                        val request = call.receive<ApplyTechniqueRequest>()
+                        val requestJson = call.readBody()
+                        val request = json.decodeFromString<ApplyTechniqueRequest>(requestJson)
                         requireValidGrid(request.grid)
                         requireValidTechniqueId(request.techniqueId)
                         call.respond(sudokuService.applyTechnique(request))

@@ -1,3 +1,29 @@
+# v1.3.0 - 2026-09-09
+
+### Bug Fixes
+- Grid validation now correctly detects duplicate values in rows, columns, and boxes
+- Backend no longer overwrites newer local game state from stale responses
+- Late solution and grading callbacks no longer update the wrong saved puzzle
+- Candidate eliminations no longer leak into the automatic candidate layer
+- Elapsed time now persists correctly across pause/resume cycles
+- Keyboard input no longer bypasses pause state or modal overlays
+- Manual note additions now appear in undo history
+- Persistent cached hint IDs now remain usable after restart or eviction
+- Technique matches are now validated against the submitted board state
+- Backend body limits now enforce size during streaming reads
+- Proxied deployments no longer rate-limit all users as one client
+- Localized strings now decode JSON escape sequences correctly
+- Changelog and puzzle library now load correctly on language-prefixed routes
+
+### Delivery Improvements
+- Production bundle now requires revalidation on each visit
+- Development server now proxies API requests to backend
+- Local production server uses nginx matching deployment configuration
+
+### New Features
+- Added favicon and PWA app icons
+- Service worker registration for offline support and PWA functionality
+
 # v1.2.0 - 2026-08-25
 
 ### Features and Bugs

@@ -315,8 +315,9 @@ internal fun SudokuApp.renderSettings() {
                                 trackPlayTime = true
                                 GameStateManager.setTrackPlayTime(true)
                                 currentGame?.let {
-                                    pausedTime = it.elapsedTimeMs
-                                    gameStartTime = currentTimeMillis()
+                                    // R9 fix: Initialize from saved elapsed time
+                                    accumulatedTime = it.elapsedTimeMs
+                                    segmentStart = currentTimeMillis()
                                 }
                                 render()
                             }

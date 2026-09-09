@@ -66,7 +66,7 @@ actual class GameEngine actual constructor() {
     }
     
     actual fun loadPuzzle(puzzle: String): Boolean {
-        // Synchronous local parsing first
+        // Synchronous local parsing - local state is authoritative
         val parsed = SudokuGrid.fromString(puzzle)
         return if (parsed != null) {
             grid = parsed
@@ -75,22 +75,10 @@ actual class GameEngine actual constructor() {
             selectedTechniqueKey = null
             actionStack.clear()  // Clear action stack for new puzzle
             
-            // Calculate candidates locally immediately so UI shows correct state
+            // Calculate candidates locally - this is the source of truth for gameplay
             grid = calculateAllCandidates(grid)
             
-            // Also load from backend asynchronously (may have more accurate candidates)
-            MainScope().launch {
-                try {
-                    val response = apiPost("/api/puzzle/load", LoadPuzzleRequest(puzzle))
-                    val result = json.decodeFromString<LoadPuzzleResponse>(response)
-                    if (result.success && result.grid != null) {
-                        grid = gridDtoToSudokuGrid(result.grid)
-                        println("JS: Updated puzzle from backend with candidates")
-                    }
-                } catch (e: Exception) {
-                    println("JS: Backend unavailable, using local candidates: ${e.message}")
-                }
-            }
+            // No backend sync for load - local is authoritative for deterministic state
             true
         } else {
             false
@@ -110,23 +98,8 @@ actual class GameEngine actual constructor() {
                 grid = calculateAllCandidates(grid)
             }
             
-            // Sync with backend
-            MainScope().launch {
-                try {
-                    val request = SetCellRequest(
-                        grid = sudokuGridToDto(grid),
-                        cellIndex = cellIndex,
-                        value = value
-                    )
-                    val response = apiPost("/api/cell/set", request)
-                    val result = json.decodeFromString<SetCellResponse>(response)
-                    if (result.success && result.grid != null) {
-                        grid = gridDtoToSudokuGrid(result.grid)
-                    }
-                } catch (e: Exception) {
-                    println("JS: Backend unavailable for setCellValue: ${e.message}")
-                }
-            }
+            // No backend sync for cell values - local is authoritative for gameplay
+            // Backend is only used for hint/solve/grade operations that need it
         }
     }
     
@@ -463,7 +436,10 @@ actual class GameEngine actual constructor() {
                 val result = json.decodeFromString<ApplyTechniqueResponse>(response)
                 
                 if (result.success && result.grid != null) {
-                    grid = gridDtoToSudokuGrid(result.grid)
+                    // Don't replace the whole grid - just apply the technique's changes
+                    // This preserves user eliminations and local candidate state
+                    val backendGrid = gridDtoToSudokuGrid(result.grid)
+                    applyTechniqueChanges(backendGrid)
                     currentMatches = emptyMap()
                     println("JS: Applied technique from backend")
                 } else {
@@ -475,6 +451,43 @@ actual class GameEngine actual constructor() {
                 println("JS: Backend unavailable for applyTechnique: ${e.message}")
                 applyLocalTechnique(techniqueId)
             }
+        }
+    }
+    
+    /**
+     * Apply technique changes from backend grid to local grid.
+     * Only applies new solved values and eliminations, preserving user state.
+     */
+    private fun applyTechniqueChanges(backendGrid: SudokuGrid) {
+        var changed = false
+        for (i in 0 until 81) {
+            val backendCell = backendGrid.getCell(i)
+            val localCell = grid.getCell(i)
+            
+            // Apply solved values
+            if (backendCell.value != null && localCell.value == null && !localCell.isGiven) {
+                grid = grid.withCellValue(i, backendCell.value)
+                grid = removeCandidateFromPeers(grid, i, backendCell.value)
+                changed = true
+            }
+            
+            // Apply eliminations from technique (not user eliminations)
+            if (!backendCell.isSolved && !localCell.isSolved) {
+                // Find digits that backend eliminated but local still has
+                val techniqueEliminations = localCell.candidates - backendCell.candidates
+                for (digit in techniqueEliminations) {
+                    if (digit !in localCell.userEliminations) {
+                        // This was a technique elimination, not user - add to user eliminations
+                        grid = grid.withCellUserEliminations(i, localCell.userEliminations + digit)
+                        changed = true
+                    }
+                }
+            }
+        }
+        
+        // Recalculate candidates if any changes were made
+        if (changed) {
+            grid = calculateAllCandidates(grid)
         }
     }
     
@@ -676,12 +689,18 @@ actual class GameEngine actual constructor() {
      * Create an action string for a placement.
      * @param cellIndex The cell index (0-80)
      * @param value The value placed (1-9)
-     * @return Eureka notation string (e.g., "R1C5=7")
+     * @param previousCandidates The previous display candidates (notes) in the cell
+     * @return Notation string (e.g., "R1C5=7" or "R1C5=7;2,4,6" if notes were present)
      */
-    fun createPlacementAction(cellIndex: Int, value: Int): String {
+    fun createPlacementAction(cellIndex: Int, value: Int, previousCandidates: Set<Int> = emptySet()): String {
         val row = cellIndex / 9 + 1  // 1-indexed for Eureka
         val col = cellIndex % 9 + 1
-        return "R${row}C${col}=$value"
+        if (previousCandidates.isEmpty()) {
+            return "R${row}C${col}=$value"
+        }
+        // Include previous note state so undo can restore it
+        val candidatesStr = previousCandidates.joinToString(",")
+        return "R${row}C${col}=$value;$candidatesStr"
     }
 
     /**
@@ -705,6 +724,32 @@ actual class GameEngine actual constructor() {
         val row = cellIndex / 9 + 1  // 1-indexed for Eureka
         val col = cellIndex % 9 + 1
         return "R${row}C${col}<>$candidate"
+    }
+    
+    /**
+     * Create an action string for adding a candidate (note).
+     * @param cellIndex The cell index (0-80)
+     * @param candidate The candidate added (1-9)
+     * @return Notation string (e.g., "R3C8>4")
+     */
+    fun createAddCandidateAction(cellIndex: Int, candidate: Int): String {
+        val row = cellIndex / 9 + 1  // 1-indexed for Eureka
+        val col = cellIndex % 9 + 1
+        return "R${row}C${col}>$candidate"
+    }
+    
+    /**
+     * Create an action string for clearing multiple candidates at once (erase gesture).
+     * This groups multiple eliminations into one undo entry (R11 fix).
+     * @param cellIndex The cell index (0-80)
+     * @param candidates The set of candidates being cleared
+     * @return Notation string (e.g., "R3C8<>2,4,6")
+     */
+    fun createClearCandidatesAction(cellIndex: Int, candidates: Set<Int>): String {
+        val row = cellIndex / 9 + 1  // 1-indexed for Eureka
+        val col = cellIndex % 9 + 1
+        val candidatesStr = candidates.joinToString(",")
+        return "R${row}C${col}<>$candidatesStr"
     }
     
     /**
@@ -732,30 +777,45 @@ actual class GameEngine actual constructor() {
         val action = popAction() ?: return false
         
         // Parse the action
-        // Placement format: R{row}C{col}={value}
+        // Placement format: R{row}C{col}={value} or R{row}C{col}={value};{candidates}
         // Clear format: R{row}C{col}#{previousValue}
         // Elimination format: R{row}C{col}<>{candidate}
+        // Add candidate format: R{row}C{col}>{candidate}
         
-        val placementRegex = Regex("""R(\d)C(\d)=(\d)""")
+        val placementRegex = Regex("""R(\d)C(\d)=(\d)(?:;([\d,]+))?""")
         val clearRegex = Regex("""R(\d)C(\d)#(\d)""")
-        val eliminationRegex = Regex("""R(\d)C(\d)<>(\d)""")
+        // R11 fix: Handle both single and multi-candidate elimination format
+        val eliminationRegex = Regex("""R(\d)C(\d)<>([\d,]+)""")
+        val addCandidateRegex = Regex("""R(\d)C(\d)>(\d)""")
         
         val placementMatch = placementRegex.matchEntire(action)
         val clearMatch = clearRegex.matchEntire(action)
         val eliminationMatch = eliminationRegex.matchEntire(action)
+        val addCandidateMatch = addCandidateRegex.matchEntire(action)
         
         when {
             placementMatch != null -> {
-                // Undo a placement: remove the value from the cell
+                // Undo a placement: remove the value from the cell and restore previous notes
                 val row = placementMatch.groupValues[1].toInt() - 1  // Convert back to 0-indexed
                 val col = placementMatch.groupValues[2].toInt() - 1
                 val cellIndex = row * 9 + col
+                val candidatesStr = placementMatch.groupValues[4]  // Previous note state
                 
                 val cell = grid.getCell(cellIndex)
                 if (!cell.isGiven) {
+                    // Remove the value
                     grid = grid.withCellValue(cellIndex, null)
-                    // Recalculate candidates after removing a value
-                    grid = calculateAllCandidates(grid)
+                    
+                    // Restore previous note state if present
+                    if (candidatesStr != null && candidatesStr.isNotEmpty()) {
+                        val previousCandidates = candidatesStr.split(",").map { it.toInt() }.toSet()
+                        // Clear all current user eliminations and set to previous state
+                        val newEliminations = (1..9).toSet() - previousCandidates
+                        grid = grid.withCellUserEliminations(cellIndex, newEliminations)
+                    } else {
+                        // No previous notes - just recalculate candidates
+                        grid = calculateAllCandidates(grid)
+                    }
                 }
                 return true
             }
@@ -777,12 +837,30 @@ actual class GameEngine actual constructor() {
                 // Undo an elimination: toggle the user elimination back (restore candidate)
                 val row = eliminationMatch.groupValues[1].toInt() - 1
                 val col = eliminationMatch.groupValues[2].toInt() - 1
-                val candidate = eliminationMatch.groupValues[3].toInt()
+                val candidatesStr = eliminationMatch.groupValues[3]
                 val cellIndex = row * 9 + col
                 
                 val cell = grid.getCell(cellIndex)
                 if (!cell.isGiven && !cell.isSolved) {
-                    // Toggle the elimination off (restore the candidate)
+                    // Parse the candidates (could be single or comma-separated)
+                    val candidates = candidatesStr.split(",").map { it.toInt() }
+                    for (candidate in candidates) {
+                        // Toggle the elimination off (restore the candidate)
+                        grid = grid.toggleUserElimination(cellIndex, candidate)
+                    }
+                }
+                return true
+            }
+            addCandidateMatch != null -> {
+                // Undo adding a candidate: remove it
+                val row = addCandidateMatch.groupValues[1].toInt() - 1
+                val col = addCandidateMatch.groupValues[2].toInt() - 1
+                val candidate = addCandidateMatch.groupValues[3].toInt()
+                val cellIndex = row * 9 + col
+                
+                val cell = grid.getCell(cellIndex)
+                if (!cell.isGiven && !cell.isSolved) {
+                    // Toggle the candidate off (remove it)
                     grid = grid.toggleUserElimination(cellIndex, candidate)
                 }
                 return true

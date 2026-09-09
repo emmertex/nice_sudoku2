@@ -19,8 +19,9 @@ class SudokuApp {
     // Current game state
     internal var currentGame: SavedGameState? = null
     internal var solution: String? = null  // Background solved solution for mistake detection
-    internal var gameStartTime: Long = 0L
-    internal var pausedTime: Long = 0L
+    // One accumulated-time source plus one active-segment start (R9 fix)
+    internal var accumulatedTime: Long = 0L  // Total elapsed from completed segments
+    internal var segmentStart: Long? = null   // Start of current active segment (null when paused)
     
     // UI state
     internal var currentScreen = AppScreen.GAME
@@ -84,7 +85,6 @@ class SudokuApp {
     // Timer update interval
     internal var timerIntervalId: Int? = null
     internal var isPaused = false
-    internal var pauseStartTime: Long = 0L
     
     internal val appRoot: Element get() = document.getElementById("app")!!
 
@@ -204,6 +204,9 @@ class SudokuApp {
             isLoadingHints = isLoading
             render()  // Re-render to show/hide loading indicator
         }
+        
+        // Register service worker for offline support (P3 fix)
+        registerServiceWorker()
         
         // Load changelog and check for new version
         loadChangelog()
@@ -359,9 +362,11 @@ class SudokuApp {
         val currentElapsed = if (!trackPlayTime) {
             0L
         } else if (isPaused) {
-            pausedTime + (pauseStartTime - gameStartTime)
+            accumulatedTime
+        } else if (segmentStart != null) {
+            accumulatedTime + (currentTimeMillis() - segmentStart)
         } else {
-            pausedTime + (currentTimeMillis() - gameStartTime)
+            accumulatedTime
         }
         
         // Find and update the timer element
@@ -372,17 +377,19 @@ class SudokuApp {
     internal fun pauseGame() {
         if (!trackPlayTime || isPaused || currentGame == null) return
         
+        // Settle the active segment into accumulated time
+        if (segmentStart != null) {
+            accumulatedTime += currentTimeMillis() - segmentStart
+            segmentStart = null
+        }
         isPaused = true
-        pauseStartTime = currentTimeMillis()
         render()
     }
     
     internal fun resumeGame() {
         if (!trackPlayTime || !isPaused || currentGame == null) return
         
-        pausedTime += pauseStartTime - gameStartTime
-        gameStartTime = currentTimeMillis()
-        
+        segmentStart = currentTimeMillis()
         isPaused = false
         render()
     }
@@ -494,5 +501,24 @@ fun setLanguageWithUrl(languageCode: String) {
         
         // Use replaceState to update URL without navigation
         window.history.replaceState(null, "", "$newPath$search$hash")
+    }
+}
+
+/**
+ * Register service worker for offline support and PWA functionality.
+ * Uses navigator.serviceWorker from the browser API.
+ */
+fun registerServiceWorker() {
+    try {
+        val sw = js("navigator.serviceWorker")
+        if (sw != null) {
+            sw.register("/service-worker.js").then({ registration ->
+                println("Service worker registered: ${registration.scope}")
+            }).catch({ error ->
+                println("Service worker registration failed: $error")
+            })
+        }
+    } catch (e: Throwable) {
+        println("Service worker not available: ${e.message}")
     }
 }
