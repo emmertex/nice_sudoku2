@@ -6,7 +6,13 @@ plugins {
 kotlin {
     jvm()
     js(IR) {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
         binaries.executable()
     }
 

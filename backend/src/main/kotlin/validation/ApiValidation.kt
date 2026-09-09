@@ -1,7 +1,6 @@
 package validation
 
 import dto.GridDto
-import java.util.UUID
 
 /** Client-safe validation failure (maps to HTTP 400). */
 class ApiValidationException(message: String) : IllegalArgumentException(message)
@@ -64,12 +63,10 @@ fun requireValidCellValue(value: Int?, field: String = "value") {
     }
 }
 
-/** Technique match IDs are UUIDs minted by the backend. */
+/** Deterministic SHA-256 match identifiers, revalidated on the submitted board. */
 fun requireValidTechniqueId(techniqueId: String) {
-    try {
-        UUID.fromString(techniqueId)
-    } catch (_: IllegalArgumentException) {
-        throw ApiValidationException("techniqueId must be a valid UUID")
+    if (!Regex("^[0-9a-f]{64}$").matches(techniqueId)) {
+        throw ApiValidationException("techniqueId must be a SHA-256 match identifier")
     }
 }
 

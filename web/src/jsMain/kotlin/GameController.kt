@@ -54,7 +54,9 @@ internal fun SudokuApp.startNewGame(puzzle: PuzzleDefinition) {
             },
             onComplete = { solutionStr ->
                 if (solutionStr != null) {
-                    // Only update if this is still the current game
+                    GameStateManager.loadGame(puzzleIdForCallback)?.let { savedGame ->
+                        GameStateManager.saveGame(savedGame.copy(solution = solutionStr))
+                    }
                     if (currentGame?.puzzleId == puzzleIdForCallback) {
                         solution = solutionStr
                         currentGame = currentGame?.copy(solution = solutionStr)
@@ -122,7 +124,9 @@ internal fun SudokuApp.resumeGame(saved: SavedGameState) {
             onStatus = { status -> showToast("⏳ $status") },
             onComplete = { solutionStr ->
                 if (solutionStr != null) {
-                    // Only update if this is still the current game
+                    GameStateManager.loadGame(puzzleIdForCallback)?.let { savedGame ->
+                        GameStateManager.saveGame(savedGame.copy(solution = solutionStr))
+                    }
                     if (currentGame?.puzzleId == puzzleIdForCallback) {
                         solution = solutionStr
                         currentGame = currentGame?.copy(solution = solutionStr)
@@ -178,6 +182,10 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
     val userEliminations = importResult.userEliminations
     val originalPuzzleStr = importResult.originalPuzzle
 
+    if (SudokuGrid.fromString(originalPuzzleStr)?.isValid != true) {
+        showToast("Invalid puzzle givens")
+        return false
+    }
     // Start new game with puzzle and apply imported state
     gameEngine.loadPuzzle(originalPuzzleStr)
     var hasStateData = false
@@ -272,34 +280,23 @@ internal fun SudokuApp.importGameFromString(rawInput: String, fromUrl: Boolean =
             },
             onComplete = { difficulty, solutionStr, techniques ->
                 if (difficulty > 0) {
-                    // Capture puzzle ID at callback time (R3 fix)
-                    // Only update if this is still the current game and it's the same puzzle
-                    if (currentGame?.puzzleId == puzzle.id) {
-                        // Determine category from difficulty
+                    val existingPuzzle = GameStateManager.loadCustomPuzzles().find { it.id == puzzle.id }
+                    if (existingPuzzle != null) {
                         val category = DifficultyCategory.fromDifficulty(difficulty.toFloat())
-                        
-                        // Update puzzle definition with graded difficulty
-                        val updatedPuzzle = puzzle.copy(
-                            difficulty = difficulty.toFloat(),
-                            category = category,
-                            solution = solutionStr,
-                            techniques = techniques
-                        )
-                        GameStateManager.saveCustomPuzzle(updatedPuzzle)
-                        
-                        // Update current game with graded difficulty
-                        currentGame = currentGame?.copy(
-                            difficulty = difficulty.toFloat(),
-                            category = category,
-                            solution = solutionStr
-                        )
-                        currentGame?.let { game ->
-                            GameStateManager.saveGame(game)
-                            solution = solutionStr
+                        GameStateManager.saveCustomPuzzle(existingPuzzle.copy(
+                            difficulty = difficulty.toFloat(), category = category,
+                            solution = solutionStr, techniques = techniques
+                        ))
+                        val saved = GameStateManager.loadGame(puzzle.id)
+                        if (saved != null) {
+                            val updated = saved.copy(difficulty = difficulty.toFloat(), category = category, solution = solutionStr)
+                            GameStateManager.saveGame(updated)
+                            if (currentGame?.puzzleId == puzzle.id) {
+                                currentGame = currentGame?.copy(difficulty = updated.difficulty, category = category, solution = solutionStr)
+                                solution = solutionStr
+                                showToast("✓ Graded as ${category.getLocalizedDisplayName()} (difficulty: $difficulty)")
+                            }
                         }
-                        
-                        println("Imported puzzle graded: difficulty=$difficulty, category=${category.getLocalizedDisplayName()}")
-                        showToast("✓ Graded as ${category.getLocalizedDisplayName()} (difficulty: $difficulty)")
                     }
                 }
             }
@@ -386,22 +383,17 @@ internal fun SudokuApp.saveCurrentState(newHint: Boolean = false) {
     val game = currentGame ?: return
     val grid = gameEngine.getCurrentGrid()
     
-    // R9 fix: Settle the active segment before saving
-    var additionalTimeMs = 0L
-    if (trackPlayTime && segmentStart != null) {
-        additionalTimeMs = currentTimeMillis() - segmentStart
-        accumulatedTime += additionalTimeMs
-        segmentStart = null
-    }
+    accumulatedTime = elapsedPlayTime()
+    segmentStart = null
 
     val updated = GameStateManager.updateGameState(
         currentGame = game,
         grid = grid,
         actionStack = gameEngine.getActionStack(),
-        additionalTimeMs = additionalTimeMs,
+        additionalTimeMs = 0L,
         newHint = newHint
     ).let { state ->
-        if (!trackPlayTime) state.copy(elapsedTimeMs = 0L) else state
+        state.copy(elapsedTimeMs = accumulatedTime)
     }
     currentGame = updated
     GameStateManager.saveGame(updated)
@@ -443,3 +435,7 @@ internal fun SudokuApp.loadNextUncompletedGame(category: DifficultyCategory) {
     }
 }
 
+
+internal fun SudokuApp.elapsedPlayTime(now: Long = currentTimeMillis()): Long =
+    if (!trackPlayTime) 0L else accumulatedTime +
+        (segmentStart?.let { (now - it).coerceAtLeast(0L) } ?: 0L)

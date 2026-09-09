@@ -35,15 +35,7 @@ internal fun SudokuApp.renderGameScreen() {
     }
 
     // R9 fix: Use accumulated time + active segment
-    val currentElapsed = if (trackPlayTime) {
-        if (isPaused) {
-            accumulatedTime
-        } else if (segmentStart != null) {
-            accumulatedTime + (currentTimeMillis() - segmentStart)
-        } else {
-            accumulatedTime
-        }
-    } else 0L
+    val currentElapsed = elapsedPlayTime()
 
     val puzzleTitleTrimmed = game?.title?.trim().orEmpty()
     document.title = when {
@@ -262,11 +254,7 @@ internal fun SudokuApp.renderGameScreen() {
                         attributes["title"] = LanguageConfig.getString("ui.buttonHelp.undoBtnDesc")
                         attributes["aria-label"] = LanguageConfig.getString("ui.buttonHelp.undoBtn")
                         onClickFunction = {
-                            if (gameEngine.canUndo()) {
-                                gameEngine.undoLastAction()
-                                saveCurrentState()
-                                render()
-                            }
+                            handleUndo()
                         }
                     }
 

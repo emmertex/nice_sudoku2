@@ -17,7 +17,13 @@ import kotlin.js.json
  */
 actual class GameEngine actual constructor() {
     
+    private var boardRevision = 0L
     private var grid: SudokuGrid = SudokuGrid.empty()
+        set(value) {
+            field = value
+            boardRevision++
+            currentMatches = emptyMap()
+        }
     private var currentMatches: Map<String, List<TechniqueMatchInfo>> = emptyMap()
     // Incremented on every hint request so out-of-order async responses can be discarded
     private var hintRequestGeneration: Int = 0
@@ -214,6 +220,7 @@ actual class GameEngine actual constructor() {
      */
     private fun findTechniquesWithFallback() {
         val generation = ++hintRequestGeneration
+        val revision = boardRevision
         MainScope().launch {
             onLoadingStateChanged?.invoke(true)
             val puzzleStr = getCurrentStateString(grid)
@@ -221,7 +228,11 @@ actual class GameEngine actual constructor() {
             try {
                 // First try basic techniques
                 val basicMatches = fetchTechniques(puzzleStr, basicOnly = true)
-                if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
+                if (generation != hintRequestGeneration) return@launch
+                if (revision != boardRevision) {
+                    onLoadingStateChanged?.invoke(false)
+                    return@launch
+                }
 
                 if (basicMatches.isNotEmpty()) {
                     currentMatches = filterAndLimitHints(basicMatches)
@@ -232,7 +243,11 @@ actual class GameEngine actual constructor() {
                     // No basic techniques found, try all techniques
                     println("JS: No basic techniques found, searching all techniques...")
                     val allMatches = fetchTechniques(puzzleStr, basicOnly = false)
-                    if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
+                    if (generation != hintRequestGeneration) return@launch
+                if (revision != boardRevision) {
+                    onLoadingStateChanged?.invoke(false)
+                    return@launch
+                }
                     currentMatches = filterAndLimitHints(allMatches)
                     println("JS: Found ${currentMatches.values.flatten().size} advanced technique matches (filtered)")
                     onLoadingStateChanged?.invoke(false)
@@ -240,7 +255,11 @@ actual class GameEngine actual constructor() {
                 }
             } catch (e: Exception) {
                 println("JS: Backend unavailable for findTechniques: ${e.message}")
-                if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
+                if (generation != hintRequestGeneration) return@launch
+                if (revision != boardRevision) {
+                    onLoadingStateChanged?.invoke(false)
+                    return@launch
+                }
                 findLocalBasicTechniques()
                 onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
@@ -356,6 +375,7 @@ actual class GameEngine actual constructor() {
     
     private fun findTechniquesAsync(basicOnly: Boolean) {
         val generation = ++hintRequestGeneration
+        val revision = boardRevision
         MainScope().launch {
             onLoadingStateChanged?.invoke(true)
             // Use current grid state (including user-solved cells) for accurate hints
@@ -363,14 +383,22 @@ actual class GameEngine actual constructor() {
 
             try {
                 val rawMatches = fetchTechniques(puzzleStr, basicOnly)
-                if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
+                if (generation != hintRequestGeneration) return@launch
+                if (revision != boardRevision) {
+                    onLoadingStateChanged?.invoke(false)
+                    return@launch
+                }
                 currentMatches = filterAndLimitHints(rawMatches)
                 println("JS: Found ${currentMatches.values.flatten().size} technique matches from backend (filtered)")
                 onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
             } catch (e: Exception) {
                 println("JS: Backend unavailable for findTechniques: ${e.message}")
-                if (generation != hintRequestGeneration) return@launch  // Superseded by a newer request
+                if (generation != hintRequestGeneration) return@launch
+                if (revision != boardRevision) {
+                    onLoadingStateChanged?.invoke(false)
+                    return@launch
+                }
                 findLocalBasicTechniques()
                 onLoadingStateChanged?.invoke(false)
                 onHintsReady?.invoke()
@@ -426,6 +454,7 @@ actual class GameEngine actual constructor() {
     }
     
     private fun applyTechniqueById(techniqueId: String) {
+        val revision = boardRevision
         MainScope().launch {
             try {
                 val request = ApplyTechniqueRequest(
@@ -434,6 +463,7 @@ actual class GameEngine actual constructor() {
                 )
                 val response = apiPost("/api/techniques/apply", request)
                 val result = json.decodeFromString<ApplyTechniqueResponse>(response)
+                if (revision != boardRevision) return@launch
                 
                 if (result.success && result.grid != null) {
                     // Don't replace the whole grid - just apply the technique's changes
@@ -449,6 +479,7 @@ actual class GameEngine actual constructor() {
                 }
             } catch (e: Exception) {
                 println("JS: Backend unavailable for applyTechnique: ${e.message}")
+                if (revision != boardRevision) return@launch
                 applyLocalTechnique(techniqueId)
             }
         }
@@ -478,7 +509,7 @@ actual class GameEngine actual constructor() {
                 for (digit in techniqueEliminations) {
                     if (digit !in localCell.userEliminations) {
                         // This was a technique elimination, not user - add to user eliminations
-                        grid = grid.withCellUserEliminations(i, localCell.userEliminations + digit)
+                        grid = grid.withCellUserEliminations(i, grid.getCell(i).userEliminations + digit)
                         changed = true
                     }
                 }
@@ -518,11 +549,13 @@ actual class GameEngine actual constructor() {
     }
     
     actual fun solve() {
+        val revision = boardRevision
         MainScope().launch {
             try {
                 val request = SolveRequest(grid = sudokuGridToDto(grid))
                 val response = apiPost("/api/puzzle/solve", request)
                 val result = json.decodeFromString<SolveResponse>(response)
+                if (revision != boardRevision) return@launch
                 
                 if (result.success && result.hasSolution && result.grid != null) {
                     grid = gridDtoToSudokuGrid(result.grid)
@@ -537,6 +570,7 @@ actual class GameEngine actual constructor() {
                 }
             } catch (e: Exception) {
                 println("JS: Backend unavailable for solve: ${e.message}")
+                if (revision != boardRevision) return@launch
                 val solution = bruteForceSolve(grid)
                 if (solution != null) {
                     grid = solution
@@ -555,14 +589,14 @@ actual class GameEngine actual constructor() {
         onStatus: ((String) -> Unit)? = null,
         onComplete: (String?) -> Unit
     ) {
+        val puzzle = currentPuzzleString ?: gridToPuzzleString(grid)
         MainScope().launch {
-            val solutionStr = getSolutionStringAsync(onStatus)
+            val solutionStr = getSolutionStringAsync(onStatus, puzzle)
             onComplete(solutionStr)
         }
     }
     
-    private suspend fun getSolutionStringAsync(onStatus: ((String) -> Unit)?): String? {
-        val puzzleStr = currentPuzzleString ?: gridToPuzzleString(grid)
+    private suspend fun getSolutionStringAsync(onStatus: ((String) -> Unit)?, puzzleStr: String = currentPuzzleString ?: gridToPuzzleString(grid)): String? {
         
         // Try backend first using puzzle string (more reliable)
         onStatus?.invoke("Solving remotely...")
@@ -580,7 +614,8 @@ actual class GameEngine actual constructor() {
         
         // Fall back to local brute force
         onStatus?.invoke("Solving locally...")
-        val solution = bruteForceSolve(grid)
+        val source = SudokuGrid.fromString(puzzleStr) ?: return null
+        val solution = bruteForceSolve(calculateAllCandidates(source))
         return if (solution != null) {
             solution.cells.joinToString("") { (it.value ?: 0).toString() }
         } else {
@@ -630,7 +665,7 @@ actual class GameEngine actual constructor() {
             
             // Get solution if puzzle was solved
             val solution = if (result.solved) {
-                val solutionResult = getSolutionStringAsync(onStatus)
+                val solutionResult = getSolutionStringAsync(onStatus, puzzleString)
                 solutionResult
             } else {
                 null
@@ -689,18 +724,14 @@ actual class GameEngine actual constructor() {
      * Create an action string for a placement.
      * @param cellIndex The cell index (0-80)
      * @param value The value placed (1-9)
-     * @param previousCandidates The previous display candidates (notes) in the cell
-     * @return Notation string (e.g., "R1C5=7" or "R1C5=7;2,4,6" if notes were present)
+     * @param previousCandidates Retained for source compatibility; exact eliminations are captured from the cell.
+     * @return Notation string with exact eliminations, including an explicitly blank set.
      */
     fun createPlacementAction(cellIndex: Int, value: Int, previousCandidates: Set<Int> = emptySet()): String {
         val row = cellIndex / 9 + 1  // 1-indexed for Eureka
         val col = cellIndex % 9 + 1
-        if (previousCandidates.isEmpty()) {
-            return "R${row}C${col}=$value"
-        }
-        // Include previous note state so undo can restore it
-        val candidatesStr = previousCandidates.joinToString(",")
-        return "R${row}C${col}=$value;$candidatesStr"
+        val eliminations = grid.getCell(cellIndex).userEliminations.sorted().joinToString(",")
+        return "R${row}C${col}=$value;e:$eliminations"
     }
 
     /**
@@ -782,7 +813,7 @@ actual class GameEngine actual constructor() {
         // Elimination format: R{row}C{col}<>{candidate}
         // Add candidate format: R{row}C{col}>{candidate}
         
-        val placementRegex = Regex("""R(\d)C(\d)=(\d)(?:;([\d,]+))?""")
+        val placementRegex = Regex("""R([1-9])C([1-9])=([1-9])(?:;(e:)?([1-9,]*))?""")
         val clearRegex = Regex("""R(\d)C(\d)#(\d)""")
         // R11 fix: Handle both single and multi-candidate elimination format
         val eliminationRegex = Regex("""R(\d)C(\d)<>([\d,]+)""")
@@ -799,23 +830,21 @@ actual class GameEngine actual constructor() {
                 val row = placementMatch.groupValues[1].toInt() - 1  // Convert back to 0-indexed
                 val col = placementMatch.groupValues[2].toInt() - 1
                 val cellIndex = row * 9 + col
-                val candidatesStr = placementMatch.groupValues[4]  // Previous note state
+                val exactEliminations = placementMatch.groupValues[4] == "e:"
+                val candidatesStr = placementMatch.groupValues[5]
                 
                 val cell = grid.getCell(cellIndex)
                 if (!cell.isGiven) {
                     // Remove the value
                     grid = grid.withCellValue(cellIndex, null)
                     
-                    // Restore previous note state if present
-                    if (candidatesStr != null && candidatesStr.isNotEmpty()) {
-                        val previousCandidates = candidatesStr.split(",").map { it.toInt() }.toSet()
-                        // Clear all current user eliminations and set to previous state
-                        val newEliminations = (1..9).toSet() - previousCandidates
-                        grid = grid.withCellUserEliminations(cellIndex, newEliminations)
-                    } else {
-                        // No previous notes - just recalculate candidates
-                        grid = calculateAllCandidates(grid)
+                    if (exactEliminations || candidatesStr.isNotEmpty()) {
+                        val digits = candidatesStr.split(",").mapNotNull { it.toIntOrNull() }.toSet()
+                        grid = grid.withCellUserEliminations(cellIndex,
+                            if (exactEliminations) digits else (1..9).toSet() - digits)
                     }
+                    // Clearing a placement restores automatic candidates in this cell AND peers.
+                    grid = calculateAllCandidates(grid)
                 }
                 return true
             }
@@ -894,27 +923,28 @@ actual class GameEngine actual constructor() {
     
     // ===== HTTP helpers =====
     
-    private suspend fun apiGet(endpoint: String): String {
-        return suspendCancellableCoroutine { cont ->
-            val url = "$apiBaseUrl$endpoint"
-            val init = js("{}")
-            init.method = "GET"
-            
-            window.fetch(url, init.unsafeCast<RequestInit>())
-                .then { response: org.w3c.fetch.Response ->
-                    response.text().then { text: String ->
-                        cont.resume(text)
-                        Unit
-                    }
-                    Unit
-                }
-                .catch { error: Throwable ->
-                    cont.resumeWithException(Exception(error.toString()))
-                    Unit
-                }
+    private suspend fun apiGet(endpoint: String): String = apiRequest(endpoint, "GET")
+
+    private suspend fun apiRequest(endpoint: String, method: String, body: String? = null): String {
+        val controller = js("new AbortController()")
+        val timeout = window.setTimeout({ controller.abort() }, 120_000)
+        val init = js("({})")
+        init.method = method
+        init.signal = controller.signal
+        if (body != null) {
+            init.headers = js("({'Content-Type': 'application/json'})")
+            init.body = body
+        }
+        try {
+            val response = window.fetch("$apiBaseUrl$endpoint", init.unsafeCast<RequestInit>()).await()
+            if (!response.ok) throw IllegalStateException("HTTP ${response.status} for $endpoint")
+            return response.text().await()
+        } finally {
+            window.clearTimeout(timeout)
+            controller.abort()
         }
     }
-    
+
     private suspend fun apiPost(endpoint: String, body: Any): String {
         val bodyJson = when (body) {
             is LoadPuzzleRequest -> json.encodeToString(body)
@@ -928,28 +958,10 @@ actual class GameEngine actual constructor() {
             else -> throw IllegalArgumentException("Unknown request type")
         }
         
-        return suspendCancellableCoroutine { cont ->
-            val url = "$apiBaseUrl$endpoint"
-            val init = js("{}")
-            init.method = "POST"
-            init.headers = js("({'Content-Type': 'application/json'})")
-            init.body = bodyJson
-            
-            window.fetch(url, init.unsafeCast<RequestInit>())
-                .then { response: org.w3c.fetch.Response ->
-                    response.text().then { text: String ->
-                        cont.resume(text)
-                        Unit
-                    }
-                    Unit
-                }
-                .catch { error: Throwable ->
-                    cont.resumeWithException(Exception(error.toString()))
-                    Unit
-                }
-        }
+        return apiRequest(endpoint, "POST", bodyJson)
     }
     
+
     // ===== Local fallback helpers =====
     
     private fun calculateAllCandidates(grid: SudokuGrid): SudokuGrid {
@@ -1045,6 +1057,7 @@ actual class GameEngine actual constructor() {
     }
     
     private fun bruteForceSolve(grid: SudokuGrid): SudokuGrid? {
+        if (!grid.isValid) return null
         val emptyCell = (0 until 81).find { !grid.getCell(it).isSolved }
             ?: return grid
         
@@ -1114,7 +1127,7 @@ actual class GameEngine actual constructor() {
 data class CellDto(
     val index: Int,
     val value: Int? = null,
-    val candidates: Set<Int> = emptySet(),
+    val candidates: Set<Int> = (1..9).toSet(),
     val isGiven: Boolean = false
 )
 

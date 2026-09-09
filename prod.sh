@@ -71,39 +71,7 @@ if check_port $FRONTEND_PORT; then
     echo "Frontend already running on port $FRONTEND_PORT, skipping startup..."
     tmux send-keys -t sudoku-prod:frontend "echo 'Frontend already running on port $FRONTEND_PORT. If you need to restart it, stop the existing process first.'" C-m
 else
-    # Use nginx for local production to match the deployment setup (SPA fallback,
-    # API proxy, cache headers). Copy a dev nginx config that points at the
-    # local distribution and backend.
-    cat > /tmp/nice-sudoku-nginx.conf << NGINX
-server {
-    listen $FRONTEND_PORT;
-    root $PROJECT_DIR/web/build/distributions;
-    index index.html;
-    client_max_body_size 64k;
-
-    location /api/ {
-        proxy_pass http://localhost:$BACKEND_PORT;
-        proxy_http_version 1.1;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_read_timeout 120s;
-    }
-
-    location = /health {
-        proxy_pass http://localhost:$BACKEND_PORT/health;
-    }
-
-    location = /web.js {
-        add_header Cache-Control "max-age=0, must-revalidate";
-    }
-
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
-}
-NGINX
-
-    tmux send-keys -t sudoku-prod:frontend "nginx -c /tmp/nice-sudoku-nginx.conf -g 'daemon on;'" C-m
+    tmux send-keys -t sudoku-prod:frontend "./scripts/serve_local.sh $FRONTEND_PORT $BACKEND_PORT" C-m
 fi
 
 # Create third window (spare) - just a shell

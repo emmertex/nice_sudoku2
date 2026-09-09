@@ -1,3 +1,5 @@
+import kotlinx.html.*
+import kotlinx.html.dom.append
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Element
@@ -72,6 +74,8 @@ class SudokuApp {
     // Version info (loaded from CHANGELOG.md)
     internal var currentVersion: String = ""
     internal var changelogContent: String = ""
+    internal var changelogLoading = false
+    internal var changelogError: String? = null
     
     // Puzzle browser state
     internal var hideCompletedPuzzles = GameStateManager.getHideCompleted()
@@ -101,6 +105,10 @@ class SudokuApp {
             val altKey = (keyEvent.altKey as? Boolean) ?: false
             val metaKey = (keyEvent.metaKey as? Boolean) ?: false
             
+            if (handleDialogKey(key, shiftKey)) {
+                event.preventDefault()
+                return@addEventListener
+            }
             // Don't handle if focus is in an input/textarea
             val target = keyEvent.target
             val tagName = (target?.tagName as? String)?.lowercase() ?: ""
@@ -205,7 +213,12 @@ class SudokuApp {
             render()  // Re-render to show/hide loading indicator
         }
         
-        // Register service worker for offline support (P3 fix)
+        window.addEventListener("pagehide", { saveCurrentState() })
+        document.addEventListener("visibilitychange", {
+            if (document.asDynamic().hidden == true) pauseGame()
+        })
+
+        // Register the versioned offline shell.
         registerServiceWorker()
         
         // Load changelog and check for new version
@@ -241,6 +254,7 @@ class SudokuApp {
     }
 
     internal fun render() {
+        val focusState = captureDialogFocus()
         appRoot.innerHTML = ""
         
         // Stop timer when switching away from game screen
@@ -293,6 +307,23 @@ class SudokuApp {
             renderVersionIndicator()
         }
         
+        GameStateManager.storageWarning?.let { message ->
+            appRoot.append {
+                div("storage-warning") {
+                    attributes["role"] = "alert"
+                    +message
+                    a {
+                        +" Export recovery data"
+                        attributes["download"] = "nice-sudoku-recovery.json"
+                        try {
+                            href = "data:application/json;charset=utf-8," + helpers.importExport.encodeURIComponent(GameStateManager.recoveryData())
+                        } catch (_: Exception) { +" (storage unavailable)" }
+                    }
+                }
+            }
+        }
+        restoreDialogFocus(focusState)
+
         // Size the board for the current viewport + hint layout (sets --board-size).
         if (currentScreen == AppScreen.GAME) {
             applyBoardSize()
@@ -359,16 +390,8 @@ class SudokuApp {
         }
         
         // Calculate current elapsed time (don't increment if paused)
-        val currentElapsed = if (!trackPlayTime) {
-            0L
-        } else if (isPaused) {
-            accumulatedTime
-        } else if (segmentStart != null) {
-            accumulatedTime + (currentTimeMillis() - segmentStart)
-        } else {
-            accumulatedTime
-        }
-        
+        val currentElapsed = elapsedPlayTime()
+
         // Find and update the timer element
         val timerElement = document.querySelector(".timer") as? HTMLElement
         timerElement?.textContent = "⏱ ${formatTime(currentElapsed)}"
@@ -377,12 +400,10 @@ class SudokuApp {
     internal fun pauseGame() {
         if (!trackPlayTime || isPaused || currentGame == null) return
         
-        // Settle the active segment into accumulated time
-        if (segmentStart != null) {
-            accumulatedTime += currentTimeMillis() - segmentStart
-            segmentStart = null
-        }
+        accumulatedTime = elapsedPlayTime()
+        segmentStart = null
         isPaused = true
+        saveCurrentState()
         render()
     }
     

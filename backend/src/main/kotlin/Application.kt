@@ -21,17 +21,27 @@ import service.CacheService
 import database.CacheDatabase
 import validation.*
 import kotlin.time.Duration.Companion.seconds
-import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.concurrent.Semaphore
 
 // Trusted proxy addresses for X-Real-IP / X-Forwarded-For handling.
 // When the backend sits behind an upstream reverse proxy, that proxy's address
-// (or range) must be listed here. Empty means no forwarded headers are trusted.
+// must be listed here. Empty means no forwarded headers are trusted.
 private val trustedProxyAddrs: Set<String> = System.getenv("TRUSTED_PROXY_ADDRS")
     ?.split(",")
     ?.map { it.trim() }
     ?.filter { it.isNotEmpty() }
     ?.toSet()
     ?: emptySet()
+
+private val solverSlots = Semaphore((System.getenv("SOLVER_CONCURRENCY")?.toIntOrNull() ?: 2).coerceIn(1, 16))
+private class SolverBusy : RuntimeException("Solver is busy; please retry shortly")
+private suspend fun <T> runSolver(block: () -> T): T {
+    if (!solverSlots.tryAcquire()) throw SolverBusy()
+    try { return withContext(Dispatchers.Default) { block() } }
+    finally { solverSlots.release() }
+}
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8181
@@ -47,28 +57,24 @@ fun main() {
  *
  * @throws ApiValidationException if the body exceeds [maxBytes].
  */
-private suspend fun ApplicationCall.readBody(maxBytes: Int = MAX_REQUEST_BODY_BYTES): String {
-    val channel = receive<ByteReadChannel>()
+internal class RequestBodyTooLarge : RuntimeException("Request body exceeds maximum size of $MAX_REQUEST_BODY_BYTES bytes")
+
+internal suspend fun readLimitedBody(channel: ByteReadChannel, maxBytes: Int = MAX_REQUEST_BODY_BYTES): String {
+    val buf = ByteArray(maxBytes + 1)
+    var total = 0
     try {
-        val buf = ByteArray(maxBytes + 1)
-        var total = 0
-        while (true) {
-            val remaining = maxBytes - total
-            if (remaining <= 0) {
-                throw ApiValidationException("Request body exceeds maximum size of $maxBytes bytes")
-            }
-            val read = channel.readAtMost(buf, total, remaining + 1)
-            if (read == null) break
+        while (total <= maxBytes) {
+            val read = channel.readAvailable(buf, total, buf.size - total)
+            if (read == -1) return buf.decodeToString(0, total).trim()
             total += read
-            if (total > maxBytes) {
-                throw ApiValidationException("Request body exceeds maximum size of $maxBytes bytes")
-            }
         }
-        return buf.decodeToString(0, total).trim()
+        throw RequestBodyTooLarge()
     } finally {
-        channel.close()
+        channel.cancel()
     }
 }
+
+private suspend fun ApplicationCall.readBody(): String = readLimitedBody(receive<ByteReadChannel>())
 
 /**
  * Handle a POST whose response is cached by exact request body.
@@ -82,7 +88,7 @@ private suspend inline fun <reified Req : Any, reified Resp : Any> PipelineConte
     cache: CacheService,
     json: Json,
     validate: (Req) -> Unit = {},
-    process: (Req) -> Resp,
+    crossinline process: (Req) -> Resp,
 ) {
     val requestJson = call.readBody()
     if (requestJson.toByteArray(Charsets.UTF_8).size > MAX_REQUEST_BODY_BYTES) {
@@ -91,14 +97,18 @@ private suspend inline fun <reified Req : Any, reified Resp : Any> PipelineConte
 
     cache.getCachedResponse(endpoint, requestJson)?.let { cached ->
         call.application.log.debug("Cache HIT {}", endpoint)
-        call.respond(json.decodeFromString<Resp>(cached))
-        return
+        try {
+            call.respond(json.decodeFromString<Resp>(cached))
+            return
+        } catch (_: SerializationException) {
+            call.application.log.warn("Ignoring incompatible cached response for {}", endpoint)
+        }
     }
 
     call.application.log.debug("Cache MISS {}", endpoint)
     val request = json.decodeFromString<Req>(requestJson)
     validate(request)
-    val response = process(request)
+    val response = runSolver { process(request) }
     cache.storeCachedResponse(endpoint, requestJson, json.encodeToString(response))
     call.respond(response)
 }
@@ -110,39 +120,20 @@ private suspend inline fun <reified Req : Any, reified Resp : Any> PipelineConte
  * extract the real client address from X-Forwarded-For. Otherwise use the immediate
  * peer address (direct connection).
  */
+internal fun resolveClientIp(peer: String, realIp: String?, forwarded: String?, trusted: Set<String>): String {
+    if (peer !in trusted) return peer
+    realIp?.trim()?.takeIf { it.isNotEmpty() }?.let { return it }
+    return forwarded?.split(",")?.map { it.trim() }
+        ?.lastOrNull { it.isNotEmpty() && it !in trusted } ?: peer
+}
+
 private fun ApplicationCall.clientIp(): String {
-    // No trusted proxies configured: assume direct connection
-    if (trustedProxyAddrs.isEmpty()) {
-        return request.local.remoteHost
-    }
-
-    // Check if immediate peer is a trusted proxy
-    val peerHost = request.local.remoteHost
-    if (peerHost !in trustedProxyAddrs) {
-        // Direct connection or untrusted proxy - use peer address
-        return peerHost
-    }
-
-    // Trusted proxy - extract real client IP from headers
-    // Prefer X-Real-IP (set by nginx) over X-Forwarded-For
-    val realIp = request.header("X-Real-IP")?.trim()
-    if (realIp != null && realIp.isNotEmpty()) {
-        return realIp
-    }
-
-    // Use rightmost non-proxy address from X-Forwarded-For
-    request.header("X-Forwarded-For")?.let { xff ->
-        val addrs = xff.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-        // Walk from right to left, skip trusted proxies
-        for (addr in addrs.reversed()) {
-            if (addr !in trustedProxyAddrs) {
-                return addr
-            }
-        }
-    }
-
-    // Fall back to peer address if nothing useful found
-    return peerHost
+    val trustedPeers = trustedProxyAddrs.flatMap { address ->
+        try { java.net.InetAddress.getAllByName(address).map { it.hostAddress } }
+        catch (_: java.net.UnknownHostException) { emptyList() }
+    }.toSet()
+    return resolveClientIp(request.local.remoteHost, request.header("X-Real-IP"),
+        request.header("X-Forwarded-For"), trustedPeers)
 }
 
 /**
@@ -165,9 +156,11 @@ private fun corsAllowedOrigins(): List<String> {
     )
 }
 
-fun Application.module() {
+fun Application.module() = sudokuModule()
+
+fun Application.sudokuModule(cachePath: String = CacheDatabase.DEFAULT_DB_PATH) {
     // Initialize database
-    CacheDatabase.initialize()
+    CacheDatabase.initialize(cachePath)
 
     val sudokuService = SudokuService()
     val cacheService = CacheService()
@@ -214,6 +207,13 @@ fun Application.module() {
     }
 
     install(StatusPages) {
+        exception<SolverBusy> { call, cause ->
+            call.response.header(HttpHeaders.RetryAfter, "5")
+            call.respond(HttpStatusCode.ServiceUnavailable, mapOf("error" to cause.message))
+        }
+        exception<RequestBodyTooLarge> { call, cause ->
+            call.respond(HttpStatusCode.PayloadTooLarge, mapOf("error" to cause.message))
+        }
         exception<ApiValidationException> { call, cause ->
             call.respond(HttpStatusCode.BadRequest, mapOf("error" to (cause.message ?: "Invalid request")))
         }
@@ -274,7 +274,7 @@ fun Application.module() {
                         val requestJson = call.readBody()
                         val request = json.decodeFromString<SolveRequest>(requestJson)
                         requireValidGrid(request.grid)
-                        call.respond(sudokuService.solve(request))
+                        call.respond(runSolver { sudokuService.solve(request) })
                     }
 
                     post("/solve-from-puzzle") {
@@ -316,7 +316,7 @@ fun Application.module() {
                         val request = json.decodeFromString<ApplyTechniqueRequest>(requestJson)
                         requireValidGrid(request.grid)
                         requireValidTechniqueId(request.techniqueId)
-                        call.respond(sudokuService.applyTechnique(request))
+                        call.respond(runSolver { sudokuService.applyTechnique(request) })
                     }
 
                     post("/hint") {

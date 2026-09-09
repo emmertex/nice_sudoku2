@@ -14,6 +14,15 @@ import HintPlacement
  * Manages game state persistence in localStorage
  */
 object GameStateManager {
+    var storageWarning: String? = null
+        private set
+    private val unreadableKeys = mutableSetOf<String>()
+
+    fun recoveryData(): String = json.encodeToString(mapOf(
+        SAVED_GAMES_KEY to localStorage.getItem(SAVED_GAMES_KEY),
+        CUSTOM_PUZZLES_KEY to localStorage.getItem(CUSTOM_PUZZLES_KEY)
+    ))
+
     
     private const val SAVED_GAMES_KEY = "nice_sudoku_saved_games"
     private const val CURRENT_GAME_KEY = "nice_sudoku_current_game"
@@ -39,11 +48,13 @@ object GameStateManager {
      */
     fun saveGame(state: SavedGameState) {
         val games = loadAllGames().toMutableMap()
+        if (SAVED_GAMES_KEY in unreadableKeys) return
         games[state.puzzleId] = state
         
         try {
             localStorage[SAVED_GAMES_KEY] = json.encodeToString(games)
         } catch (e: Exception) {
+            storageWarning = "Changes could not be saved. Storage may be full or unavailable. Export a recovery copy."
             console.log("Error saving game: ${e.message}")
         }
     }
@@ -62,11 +73,13 @@ object GameStateManager {
         return try {
             val data = localStorage[SAVED_GAMES_KEY]
             if (data != null) {
-                json.decodeFromString<Map<String, SavedGameState>>(data)
+                json.decodeFromString<Map<String, SavedGameState>>(data).also { unreadableKeys.remove(SAVED_GAMES_KEY) }
             } else {
                 emptyMap()
             }
         } catch (e: Exception) {
+            unreadableKeys.add(SAVED_GAMES_KEY)
+            storageWarning = "Saved data could not be read. It has been preserved; export a recovery copy before making changes."
             console.log("Error loading games: ${e.message}")
             emptyMap()
         }
@@ -77,10 +90,12 @@ object GameStateManager {
      */
     fun deleteGame(puzzleId: String) {
         val games = loadAllGames().toMutableMap()
+        if (SAVED_GAMES_KEY in unreadableKeys) return
         games.remove(puzzleId)
         try {
             localStorage[SAVED_GAMES_KEY] = json.encodeToString(games)
         } catch (e: Exception) {
+            storageWarning = "Changes could not be saved. Storage may be full or unavailable. Export a recovery copy."
             console.log("Error deleting game: ${e.message}")
         }
     }
@@ -360,6 +375,7 @@ object GameStateManager {
      */
     fun saveCustomPuzzle(puzzle: PuzzleDefinition) {
         val puzzles = loadCustomPuzzles().toMutableList()
+        if (CUSTOM_PUZZLES_KEY in unreadableKeys) return
         val existingIndex = puzzles.indexOfFirst { it.id == puzzle.id }
         
         if (existingIndex >= 0) {
@@ -373,6 +389,7 @@ object GameStateManager {
         try {
             localStorage[CUSTOM_PUZZLES_KEY] = json.encodeToString(puzzles)
         } catch (e: Exception) {
+            storageWarning = "Changes could not be saved. Storage may be full or unavailable. Export a recovery copy."
             console.log("Error saving custom puzzle: ${e.message}")
         }
     }
@@ -384,11 +401,13 @@ object GameStateManager {
         return try {
             val data = localStorage[CUSTOM_PUZZLES_KEY]
             if (data != null) {
-                json.decodeFromString<List<PuzzleDefinition>>(data)
+                json.decodeFromString<List<PuzzleDefinition>>(data).also { unreadableKeys.remove(CUSTOM_PUZZLES_KEY) }
             } else {
                 emptyList()
             }
         } catch (e: Exception) {
+            unreadableKeys.add(CUSTOM_PUZZLES_KEY)
+            storageWarning = "Saved data could not be read. It has been preserved; export a recovery copy before making changes."
             console.log("Error loading custom puzzles: ${e.message}")
             emptyList()
         }
@@ -399,10 +418,12 @@ object GameStateManager {
      */
     fun deleteCustomPuzzle(puzzleId: String) {
         val puzzles = loadCustomPuzzles().toMutableList()
+        if (CUSTOM_PUZZLES_KEY in unreadableKeys) return
         puzzles.removeAll { it.id == puzzleId }
         try {
             localStorage[CUSTOM_PUZZLES_KEY] = json.encodeToString(puzzles)
         } catch (e: Exception) {
+            storageWarning = "Changes could not be saved. Storage may be full or unavailable. Export a recovery copy."
             console.log("Error deleting custom puzzle: ${e.message}")
         }
     }

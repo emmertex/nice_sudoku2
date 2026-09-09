@@ -17,7 +17,7 @@ data class CacheInfoResponse(
 data class CellDto(
     val index: Int,
     val value: Int? = null,
-    val candidates: Set<Int> = emptySet(),
+    val candidates: Set<Int> = (1..9).toSet(),
     val isGiven: Boolean = false
 )
 

@@ -180,16 +180,15 @@ internal fun SudokuApp.renderVersionModal() {
             onClickFunction = { event ->
                 // Close when clicking overlay (not the modal content)
                 if ((event.target as? Element)?.classList?.contains("modal-overlay") == true) {
-                    showVersionModal = false
-                    render()
+                    closeVersionModal()
                 }
             }
             div("modal-content version-modal") {
                 button(classes = "modal-close") {
+                    attributes["aria-label"] = "Close release notes"
                     +"✕"
                     onClickFunction = {
-                        showVersionModal = false
-                        render()
+                        closeVersionModal()
                     }
                 }
                 
@@ -197,8 +196,14 @@ internal fun SudokuApp.renderVersionModal() {
                 
                 // Render changelog content as formatted HTML
                 div("changelog-content") {
-                    unsafe {
-                        +parseMarkdownToHtml(changelogContent)
+                    when {
+                        changelogLoading -> p { +"Loading release notes…" }
+                        changelogError != null -> {
+                            p { +(changelogError ?: "Release notes unavailable") }
+                            button { +"Try again"; onClickFunction = { loadChangelog(); render() } }
+                        }
+                        changelogContent.isBlank() -> p { +"No release notes available." }
+                        else -> unsafe { +parseMarkdownToHtml(changelogContent) }
                     }
                 }
                 
@@ -206,8 +211,7 @@ internal fun SudokuApp.renderVersionModal() {
                     button(classes = "close-btn") {
                         +LanguageConfig.getString("ui.modals.version.gotIt")
                         onClickFunction = {
-                            showVersionModal = false
-                            render()
+                            closeVersionModal()
                         }
                     }
                 }

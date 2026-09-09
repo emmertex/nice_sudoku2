@@ -98,7 +98,7 @@ import dto.*
         // This preserves technique eliminations (e.g., X-Wing eliminations)
         for (cellIndex in 0 until cardinals.Length) {
             val cellDto = cellMap[cellIndex]
-            if (cellDto != null && cellDto.value == null && cellDto.candidates.isNotEmpty()) {
+            if (cellDto != null && cellDto.value == null) {
                 // Cell is unsolved but has explicit candidates - apply them
                 for (digit in 1..9) {
                     val digitIndex = digit - 1

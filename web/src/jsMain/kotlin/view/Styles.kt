@@ -2980,8 +2980,8 @@ val CSS_STYLES = """
         font-size: clamp(0.9rem, calc(0.8rem + 0.4vmin), 1.05rem);
         font-weight: 600;
         cursor: pointer;
-        background: rgba(var(--colour-accent-info), 0.8);
-        color: rgb(var(--colour-text-primary));
+        background: rgb(var(--colour-accent-info));
+        color: rgb(var(--colour-accent-info-text));
         transition: all 0.2s ease;
     }
 
@@ -3244,4 +3244,28 @@ val CSS_STYLES = """
         background: rgb(var(--colour-accent-info));
         transform: translateY(-2px);
     }
+
+    /* Release history: quiet surfaces, clear chronology, one scrolling region. */
+    .version-modal { width: min(720px, calc(100vw - 24px)); max-width: 720px; max-height: 90dvh; display: flex; flex-direction: column; overflow: hidden; background: rgb(var(--colour-bg-primary)); }
+    .changelog-content { scrollbar-color: rgba(var(--colour-text-primary), .4) transparent; scrollbar-width: thin; min-height: 0; max-height: min(62vh, 680px); overflow-y: auto; padding: 2px 8px 8px 0; }
+    .version-modal > h1, .version-modal .version-actions { flex-shrink: 0; }
+    .release-card { border: 1px solid rgba(var(--colour-border), .4); border-radius: 14px; margin: 0 0 12px; background: rgba(var(--colour-bg-secondary), .6); }
+    .release-card header, .release-card summary { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 16px 20px; }
+    .release-card summary { cursor: pointer; }
+    .release-card summary::before { content: "+"; font-weight: 600; }
+    .release-card[open] summary::before { content: "−"; }
+    .release-version { font-size: 1.15rem; font-weight: 700; color: rgb(var(--colour-text-primary)); }
+    .release-card time { font-size: .85rem; color: rgba(var(--colour-text-primary), .7); }
+    .release-badge { margin-left: auto; font-size: .75rem; font-weight: 600; border: 1px solid currentColor; border-radius: 20px; padding: 2px 9px; color: rgb(var(--colour-accent-primary)); }
+    .latest-release { border-color: rgba(var(--colour-accent-primary), .55); }
+    .release-body { padding: 0 20px 14px; }
+    .release-body h3 { margin: 12px 0 8px; font-size: .95rem; color: rgb(var(--colour-text-primary)); }
+    .changelog-content strong { color: rgb(var(--colour-text-primary)); font-weight: 600; }
+    .changelog-content ul { padding-left: 20px; }
+    .changelog-content li > ul { margin-top: 6px; }
+    .changelog-content a { color: rgb(var(--colour-accent-primary)); text-decoration: underline; }
+    .changelog-content a, .changelog-content code, .changelog-content p { overflow-wrap: anywhere; }
+    .release-card summary:focus-visible { outline: 2px solid rgb(var(--colour-accent-primary)); outline-offset: 3px; border-radius: 14px; }
+    @media (max-width: 400px) { .release-card header, .release-card summary { padding: 12px; gap: 8px; } .release-body { padding: 0 12px 12px; } }
+    .storage-warning { position: fixed; bottom: 12px; left: 12px; right: 12px; padding: 12px; z-index: 2000; border: 2px solid rgb(var(--colour-accent-warning)); border-radius: 8px; background: rgb(var(--colour-bg-primary)); color: rgb(var(--colour-text-primary)); }
 """.trimIndent()

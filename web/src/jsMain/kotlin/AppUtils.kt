@@ -33,51 +33,25 @@ internal fun SudokuApp.showToast(message: String) {
     }, 2000)
 }
 
+internal const val APP_VERSION = "v1.3.1"
+
 internal fun SudokuApp.loadChangelog() {
-    // Use root-relative URL so language-prefixed paths like /de/ still
-    // resolve to the correct asset location.
-    val fetchPromise = window.asDynamic().fetch("/CHANGELOG.md") as Promise<Response>
-    fetchPromise.then { response ->
-        if (response.ok) {
-            response.text().then { text ->
-                try {
-                    changelogContent = text as String
-                    
-                    // Extract version from first line (format: "# v0.0.2 - 2025-12-01")
-                    val firstLine = changelogContent.lines().firstOrNull() ?: ""
-                    val versionMatch = Regex("""#\s*(v[\d.]+)""").find(firstLine)
-                    currentVersion = versionMatch?.groupValues?.getOrNull(1) ?: ""
-                    
-                    // Check if this is a new version
-                    val lastSeenVersion = GameStateManager.getLastSeenVersion()
-                    if (currentVersion.isNotEmpty() && currentVersion != lastSeenVersion) {
-                        // New version detected - show the changelog modal
-                        showVersionModal = true
-                        // Always mark as seen so it doesn't show again
-                        GameStateManager.setLastSeenVersion(currentVersion)
-                        render()
-                    } else {
-                        // Just re-render to show the version number
-                        render()
-                    }
-                } catch (e: Exception) {
-                    // Silently handle parsing errors - changelog is not critical
-                    println("Error parsing changelog: ${e.message}")
-                    render()
-                }
-            }.catch { error: dynamic ->
-                // Silently handle text parsing errors
-                println("Error reading changelog text: $error")
-                render()
-            }
-        } else {
-            // Response not OK - silently continue, changelog is not critical
-            render()
-        }
-    }.catch { error: dynamic ->
-        // Silently handle fetch errors (network issues, 404, etc.)
-        // This prevents unhandled promise rejections on first launch
-        println("Error loading changelog: $error")
+    changelogLoading = true
+    changelogError = null
+    currentVersion = APP_VERSION
+    val promise = window.fetch("/CHANGELOG.md?v=$APP_VERSION")
+    promise.then { response ->
+        if (!response.ok) throw IllegalStateException("Release notes unavailable (${response.status})")
+        response.text()
+    }.then { text ->
+        if (!text.startsWith("# $APP_VERSION - ")) throw IllegalStateException("Release notes do not match this version")
+        changelogContent = text
+        changelogLoading = false
+        if (GameStateManager.getLastSeenVersion() != APP_VERSION) showVersionModal = true
+        render()
+    }.catch {
+        changelogLoading = false
+        changelogError = "Could not load release notes. Please try again."
         render()
     }
 }

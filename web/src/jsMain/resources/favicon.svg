@@ -1,13 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- Background -->
-  <rect width="64" height="64" rx="10" fill="#1a1a2e"/>
-  <!-- 3x3 grid lines -->
-  <g stroke="#4a5568" stroke-width="1.5">
-    <line x1="21.3" y1="0" x2="21.3" y2="64"/>
-    <line x1="42.7" y1="0" x2="42.7" y2="64"/>
-    <line x1="0" y1="21.3" x2="64" y2="21.3"/>
-    <line x1="0" y1="42.7" x2="64" y2="42.7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <title>Nice Sudoku</title>
+  <rect width="128" height="128" rx="28" fill="#102F32"/>
+  <rect x="16" y="16" width="96" height="96" rx="16" fill="#F7F4E9"/>
+  <path d="M48 17v94M80 17v94M17 48h94M17 80h94" stroke="#102F32" stroke-opacity=".2" stroke-width="2"/>
+  <g stroke="#102F32" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m28 28 5-3v15m-5 0h10"/>
+    <path d="M70 57H59v7h7c6 0 5 8 0 8h-7"/>
+    <path d="M101 97h-7c-5 0-5-9 0-9h3c3 0 4 2 4 5v7c0 4-3 5-8 5"/>
   </g>
-  <!-- One contrasting filled cell -->
-  <rect x="22.3" y="22.3" width="19.4" height="19.4" rx="3" fill="#4cc9f0"/>
+  <!-- Pencil marks use the standard 1–9 mini-grid; placed 1, 5 and 9 are excluded. -->
+  <g fill="#989B96">
+    <!-- Row 1, column 2: candidates 2, 4, 6, 8 -->
+    <circle cx="64" cy="24" r="1.8"/>
+    <circle cx="56" cy="32" r="1.8"/>
+    <circle cx="72" cy="32" r="1.8"/>
+    <circle cx="64" cy="40" r="1.8"/>
+    <!-- Row 1, column 3: candidates 3, 4, 7 -->
+    <circle cx="104" cy="24" r="1.8"/>
+    <circle cx="88" cy="32" r="1.8"/>
+    <circle cx="88" cy="40" r="1.8"/>
+    <!-- Row 2, column 1: candidates 2, 6, 8 -->
+    <circle cx="32" cy="56" r="1.8"/>
+    <circle cx="40" cy="64" r="1.8"/>
+    <circle cx="32" cy="72" r="1.8"/>
+    <!-- Row 2, column 3: candidates 2, 4, 7, 8 -->
+    <circle cx="96" cy="56" r="1.8"/>
+    <circle cx="88" cy="64" r="1.8"/>
+    <circle cx="88" cy="72" r="1.8"/>
+    <circle cx="96" cy="72" r="1.8"/>
+    <!-- Row 3, column 1: candidates 3, 6, 7 -->
+    <circle cx="40" cy="88" r="1.8"/>
+    <circle cx="40" cy="96" r="1.8"/>
+    <circle cx="24" cy="104" r="1.8"/>
+    <!-- Row 3, column 2: candidates 2, 3, 4, 8 -->
+    <circle cx="64" cy="88" r="1.8"/>
+    <circle cx="72" cy="88" r="1.8"/>
+    <circle cx="56" cy="96" r="1.8"/>
+    <circle cx="64" cy="104" r="1.8"/>
+  </g>
 </svg>

@@ -5,11 +5,18 @@ plugins {
 
 kotlin {
     js(IR) {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
         binaries.executable()
     }
 
     sourceSets {
+        val jsTest by getting { dependencies { implementation(kotlin("test")) } }
         val jsMain by getting {
             dependencies {
                 implementation(project(":shared"))

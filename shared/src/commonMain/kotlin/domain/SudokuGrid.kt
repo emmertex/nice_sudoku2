@@ -112,7 +112,7 @@ data class SudokuGrid(
             val values = unit.mapNotNull { it.value }
             val solvedValues = values.toSet()
             // Compare original count with distinct count to detect duplicates
-            return solvedValues.size == values.size
+            return values.all { it in 1..9 } && solvedValues.size == values.size
         }
     }
 }

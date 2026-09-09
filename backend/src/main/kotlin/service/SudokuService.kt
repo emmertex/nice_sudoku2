@@ -526,7 +526,8 @@ class SudokuService {
             
             // Re-find the match on the submitted board to validate it's still applicable
             // and to get the match object (no longer rely on in-memory cache)
-            val found = findMatchById(basicGrid, request.techniqueId, basicOnly = false)
+            val found = findMatchById(basicGrid, request.techniqueId, basicOnly = true)
+                ?: findMatchById(basicGrid, request.techniqueId, basicOnly = false)
                 ?: return ApplyTechniqueResponse(
                     success = false,
                     error = "Technique match not found on submitted board (board state may have changed)"

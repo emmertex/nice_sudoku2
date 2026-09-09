@@ -18,7 +18,7 @@ object CacheDatabase {
     private var database: Database? = null
     
     // Bump this filename when cached-response JSON schemas change, to avoid replaying old cached JSON.
-    const val DEFAULT_DB_PATH: String = "./data/cache-v2.db"
+    const val DEFAULT_DB_PATH: String = "./data/cache-v3.db"
     
     fun initialize(dbPath: String = DEFAULT_DB_PATH) {
         // Ensure data directory exists

@@ -57,3 +57,7 @@ hs_err_pid*.log
 *~
 backend/data/cache.db
 backend/data/cache-v2.db
+
+# Regenerable solver response caches (including SQLite journal files)
+backend/data/cache-v*.db*
+data/cache-v*.db*

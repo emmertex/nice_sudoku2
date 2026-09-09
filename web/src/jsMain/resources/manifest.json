@@ -4,25 +4,33 @@
   "description": "A beautiful Sudoku game with advanced solving techniques",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#050505",
-  "theme_color": "#4cc9f0",
+  "background_color": "#102F32",
+  "theme_color": "#102F32",
   "orientation": "any",
-  "categories": ["games", "puzzle"],
+  "categories": [
+    "games",
+    "puzzle"
+  ],
   "lang": "en",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
-  ]
+  ],
+  "id": "/"
 }
-
-

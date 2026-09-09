@@ -1,3 +1,14 @@
+# v1.3.1 - 2026-09-09
+
+### Fixes
+- Corrected build errors, hint application validation, and stale background responses.
+- Preserved play time across pauses and restored notes correctly when undoing moves.
+- Improved release updates, request limits, and keyboard handling in dialogs.
+
+### Improvements
+- A new Sudoku icon, with matching browser, home-screen, and maskable artwork.
+- Release cards with readable dates, nested lists, links, and expandable history.
+
 # v1.3.0 - 2026-09-09
 
 ### Bug Fixes

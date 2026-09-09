@@ -6,6 +6,7 @@ import i18n.LanguageConfig
  */
 
 internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
+    if (isPaused || hasOpenModal()) return
     when (playMode) {
         PlayMode.PLACE -> {
             // Single selection - clear and select the new number
@@ -60,6 +61,7 @@ internal fun SudokuApp.handleNumberClick(num: Int, grid: SudokuGrid) {
  * Undoable. Given cells cannot be erased.
  */
 internal fun SudokuApp.handleErase(grid: SudokuGrid) {
+    if (isPaused || hasOpenModal()) return
     val cellIndex = selectedCell ?: return
     val cell = grid.getCell(cellIndex)
     if (cell.isGiven) return
@@ -86,6 +88,7 @@ internal fun SudokuApp.handleErase(grid: SudokuGrid) {
 }
 
 internal fun SudokuApp.handleCellClick(cellIndex: Int, grid: SudokuGrid) {
+    if (isPaused || hasOpenModal()) return
     val cell = grid.getCell(cellIndex)
 
     if (playMode == PlayMode.PLACE) {
@@ -199,4 +202,11 @@ internal fun SudokuApp.checkCandidateRemovalMistake(cellIndex: Int, candidate: I
         return true
     }
     return false
+}
+
+internal fun SudokuApp.handleUndo() {
+    if (isPaused || hasOpenModal() || !gameEngine.canUndo()) return
+    gameEngine.undoLastAction()
+    saveCurrentState()
+    render()
 }

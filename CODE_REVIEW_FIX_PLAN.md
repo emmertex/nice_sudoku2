@@ -1,10 +1,10 @@
 # Code review and fix plan
 
-Reviewed: 7 September 2026. Status: review complete; implementation pending.
+Reviewed: 7 September 2026. Follow-up implementation reviewed and corrected on 9 September 2026; see [REVIEW_FOLLOWUP.md](REVIEW_FOLLOWUP.md) for current status and verification.
 
 This document covers the Kotlin/JS application, shared game models and adapters, Ktor API, hint conversion and explanation routing, persistence, imports/exports, localization, static resources, and build/deployment configuration. Priorities reflect user impact: **P1** should be fixed before the next release; **P2** should follow in the same improvement cycle; **P3** is polish or maintenance. Favicon creation and changelog presentation are explicitly included below.
 
-The deliverable for this review is this plan. Application code and assets have not been changed.
+The findings and verification below are the original 7 September review baseline. Application code and assets have since been updated; they should not be read as current unresolved findings.
 
 ## Verification performed
 

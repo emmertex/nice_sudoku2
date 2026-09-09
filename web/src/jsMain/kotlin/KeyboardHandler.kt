@@ -16,6 +16,7 @@ class KeyboardHandler {
             grid: SudokuGrid,
             event: dynamic
         ): Boolean {
+            if (app.hasOpenModal()) return false
             // Handle Escape - always works regardless of screen
             if (key.lowercase() == "escape") {
                 if (app.showExplanation) {
@@ -137,6 +138,11 @@ class KeyboardHandler {
                 }
             }
 
+            if (ctrlKey && (key == "Home" || key == "End")) {
+                app.selectedCell = if (key == "Home") 0 else 80
+                app.render()
+                return true
+            }
             // Arrow key navigation for cells
             when (key) {
                 "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight" -> {

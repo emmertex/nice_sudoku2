@@ -60,7 +60,7 @@ private const val SUDOKU_COACH_BASE32_ALPHABET = "0123456789abcdefghijklmnopqrst
  * Based on the alphabet: 0123456789abcdefghijklmnopqrstuv
  */
 private fun base32Decode(input: String, variant: String): Uint8Array {
-    val cleanInput = input.trimEnd('v').lowercase()
+    val cleanInput = input.lowercase()
     val alphabet = SUDOKU_COACH_BASE32_ALPHABET
     
     // Build decode map
@@ -150,18 +150,17 @@ object SudokuCoachFormat {
         try {
             // Step 1: Remove prefix
             if (!input.startsWith(PREFIX)) return null
+            if (input.length > 256 * 1024) return null
             var data = input.removePrefix(PREFIX)
+            if (data.any { it.lowercaseChar() !in SUDOKU_COACH_BASE32_ALPHABET }) return null
             
-            // Step 2: Append 'v' until length is divisible by 8
-            while (data.length % 8 != 0) {
-                data += 'v'
-            }
-            
+            // Decode unpadded Base32 directly. 'v' is a real alphabet digit,
+            // so stripping it would truncate some valid zlib checksums.
             // Step 3: Base32 decode
             val decoded = base32Decode(data, "RFC4648")
             
             // Step 4: Zlib inflate
-            val inflated = Pako.inflate(decoded)
+            val inflated = inflateBounded(decoded)
             
             // Step 5: Convert to string
             val jsonString = inflated.toByteArray().decodeToString()
@@ -289,6 +288,9 @@ object SudokuCoachFormat {
     private fun convertFromCoachFormat(data: SudokuCoachData): ImportResult? {
         if (data.gridSize != 9) return null
         if (data.givenDigits.length != 81 || data.userDigits.length != 81) return null
+        if ((data.givenDigits + data.userDigits).any { it !in '0'..'9' }) return null
+        if (SudokuGrid.fromString(data.givenDigits)?.isValid != true) return null
+        if (data.playTimeMs < 0 || data.mistakes < 0 || data.hints < 0) return null
         
         val values = IntArray(81)
         val userEliminations = Array<Set<Int>>(81) { emptySet() }
@@ -303,6 +305,10 @@ object SudokuCoachFormat {
         // Parse user cell candidates (these are CANDIDATES, not eliminations)
         // Format: "digit1-digit2-digit3-..." for each cell
         val candidateParts = data.userCellCandidates.split("-")
+        if (candidateParts.size != 81 || candidateParts.any { part ->
+            val value = part.toIntOrNull()
+            value == null || value !in 0..1022 || value % 2 != 0
+        }) return null
         
         if (candidateParts.size == 81) {
             for (i in 0 until 81) {
@@ -425,3 +431,21 @@ private fun Uint8Array.toByteArray(): ByteArray {
     return result
 }
 
+
+/** Stop decompression before an imported link can allocate an unbounded result. */
+private fun inflateBounded(data: Uint8Array): Uint8Array {
+    val inflater = js("Reflect").construct(Pako.asDynamic().Inflate, arrayOf(js("({chunkSize:16384})")))
+    val chunks = mutableListOf<ByteArray>()
+    var total = 0
+    inflater.onData = { chunk: Uint8Array ->
+        total += chunk.length
+        require(total <= 1024 * 1024) { "Imported puzzle is too large" }
+        chunks.add(chunk.toByteArray())
+    }
+    inflater.push(data, true)
+    require(inflater.err == 0 && inflater.ended == true) { "Invalid compressed puzzle" }
+    val result = Uint8Array(total)
+    var offset = 0
+    for (chunk in chunks) for (byte in chunk) result.asDynamic()[offset++] = byte
+    return result
+}

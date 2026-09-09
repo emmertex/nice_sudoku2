@@ -44,7 +44,8 @@ class ApiValidationTest {
     @Test
     fun `rejects invalid technique id`() {
         assertFailsWith<ApiValidationException> { requireValidTechniqueId("not-a-uuid") }
-        requireValidTechniqueId("550e8400-e29b-41d4-a716-446655440000")
+        requireValidTechniqueId("a".repeat(64))
+        assertFailsWith<ApiValidationException> { requireValidTechniqueId("550e8400-e29b-41d4-a716-446655440000") }
     }
 
     @Test

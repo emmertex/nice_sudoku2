@@ -25,6 +25,7 @@ pkgs.mkShell {
     jdk17
     nodejs
     gradle
+    nginx
     tmux
     qqwing
 #    androidSdk.androidsdk
