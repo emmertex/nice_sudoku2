@@ -8,6 +8,24 @@ import view.formatInlineMarkdown
 class ReviewRegressionTest {
     @BeforeTest fun setup() { localStorage.clear(); document.body!!.innerHTML = "<div id='app'></div>" }
 
+    @Test fun failedStartupProbeDoesNotDisableHints() {
+        val app = SudokuApp()
+        app.gameEngine.loadPuzzle("0".repeat(81))
+        app.isBackendAvailable = false
+        app.candidateMode = CandidateMode.AUTO
+        app.showHints = true
+        app.renderGameScreen()
+        val button = document.querySelector(".hint-btn") as org.w3c.dom.HTMLElement
+        assertFalse(button.classList.contains("disabled"))
+        button.click()
+        assertFalse(app.showHints, "The hint button must remain usable after a failed health check")
+
+        app.candidateMode = CandidateMode.MANUAL
+        app.appRoot.innerHTML = ""
+        app.renderGameScreen()
+        assertTrue(document.querySelector(".hint-btn")!!.classList.contains("disabled"))
+    }
+
     @Test fun pausedTimeIsPersistedExactlyOnce() {
         val app = SudokuApp()
         app.gameEngine.loadPuzzle("0".repeat(81))

@@ -258,17 +258,15 @@ internal fun SudokuApp.renderGameScreen() {
                         }
                     }
 
-                    button(classes = "hint-btn ${if (!isBackendAvailable || candidateMode == CandidateMode.MANUAL) "disabled" else ""} ${if (showHints) "active" else ""} ${if (isLoadingHints) "loading" else ""}") {
+                    button(classes = "hint-btn ${if (candidateMode == CandidateMode.MANUAL) "disabled" else ""} ${if (showHints) "active" else ""} ${if (isLoadingHints) "loading" else ""}") {
                         if (isLoadingHints) +"🔄" else +"💡"
                         if (candidateMode == CandidateMode.MANUAL) {
                             attributes["title"] = "Hints are disabled in Manual mode"
-                        } else if (!isBackendAvailable) {
-                            attributes["title"] = "Hint system unavailable - backend not connected"
                         } else if (isLoadingHints) {
                             attributes["title"] = "Loading hints..."
                         }
                         onClickFunction = {
-                            if (isBackendAvailable && !isLoadingHints && candidateMode == CandidateMode.AUTO) {
+                            if (!isLoadingHints && candidateMode == CandidateMode.AUTO) {
                                 showHints = !showHints
                                 if (showHints) {
                                     selectedHintIndex = 0

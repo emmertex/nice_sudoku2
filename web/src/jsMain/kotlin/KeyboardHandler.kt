@@ -262,7 +262,7 @@ class KeyboardHandler {
                 "h" -> {
                     if (!ctrlKey && !shiftKey && !altKey && !metaKey) {
                         // Toggle hints (only in AUTO mode)
-                        if (app.isBackendAvailable && !app.isLoadingHints && app.candidateMode == CandidateMode.AUTO) {
+                        if (!app.isLoadingHints && app.candidateMode == CandidateMode.AUTO) {
                             app.showHints = !app.showHints
                             if (app.showHints) {
                                 app.selectedHintIndex = 0
