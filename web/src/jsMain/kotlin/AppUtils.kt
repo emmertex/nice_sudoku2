@@ -33,7 +33,7 @@ internal fun SudokuApp.showToast(message: String) {
     }, 2000)
 }
 
-internal const val APP_VERSION = "v1.3.1"
+internal const val APP_VERSION = "v1.3.2"
 
 internal fun SudokuApp.loadChangelog() {
     changelogLoading = true

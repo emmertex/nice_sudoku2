@@ -1,7 +1,7 @@
 // Network-first resources keep releases fresh; cached resources support offline play.
-const CACHE_NAME = 'nice-sudoku-v1.3.1';
+const CACHE_NAME = 'nice-sudoku-v1.3.2';
 const STATIC_CACHE_URLS = [
-  '/', '/index.html', '/web.js?v=1.3.1', '/manifest.json', '/CHANGELOG.md?v=v1.3.1',
+  '/', '/index.html', '/web.js?v=1.3.2', '/manifest.json', '/CHANGELOG.md?v=v1.3.2',
   '/favicon.svg', '/favicon.ico', '/icon-192.png', '/icon-512.png',
   '/icon-maskable-512.png', '/apple-touch-icon.png',
   ...['en', 'es', 'de', 'zh', 'hi', 'fr', 'ar', 'bn', 'ru', 'pt', 'ur'].map(code => `/languages/${code}.json`),
