@@ -67,7 +67,7 @@ private val techniquePriority = mapOf(
     "W_WING" to 19, "W-Wing" to 19,
 )
 
-private fun normalizeTechniqueKey(name: String): String {
+fun normalizeTechniqueKey(name: String): String {
     return name.uppercase()
         .replace("-", "_")
         .replace(" ", "_")
