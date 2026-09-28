@@ -547,23 +547,23 @@
         },
         "aic": {
             "step1": {
-                "title": "Find the Chain",
-                "description": "An Alternating Inference Chain (AIC) connects candidates in a logical sequence. Think of it like a chain of dominoes where each piece affects the next. This chain has {{nodeCount}} links, starting at {{startDesc}} and ending at {{endDesc}}. The chain alternates between two types of connections: • **Strong links** (solid lines): 'If this is FALSE, then that must be TRUE' • **Weak links** (dashed lines): 'If this is TRUE, then that must be FALSE'. By following the chain, we can prove certain candidates must be eliminated."
+                "title": "Follow {{technique}}",
+                "description": "This chain has {{nodeCount}} candidate nodes, starting at {{startDesc}} and ending at {{endDesc}}. A node states that a particular digit occurs in a cell or group of cells. Strong links (solid) mean that if one end is false, the other must be true. Weak links (dashed) mean that if one end is true, the other must be false. Read the actual implications in the next step."
             },
             "step2": {
                 "title": "Follow the Logic",
-                "description": "Let's follow the chain step by step:\n\n{{chainSteps}}\n\nThe chain endpoints are critical - any cell that can 'see' both endpoints cannot have the target candidate.",
+                "description": "Follow the candidate implications step by step:\n\n{{chainSteps}}\n\nFor an open chain with strong links at both ends, making the first endpoint false forces the last true. A candidate conflicting with both endpoints is therefore impossible. For loops or other chain forms, follow the implications around the chain to check the contradiction or forced value. “Conflicts” means candidates cannot both be true: for example, the same digit in cells sharing a house, or different digits in one cell.",
                 "descriptionLong": "This is a long chain ({{nodeCount}} links), so we won't list every step. The chain endpoints are critical - any cell that can 'see' both endpoints cannot have the target candidate."
             },
             "step3": {
                 "title": "Make the Elimination",
-                "description": "The chain proves that {{digits}} cannot be in {{cells}}. Why? Because the chain's endpoints create a 'trap': no matter which endpoint is true, the elimination cell would see a cell that has the candidate. Remove {{digits}} from: {{cells}}."
+                "description": "Remove only these candidates proved impossible by the chain:\n{{actions}}"
             }
         },
         "als": {
             "step1": {
                 "title": "Understand Almost Locked Sets",
-                "description": "An **Almost Locked Set** (ALS) is a group of cells that's 'almost' solved. Here's the key idea: if you have N cells containing exactly N+1 different candidates, then removing just ONE candidate would 'lock' the remaining candidates to those cells. For example: 3 cells with candidates {1,2,3,4} = almost locked. Remove any one digit, and the other 3 digits MUST go in those 3 cells. This {{alsType}} technique uses {{numALS}} Almost Locked Sets that share 'connecting digits' - digits that can only be in one ALS or the other, linking them together."
+                "description": "An **Almost Locked Set** (ALS) consists of N unsolved cells in one row, column or box with exactly N+1 different candidates between them. For example, two cells with {1, 2} and {2, 3} form an ALS. If 1 is excluded from the whole set, the cells must take 2 and 3. This {{alsType}} uses {{numALS}} such sets. Follow their restricted shared candidates to see how excluding a digit from one set forces digits in the next."
             },
             "step2": {
                 "title": "Identify {{alsName}}"
@@ -577,13 +577,13 @@
         "als_connecting": {
             "step1": {
                 "title": "Find the Connecting Digits",
-                "description": "The ALSs are connected by **shared digits** that can only appear in one ALS or the other:\n\n{{connections}}\n\nThese 'connecting digits' act like bridges - if the digit is used in one ALS, it's locked out of the other ALS, which then locks the remaining digits."
+                "description": "These are the restricted shared candidates linking the sets:\n\n{{connections}}\n\nFor a linking digit, every place it can occur in one linked set sees every place it can occur in the other. Thus the two sets cannot both use that digit. If one set is forced to use it, the other loses it entirely. That second set is then locked: its N cells must use all N remaining digits. A forced digit can pass the same restriction to the next set in the chain. Merely sharing a digit is not enough to form a link."
             }
         },
         "als_elimination": {
             "step1": {
                 "title": "Make the Elimination",
-                "description": "Now for the payoff! Look at the digit(s) {{digits}}. Because of how the ALSs are connected, {{digits}} must end up in one of the ALS cells. Any cell that can 'see' ALL the places where {{digits}} could be in BOTH ALSs cannot have {{digits}} - it would always conflict. Remove {{digits}} from: {{cells}}."
+                "description": "Follow the restrictions through the linked sets. To check an elimination, assume the candidate being removed is true. It excludes that digit from every set position it sees; each newly locked set must use its remaining digits, passing restrictions along the chain until a set cannot be filled. Therefore the listed candidates are impossible. Remove digit(s) {{digits}} only at the marked candidate positions in {{cells}}."
             }
         },
         "x_cycle": {
@@ -634,15 +634,15 @@
         "generic": {
             "step1": {
                 "title": "{{technique}}",
-                "description": "This technique is called **{{technique}}**. It uses logical deduction to prove that certain candidates must be eliminated or that certain cells must have specific values. The pattern involves the highlighted cells and candidates."
+                "description": "A candidate is a small pencilled digit: a possibility, not a placed value. Every row, column and box must contain each digit exactly once. We remove a candidate when keeping it would break one of those rules.\n\nExample only: if a row already contains 5, no other cell in that row can be 5. A more advanced pattern can rule out 5 even before its final position is known. This move is labelled {{technique}}; the following steps list its confirmed changes."
             },
             "step2": {
                 "title": "Apply Eliminations",
-                "description": "Based on the pattern, we can eliminate: Remove {{digits}} from {{cells}}."
+                "description": "Read each line as “remove this digit from these cells”:\n{{actions}}\n\nErase only those pencil marks. For example, removing 5 from a cell with {2, 5, 8} leaves {2, 8}; it does not choose between 2 and 8. If only one candidate remains, that remaining digit is forced. The detailed pattern proof is unavailable for this fallback hint."
             },
             "step3": {
                 "title": "Place Values",
-                "description": "The technique reveals these solutions:\n\n{{solutions}}"
+                "description": "Enter these values in the indicated cells:\n{{solutions}}\n\nA placement fixes the cell to one digit. The same digit can then be removed from the other cells in its row, column and box."
             }
         },
         "unique_rectangle": {
@@ -729,15 +729,15 @@
         "empty_rectangle": {
             "step1": {
                 "title": "Find the Empty Rectangle",
-                "description": "Look at {{box}}. The candidate {{digit}} only appears in an 'L-shape' or 'bent' pattern - it's missing from at least one row AND one column within the box. This creates an 'Empty Rectangle' - the empty row and column form a cross inside the box, and all the {{digit}} candidates are in the corners of this cross. The cells with {{digit}} are: {{cells}}."
+                "description": "In {{box}}, all candidates for {{digit}} lie on one row and one column within the box: {{cells}}. The four cells outside that row and column contain no candidate {{digit}}; those four positions form the empty rectangle. “Empty” refers to this candidate, not to whether the cells are filled. If {{digit}} is excluded from the row part, it must occur in the column part, and vice versa."
             },
             "step2": {
                 "title": "Connect to the Strong Link",
-                "description": "Now look outside the box. There's a 'strong link' (solid line) on {{digit}} at {{conjugateCells}}. A strong link means: if one end is false, the other MUST be true. One end of this strong link connects to the Empty Rectangle through a shared row or column. This creates a chain of logic: if the far end of the strong link is true, it eliminates {{digit}} from the intersection point in the box, which then forces {{digit}} to a different position in the ER."
+                "description": "Outside the box, {{conjugateCells}} form a strong link for {{digit}}: exactly one of the pair must contain it. Call the end aligned with one arm of the box pattern A, and the other end B. If B contains {{digit}}, it rules out {{digit}} in every cell that sees B. If B does not, A must contain {{digit}}; A then excludes {{digit}} from the aligned arm of the box, forcing it into the other arm."
             },
             "step3": {
                 "title": "Make the Elimination",
-                "description": "Here's the key insight: the elimination cell ({{cells}}) can see both ends of our chain - it sees one end of the strong link AND it sees where {{digit}} would be forced in the Empty Rectangle. No matter which way the logic goes, {{digit}} will end up in a cell that sees {{cells}}. So {{digit}} cannot be in {{cells}}. Remove {{digit}} from: {{cells}}."
+                "description": "Remove {{digit}} from {{cells}}. Each target sees B and every possible {{digit}} position in the other arm of the box pattern. If B is true, it excludes the target directly. If B is false, the strong link forces {{digit}} into that other arm, which also excludes the target. Both cases rule out {{digit}} here."
             }
         },
         "x_wing": {
@@ -803,11 +803,11 @@
             },
             "step2": {
                 "title": "Follow the Logic",
-                "description": "Here's why the Skyscraper works: The connected ends of the two strong links are in the same column/row. If {{digit}} is NOT in one of the connected cells, the strong link forces it to be in that cell's partner. But that partner is the 'roof' cell! So no matter what: either {{digit}} is in one roof cell, or it's in the other roof cell (or possibly both). One of the roof cells MUST have {{digit}}."
+                "description": "Suppose neither roof cell contained {{digit}}. Each strong link would then force {{digit}} into its connected base cell. But those two base cells share a row or column, so they cannot both contain {{digit}}. This contradiction proves that at least one roof cell contains {{digit}}; both may do so if they do not see each other."
             },
             "step3": {
                 "title": "Eliminate from Cells Seeing Both Roofs",
-                "description": "Any cell that can see BOTH roof cells cannot have {{digit}}. Why? Because one of the roof cells must have {{digit}}, and that would eliminate {{digit}} from any cell seeing it. Since the elimination cell sees both roof cells, it will always be eliminated. Remove {{digit}} from: {{cells}}."
+                "description": "Remove {{digit}} from {{cells}}. Each target sees BOTH roof cells, where “sees” means sharing a row, column or box. At least one roof contains {{digit}}, so every target conflicts with it. Seeing only one roof is not enough."
             }
         },
         "finned_fish": {
@@ -848,40 +848,44 @@
         "xyz_wing": {
             "step1": {
                 "title": "Find the {{wingType}} pattern",
-                "description": "Look at the yellow cell at {{pivotName}} - it has three candidates: {{wingDigitText}}. The two green cells at {{pincerNamesText}} each share two of those candidates with the hinge. The digit {{targetDigitText}} appears in ALL three cells. Since every outcome forces {{targetDigitText}} into one of these cells, any cell that can see all three cannot have {{targetDigitText}}."
+                "description": "The centre cell (the hinge) at {{pivotName}} has three candidates: {{wingDigitText}}. The two other cells at {{pincerNamesText}} each have exactly two candidates. Both see the centre, meaning they share a row, column or box with it.\n\nCall the shared digit Z = {{targetDigitText}}, and call the other two digits X and Y. The candidate lists must be: centre {X, Y, Z}, one side {X, Z}, other side {Y, Z}.",
+                "descriptionPattern": "Look for a centre cell with three candidates, plus two cells that each share a row, column or box with it. The side cells each have two candidates.\n\nTheir complete lists must be: centre {X, Y, Z}, one side {X, Z}, other side {Y, Z}. Z is {{targetDigitText}}. The pattern-cell details are unavailable here, so use this as a recognition guide; the final step marks the confirmed removals."
             },
             "step2": {
                 "title": "Understand why it works",
-                "description": "The three cells form a 'closed group' for {{targetDigitText}}. No matter what happens, {{targetDigitText}} will end up in one of them. Any cell that sees all three is blocked from having {{targetDigitText}}."
+                "description": "Try every choice for the centre:\n• If it is X, the {X, Z} side cannot use X, so it must use Z.\n• If it is Y, the {Y, Z} side must use Z.\n• If it is Z, the centre itself supplies Z.\n\nExample only: centre {2, 5, 7}, sides {2, 7} and {5, 7}. Centre 2 forces the first side to 7; centre 5 forces the second side to 7; centre 7 already gives a 7. One of the three always contains 7. In this puzzle, that shared digit is {{targetDigitText}}."
             },
             "step3": {
-                "title": "Remove {{digit}} from cells that see the pattern"
+                "title": "Remove {{digit}} from cells that see the pattern",
+                "description": "Remove {{digit}} from {{cells}}. Each of these cells shares a row, column or box with the hinge AND each pincer. Wherever {{digit}} goes among those three cells, it rules out {{digit}} here."
             }
         },
         "wxyz_wing": {
             "step1": {
                 "title": "Find the {{wingType}} pattern",
-                "description": "This pattern uses four cells that together contain four different candidates. The digit {{targetDigitText}} is special - it appears in a way that guarantees one of these cells will have it. Think of it like musical chairs: {{targetDigitText}} must sit somewhere in this group."
+                "description": "Build the pattern one check at a time:\n1. Start where a row or column crosses a box. Look for four unsolved cells spread along that line and inside that box.\n2. Combine their COMPLETE candidate lists. There must be exactly four different digits in total; no cell may have an extra candidate outside those four. The cells do not all need to have four candidates.\n3. Choose a possible elimination digit. In this hint it is {{targetDigitText}}.\n4. Check each of the OTHER three digits separately: every pair of cells containing that digit within the pattern must share a row, column or box. This prevents that digit from filling two pattern cells. If any pair fails this check, this choice of four cells and elimination digit does not work.\n5. Look outside the pattern for a cell that contains {{targetDigitText}} and sees every pattern cell containing it. That is a possible elimination target. “Sees” means sharing a row, column or box."
             },
             "step2": {
                 "title": "Understand why it works",
-                "description": "The four cells 'lock' {{targetDigitText}} within their group. Any outside cell that can see all four must give up {{targetDigitText}}."
+                "description": "Example only — these letters describe a sample layout, not cells in this puzzle:\n• A has {1, 2, 3, 7}.\n• B has {1, 7} and C has {2, 7}. Both are in A’s row, outside A’s box.\n• D has {3, 7}. It is in A’s box, outside A’s row.\n\nCheck the other digits: the two 1s at A/B see each other along the row; the two 2s at A/C also share the row; the two 3s at A/D share the box. Each of 1, 2 and 3 can therefore fill at most one cell. Without 7, only three cells could be filled — but there are four cells. At least one must be 7.\n\nA cell outside the pattern in both A’s row and A’s box sees all four possible 7s. Remove its 7, if present. The same counting argument proves that this puzzle’s pattern must contain {{targetDigitText}}."
             },
             "step3": {
-                "title": "Remove {{digit}} from cells that see the pattern"
+                "title": "Remove {{digit}} from cells that see the pattern",
+                "description": "Remove {{digit}} from {{cells}}. Each target sees EVERY cell in the four-cell pattern that still has candidate {{digit}}. At least one of those positions must contain it. A pattern cell without that candidate does not need to be seen by the target."
             }
         },
         "w_wing": {
             "step1": {
                 "title": "Find the {{wingType}} pattern",
-                "description": "Look at the two green cells at {{pincerNamesText}}. They both have the same two candidates. These cells are connected by a 'strong link' (shown as a solid line) on one of those digits. This means: if the linking digit is removed from one cell, the other cell MUST have it. Either way, one of these cells will have {{targetDigitText}}."
+                "description": "Find two cells with exactly the same two candidates, X and Y. Here Y is the digit to remove: {{targetDigitText}}. The two cells do not need to share a row, column or box.\n\nNow find a separate row, column or box with exactly two possible places for X. Call those places A and B. The first {X, Y} cell must see A, and the second must see B. “Sees” means sharing a row, column or box. This connecting pair is essential; two matching candidate pairs alone do not make a W-Wing."
             },
             "step2": {
                 "title": "Understand why it works",
-                "description": "Because the two cells are connected by a strong link, their 'other' candidate ({{targetDigitText}}) is restricted. Any cell seeing both green cells would conflict with whichever one ends up with {{targetDigitText}}."
+                "description": "Could both matching cells avoid Y = {{targetDigitText}}? No:\n1. Each would have to be X, its only other candidate.\n2. The first would rule out X at A; the second would rule out X at B.\n3. That leaves no place for X in the connecting pair’s row, column or box.\n\nSo at least one matching cell must be Y. Example only: with two {2, 7} cells connected through a pair of 2s, at least one of the matching cells must be 7."
             },
             "step3": {
-                "title": "Remove {{digit}} from cells that see the pattern"
+                "title": "Remove {{digit}} from cells that see the pattern",
+                "description": "Remove {{digit}} from {{cells}}. Every listed target sees BOTH matching two-candidate cells. At least one of those cells must contain {{digit}}, so the target cannot. The target does not need to see the separate connecting pair."
             }
         },
         "generic_wing": {
@@ -913,16 +917,16 @@
         },
         "sue_de_coq": {
             "step1": {
-                "title": "Find the Box-Line Intersection",
-                "description": "Sue-de-Coq is a powerful technique that works on the intersection of a box and a line (row or column). Here's the key insight: \n\nLook at where a box and a line overlap (2-3 cells). Count the candidates in these intersection cells - let's say there are N candidates. Now look for 'almost locked sets' (ALS) in the rest of the box AND the rest of the line that share some of these candidates. \n\nIf the candidates 'partition' correctly between the intersection and these ALS cells, we can make eliminations!"
+                "title": "Find a row or column crossing a box",
+                "description": "Look where a row or column passes through a box. Sue de Coq combines cells in that overlap with a group farther along the line and another group elsewhere in the box.\n\nExample only: cells A and B in the overlap together have {1, 2, 3, 4}. Cell C in the same row, outside the box, has {1, 2}. Cell D in the same box, outside the row, has {3, 4}. These are complete candidate lists."
             },
             "step2": {
-                "title": "Understand the Partition",
-                "description": "The partition works like this: \n\nImagine the candidates in the intersection split into groups. Some candidates are 'claimed' by the ALS in the line, others by the ALS in the box. Together, these claims account for all the candidates in the intersection. \n\nThis means: any cell OUTSIDE these groups that shares a house with them cannot have the partitioned candidates. They're fully accounted for!"
+                "title": "See which digits each side must use",
+                "description": "In the example, C uses one of 1 and 2, leaving at most one of those digits for A/B. D uses one of 3 and 4, leaving at most one of those for A/B. The two overlap cells must therefore use one from each pair.\n\nBoth 1 and 2 are now confined to A/B/C in the row. Both 3 and 4 are confined to A/B/D in the box. Larger versions use the same counting rule with more cells."
             },
             "step3": {
                 "title": "Eliminate Outside the Partition",
-                "description": "Based on the partition, these candidates are 'locked' within the Sue-de-Coq structure. \n\nRemove {{digits}} from {{cells}}. These cells see the structure but aren't part of it."
+                "description": "Remove only the listed candidates:\n{{actions}}\n\nAs in the example, remove each locked digit only from the rest of its own row, column or box. Merely seeing one cell of the pattern is not enough."
             }
         },
         "forcing_chains": {
@@ -964,21 +968,35 @@
             },
             "step3": {
                 "title": "Make the Elimination",
-                "description": "Based on the chain logic, remove {{digits}} from {{cells}}."
+                "description": "Remove only these candidates:\n{{actions}}"
+            }
+        },
+        "windmill": {
+            "step1": {
+                "title": "Find the Windmill connections",
+                "description": "A Windmill, also called a Strong-Wing, follows several linked pairs of candidate positions. Start at one end and follow the connecting lines, rather than looking for a literal windmill shape.\n\nAt a strong link, if one candidate is ruled out, the other is forced. At a weak link, placing one candidate rules out the other. The next step uses the actual cells and digits in this puzzle."
+            },
+            "step2": {
+                "title": "Follow the forced choices",
+                "description": "Try ruling out the first candidate, then follow each forced choice:\n\n{{chainSteps}}\n\nFor this open chain, a strong link at each end means that ruling out the first endpoint forces the last endpoint. At least one endpoint must therefore be true. The endpoint digits may differ: a target must conflict with each endpoint’s specific digit, not just share a row or column with its cell."
+            },
+            "step3": {
+                "title": "Remove candidates blocked at both ends",
+                "description": "Remove only these candidates:\n{{actions}}\n\nEach listed candidate conflicts with both ends of the chain. If the first endpoint is true, it blocks the target. If the first is false, the chain forces the last endpoint, which also blocks the target."
             }
         },
         "generic_chain": {
             "step1": {
                 "title": "Follow the Chain",
-                "description": "This technique works by connecting candidates in a logical chain that alternates between strong and weak links. \n\nThink of it like dominoes: if this candidate is true, then that one must be false, which means this other one must be true, and so on... \n\nThe chain uses two types of connections: • Strong links (solid): if one is false, the other is true • Weak links (dashed): both cannot be true at the same time"
+                "description": "A chain follows a sequence of “if this, then that” deductions. Two rules do the work:\n1. If a digit has only two possible places in a row, column or box, ruling out one forces the other. This is a strong link.\n2. If two cells share a row, column or box, placing a digit in one rules out that digit in the other. This is a weak link.\n\n“Sees” means sharing a row, column or box. A weak link alone does not force a digit into either cell."
             },
             "step2": {
                 "title": "Reach the Conclusion",
-                "description": "By following the chain from start to finish, we can prove that certain candidates must be eliminated. \n\nThe chain's endpoints (or the logic along the way) show that {{digits}} cannot be in {{cells}} - it would create a contradiction."
+                "description": "Example only: call four candidate positions A, B, C and D. A and B are the only places for 7 in one row. C and D are the only places for 7 in another row. B and C share a column.\n\n• If A is 7, one endpoint already contains 7.\n• If A is not 7, B must be 7. That rules out 7 at C, so D must be 7.\n\nEither A or D must be 7. A cell seeing BOTH A and D cannot be 7, whichever case occurs.\n\nFor this puzzle, the next step lists the confirmed removals for {{digits}} in {{cells}}. The letters above illustrate the rule; they are not this puzzle’s cell names."
             },
             "step3": {
                 "title": "Make the Elimination",
-                "description": "Based on the chain logic, remove {{digits}} from {{cells}}."
+                "description": "Remove only these candidates:\n{{actions}}"
             }
         },
         "x_cycle_generic": {
@@ -1090,14 +1108,14 @@
             "AIC___ALS": "Alternating Inference Chain combined with Almost Locked Sets to force eliminations.",
             "AIC_TYPE_1": "Alternating Inference Chain (Type 1) uses strong/weak link alternation to prove eliminations.",
             "XY_CHAINS__TYPE_1": "XY-Chain (Type 1) links bivalue cells; the target digit is eliminated where both ends see.",
-            "ALS_CHAIN": "ALS-Chain links multiple almost locked sets in sequence to force eliminations.",
+            "ALS_CHAIN": "An ALS-Chain links sets of N cells in one house with N+1 candidates. Restricted shared digits cannot be used in both adjacent sets. Excluding one digit locks a set to its remaining digits, which passes restrictions along the chain and proves candidate removals.",
             "SPLIT_WING": "Split-Wing uses a split pattern of candidates to force eliminations.",
             "INVERTED_H_3__WING": "Inverted H(3)-Wing uses an inverted H-shaped pattern with 3 cells to force eliminations.",
             "INVERTED_M_3__WING": "Inverted M(3)-Wing uses an inverted M-shaped pattern with 3 cells to force eliminations.",
             "INVERTED_L_3__WINGS": "Inverted L(3)-Wing uses an inverted L-shaped pattern with 3 cells to force eliminations.",
             "UVWXYZ_WING": "UVWXYZ-Wing (6-cell wing) removes the shared candidate from peers of all six cells.",
             "HIDDEN_XY__TYPE_1": "Hidden XY (Type 1) uses hidden bivalue cells in an XY-chain pattern to eliminate candidates.",
-            "STRONG_WING___WINDMILL": "Strong-Wing (Windmill) uses a windmill pattern of strong links to eliminate candidates.",
+            "STRONG_WING___WINDMILL": "A Strong-Wing (Windmill) is a chain of candidate implications. Follow each strong link from “false” to “true” and each weak link from “true” to “false”. When making one endpoint false forces the other true, at least one endpoint must be true. A candidate conflicting with both endpoints can be removed.",
             "FORCING_NETS": "Forcing chains explore both outcomes and keep the deduction common to all paths.",
             "VWXYZ_WING": "VWXYZ-Wing (5-cell wing) removes the shared candidate from peers of all five cells."
         }

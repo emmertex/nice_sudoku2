@@ -37,10 +37,10 @@
             "rcbSelectedDescription": "高亮显示所选单元格的行、列、宫",
             "rcbAllDescription": "高亮显示包含该数字的所有行/列/宫",
             "pencilDescription": "高亮显示具有匹配铅笔标记的单元格",
-            "place": "Place",
-            "multiSelectNotes": "Multi-Select Notes",
-            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+            "place": "放置",
+            "multiSelectNotes": "多选笔记",
+            "placeDescription": "选择一个数字，然后点击单元格放置（或在笔记模式下切换铅笔标记）",
+            "multiSelectNotesDescription": "选择多个数字，然后从点击的单元格中清除选定的或其他候选项"
         },
         "techniques": {
             "title": "技巧"
@@ -1463,7 +1463,10 @@
             "INVERTED_M_3__WING": "Inverted M(3)-Wing uses an inverted M-shaped pattern with 3 cells to force eliminations.",
             "INVERTED_L_3__WINGS": "Inverted L(3)-Wing uses an inverted L-shaped pattern with 3 cells to force eliminations.",
             "UVWXYZ_WING": "UVWXYZ-Wing (6-cell wing) removes the shared candidate from peers of all six cells.",
-            "HIDDEN_XY__TYPE_1": "Hidden XY (Type 1) uses hidden bivalue cells in an XY-chain pattern to eliminate candidates."
+            "HIDDEN_XY__TYPE_1": "Hidden XY (Type 1) uses hidden bivalue cells in an XY-chain pattern to eliminate candidates.",
+            "STRONG_WING___WINDMILL": "强翼（风车）使用风车模式的强链接来消除候选项。",
+            "FORCING_NETS": "强制链探索两种结果，并保留所有路径共有的推论。",
+            "VWXYZ_WING": "VWXYZ-Wing（5格翼）从所有五个单元格的同行中移除共享候选项。"
         }
     },
     "domain": {

@@ -1,3 +1,10 @@
+# v1.3.2 - 2026-09-28
+
+### Improvements
+- Big improvements to Hint Clarity and Completeness
+- Improvements to Translations (AI Qwen3.8)
+
+
 # v1.3.1 - 2026-09-09
 
 ### Fixes

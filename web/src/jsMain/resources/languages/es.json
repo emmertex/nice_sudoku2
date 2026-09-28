@@ -37,10 +37,10 @@
             "rcbSelectedDescription": "Resalta la Fila, Columna y Bloque de la celda seleccionada",
             "rcbAllDescription": "Resalta todas las Filas/Columnas/Bloques que contienen el número",
             "pencilDescription": "Resalta las celdas con marcas de lápiz que coinciden",
-            "place": "Place",
-            "multiSelectNotes": "Multi-Select Notes",
-            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+            "place": "Colocar",
+            "multiSelectNotes": "Notas multi-selección",
+            "placeDescription": "Haz clic en un número, luego en una celda para colocarlo (o alternar marcas de lápiz en el modo Notas)",
+            "multiSelectNotesDescription": "Selecciona varios números, luego elimina los candidatos seleccionados u otros de las celdas seleccionadas"
         },
         "techniques": {
             "title": "Técnicas"
@@ -1014,7 +1014,10 @@
             "INVERTED_M_3__WING": "Inverted M(3)-Wing usa un patrón en forma de M invertida con 3 celdas para forzar eliminaciones.",
             "INVERTED_L_3__WINGS": "Inverted L(3)-Wing usa un patrón en forma de L invertida con 3 celdas para forzar eliminaciones.",
             "UVWXYZ_WING": "UVWXYZ-Wing (ala de 6 celdas) elimina el candidato compartido de los pares de las seis celdas.",
-            "HIDDEN_XY__TYPE_1": "Hidden XY (Tipo 1) usa celdas bivaluadas ocultas en un patrón de cadena XY para eliminar candidatos."
+            "HIDDEN_XY__TYPE_1": "Hidden XY (Tipo 1) usa celdas bivaluadas ocultas en un patrón de cadena XY para eliminar candidatos.",
+            "STRONG_WING___WINDMILL": "Strong-Wing (Windmill) usa un patrón molinero de enlaces fuertes para eliminar candidatos.",
+            "FORCING_NETS": "Las cadenas de forzar exploran ambos resultados y mantienen la deducción común a todos los caminos.",
+            "VWXYZ_WING": "VWXYZ-Wing (ala de 5 celdas) elimina el candidato compartido de los pares de todas las cinco celdas."
         }
     },
     "domain": {

@@ -37,10 +37,10 @@
             "rcbSelectedDescription": "Destaca a linha, coluna e bloco da célula selecionada",
             "rcbAllDescription": "Destaca todas as linhas/colunas/blocos que contêm o número",
             "pencilDescription": "Destaca células com marcas de lápis correspondentes",
-            "place": "Place",
-            "multiSelectNotes": "Multi-Select Notes",
-            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+            "place": "Colocar",
+            "multiSelectNotes": "Notas de seleção múltipla",
+            "placeDescription": "Selecione um número, depois clique em uma célula para colocá-lo (ou alternar marcas de lápis no modo Notas)",
+            "multiSelectNotesDescription": "Selecione vários números, depois limpe os candidatos selecionados ou outros das células clicadas"
         },
         "techniques": {
             "title": "Técnicas"
@@ -1014,7 +1014,10 @@
             "INVERTED_M_3__WING": "Uma asa M(3) invertida usa um padrão M invertido com 3 células para forçar eliminações.",
             "INVERTED_L_3__WINGS": "Uma asa L(3) invertida usa um padrão L invertido com 3 células para forçar eliminações.",
             "UVWXYZ_WING": "Uma asa UVWXYZ (asa de 6 células) remove um candidato comum dos pares de todas as seis células.",
-            "HIDDEN_XY__TYPE_1": "Um XY oculto (tipo 1) usa células bivalor ocultas em um padrão de cadeia XY para eliminar candidatos."
+            "HIDDEN_XY__TYPE_1": "Um XY oculto (tipo 1) usa células bivalor ocultas em um padrão de cadeia XY para eliminar candidatos.",
+            "STRONG_WING___WINDMILL": "Strong-Wing (Moinho) usa um padrão de moinho de vento de links fortes para eliminar candidatos.",
+            "FORCING_NETS": "Cadeias de forçar exploram ambos os resultados e mantêm a dedução comum a todos os caminhos.",
+            "VWXYZ_WING": "VWXYZ-Wing (asa de 5 células) remove o candidato compartilhado dos pares das cinco células."
         }
     },
     "domain": {

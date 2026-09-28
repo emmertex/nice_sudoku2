@@ -41,6 +41,17 @@ fun generateExplanationSteps(
     val steps = mutableListOf<ExplanationStepDto>()
     
     when {
+        // Preserve solver evidence before name-based fallbacks discard it.
+        match is ALSMatch -> {
+            steps.addAll(generateALSSteps(originalTechniqueName, match, eliminations))
+        }
+        match is AICMatch && (techniqueName.contains("chain") ||
+            techniqueName.contains("windmill") || techniqueName.contains("strong_wing")) -> {
+            steps.addAll(generateChainSteps(originalTechniqueName, match, eliminations))
+        }
+        techniqueName.contains("windmill") || techniqueName.contains("strong_wing") -> {
+            steps.addAll(generateGenericSteps(originalTechniqueName, match, eliminations, solvedCells))
+        }
         techniqueName.contains("single") -> {
             steps.addAll(generateSingleSteps(originalTechniqueName, match, eliminations, solvedCells))
         }
@@ -103,14 +114,11 @@ fun generateExplanationSteps(
             steps.addAll(generateChainLikeSteps(originalTechniqueName, eliminations))
         }
         match is AICMatch -> {
-            steps.addAll(generateChainSteps(techniqueName, match, eliminations))
-        }
-        match is ALSMatch -> {
-            steps.addAll(generateALSSteps(techniqueName, match, eliminations))
+            steps.addAll(generateChainSteps(originalTechniqueName, match, eliminations))
         }
         else -> {
             // Generic explanation for other techniques
-            steps.addAll(generateGenericSteps(techniqueName, match, eliminations, solvedCells))
+            steps.addAll(generateGenericSteps(originalTechniqueName, match, eliminations, solvedCells))
         }
     }
     

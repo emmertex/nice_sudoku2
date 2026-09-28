@@ -37,10 +37,10 @@
             "rcbSelectedDescription": "चयनित सेल की पंक्ति, कॉलम, बॉक्स को हाइलाइट करता है",
             "rcbAllDescription": "नंबर वाले सभी पंक्ति/कॉलम/बॉक्स को हाइलाइट करता है",
             "pencilDescription": "मिलान वाले पेंसिल चिह्नों वाले सेलों को हाइलाइट करता है",
-            "place": "Place",
-            "multiSelectNotes": "Multi-Select Notes",
-            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+            "place": "रखें",
+            "multiSelectNotes": "बहु-चयन नोट्स",
+            "placeDescription": "एक नंबर चुनें, फिर इसे रखने के लिए एक सेल पर क्लिक करें (या नोट्स मोड में पेंसिल मार्क्स टॉगल करें)",
+            "multiSelectNotesDescription": "कई नंबर चुनें, फिर क्लिक किए गए सेलों से चयनित या अन्य उम्मीदवारों को साफ़ करें"
         },
         "techniques": {
             "title": "तकनीक"
@@ -1014,7 +1014,10 @@
             "INVERTED_M_3__WING": "उलटा M(3)-विंग उन्मूलन को मजबूर करने के लिए 3 सेलों के साथ एक उल्टे M-आकार के पैटर्न का उपयोग करता है।",
             "INVERTED_L_3__WINGS": "उलटा L(3)-विंग उन्मूलन को मजबूर करने के लिए 3 सेलों के साथ एक उल्टे L-आकार के पैटर्न का उपयोग करता है।",
             "UVWXYZ_WING": "UVWXYZ-Wing (6-सेल विंग) सभी छह सेलों के साथियों से साझा उम्मीदवार को हटाता है।",
-            "HIDDEN_XY__TYPE_1": "छिपा हुआ XY (टाइप 1) उम्मीदवारों को खत्म करने के लिए XY-चेन पैटर्न में छिपे हुए बाइवेल्यू सेलों का उपयोग करता है।"
+            "HIDDEN_XY__TYPE_1": "छिपा हुआ XY (टाइप 1) उम्मीदवारों को खत्म करने के लिए XY-चेन पैटर्न में छिपे हुए बाइवेल्यू सेलों का उपयोग करता है।",
+            "STRONG_WING___WINDMILL": "स्ट्रॉन्ग-विंग (विंडमिल) उम्मीदवारों को हटाने के लिए विंडमिल पैटर्न का उपयोग करता है।",
+            "FORCING_NETS": "फोर्सिंग चेन दोनों परिणामों का पता लगाती हैं और सभी रास्तों के लिए सामान्य निष्कर्ष को बनाए रखती हैं।",
+            "VWXYZ_WING": "VWXYZ-Wing (5-सेल विंग) पाँचों सेलों के पियर्स से साझा उम्मीदवार को हटाता है।"
         }
     },
     "domain": {

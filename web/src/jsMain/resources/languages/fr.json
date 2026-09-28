@@ -37,10 +37,10 @@
             "rcbSelectedDescription": "Met en surbrillance la ligne, la colonne et la boîte de la cellule sélectionnée",
             "rcbAllDescription": "Met en surbrillance toutes les lignes/colonnes/boîtes contenant le numéro",
             "pencilDescription": "Met en surbrillance les cellules avec des marques de crayon correspondantes",
-            "place": "Place",
-            "multiSelectNotes": "Multi-Select Notes",
-            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+            "place": "Placer",
+            "multiSelectNotes": "Notes multi-sélection",
+            "placeDescription": "Cliquez sur un numéro, puis sur une cellule pour le placer (ou basculer les marques de crayon en mode Notes)",
+            "multiSelectNotesDescription": "Sélectionnez plusieurs numéros, puis effacez les candidats sélectionnés ou autres des cellules cliquées"
         },
         "techniques": {
             "title": "Techniques"
@@ -1014,7 +1014,10 @@
             "INVERTED_M_3__WING": "Inverted M(3)-Wing uses an inverted M-shaped pattern with 3 cells to force eliminations.",
             "INVERTED_L_3__WINGS": "Inverted L(3)-Wing uses an inverted L-shaped pattern with 3 cells to force eliminations.",
             "UVWXYZ_WING": "UVWXYZ-Wing (6-cell wing) removes the shared candidate from peers of all six cells.",
-            "HIDDEN_XY__TYPE_1": "Hidden XY (Type 1) uses hidden bivalue cells in an XY-chain pattern to eliminate candidates."
+            "HIDDEN_XY__TYPE_1": "Hidden XY (Type 1) uses hidden bivalue cells in an XY-chain pattern to eliminate candidates.",
+            "STRONG_WING___WINDMILL": "Strong-Wing (Moulin) utilise un motif de moulin à vent de liens forts pour éliminer des candidats.",
+            "FORCING_NETS": "Les chaînes de forçage explorent les deux issues et conservent la déduction commune à tous les chemins.",
+            "VWXYZ_WING": "VWXYZ-Wing (aile à 5 cellules) supprime le candidat partagé des voisins des cinq cellules."
         }
     },
     "domain": {

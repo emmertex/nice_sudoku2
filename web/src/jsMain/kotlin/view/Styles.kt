@@ -1266,6 +1266,7 @@ val CSS_STYLES = """
     }
 
     .step-description {
+        white-space: pre-line;
         color: rgba(var(--colour-text-primary), 0.8);
         font-size: clamp(0.6rem, calc(0.55rem + 0.3vmin), 0.8rem);
         line-height: 1.4;

@@ -394,22 +394,20 @@ class HintKeyResolutionTest {
     }
 
     @Test
-    fun `phase8 wing s3 is one shared key and no longer mentions pincers`() {
-        // R3: the five wing families shared an s3 that said "both pincers" (wrong for
-        // W-Wing/WXYZ/generic); all now resolve through the single
-        // hints.common.wingElimination key.
+    fun `wing elimination uses its family visibility rule`() {
+        // Generic wings retain the shared fallback; W-Wing needs only its two endpoints.
         for (locale in listOf("en", "de")) {
             assertResolves(locale, "{{hints.common.wingElimination|cells=R1C1, R1C9|digit=5}}")
         }
         LanguageConfig.setLanguage("en")
         val steps = service.hint.techniques.generateWingSteps("W-Wing", dummyMatch, dummyEliminations)
         val s3 = steps.first { it.stepNumber == 3 }
-        assertTrue(s3.description.contains("wingElimination"),
-            "wing s3 must use the shared key: ${s3.description}")
+        assertTrue(s3.description.contains("w_wing.step3.description"),
+            "W-Wing must use its own visibility rule: ${s3.description}")
         val rendered = HintStringInterpolation.interpolate(s3.description)
         assertTrue(!rendered.contains("pincers"), "wing s3 must not claim pincers: $rendered")
-        assertTrue(rendered.contains("see all the relevant wing cells"),
-            "wing s3 must reference the wing cells: $rendered")
+        assertTrue(rendered.contains("BOTH matching two-candidate cells"),
+            "W-Wing must reference both matching cells: $rendered")
         assertTrue(!isMissingMarker(rendered), "wing s3 rendered as missing-key marker: $rendered")
     }
 

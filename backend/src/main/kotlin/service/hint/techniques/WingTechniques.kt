@@ -224,8 +224,8 @@ import dto.*
         val wingType = detectWingType(techniqueName)
 
         val metadata = extractWingMetadata(match)
-        val wingCells = if (metadata.allCells.isNotEmpty()) metadata.allCells else eliminationCells
-        val pivotCells = if (metadata.pivotCells.isNotEmpty()) metadata.pivotCells else wingCells.take(1)
+        val wingCells = metadata.allCells
+        val pivotCells = metadata.pivotCells
         val pincerCells = metadata.pincerCells
         val supportingCells = metadata.otherCells.filterNot { pivotCells.contains(it) || pincerCells.contains(it) }
         val wingDigits = if (metadata.digits.isNotEmpty()) metadata.digits else listOfNotNull(targetDigit)
@@ -274,13 +274,21 @@ import dto.*
             else -> "generic_wing"
         }
 
+        val eliminationKey = when (wingType) {
+            "XYZ-Wing" -> "xyz_wing"
+            "W-Wing" -> "w_wing"
+            "WXYZ-Wing" -> "wxyz_wing"
+            else -> null
+        }
         steps.add(
             ExplanationStepDto(
                 stepNumber = 1,
                 title = hintKey(wingKey, 1, "title",
                     "wingType" to wingType
                 ),
-                description = hintKey(wingKey, 1, "description",
+                description = if (wingType == "XYZ-Wing" && (metadata.pivotCells.size != 1 || pincerCells.size != 2)) {
+                    hintKey("xyz_wing", 1, "descriptionPattern", "targetDigitText" to targetDigitText)
+                } else hintKey(wingKey, 1, "description",
                     "wingType" to wingType,
                     "pivotName" to pivotName,
                     "pincerNamesText" to pincerNamesText,
@@ -324,13 +332,18 @@ import dto.*
                     title = hintKey(wingKey, 3, "title",
                         "digit" to targetDigit.toString()
                     ),
-                    // R3 (Phase 8): one shared s3 for all wing shapes — "both pincers"
-                    // was wrong for W-Wing/WXYZ/generic; elimination cells see the
-                    // wing cells, whatever the shape is.
-                    description = commonKey("wingElimination",
-                        "cells" to eliminationNames,
-                        "digit" to targetDigit.toString()
-                    ),
+                    // Each wing family has its own visibility requirement.
+                    description = if (eliminationKey != null) {
+                        hintKey(eliminationKey, 3, "description",
+                            "cells" to eliminationNames,
+                            "digit" to targetDigit.toString()
+                        )
+                    } else {
+                        commonKey("wingElimination",
+                            "cells" to eliminationNames,
+                            "digit" to targetDigit.toString()
+                        )
+                    },
                     highlightCells = eliminationCells,
                     regions = linkRegions,
                     colouredCells = colouredCells + eliminationColouredCells,

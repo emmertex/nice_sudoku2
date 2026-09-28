@@ -37,10 +37,10 @@
             "rcbSelectedDescription": "Hebt Zeile, Spalte, Block der ausgewählten Zelle hervor",
             "rcbAllDescription": "Hebt alle Zeilen/Spalten/Blöcke hervor, die die Zahl enthalten",
             "pencilDescription": "Hebt Zellen mit übereinstimmenden Bleistiftmarkierungen hervor",
-            "place": "Place",
-            "multiSelectNotes": "Multi-Select Notes",
-            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+            "place": "Platzieren",
+            "multiSelectNotes": "Mehrfachauswahl-Notizen",
+            "placeDescription": "Klicken Sie auf eine Zahl, dann auf eine Zelle, um sie zu platzieren (oder Bleistiftmarkierungen im Notizmodus umzuschalten)",
+            "multiSelectNotesDescription": "Wählen Sie mehrere Zahlen aus, um dann ausgewählte oder andere Kandidaten aus den gewählten Zellen zu löschen"
         },
         "techniques": {
             "title": "Techniken"
@@ -1014,7 +1014,10 @@
             "INVERTED_M_3__WING": "Inverted M(3)-Wing verwendet ein invertiertes M-förmiges Muster mit 3 Zellen, um Eliminierungen zu erzwingen.",
             "INVERTED_L_3__WINGS": "Inverted L(3)-Wing verwendet ein invertiertes L-förmiges Muster mit 3 Zellen, um Eliminierungen zu erzwingen.",
             "UVWXYZ_WING": "UVWXYZ-Wing (6-Zellen-Flügel) entfernt den gemeinsamen Kandidaten von Peers aller sechs Zellen.",
-            "HIDDEN_XY__TYPE_1": "Hidden XY (Typ 1) verwendet versteckte Bivalue-Zellen in einem XY-Kettenmuster, um Kandidaten zu eliminieren."
+            "HIDDEN_XY__TYPE_1": "Hidden XY (Typ 1) verwendet versteckte Bivalue-Zellen in einem XY-Kettenmuster, um Kandidaten zu eliminieren.",
+            "STRONG_WING___WINDMILL": "Strong-Wing (Windmühle) verwendet ein Windmühlenmuster starker Links, um Kandidaten zu eliminieren.",
+            "FORCING_NETS": "Zwangsketten untersuchen beide Ergebnisse und behalten die allen Pfaden gemeinsame Deduktion bei.",
+            "VWXYZ_WING": "VWXYZ-Wing (5-Zellen-Flügel) entfernt den gemeinsamen Kandidaten von allen fünf Zellen."
         }
     },
     "domain": {

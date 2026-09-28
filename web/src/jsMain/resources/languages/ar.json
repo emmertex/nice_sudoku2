@@ -37,10 +37,10 @@
             "rcbSelectedDescription": "تمييز صف وعمود ومربع الخلية المحددة",
             "rcbAllDescription": "تمييز كل الصفوف/الأعمدة/المربعات التي تحتوي على الرقم",
             "pencilDescription": "تمييز الخلايا التي تحتوي على علامات قلم رصاص متطابقة",
-            "place": "Place",
-            "multiSelectNotes": "Multi-Select Notes",
-            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+            "place": "ضع",
+            "multiSelectNotes": "ملاحظات متعددة الاختيار",
+            "placeDescription": "حدد رقماً، ثم انقر على خلية لوضعه (أو تبديل علامات القلم الرصاص في وضع الملاحظات)",
+            "multiSelectNotesDescription": "حدد أرقاماً متعددة، ثم امسح المرشحين المحددين أو الآخرين من الخلايا النقر عليها"
         },
         "techniques": {
             "title": "التقنيات"
@@ -1014,7 +1014,10 @@
             "INVERTED_M_3__WING": "يستخدم Inverted M(3)-Wing نمطًا على شكل M مقلوب مع 3 خلايا لفرض الإزالة.",
             "INVERTED_L_3__WINGS": "يستخدم Inverted L(3)-Wing نمطًا على شكل L مقلوب مع 3 خلايا لفرض الإزالة.",
             "UVWXYZ_WING": "يزيل UVWXYZ-Wing (جناح من 6 خلايا) المرشح المشترك من أقران جميع الخلايا الست.",
-            "HIDDEN_XY__TYPE_1": "يستخدم Hidden XY (النوع 1) خلايا ثنائية القيمة مخفية في نمط سلسلة XY لإزالة المرشحين."
+            "HIDDEN_XY__TYPE_1": "يستخدم Hidden XY (النوع 1) خلايا ثنائية القيمة مخفية في نمط سلسلة XY لإزالة المرشحين.",
+            "STRONG_WING___WINDMILL": "يستخدم Strong-Wing (Windmill) نمط طاحونة رياح من الروابط القوية لإزالة المرشحين.",
+            "FORCING_NETS": "تستكشف سلاسل الإلزام كلا النتيجتين وتحافظ على الاستنتاج المشترك لجميع المسارات.",
+            "VWXYZ_WING": "VWXYZ-Wing (جناح 5 خلايا) يزيل المرشح المشترك من أقران جميع الخلايا الخمس."
         }
     },
     "domain": {

@@ -104,11 +104,7 @@ import dto.*
                 title = hintKey("sue_de_coq", 2, "title"),
                 description = hintKey("sue_de_coq", 2, "description"),
                 highlightCells = eliminationCells,
-                colouredCandidates = eliminationDigits.flatMap { digit ->
-                    eliminationCells.map { cell ->
-                        ColouredCandidateDto(cell / 9, cell % 9, digit, "highlight")
-                    }
-                }
+                colouredCandidates = eliminationCandidates(eliminations)
             )
         )
 
@@ -120,7 +116,8 @@ import dto.*
                     title = hintKey("sue_de_coq", 3, "title"),
                     description = hintKey("sue_de_coq", 3, "description",
                         "digits" to eliminationDigitText,
-                        "cells" to eliminationCellNames
+                        "cells" to eliminationCellNames,
+                        "actions" to formatEliminationActions(eliminations)
                     ),
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)
@@ -258,9 +255,8 @@ import dto.*
         val eliminationDigitText = eliminationDigits.joinToString(", ")
         val eliminationCellNames = eliminationCells.map { formatCellName(it) }.joinToString(", ")
 
-        // XY-chains are weak-link-only chains of bivalue cells; every other chain
-        // routed here (AICs, ALS-chains, X-chains, Kraken chains, ...) uses
-        // alternating strong and weak links. Branch the keys accordingly.
+        // This fallback has no chain metadata. Explain the rules without inventing
+        // nodes; actual AIC/ALS matches are handled by the structured generators.
         val chainKey = if (techniqueName.contains("XY", ignoreCase = true)) "xy_chain" else "generic_chain"
 
         // Step 1: Explain the chain concept (ELI5)
@@ -283,11 +279,7 @@ import dto.*
                     "cells" to eliminationCellNames
                 ),
                 highlightCells = eliminationCells,
-                colouredCandidates = eliminationDigits.flatMap { digit ->
-                    eliminationCells.map { cell ->
-                        ColouredCandidateDto(cell / 9, cell % 9, digit, "highlight")
-                    }
-                }
+                colouredCandidates = eliminationCandidates(eliminations)
             )
         )
 
@@ -299,7 +291,8 @@ import dto.*
                     title = hintKey(chainKey, 3, "title"),
                     description = hintKey(chainKey, 3, "description",
                         "digits" to eliminationDigitText,
-                        "cells" to eliminationCellNames
+                        "cells" to eliminationCellNames,
+                        "actions" to formatEliminationActions(eliminations)
                     ),
                     highlightCells = eliminationCells,
                     colouredCandidates = eliminationCandidates(eliminations)

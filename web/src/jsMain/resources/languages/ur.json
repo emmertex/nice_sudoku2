@@ -37,10 +37,10 @@
             "rcbSelectedDescription": "منتخب خانے کی قطار، کالم اور بلاک کو ہائی لائٹ کرتا ہے",
             "rcbAllDescription": "نمبر پر مشتمل تمام قطاروں/کالموں/بلاکس کو ہائی لائٹ کرتا ہے",
             "pencilDescription": "مماثل پنسل مارکس والے خانوں کو ہائی لائٹ کرتا ہے",
-            "place": "Place",
-            "multiSelectNotes": "Multi-Select Notes",
-            "placeDescription": "Select a number, then click a cell to place it (or toggle pencil marks in Notes mode)",
-            "multiSelectNotesDescription": "Select multiple numbers, then clear selected or other candidates from clicked cells"
+            "place": "رکھیں",
+            "multiSelectNotes": "ملٹی سلیکٹ نوٹس",
+            "placeDescription": "ایک نمبر منتخب کریں، پھر اسے رکھنے کے لیے ایک خانے پر کلک کریں (یا نوٹس موڈ میں پنسل مارکس ٹوگل کریں)",
+            "multiSelectNotesDescription": "متعدد نمبر منتخب کریں، پھر کلک شدہ خانوں سے منتخب یا دیگر امیدواروں کو صاف کریں"
         },
         "techniques": {
             "title": "تکنیکیں"
@@ -547,7 +547,10 @@
             "INVERTED_M_3__WING": "ایک الٹا M(3)-ونگ خاتمے پر مجبور کرنے کے لیے 3 خانوں کے ساتھ ایک الٹا M-نمونہ استعمال کرتا ہے۔",
             "INVERTED_L_3__WINGS": "ایک الٹا L(3)-ونگ خاتمے پر مجبور کرنے کے لیے 3 خانوں کے ساتھ ایک الٹا L-نمونہ استعمال کرتا ہے۔",
             "UVWXYZ_WING": "ایک UVWXYZ-Wing (6-خانہ ونگ) چھ خانوں کے تمام ساتھیوں سے ایک عام امیدوار کو ہٹاتا ہے۔",
-            "HIDDEN_XY__TYPE_1": "ایک پوشیدہ XY (قسم 1) امیدواروں کو ختم کرنے کے لیے XY-چین کے نمونے میں پوشیدہ دو قدرتی خانوں کا استعمال کرتا ہے۔"
+            "HIDDEN_XY__TYPE_1": "ایک پوشیدہ XY (قسم 1) امیدواروں کو ختم کرنے کے لیے XY-چین کے نمونے میں پوشیدہ دو قدرتی خانوں کا استعمال کرتا ہے۔",
+            "STRONG_WING___WINDMILL": "سٹرانگ-ونگ (ونڈمل) امیدواروں کو ختم کرنے کے لیے ایک ونڈمل نمونہ کا استعمال کرتا ہے۔",
+            "FORCING_NETS": "فورسنگ چینز دونوں نتائج کا جائزہ لیتی ہیں اور تمام راستوں کے لیے مشترکہ نتیجہ برقرار رکھتی ہیں۔",
+            "VWXYZ_WING": "VWXYZ-Wing (5-خانہ ونگ) پانچوں خانوں کے ساتھیوں سے مشترکہ امیدوار کو ہٹاتا ہے۔"
         }
     },
     "domain": {

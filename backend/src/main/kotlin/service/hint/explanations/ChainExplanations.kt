@@ -20,6 +20,11 @@ import dto.*
         
         val chain = match.chain
         val nodes = chain.nodes
+        val isWindmill = techniqueName.contains("windmill", ignoreCase = true) ||
+            LanguageKeyBuilder.normalizeTechniqueName(techniqueName).contains("strong_wing")
+        val isOpenStrongChain = nodes.size >= 2 && nodes.size % 2 == 0 &&
+            chain.isFirstLinkStrong && nodes.first() != nodes.last()
+        val chainKey = if (isWindmill && isOpenStrongChain) "windmill" else "aic"
         
         // Collect all cells in the chain
         val allChainCells = nodes.flatMap { node -> 
@@ -62,8 +67,8 @@ import dto.*
 
         steps.add(ExplanationStepDto(
             stepNumber = 1,
-            title = hintKey("aic", 1, "title"),
-            description = hintKey("aic", 1, "description",
+            title = hintKey(chainKey, 1, "title", "technique" to techniqueName),
+            description = hintKey(chainKey, 1, "description",
                 "nodeCount" to nodes.size.toString(),
                 "startDesc" to startDesc,
                 "endDesc" to endDesc
@@ -78,12 +83,12 @@ import dto.*
         ))
 
         // Build chain steps description for variable
-        val chainSteps = if (nodes.size <= 6) {
+        val chainSteps = run {
             buildString {
                 for (i in 0 until nodes.size - 1) {
                     val curr = nodes[i]
                     val next = nodes[i+1]
-                    val isStrong = chain.isFirstLinkStrong xor (i % 2 == 0)
+                    val isStrong = chain.isFirstLinkStrong xor (i % 2 == 1)
                     
                     val currC = mutableListOf<String>()
                     var cc = curr.cells().nextSetBit(0)
@@ -104,18 +109,11 @@ import dto.*
                     }
                 }
             }
-        } else {
-            ""
         }
-        val isLong = nodes.size > 6
-        val s2Description = if (isLong) {
-            hintKey("aic", 2, "descriptionLong", "nodeCount" to nodes.size.toString())
-        } else {
-            hintKey("aic", 2, "description", "chainSteps" to chainSteps)
-        }
+        val s2Description = hintKey(chainKey, 2, "description", "chainSteps" to chainSteps)
         steps.add(ExplanationStepDto(
             stepNumber = 2,
-            title = hintKey("aic", 2, "title"),
+            title = hintKey(chainKey, 2, "title"),
             description = s2Description,
             highlightCells = allChainCells,
             lines = lines,
@@ -141,10 +139,11 @@ import dto.*
 
             steps.add(ExplanationStepDto(
                 stepNumber = 3,
-                title = hintKey("aic", 3, "title"),
-                description = hintKey("aic", 3, "description",
+                title = hintKey(chainKey, 3, "title"),
+                description = hintKey(chainKey, 3, "description",
                     "digits" to eliminationDigitText,
-                    "cells" to eliminationNames
+                    "cells" to eliminationNames,
+                    "actions" to formatEliminationActions(eliminations)
                 ),
                 highlightCells = eliminationCells,
                 colouredCandidates = elimCandidates + groups.flatMap { g ->
@@ -192,9 +191,10 @@ import dto.*
         val allAlsCells = mutableListOf<Int>()
         val allAlsCandidates = mutableListOf<ColouredCandidateDto>()
 
+        var alsNumber = 0
         for ((nodeIndex, collective) in nodes.withIndex()) {
             val alsList = collective.alsList()
-            for ((alsIndex, als) in alsList.withIndex()) {
+            for (als in alsList) {
                 val cells = mutableListOf<String>()
                 val cellIndices = mutableListOf<Int>()
                 var cell = als.alsAllCells.nextSetBit(0)
@@ -217,7 +217,7 @@ import dto.*
                     digit = als.alsDigits.nextSetBit(digit + 1)
                 }
 
-                val alsName = "ALS ${('A'.code + alsIndex).toChar()}"
+                val alsName = "ALS ${++alsNumber}"
                 
                 steps.add(ExplanationStepDto(
                     stepNumber = stepNum++,
@@ -309,9 +309,11 @@ import dto.*
             title = hintKey("generic", 1, "title",
                 "technique" to techniqueName
             ),
-            description = hintKey("generic", 1, "description",
-                "technique" to techniqueName
-            ),
+            description = if (service.hint.metadata.describeTechnique(techniqueName) != null) {
+                LanguageKeyBuilder.key("backend.techniques.${service.hint.metadata.normalizeTechniqueKey(techniqueName)}")
+            } else {
+                hintKey("generic", 1, "description", "technique" to techniqueName)
+            },
             highlightCells = eliminationCells + solvedCells.map { it.cell }
         ))
 
@@ -325,7 +327,8 @@ import dto.*
                 title = hintKey("generic", 2, "title"),
                 description = hintKey("generic", 2, "description",
                     "digits" to eliminationDigitText,
-                    "cells" to eliminationNames
+                    "cells" to eliminationNames,
+                    "actions" to formatEliminationActions(eliminations)
                 ),
                 highlightCells = eliminationCells,
                 colouredCandidates = eliminationCandidates(eliminations)
