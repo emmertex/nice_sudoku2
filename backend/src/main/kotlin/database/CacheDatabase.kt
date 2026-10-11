@@ -28,12 +28,22 @@ object CacheDatabase {
         // Connect to SQLite database
         database = Database.connect(
             "jdbc:sqlite:$dbPath",
-            driver = "org.sqlite.JDBC"
+            driver = "org.sqlite.JDBC",
+            setupConnection = { conn ->
+                conn.createStatement().use { st ->
+                    // WAL lets readers proceed during writes; busy_timeout waits instead of failing with SQLITE_BUSY.
+                    st.execute("PRAGMA journal_mode=WAL")
+                    st.execute("PRAGMA busy_timeout=5000")
+                    st.execute("PRAGMA synchronous=NORMAL")
+                }
+            }
         )
         
         // Create table if it doesn't exist
         transaction(database!!) {
             SchemaUtils.create(CacheTable)
+            // Eviction orders by created_at; without this it's a full scan + sort.
+            exec("CREATE INDEX IF NOT EXISTS cache_entries_created_at ON cache_entries (created_at)")
         }
     }
     

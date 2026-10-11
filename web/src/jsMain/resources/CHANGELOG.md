@@ -1,3 +1,15 @@
+# v1.4.0 - 2026-10-11
+
+### Improvements
+- Faster, more reliable hints and grading when many people are playing at once
+- Very hard puzzles now time out cleanly instead of tying up the server
+- Puzzle solutions are now worked out on your device, with no server round-trip
+- Starting a new hint request cancels any earlier one still in progress
+
+### Fixes
+- Temporary server errors are no longer remembered and repeated for the same puzzle
+
+
 # v1.3.2 - 2026-09-28
 
 ### Improvements

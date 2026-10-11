@@ -171,11 +171,21 @@ class SudokuService {
         var maxDifficulty = 0
         var totalSteps = 0
         val maxIterations = 500  // Safety limit
+        // Stop early so a pathological puzzle frees its solver slot (the HTTP layer times out at 20s).
+        val deadline = startTime + 15_000
         
         return try {
             var basicGrid = SudokuGridParser.readPuzzleString(puzzleString)
             
             while (totalSteps < maxIterations) {
+                if (System.currentTimeMillis() > deadline) {
+                    // success=false so this load-dependent result is not cached
+                    return GradePuzzleResponse(
+                        success = false,
+                        error = "Grading took too long",
+                        searchTimeMs = System.currentTimeMillis() - startTime
+                    )
+                }
                 // Check if solved
                 var isSolved = true
                 for (cell in 0 until cardinals.Length) {

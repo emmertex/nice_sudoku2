@@ -21,8 +21,12 @@ import service.CacheService
 import database.CacheDatabase
 import validation.*
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
+import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 
 // Trusted proxy addresses for X-Real-IP / X-Forwarded-For handling.
@@ -35,12 +39,38 @@ private val trustedProxyAddrs: Set<String> = System.getenv("TRUSTED_PROXY_ADDRS"
     ?.toSet()
     ?: emptySet()
 
-private val solverSlots = Semaphore((System.getenv("SOLVER_CONCURRENCY")?.toIntOrNull() ?: 2).coerceIn(1, 16))
+private val solverConcurrency =
+    (System.getenv("SOLVER_CONCURRENCY")?.toIntOrNull() ?: Runtime.getRuntime().availableProcessors()).coerceIn(1, 16)
+private val solverTimeoutMs = System.getenv("SOLVER_TIMEOUT_MS")?.toLongOrNull() ?: 20_000L
+private val solverSlots = Semaphore(solverConcurrency)
+private val solverPool = Executors.newFixedThreadPool(solverConcurrency) { r ->
+    Thread(r, "solver").apply { isDaemon = true }
+}
 private class SolverBusy : RuntimeException("Solver is busy; please retry shortly")
+private class SolverTimeout : RuntimeException("Puzzle took too long to analyse")
+
+/**
+ * Run blocking solver work on the dedicated pool.
+ *
+ * The solver code cannot be interrupted, so on timeout the caller gets a 503 while
+ * the work finishes in the background still holding its slot. This keeps CPU use
+ * bounded by [solverConcurrency] even when clients give up.
+ */
 private suspend fun <T> runSolver(block: () -> T): T {
     if (!solverSlots.tryAcquire()) throw SolverBusy()
-    try { return withContext(Dispatchers.Default) { block() } }
-    finally { solverSlots.release() }
+    val result = CompletableDeferred<T>()
+    try {
+        solverPool.execute {
+            try { result.complete(block()) }
+            catch (e: Throwable) { result.completeExceptionally(e) }
+            finally { solverSlots.release() }
+        }
+    } catch (e: Throwable) {
+        solverSlots.release()
+        throw e
+    }
+    return try { withTimeout(solverTimeoutMs) { result.await() } }
+    catch (_: TimeoutCancellationException) { throw SolverTimeout() }
 }
 
 fun main() {
@@ -81,13 +111,14 @@ private suspend fun ApplicationCall.readBody(): String = readLimitedBody(receive
  *
  * The body is read raw (bypassing ContentNegotiation) so it can double as the
  * cache key. On a hit the cached JSON is replayed; on a miss [process] runs and
- * its result is stored before responding.
+ * its result is stored (when [cacheable]) before responding.
  */
 private suspend inline fun <reified Req : Any, reified Resp : Any> PipelineContext<Unit, ApplicationCall>.cachedPost(
     endpoint: String,
     cache: CacheService,
     json: Json,
     validate: (Req) -> Unit = {},
+    crossinline cacheable: (Resp) -> Boolean,
     crossinline process: (Req) -> Resp,
 ) {
     val requestJson = call.readBody()
@@ -95,7 +126,7 @@ private suspend inline fun <reified Req : Any, reified Resp : Any> PipelineConte
         throw ApiValidationException("Request body exceeds maximum size of $MAX_REQUEST_BODY_BYTES bytes")
     }
 
-    cache.getCachedResponse(endpoint, requestJson)?.let { cached ->
+    withContext(Dispatchers.IO) { cache.getCachedResponse(endpoint, requestJson) }?.let { cached ->
         call.application.log.debug("Cache HIT {}", endpoint)
         try {
             call.respond(json.decodeFromString<Resp>(cached))
@@ -109,7 +140,11 @@ private suspend inline fun <reified Req : Any, reified Resp : Any> PipelineConte
     val request = json.decodeFromString<Req>(requestJson)
     validate(request)
     val response = runSolver { process(request) }
-    cache.storeCachedResponse(endpoint, requestJson, json.encodeToString(response))
+    // Failures are not cached so a transient error isn't replayed for that puzzle forever.
+    if (cacheable(response)) {
+        val responseJson = json.encodeToString(response)
+        withContext(Dispatchers.IO) { cache.storeCachedResponse(endpoint, requestJson, responseJson) }
+    }
     call.respond(response)
 }
 
@@ -211,6 +246,9 @@ fun Application.sudokuModule(cachePath: String = CacheDatabase.DEFAULT_DB_PATH) 
             call.response.header(HttpHeaders.RetryAfter, "5")
             call.respond(HttpStatusCode.ServiceUnavailable, mapOf("error" to cause.message))
         }
+        exception<SolverTimeout> { call, cause ->
+            call.respond(HttpStatusCode.ServiceUnavailable, mapOf("error" to cause.message))
+        }
         exception<RequestBodyTooLarge> { call, cause ->
             call.respond(HttpStatusCode.PayloadTooLarge, mapOf("error" to cause.message))
         }
@@ -280,7 +318,8 @@ fun Application.sudokuModule(cachePath: String = CacheDatabase.DEFAULT_DB_PATH) 
                     post("/solve-from-puzzle") {
                         cachedPost<SolveFromPuzzleRequest, SolveFromPuzzleResponse>(
                             "/api/puzzle/solve-from-puzzle", cacheService, json,
-                            validate = { requireValidPuzzle(it.puzzle) }
+                            validate = { requireValidPuzzle(it.puzzle) },
+                            cacheable = { it.success }
                         ) { sudokuService.solveFromPuzzle(it.puzzle) }
                     }
                 }
@@ -300,14 +339,16 @@ fun Application.sudokuModule(cachePath: String = CacheDatabase.DEFAULT_DB_PATH) 
                     post("/find") {
                         cachedPost<FindTechniquesRequest, FindTechniquesResponse>(
                             "/api/techniques/find", cacheService, json,
-                            validate = { requireValidGrid(it.grid) }
+                            validate = { requireValidGrid(it.grid) },
+                            cacheable = { it.success }
                         ) { sudokuService.findTechniques(it) }
                     }
 
                     post("/find-from-puzzle") {
                         cachedPost<FindTechniquesFromPuzzleRequest, FindTechniquesResponse>(
                             "/api/techniques/find-from-puzzle", cacheService, json,
-                            validate = { requireValidPuzzle(it.puzzle) }
+                            validate = { requireValidPuzzle(it.puzzle) },
+                            cacheable = { it.success }
                         ) { sudokuService.findTechniquesFromPuzzle(it.puzzle, it.basicOnly) }
                     }
 
@@ -322,14 +363,16 @@ fun Application.sudokuModule(cachePath: String = CacheDatabase.DEFAULT_DB_PATH) 
                     post("/hint") {
                         cachedPost<HintRequest, HintResponse>(
                             "/api/techniques/hint", cacheService, json,
-                            validate = { requireValidPuzzle(it.puzzle) }
+                            validate = { requireValidPuzzle(it.puzzle) },
+                            cacheable = { it.success }
                         ) { sudokuService.findHint(it.puzzle) }
                     }
 
                     post("/grade") {
                         cachedPost<GradePuzzleRequest, GradePuzzleResponse>(
                             "/api/techniques/grade", cacheService, json,
-                            validate = { requireValidPuzzle(it.puzzle) }
+                            validate = { requireValidPuzzle(it.puzzle) },
+                            cacheable = { it.success }
                         ) { sudokuService.gradePuzzle(it.puzzle) }
                     }
                 }

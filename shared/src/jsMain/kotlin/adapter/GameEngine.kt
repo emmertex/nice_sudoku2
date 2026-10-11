@@ -27,6 +27,8 @@ actual class GameEngine actual constructor() {
     private var currentMatches: Map<String, List<TechniqueMatchInfo>> = emptyMap()
     // Incremented on every hint request so out-of-order async responses can be discarded
     private var hintRequestGeneration: Int = 0
+    // Aborts the in-flight hint fetch when a newer hint request supersedes it
+    private var hintAbort: dynamic = null
     private var selectedTechniqueKey: String? = null
     private var currentPuzzleString: String? = null  // Keep track of original puzzle
     
@@ -221,13 +223,14 @@ actual class GameEngine actual constructor() {
     private fun findTechniquesWithFallback() {
         val generation = ++hintRequestGeneration
         val revision = boardRevision
+        val abort = newHintAbort()
         MainScope().launch {
             onLoadingStateChanged?.invoke(true)
             val puzzleStr = getCurrentStateString(grid)
 
             try {
                 // First try basic techniques
-                val basicMatches = fetchTechniques(puzzleStr, basicOnly = true)
+                val basicMatches = fetchTechniques(puzzleStr, basicOnly = true, abort = abort)
                 if (generation != hintRequestGeneration) return@launch
                 if (revision != boardRevision) {
                     onLoadingStateChanged?.invoke(false)
@@ -242,7 +245,7 @@ actual class GameEngine actual constructor() {
                 } else {
                     // No basic techniques found, try all techniques
                     println("JS: No basic techniques found, searching all techniques...")
-                    val allMatches = fetchTechniques(puzzleStr, basicOnly = false)
+                    val allMatches = fetchTechniques(puzzleStr, basicOnly = false, abort = abort)
                     if (generation != hintRequestGeneration) return@launch
                 if (revision != boardRevision) {
                     onLoadingStateChanged?.invoke(false)
@@ -338,14 +341,21 @@ actual class GameEngine actual constructor() {
     /**
      * Fetch techniques from backend API
      */
-    private suspend fun fetchTechniques(puzzleStr: String, basicOnly: Boolean): Map<String, List<TechniqueMatchInfo>> {
+    private fun newHintAbort(): dynamic {
+        hintAbort?.abort()
+        val controller = js("new AbortController()")
+        hintAbort = controller
+        return controller
+    }
+
+    private suspend fun fetchTechniques(puzzleStr: String, basicOnly: Boolean, abort: dynamic = null): Map<String, List<TechniqueMatchInfo>> {
         // Use the /find endpoint which accepts full grid with candidates
         // This ensures backend sees the same candidate state as the frontend
         val request = FindTechniquesRequest(
             grid = sudokuGridToDto(grid),
             basicOnly = basicOnly
         )
-        val response = apiPost("/api/techniques/find", request)
+        val response = apiPost("/api/techniques/find", request, abort)
         val result = json.decodeFromString<FindTechniquesResponse>(response)
         
         return if (result.success) {
@@ -376,13 +386,14 @@ actual class GameEngine actual constructor() {
     private fun findTechniquesAsync(basicOnly: Boolean) {
         val generation = ++hintRequestGeneration
         val revision = boardRevision
+        val abort = newHintAbort()
         MainScope().launch {
             onLoadingStateChanged?.invoke(true)
             // Use current grid state (including user-solved cells) for accurate hints
             val puzzleStr = getCurrentStateString(grid)
 
             try {
-                val rawMatches = fetchTechniques(puzzleStr, basicOnly)
+                val rawMatches = fetchTechniques(puzzleStr, basicOnly, abort)
                 if (generation != hintRequestGeneration) return@launch
                 if (revision != boardRevision) {
                     onLoadingStateChanged?.invoke(false)
@@ -582,7 +593,7 @@ actual class GameEngine actual constructor() {
     /**
      * Get solution string for mistake detection.
      * Uses callback since we need async API call.
-     * @param onStatus Called with status updates ("Solving remotely..." or "Solving locally...")
+     * @param onStatus Called with status updates ("Solving locally...")
      * @param onComplete Called with the solution string (or null if failed)
      */
     fun getSolutionString(
@@ -598,29 +609,12 @@ actual class GameEngine actual constructor() {
     
     private suspend fun getSolutionStringAsync(onStatus: ((String) -> Unit)?, puzzleStr: String = currentPuzzleString ?: gridToPuzzleString(grid)): String? {
         
-        // Try backend first using puzzle string (more reliable)
-        onStatus?.invoke("Solving remotely...")
-        try {
-            val request = SolveFromPuzzleRequest(puzzle = puzzleStr)
-            val response = apiPost("/api/puzzle/solve-from-puzzle", request)
-            val result = json.decodeFromString<SolveFromPuzzleResponse>(response)
-            
-            if (result.success && result.hasSolution && result.solution != null) {
-                return result.solution
-            }
-        } catch (e: Exception) {
-            println("JS: Backend unavailable for getSolution: ${e.message}")
-        }
-        
-        // Fall back to local brute force
+        // Solve locally: brute force is cheap for 9x9 and avoids an API call on every
+        // new game / resume of a puzzle without a stored solution.
         onStatus?.invoke("Solving locally...")
         val source = SudokuGrid.fromString(puzzleStr) ?: return null
         val solution = bruteForceSolve(calculateAllCandidates(source))
-        return if (solution != null) {
-            solution.cells.joinToString("") { (it.value ?: 0).toString() }
-        } else {
-            null
-        }
+        return solution?.cells?.joinToString("") { (it.value ?: 0).toString() }
     }
     
     /**
@@ -925,9 +919,10 @@ actual class GameEngine actual constructor() {
     
     private suspend fun apiGet(endpoint: String): String = apiRequest(endpoint, "GET")
 
-    private suspend fun apiRequest(endpoint: String, method: String, body: String? = null): String {
-        val controller = js("new AbortController()")
-        val timeout = window.setTimeout({ controller.abort() }, 120_000)
+    private suspend fun apiRequest(endpoint: String, method: String, body: String? = null, abort: dynamic = null): String {
+        val controller = abort ?: js("new AbortController()")
+        // Slightly longer than the backend's 20s solver timeout
+        val timeout = window.setTimeout({ controller.abort() }, 30_000)
         val init = js("({})")
         init.method = method
         init.signal = controller.signal
@@ -941,11 +936,12 @@ actual class GameEngine actual constructor() {
             return response.text().await()
         } finally {
             window.clearTimeout(timeout)
-            controller.abort()
+            // A caller-supplied controller may be reused for follow-up requests
+            if (abort == null) controller.abort()
         }
     }
 
-    private suspend fun apiPost(endpoint: String, body: Any): String {
+    private suspend fun apiPost(endpoint: String, body: Any, abort: dynamic = null): String {
         val bodyJson = when (body) {
             is LoadPuzzleRequest -> json.encodeToString(body)
             is SetCellRequest -> json.encodeToString(body)
@@ -958,7 +954,7 @@ actual class GameEngine actual constructor() {
             else -> throw IllegalArgumentException("Unknown request type")
         }
         
-        return apiRequest(endpoint, "POST", bodyJson)
+        return apiRequest(endpoint, "POST", bodyJson, abort)
     }
     
 

@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.security.MessageDigest
+import java.util.concurrent.atomic.AtomicInteger
 
 class CacheService {
 
@@ -17,6 +18,10 @@ class CacheService {
 
     // Hard cap on cached entries; oldest are evicted past this. Override with CACHE_MAX_ENTRIES.
     private val maxEntries: Long = System.getenv("CACHE_MAX_ENTRIES")?.toLongOrNull() ?: 50_000L
+
+    // Eviction runs every N stores rather than on each one (the cap may be exceeded by up to N).
+    private val evictEvery = 500
+    private val storesSinceEvict = AtomicInteger(0)
 
     /**
      * Generate SHA-256 hash of endpoint + request JSON for cache key
@@ -82,7 +87,10 @@ class CacheService {
                 }
             }
             logger.debug("Stored cache entry for {}", endpoint)
-            limitCacheSize(maxEntries)
+            if (storesSinceEvict.incrementAndGet() >= evictEvery) {
+                storesSinceEvict.set(0)
+                limitCacheSize(maxEntries)
+            }
         } catch (e: Exception) {
             // Log error but don't fail the request
             logger.error("Failed to store cache entry for endpoint $endpoint", e)
